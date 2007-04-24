@@ -7,6 +7,7 @@
 
 
 require 'rake/testtask'
+require 'rcov/rcovtask'
 
 
 REQUIRE_PATHS = [ 'lib', 'test/pbar' ]
@@ -27,6 +28,17 @@ task :default => [ :test ]
 desc 'Run all unit tests.'
 Rake::TestTask.new( :test ) do | test |
   test.test_files = TEST_FILES
+  test.libs = REQUIRE_PATHS
+  test.verbose = TEST_VERBOSITY
+end
+
+
+# Test Coverage Task
+
+desc 'Output a unit test coverage report'
+Rcov::RcovTask.new do | test |
+  test.test_files = TEST_FILES
+  test.rcov_opts = [ '-xRakefile', '--text-report' ]
   test.libs = REQUIRE_PATHS
   test.verbose = TEST_VERBOSITY
 end

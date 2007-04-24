@@ -2,7 +2,7 @@
 # $Id$
 #
 # Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $Revision$
+# Revision:: $LastChangedRevision$
 # License:: GPL2
 
 
