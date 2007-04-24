@@ -6,11 +6,12 @@
 # License:: GPL2
 
 
+require 'rake/clean'
 require 'rake/testtask'
 require 'rcov/rcovtask'
 
 
-REQUIRE_PATHS = [ 'lib', 'test/pbar' ]
+REQUIRE_PATHS = [ 'lib', 'test/pbar', 'test/popen3' ]
 
 
 TEST_FILES = FileList[ 'test/**/ts_all.rb' ]

@@ -35,7 +35,6 @@ class TC_ProgressBar < Test::Unit::TestCase
   def test_pulse
     200.times do
       assert_kind_of ProgressBar, @pbar.pulse
-      sleep 0.01
     end
   end
 
@@ -45,7 +44,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     @pbar.text = 'test (pulse)'
     200.times do
       assert_kind_of ProgressBar, @pbar.pulse
-      sleep 0.01
     end
   end
 
@@ -56,7 +54,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     @pbar.text = 'test (pulse, stepsize x2)'
     200.times do
       assert_kind_of ProgressBar, @pbar.pulse
-      sleep 0.01
     end
   end
 
@@ -65,7 +62,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_equal new_val, @pbar.fraction = new_val
-      sleep 0.01
     end
   end
 
@@ -76,7 +72,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_equal new_val, @pbar.fraction = new_val
-      sleep 0.01
     end
   end
 
@@ -88,7 +83,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_equal new_val, @pbar.fraction = new_val
-      sleep 0.01
     end
   end
 
@@ -97,7 +91,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_kind_of ProgressBar, @pbar.set_fraction( new_val )
-      sleep 0.01
     end
   end
 
@@ -108,7 +101,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_kind_of ProgressBar, @pbar.set_fraction( new_val )
-      sleep 0.01
     end
   end
 
@@ -120,7 +112,6 @@ class TC_ProgressBar < Test::Unit::TestCase
     while @pbar.fraction <= 1.0
       new_val = @pbar.fraction + 0.01
       assert_kind_of ProgressBar, @pbar.set_fraction( new_val )
-      sleep 0.01
     end
   end
 end
