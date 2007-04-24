@@ -11,7 +11,7 @@ require 'rake/testtask'
 require 'rcov/rcovtask'
 
 
-REQUIRE_PATHS = [ 'lib', 'test/pbar', 'test/popen3' ]
+REQUIRE_PATHS = [ 'lib', 'test/pbar', 'test/popen3', 'test/lucie' ]
 
 
 TEST_FILES = FileList[ 'test/**/ts_all.rb' ]
