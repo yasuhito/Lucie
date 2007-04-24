@@ -20,7 +20,7 @@ TEST_VERBOSITY = true
 # Default Task
 
 desc 'Default Task'
-task :default => [ :test ]
+task :default => [ :rcov ]
 
 
 # Test Task
