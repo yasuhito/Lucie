@@ -197,7 +197,7 @@ module Rake
       @@aptget.update apt_option
       # [XXX] apt-get -fy install lucie-nfsroot
       sh_exec "mkdir -p #{ target( '/usr/lib/ruby/1.8' )}"
-      sh_exec "cp -r ../../lib/* #{ target( '/usr/lib/ruby/1.8' )}"
+      sh_exec "cp -r lib/* #{ target( '/usr/lib/ruby/1.8' )}"
       @@aptget.check apt_option
 
       sh_exec "rm -rf #{ target( 'etc/apm' ) }"
@@ -267,7 +267,7 @@ module Rake
       sh_exec "cp -p /etc/resolv.conf #{ target( '/tmp/etc' ) }"
       sh_exec "ln -sf /tmp/etc/resolv.conf #{ target( '/etc/resolv.conf' )}"
       # sh_exec "ln -s /usr/sbin/fai #{ target( '/etc/init.d/rcS' ) }"
-      sh_exec "cp ../../bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
+      sh_exec "cp bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
       sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
       # [XXX]: ±þµÞÁ¼ÃÖ

@@ -1,0 +1,93 @@
+#!/usr/bin/ruby1.8
+#
+# $Id$
+#
+# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $Revision$
+# License::  GPL2
+
+
+require 'lucie'
+require 'popen3/shell'
+
+Lucie.logging_level = :debug
+
+include Lucie
+
+info 'Hello Lucie World!'
+sleep
+
+info "Creating a writable area on the install client."
+
+sh_exec "mount -n -t proc proc /proc"
+sh_exec "mount -t tmpfs tmpfs /tmp"
+sh_exec "mkdir -p /tmp/etc /tmp/target"
+
+
+def mkrw dirs
+  dirs.each do | each |
+    unless FileTest.directory?( each )
+      debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
+      next
+    end
+    if sh_exec( "mktemp -q -p #{ each }").child_status.exitstatus == 0
+      debug "#{ each } is already writable."
+      next
+    end
+
+    tmpfile = `mktemp`.chomp
+    sh_exec "tar -C #{ each } -cf #{ tmpfile } ."
+    sh_exec "mount -n -o size=10m -t tmpfs tmpfs #{ each }"
+    sh_exec "tar -C #{ each } -xf #{ tmpfile }"
+    sh_exec "rm -f #{ tmpfile }"
+  end
+end
+
+
+mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
+mkrw %w(/var/lib/cfengine2 /var/lib/heardbeat)
+
+
+################################################################################
+# init
+
+sh_exec 'mount -t sysfs sysfs /sys'
+if FileTest.executable?( '/etc/init.d/udev' )
+  sh_exec '/etc/init.d/udev start'
+end
+unless FileTest.directory?( '/var/run/network' )
+  sh_exec 'mkdir /var/run/network'
+end
+unless FileTest.directory?( '/dev/shm/network' )
+  sh_exec 'mkdir /dev/shm/network'
+end
+sh_exec 'ifup lo'
+if FileTest.executable?( '/sbin/portmap' )
+  sh_exec '/sbin/portmap'
+end
+sh_exec 'mount -t devpts devpts /dev/pts'
+
+sh_exec 'mount -o remount,noatime,ro /dev/root /'
+
+
+################################################################################
+# task_confdir
+
+sh_exec 'syslogd -m 0'
+sh_exec 'cp -p /etc/resolv.conf-lucieserver /tmp/etc/resolv.conf'
+
+
+################################################################################
+# task_setup
+
+# create two virtual terminals; access via alt-F2 and alt-F3
+sh_exec 'openvt -c2 /bin/bash'
+sh_exec 'openvt -c3 /bin/bash'
+
+sh_exec '/usr/sbin/sshd'
+
+
+### Local variables:
+### mode: Ruby
+### indent-tabs-mode: nil
+### End:

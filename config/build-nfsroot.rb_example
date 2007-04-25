@@ -13,10 +13,11 @@ require 'lucie/nfsroot-task'
 Rake::NfsrootTask.new do | task |
   task.logging_level = :debug
   task.target_directory = '/tmp/nfsroot'
-  task.mirror = 'http://ring.asahi-net.or.jp/archives/linux/debian/debian/'
+  task.http_proxy = 'http://proxy:3128/'
+  task.mirror = 'http://debian.mirror.server/archives/linux/debian/debian/'
   task.distribution = 'debian'
   task.suite = 'etch'
-  task.kernel_package = '/usr/lib/fai/kernel/linux-image-2.6.17-fai-kernels_1_i386.deb'
+  task.kernel_package = '/usr/lib/fai/kernel/linux-image-2.6.18-fai-kernels_1_i386.deb'
 end
 
 
