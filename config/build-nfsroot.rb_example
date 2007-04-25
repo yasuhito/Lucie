@@ -11,6 +11,7 @@ require 'lucie/nfsroot-task'
 
 
 Rake::NfsrootTask.new do | task |
+  task.logging_level = :debug
   task.target_directory = '/tmp/nfsroot'
   task.mirror = 'http://ring.asahi-net.or.jp/archives/linux/debian/debian/'
   task.distribution = 'debian'
