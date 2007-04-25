@@ -8,6 +8,7 @@
 
 
 require 'tc_installer-base-task'
+require 'tc_nfsroot-task'
 
 
 ### Local variables:
