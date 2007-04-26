@@ -64,6 +64,7 @@ DIST_FILES = FileList[ '**/*.rb', '**/*.rdoc' ]
 DIST_FILES.include 'Rakefile', 'COPYING'
 DIST_FILES.include BIN_FILES
 DIST_FILES.include 'data/**/*', 'test/data/**/*'
+DIST_FILES.include 'config/**/*'
 DIST_FILES.exclude( /^(\.\/)?#{ RDOC_HTML_DIR }(\/|$)/ )
 DIST_FILES.include EXT_DIST_FILES
 DIST_FILES.exclude '**/temp_*', '**/*.tmp'

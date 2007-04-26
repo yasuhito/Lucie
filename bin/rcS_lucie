@@ -1,4 +1,4 @@
-#!/usr/bin/ruby1.8
+#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -10,12 +10,12 @@
 require 'lucie'
 require 'popen3/shell'
 
+
 Lucie.logging_level = :debug
+
 
 include Lucie
 
-info 'Hello Lucie World!'
-sleep
 
 info "Creating a writable area on the install client."
 
