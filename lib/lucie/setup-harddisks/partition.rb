@@ -54,7 +54,7 @@ module Lucie
       
       # 必須属性（nil 以外の値が必要）
       @@essential_attributes_for_preserve = [:slice]
-      @@essential_attributes_for_non_preserve = [:slice, :type, :size]
+      @@essential_attributes_for_non_preserve = [:slice, :kind, :size]
 
       # 登録されているリソースをクリアする
       public
@@ -75,7 +75,7 @@ module Lucie
       # などに注意。
       required_attribute :name          # partition name. e.g. usr, home, ...
       required_attribute :slice         # slice name, e.g. hda1, sdb2
-      required_attribute :type          # primary | logical
+      required_attribute :kind          # primary | logical
       required_attribute :fs            # swap|ext2|ext3|reiserfs|xfs|fat16|fat32
       required_attribute :size          # 100, (10...90)
       required_attribute :max_size
@@ -147,8 +147,8 @@ module Lucie
         @slice = sl
       end
       
-      overwrite_accessor :type= do |_type|
-        unless (_type.nil?) || /primary|logical|extended/i =~ _type
+      overwrite_accessor :kind= do |_kind|
+        unless (_kind.nil?) || /primary|logical|extended/i =~ _kind
           raise InvalidAttributeException, "Invalid attribute for kind: #{_kind}"
         end
         if _kind == "logical" && @bootable
