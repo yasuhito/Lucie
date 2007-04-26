@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
+
+require 'English'
+require 'lucie'
+require 'socket'
+
+
+include Lucie
+
+
+PORT = 58243
+
+
+def start_server
+  port = ( ARGV[ 0 ] || PORT ).to_i
+  server = TCPServer.new( port )
+  info "Lucie daemon started on port #{ port }."
+  return server
+end
+
+
+def peer_info socket
+  peer = socket.peeraddr
+  return "#{ peer[ 2 ] } (#{ peer[ 3 ] })"
+end
+
+
+def big_loop server
+  loop do
+    Thread.start( server.accept ) do | socket |
+      info "#{ peer_info( socket ) } is accepted."
+      while socket.gets
+        puts $LAST_READ_LINE
+      end
+      info "#{ peer_info( socket ) } is gone."
+      socket.close
+    end
+  end
+end
+
+
+server = start_server
+big_loop server
+
+
+### Local variables:
+### mode: Ruby
+### coding: euc-jp-unix
+### indent-tabs-mode: nil
+### End:
