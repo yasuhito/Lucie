@@ -87,7 +87,19 @@ sh_exec 'openvt -c3 /bin/bash'
 sh_exec '/usr/sbin/sshd'
 
 
+################################################################################
+# task_partition
+
+info 'Partitioning local harddisks'
+sh_exec 'setup_harddisks -d -X -l /tmp'
+
+
+sleep
+
+
 ### Local variables:
 ### mode: Ruby
+### coding: euc-jp-unix
 ### indent-tabs-mode: nil
 ### End:
+
