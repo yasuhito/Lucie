@@ -94,6 +94,13 @@ info 'Partitioning local harddisks'
 sh_exec 'setup_harddisks -d -X -l /tmp'
 
 
+################################################################################
+# task_mountdisks
+
+info 'Mounting local harddisks'
+sh_exec 'mount2dir /tmp/target /tmp/fstab'
+
+
 sleep
 
 

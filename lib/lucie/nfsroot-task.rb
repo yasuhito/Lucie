@@ -275,7 +275,7 @@ module Rake
       sh_exec "chmod +x #{ target( '/usr/sbin/hwdetect' ) }"
       sh_exec "cp bin/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
-      sh_exec "cp ../../bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
+      sh_exec "cp bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/mount2dir' ) }"
       sh_exec "cp ../../bin/install_packages #{ target( '/usr/sbin/install_packages' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/install_packages' ) }"
