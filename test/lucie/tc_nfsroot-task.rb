@@ -58,6 +58,8 @@ class TC_NfsrootTask < Test::Unit::TestCase
 
 
   def test_nfsroot_task
+    flexmock( FileTest ).should_receive( :exists? ).with( String ).at_least.once.and_return( true )
+
     shell_mock = flexmock( 'SHELL' )
     shell_mock.should_receive( :logger= ).with( Lucie ).once
     shell_mock.should_receive( :open ).with( Proc ).at_least.once.and_return( 'DUMMY_RETURN_VALUE' )

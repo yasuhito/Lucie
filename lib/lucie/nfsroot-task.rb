@@ -300,6 +300,17 @@ module Rake
     end
 
 
+    def check_prerequisites
+      [ { :file => '/usr/lib/syslinux/pxelinux.0', :message => 'syslinux not installed' },
+        { :file => '/usr/sbin/debootstrap', :message => 'debootstrap not installed' },
+        { :file => @kernel_package, :message => "kernel_package (= '#{ @kernel_package}') not found" } ].each do | each |
+        unless FileTest.exists?( each[ :file ] )
+          raise each[ :message ]
+        end
+      end
+    end
+
+
     def define_tasks
       @installer_base = Rake::InstallerBaseTask.new do | task |
         task.mirror = @mirror
@@ -311,6 +322,7 @@ module Rake
 
       desc "Build an nfsroot using #{ @installer_base.tgz }."
       task @name do
+        check_prerequisites
         info 'Extracting installer base tarball. This may take a long time.'
         begin
           sh_exec 'tar', '-C', @target_directory, '-xzf', @installer_base.tgz
