@@ -101,6 +101,16 @@ info 'Mounting local harddisks'
 sh_exec 'mount2dir /tmp/target /tmp/fstab'
 
 
+################################################################################
+# task_extrbase
+
+info 'Extracting base system'
+
+sh_exec "zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -"
+sh_exec "mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old" 
+sh_exec "cp -a /tmp/fstab /tmp/target/etc/fstab" 
+
+
 sleep
 
 
