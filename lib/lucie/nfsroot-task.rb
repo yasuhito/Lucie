@@ -109,6 +109,9 @@ module Rake
       @@file.open( target( 'etc/apt/sources.list' ), 'w' ) do | sources |
         sources.puts "deb #{ @mirror } #{ suite } main contrib non-free"
       end
+      @@file.open( target( 'etc/apt/sources.list.client' ), 'w' ) do | sources |
+        sources.puts @sources_list
+      end
     end
 
 
