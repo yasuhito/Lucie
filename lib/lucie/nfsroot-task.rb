@@ -273,18 +273,16 @@ module Rake
       sh_exec "cp bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
       sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
-      # [XXX]: ±þµÞÁ¼ÃÖ
       sh_exec "cp ../../bin/hwdetect #{ target( '/usr/sbin/hwdetect' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/hwdetect' ) }"
       sh_exec "cp bin/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
       sh_exec "cp bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/mount2dir' ) }"
-      sh_exec "cp ../../bin/install_packages #{ target( '/usr/sbin/install_packages' ) }"
+      sh_exec "cp bin/install_packages #{ target( '/usr/sbin/install_packages' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/install_packages' ) }"
       sh_exec "mkdir #{ target( '/etc/lucie' ) }"
       sh_exec "cp config/partition.rb #{ target( '/etc/lucie' ) }"
-      # [XXX]: ±þµÞÁ¼ÃÖ¤ª¤ï¤ê
 
       if FileTest.directory?( target( '/var/yp' ) )
         sh_exec "ln -s /tmp/binding #{ target( '/var/yp/binding' ) }"
@@ -438,5 +436,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: euc-jp-unix
 ### indent-tabs-mode: nil
 ### End:
