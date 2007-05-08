@@ -269,12 +269,9 @@ module Rake
       sh_exec "mkdir #{ target( '/etc/sysconfig' ) } #{ target( '/tmp/etc' ) }"
       sh_exec "cp -p /etc/resolv.conf #{ target( '/tmp/etc' ) }"
       sh_exec "ln -sf /tmp/etc/resolv.conf #{ target( '/etc/resolv.conf' )}"
-      # sh_exec "ln -s /usr/sbin/fai #{ target( '/etc/init.d/rcS' ) }"
       sh_exec "cp bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
       sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
-      sh_exec "cp ../../bin/hwdetect #{ target( '/usr/sbin/hwdetect' ) }"
-      sh_exec "chmod +x #{ target( '/usr/sbin/hwdetect' ) }"
       sh_exec "cp bin/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
       sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
       sh_exec "cp bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
@@ -283,6 +280,7 @@ module Rake
       sh_exec "chmod +x #{ target( '/usr/sbin/install_packages' ) }"
       sh_exec "mkdir #{ target( '/etc/lucie' ) }"
       sh_exec "cp config/partition.rb #{ target( '/etc/lucie' ) }"
+      sh_exec "cp config/package.rb #{ target( '/etc/lucie' ) }"
 
       if FileTest.directory?( target( '/var/yp' ) )
         sh_exec "ln -s /tmp/binding #{ target( '/var/yp/binding' ) }"

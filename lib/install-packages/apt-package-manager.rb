@@ -9,7 +9,7 @@
 module InstallPackages
   module AptPackageManager
     def apt_option
-      return %{-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"}.split( ' ' )
+      return %w{-y -o Dpkg::Options="--force-confdef" -o Dpkg::Options="--force-confold"}
     end
   end
 end

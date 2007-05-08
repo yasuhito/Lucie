@@ -13,7 +13,13 @@ module InstallPackages
         # [XXX] ‰½‚ç‚©‚Ì Logger ‚Åo—Í‚·‚é
         STDOUT.puts " ENV{ ``LC_ALL'' => ``C'' } #{ command.join( ' ' ) }"
       else
-        shell.exec env, command
+        shell.on_stdout do | line |
+          shell.logger.debug line
+        end
+        shell.on_stderr do | line |
+          shell.logger.error line
+        end
+        shell.exec env, *command
       end
     end
 

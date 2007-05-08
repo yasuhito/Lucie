@@ -136,7 +136,7 @@ def divert *path
     File.open( diversion_path, 'w' ) do | file |
       file.puts( <<-DIVERSION )
 #! /bin/sh
-diversion of #{ diversion_path } created by Lucie
+# diversion of #{ diversion_path } created by Lucie
 exit 0
 DIVERSION
     end
@@ -178,6 +178,12 @@ tmpfile = `chroot /tmp/target mktemp`.chomp
 sh_exec "chroot /tmp/target apt-cache dumpavail > /tmp/target/#{ tmpfile }"
 sh_exec "chroot /tmp/target dpkg --update-avail #{ tmpfile }"
 sh_exec "rm -f /tmp/target/#{ tmpfile }"
+
+
+################################################################################
+# task_instsoft
+
+system "install_packages --config-file=/etc/lucie/package.rb"
 
 
 sleep

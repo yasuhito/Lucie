@@ -23,7 +23,9 @@ class TC_AptGet < Test::Unit::TestCase
   def test_clean
     flexstub( Popen3::Shell, 'SHELL_CLASS_MOCK' ).should_receive( :new ).once.and_return do
       shell = flexmock( 'SHELL_MOCK' )
-      shell.should_receive( :exec ).with( env, chroot_command + [ 'apt-get', 'clean' ] ).once.ordered
+      shell.should_receive( :on_stdout ).with( Proc ).once.ordered
+      shell.should_receive( :on_stderr ).with( Proc ).once.ordered
+      shell.should_receive( :exec ).once.ordered
       shell
     end
 
@@ -45,8 +47,12 @@ class TC_AptGet < Test::Unit::TestCase
   def test_install
     flexstub( Popen3::Shell, 'SHELL_CLASS_MOCK' ).should_receive( :new ).once.and_return do
       shell = flexmock( 'SHELL_MOCK' )
-      shell.should_receive( :exec ).with( env, chroot_command + 'apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --fix-missing install'.split( ' ' ) + dummy_package ).once.ordered
-      shell.should_receive( :exec ).with( env, chroot_command + [ 'apt-get', 'clean' ] ).once.ordered
+      shell.should_receive( :on_stdout ).with( Proc ).once.ordered
+      shell.should_receive( :on_stderr ).with( Proc ).once.ordered
+      shell.should_receive( :exec ).once.ordered
+      shell.should_receive( :on_stdout ).with( Proc ).once.ordered
+      shell.should_receive( :on_stderr ).with( Proc ).once.ordered
+      shell.should_receive( :exec ).once.ordered
       shell
     end
 
@@ -57,7 +63,7 @@ class TC_AptGet < Test::Unit::TestCase
 
 
   def test_install_dryrun
-    flexstub( STDOUT, 'STDOUT_MOCK' ).should_receive( :puts ).with( %{ ENV{ ``LC_ALL'' => ``C'' } chroot /tmp/target apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --fix-missing install PACKAGE_A PACKAGE_B PACKAGE_C} ).once
+    flexstub( STDOUT, 'STDOUT_MOCK' ).should_receive( :puts ).with( %{ ENV{ ``LC_ALL'' => ``C'' } chroot /tmp/target apt-get -y -o Dpkg::Options="--force-confdef" -o Dpkg::Options="--force-confold" --fix-missing install PACKAGE_A PACKAGE_B PACKAGE_C} ).once
     flexstub( STDOUT, 'STDOUT_MOCK' ).should_receive( :puts ).with( " ENV{ ``LC_ALL'' => ``C'' } chroot /tmp/target apt-get clean" ).once
 
     assert_nothing_raised do
@@ -69,7 +75,9 @@ class TC_AptGet < Test::Unit::TestCase
   def test_remove
     flexstub( Popen3::Shell, 'SHELL_CLASS_MOCK' ).should_receive( :new ).once.and_return do
       shell = flexmock( 'SHELL_MOCK' )
-      shell.should_receive( :exec ).with( env, chroot_command + 'apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --purge remove'.split( ' ' ) + dummy_package ).once.ordered
+      shell.should_receive( :on_stdout ).with( Proc ).once.ordered
+      shell.should_receive( :on_stderr ).with( Proc ).once.ordered
+      shell.should_receive( :exec ).once.ordered
       shell
     end
 
@@ -80,7 +88,7 @@ class TC_AptGet < Test::Unit::TestCase
 
 
   def test_remove_dryrun
-    flexstub( STDOUT, 'STDOUT_MOCK' ).should_receive( :puts ).with( %{ ENV{ ``LC_ALL'' => ``C'' } chroot /tmp/target apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --purge remove PACKAGE_A PACKAGE_B PACKAGE_C} ).once
+    flexstub( STDOUT, 'STDOUT_MOCK' ).should_receive( :puts ).with( %{ ENV{ ``LC_ALL'' => ``C'' } chroot /tmp/target apt-get -y -o Dpkg::Options="--force-confdef" -o Dpkg::Options="--force-confold" --purge remove PACKAGE_A PACKAGE_B PACKAGE_C} ).once
 
     assert_nothing_raised do
       InstallPackages::AptGet.new( dummy_package ).remove true
