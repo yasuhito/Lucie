@@ -197,7 +197,7 @@ end
 
 def wait_for_jobs
   while jobs_running
-    puts 'Waiting for background jobs to finish.'
+    info 'Waiting for background jobs to finish.'
     sleep 10
   end
 end
