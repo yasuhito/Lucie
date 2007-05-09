@@ -186,7 +186,33 @@ sh_exec "rm -f /tmp/target/#{ tmpfile }"
 system "install_packages --config-file=/etc/lucie/package.rb"
 
 
-sleep
+################################################################################
+# task_lucieend
+
+
+def jobs_running
+  return system( %{ps r | egrep -qv "ps r|TIME COMMAND" } )
+end
+
+
+def wait_for_jobs
+  while jobs_running
+    puts 'Waiting for background jobs to finish.'
+    sleep 10
+  end
+end
+
+
+wait_for_jobs
+info 'Press <RETURN> to reboot or ctrol-c to execute a shell.'
+STDIN.gets
+info 'Rebooting...'
+Dir.chdir('/')
+sh_exec 'sync'
+sh_exec 'killall -q sshd udevd'
+sh_exec 'umount /tmp/target/proc'
+sh_exec 'umount -ar'
+exec 'reboot -dfi'
 
 
 ### Local variables:
