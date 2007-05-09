@@ -187,6 +187,24 @@ system "install_packages --config-file=/etc/lucie/package.rb"
 
 
 ################################################################################
+# task_finish
+
+sh_exec 'swapoff -a'
+
+# undo fake of all programs made by lucie
+items = `chroot /tmp/target dpkg-divert --list lucie | awk '{ print $3 }'`.split("\n")
+items.each do | each |
+  sh_exec "rm -f /tmp/target/#{ each }"
+  sh_exec "chroot /tmp/target dpkg-divert --package lucie --rename --remove #{ each }"
+  # when a diversion was made before the file exists
+  distrib_dpkg_new = File.join( '/tmp/target', each + '.distrib.dpkg-new' )
+  if FileTest.exists?( distrib_dpkg_new )
+    sh_exec "mv #{ distrib_dpkg_new } #{ File.join( '/tmp/target', each ) }"
+  end
+end
+
+
+################################################################################
 # task_lucieend
 
 
