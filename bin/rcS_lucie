@@ -45,7 +45,7 @@ end
 
 
 mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
-mkrw %w(/var/lib/cfengine2 /var/lib/heardbeat)
+mkrw %w(/var/lib/cfengine2 /var/lib/heardbeat /var/puppet /etc/puppet)
 
 
 ################################################################################
@@ -205,8 +205,13 @@ end
 
 
 ################################################################################
-# task_lucieend
+# task_configure
 
+sh_exec 'fai-do-scripts -L /tmp /etc/lucie/scripts'
+
+
+################################################################################
+# task_lucieend
 
 def jobs_running
   return system( %{ps r | egrep -qv "ps r|TIME COMMAND" } )
