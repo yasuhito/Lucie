@@ -1,3 +1,5 @@
-aptget_install *%w(ssh hdparm cron linuxlogo tcsh file less rsync jove rstat-client rstatd rusers rusersd rsh-client rsh-server module-init-tools sysutils time strace rdate nfs-common nscd)
+aptget_install 'ssh', 'linuxlogo', 'file', 'less', 'time'
+aptget_remove 'ppp'
+aptget_clean
 
 

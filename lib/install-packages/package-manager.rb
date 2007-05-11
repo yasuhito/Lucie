@@ -25,7 +25,7 @@ module InstallPackages
 
 
     def default_env
-      return { 'LC_ALL' => 'C' }
+      return { 'LC_ALL' => 'C', 'DEBIAN_FRONTEND' => 'noninteractive' }
     end
 
 
