@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 #
-# $Id: tc_progress.rb 2 2007-04-24 02:06:39Z yasuhito $
+# $Id$
 #
 # Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 2 $
+# Revision:: $LastChangedRevision$
 # License:: GPL2
 
 
