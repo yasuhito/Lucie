@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+#
+# $Id: tc_progress.rb 2 2007-04-24 02:06:39Z yasuhito $
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision: 2 $
+# License:: GPL2
+
+
+load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
+
+
+def start
+  load File.dirname( __FILE__ ) + "/script/server"
+end
+
+
+def version
+  puts <<-EOL
+Lucie, version #{ Lucie::VERSION::STRING }
+Copyright (C) 2007 Yasuhito TAKAMIYA
+  EOL
+end
+
+
+def help
+  command = ARGV.shift
+  
+  ARGV.clear << '--help'
+  if command.nil?
+    puts <<-EOL
+Usage: lucie <command> [options] [args]
+
+Lucie command-line client, version #{ Lucie::VERSION::STRING }
+Type 'lucie help <command>' for help on a specific command.
+Type 'lucie --version' to see the version number.
+
+Available commands:
+  start - starts the web server
+
+Lucie is a Automatic Cluster Installer.
+For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
+    EOL
+  elsif method_for_command( command )
+    self.send( method_for_command( command ) )
+  else
+    STDERR.puts "Type 'lucie help' for usage."
+    exit -1
+  end
+end
+
+
+def method_for_command command
+  case command
+  when 'start'
+    return :start
+  when 'version', '-v', '--version'
+    return :version
+  when 'help', '-h', '--help', '/?', '-?'
+    return :help
+  else 
+    return nil
+  end
+end
+
+
+command = ARGV.shift
+if method_for_command( command )
+  self.send method_for_command( command )
+elsif command.nil?
+  STDERR.puts "Type 'lucie --help' for usage."
+  exit -1
+else
+  STDERR.puts "Unknown command : '#{command}'"
+  STDERR.puts "Type 'lucie --help' for usage."
+  exit -1
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: euc-jp-unix
+### indent-tabs-mode: nil
+### End:

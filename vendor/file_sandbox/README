@@ -1,0 +1,40 @@
+= Project: File Sandbox
+
+== Description
+
+File sandbox creates a space for your tests to safely hit the file system. It also makes it easier for them to do so.
+
+== Usage
+
+  require 'test/unit'
+  require_gem 'file_sandbox'
+
+  class MyFileTest < Test::Unit::TestCase
+    include FileSandbox
+
+    def test_read
+      in_sandbox do |sandbox|
+        sandbox.new :file => 'b/a.txt', :with_contents => 'some stuff'
+        
+        assert_equal 'some_stuff', File.read(sandbox.root + '/b/a.txt')
+      end
+    end
+  end
+
+
+== Features
+
+* Create a file
+
+  sandbox.new :file => 'b/a.txt', :with_contents => 'some stuff'
+  
+
+== Contact
+
+Author::     Jeremy Stell-Smith
+Email::      jeremystellsmith@gmail.com
+License::    LGPL License
+
+== Home Page
+
+http://onemanswalk.com
