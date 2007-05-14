@@ -1,8 +1,18 @@
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
+
 class Installer
   def self.read dir, load_config = true
     @installer_in_the_works = Installer.new( File.basename( dir ) )
     begin
-      @installer_in_the_works.load_config if load_config
+      if load_config
+        @installer_in_the_works.load_config
+      end
       return @installer_in_the_works
     ensure
       @installer_in_the_works = nil
@@ -11,6 +21,7 @@ class Installer
 
 
   attr_reader :name, :path
+  attr_accessor :scheduler
 
 
   def initialize name
@@ -29,3 +40,10 @@ class Installer
     @path = value
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
