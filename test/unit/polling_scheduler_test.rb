@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -6,12 +7,13 @@
 # License:: GPL2
 
 
-class PollingScheduler
-  def initialize installer
-    @installer = installer
-    @custom_polling_interval = nil
-    @last_build_loop_error_source = nil
-    @last_build_loop_error_time = nil
+require File.dirname( __FILE__ ) + '/../test_helper'
+
+
+class PollingSchedulerTest < Test::Unit::TestCase
+  # Replace this with your real tests.
+  def test_truth
+    assert true
   end
 end
 
