@@ -21,19 +21,20 @@ Rails::Initializer.run do | config |
     class Base
       # and just so that ActiveRecordStore can load (even though we dont use it either)
       def self.before_save(*args) end
-      def self.configurations; end
       # and just so controller generator can do its stuff
       def self.pluralize_table_names() true; end
-#       # and just so that Dispatcher#reset_application works
-#       def self.reset_subclasses() end
-#       # and just so that Dispatcher#prepare_application works
-#       def self.verify_active_connections!() end
-#       # and just so that Dispatcher#reset_application! works so Webrick (unlike Mongrel) stops bombing out
-#       def self.clear_reloadable_connections!() end
-#       # and just so that benchmarking's render() works
-#       def self.connected?() false; end
+      # and just so that Dispatcher#reset_application works
+      def self.reset_subclasses() end
+      # and just so that Dispatcher#prepare_application works
+      def self.verify_active_connections!() end
+      # and just so that Dispatcher#reset_application! works so Webrick (unlike Mongrel) stops bombing out
+      def self.clear_reloadable_connections!() end
+      # and just so that benchmarking's render() works
+      def self.connected?() false; end
       # and just so that Initializer#load_observers works
       def self.instantiate_observers; end
+      # and just so that unit tests work
+      def self.configurations; end
     end
   end
 
@@ -83,3 +84,6 @@ end
 # Mime::Type.register "application/x-mobile", :mobile
 
 # Include your application configuration below
+
+# custom MIME type for CCTray application
+Mime::Type.register "application/cctray", :cctray

@@ -8,11 +8,12 @@
 
 class Configuration
   @installers_directory = File.expand_path( File.join( RAILS_ROOT, 'installers' ) )
-
+  @dashboard_refresh_interval = 5.seconds
 
   class << self
     # non-published configuration options.
     attr_accessor :installers_directory
+    attr_accessor :dashboard_refresh_interval
   end
 end
 

@@ -1,0 +1,13 @@
+<% @rss_feeds = { 'All installers' => {:controller => 'installers', :action => 'index', :format => 'rss'} } -%>
+<% @installers.each { |p| @rss_feeds["#{p.name} builds"] = installer_url(:controller => 'installers', :action => 'show', :id => p, :format => 'rss')} -%>
+
+<div id="installers">
+  <% @installers.each do |installer| -%>
+    <%= render :partial => 'installer', :locals => {:installer => installer }%>
+  <% end -%>
+   
+  <%= render :partial => 'no_installers' if @installers.empty? %>
+</div>
+
+<%= periodically_call_remote :url => { :action => 'index', :format => 'js'}, :method => 'get',
+                                       :frequency => Configuration.dashboard_refresh_interval %>

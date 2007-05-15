@@ -1,0 +1,170 @@
+#tw-image-link {
+  display:block;
+}
+
+#main_image {
+  background-image: url(/images/header_stock.jpg);
+  width: 644px;
+  height: 165px;
+  text-align: right;
+  padding-top: 85px;
+  padding-right: 22px;
+  color: white;
+  font: 10px "Verdana";
+  font-weight: bold;
+}
+
+#download_button {
+  padding-top: 35px;
+  margin-right: -6px;
+}
+#letter_shadow {
+  padding-bottom: 18px;
+  margin-bottom: 5px;
+  background-image: url(/images/float-letter.png);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  width: 450px;
+  margin: 0 auto;
+  
+}
+.letter {
+  font-family: georgia, times, serif;
+  font-style: italic;
+  padding: 2em 2em 10em 2em;
+  background: #fff;
+  border: 1px solid #333;
+}
+.letter p{
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+div.next_step {
+  color: #000;
+  background-color: #FFF0F5;
+  font-weight: bold;
+  margin: 3em 0em 1em 0em;
+  padding: 0.2em 1em;
+}
+
+.plugin_list {
+  width: 45%;
+  float: left;
+  margin-left: 5%;
+}
+
+.hint {
+  font-family: georgia, times, serif; 
+  background-color: #EEE;
+  padding: 0.5em;
+  margin: 0.5em 2em;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+pre {
+  margin: 1em;
+}
+
+code {
+  font-family: courier, monospace;
+  font-style: normal;
+  font-size: 1em;
+}
+
+.hint code {
+  font-style: normal;
+  padding:0 0.3em;
+  background-color: #F5F5FF;
+}
+
+.def {
+  margin-left: 3em;
+  margin-right: 3em;
+  color: #555;
+}
+
+.screencast_image {
+  border: solid 3px #bbb;
+  float: left;
+  margin-right: 1em;
+  padding: 3px;
+}
+
+div.box ul{
+  padding-left: 0;
+  }
+  
+div.box li{
+  list-style: none;
+  }
+  
+.instruction{
+	}
+
+.large_number {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 5em;
+	font-weight: bold;
+	display: block;
+	margin: -15px 0.1em 0 0;
+	vertical-align: text-top;
+  float: left;
+}
+
+code.steps {
+  white-space: pre;
+  font-size: 0.9em;  
+  font-weight: bold;
+  display: block;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+}
+
+td.instruction_detail, td.instruction_detail_final {
+  vertical-align: top;
+  width: 33.3%;
+}
+
+.instruction_text {
+  margin-left: 3.5em;
+}
+
+td.instruction_detail{
+	border-right: 5px solid white;
+	border-left: 5px solid white;
+}
+
+td.instruction_detail_final{
+	border-right: 5px solid white;
+	border-left: 5px solid white;
+}
+
+.install_step_title{
+	font-weight: bold;
+}
+
+ul.instruction{
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+ul li.instruction{
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+h2 a, h2 a:hover {
+	clear: both;
+	font-size: 110%;
+	color: #f28218;
+	font-weight: bold;
+	background: url("../images/hdbg.gif") top left repeat;
+	padding: 4px;
+	margin-bottom: 10px;
+}
+h2{
+	color: #f28218 !important;
+}
