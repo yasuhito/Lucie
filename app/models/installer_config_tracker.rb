@@ -7,10 +7,21 @@
 
 
 class InstallerConfigTracker
+  attr_accessor :central_mtime
+  attr_accessor :local_mtime
+
+
   def initialize installer_path
-    @central_config_file = File.expand_path( File.join( installer_path, 'work', 'installer.rb' ) )
-    @local_config_file = File.expand_path( File.join( installer_path, 'installer.rb' ) )
+    @central_config_file = File.expand_path( File.join( installer_path, 'work', 'installer_config.rb' ) )
+    @local_config_file = File.expand_path( File.join( installer_path, 'installer_config.rb' ) )
     update_timestamps
+  end
+
+
+  def config_modified?
+    old_timestamps = [ @central_mtime, @local_mtime ]
+    update_timestamps
+    [ @central_mtime, @local_mtime ] != old_timestamps
   end
 
 

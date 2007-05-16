@@ -1,3 +1,11 @@
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
+
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
@@ -29,4 +37,14 @@ class Test::Unit::TestCase
   self.use_instantiated_fixtures  = false
 
   # Add more helper methods to be used by all tests here...
+  def assert_false expression
+    assert_equal false, expression
+  end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
