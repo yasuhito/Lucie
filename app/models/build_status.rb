@@ -12,6 +12,12 @@ class BuildStatus
   end
 
 
+  def start!
+    remove_status_file
+    touch_status_file 'incomplete'
+  end
+
+
   def succeeded?
     return( read_latest_status == 'success' )
   end
