@@ -12,37 +12,8 @@ class BuildStatus
   end
 
 
-  def to_s
-    read_latest_status.to_s
-  end
-
-
-  def status_file
-    return Dir[ "#{ @artifacts_directory }/build_status.*" ].first
-  end
-
-
-  def incomplete?
-    read_latest_status == 'incomplete'
-  end
-
-
-  def match_elapsed_time file_name
-    match =  /^build_status\.[^\.]+\.in(\d+)s$/.match( file_name )
-    if !match or !$1
-      raise 'Could not parse elapsed time.'
-    end
-    return $1.to_i
-  end
-
-
-  def never_built?
-    read_latest_status == 'never_built'
-  end
-
-
   def succeeded?
-    read_latest_status == 'success'
+    return( read_latest_status == 'success' )
   end
 
 
@@ -53,20 +24,64 @@ class BuildStatus
 
 
   def failed?
-    read_latest_status == 'failed'
+    return( read_latest_status == 'failed' )
   end
 
 
-  def fail! elapsed_time, error_message=nil
+  def fail! elapsed_time, error_message = nil
     remove_status_file
     touch_status_file "failed.in#{ elapsed_time }s", error_message
   end
 
+
+  def never_built?
+    return( read_latest_status == 'never_built' )
+  end
+
+
+  def incomplete?
+    return( read_latest_status == 'incomplete' )
+  end
+
+
+  def elapsed_time
+    file = status_file
+    return match_elapsed_time( File.basename( file ) )
+  end
+
+
+  def elapsed_time_in_progress
+    if incomplete? 
+      return ( Time.now - created_at ).ceil
+    end
+    return nil
+  end
+
+
+  def match_elapsed_time file_name
+    match = /\Abuild_status\.[^\.]+\.in(\d+)s\Z/.match( file_name )
+    if !match or !$1
+      raise 'Could not parse elapsed time.'
+    end
+    return $1.to_i
+  end
+
   
+  def to_s
+    return read_latest_status.to_s
+  end
+
+
+  def status_file
+    return Dir[ "#{ @artifacts_directory }/build_status.*" ].first
+  end
+
+
   def created_at
     if file = status_file
-      File.mtime file
+      return File.mtime( file )
     end
+    return nil
   end
 
 
@@ -77,18 +92,10 @@ class BuildStatus
     rescue
       return build_dir_mtime
     end      
-    build_log_mtime > build_dir_mtime ? build_log_mtime : build_dir_mtime
-  end
-
-
-  def elapsed_time
-    file = status_file
-    match_elapsed_time File.basename( file )
-  end
-
-
-  def elapsed_time_in_progress
-    incomplete? ? ( Time.now - created_at ).ceil : nil
+    if build_log_mtime > build_dir_mtime
+      return build_log_mtime
+    end
+    return build_dir_mtime
   end
 
 
@@ -99,8 +106,8 @@ class BuildStatus
     filename = "#{ @artifacts_directory }/build_status.#{ status }"
     FileUtils.touch filename
     if error_message
-      File.open( filename, "w" ) do |f|
-        f.write error_message
+      File.open( filename, 'w' ) do | file |
+        file.write error_message
       end
     end
   end
@@ -113,12 +120,15 @@ class BuildStatus
   
   def read_latest_status
     file = status_file
-    file ? match_status( File.basename( file ) ).downcase : 'never_built'
+    if file
+      return match_status( File.basename( file ) ).downcase
+    end
+    return 'never_built'
   end
 
 
   def match_status file_name
-    /^build_status\.([^\.]+)(\..+)?/.match( file_name )[ 1 ]
+    return /\Abuild_status\.([^\.]+)(\..+)?/.match( file_name )[ 1 ]
   end
 end
 
