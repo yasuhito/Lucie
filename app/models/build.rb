@@ -64,8 +64,8 @@ class Build
 
   # XXX: invoke nfsroot task
   def rake
-    # --nosearch flag here prevents CC.rb from building itself when a installer has no Rakefile
-    %{ruby -e "require 'rubygems' rescue nil; require 'rake'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/cc_build.rake'; ARGV << '--nosearch' << 'cc:build'; Rake.application.run"}
+    # --nosearch flag here prevents Lucie from building itself when a installer has no Rakefile
+    %{ruby -e "require 'rubygems' rescue nil; require 'rake'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--nosearch' << 'installer:build'; Rake.application.run"}
   end
 
 
