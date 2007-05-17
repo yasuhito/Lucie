@@ -7,6 +7,7 @@
 
 
 class Configuration
+  @default_page = {:controller => 'installers', :action => 'index'}
   @build_request_checking_interval = 5.seconds
   @dashboard_refresh_interval = 5.seconds
   @default_polling_interval = 10.seconds
@@ -21,6 +22,7 @@ class Configuration
     # non-published configuration options.
     attr_accessor :build_request_checking_interval
     attr_accessor :dashboard_refresh_interval
+    attr_accessor :default_page
     attr_accessor :installers_directory
     attr_accessor :sleep_after_build_loop_error
   end

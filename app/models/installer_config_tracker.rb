@@ -7,7 +7,9 @@
 
 
 class InstallerConfigTracker
+  attr_accessor :central_config_file
   attr_accessor :central_mtime
+  attr_accessor :local_config_file
   attr_accessor :local_mtime
 
 

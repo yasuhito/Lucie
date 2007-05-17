@@ -59,6 +59,29 @@ class Test::Unit::TestCase
       assert_matched(expected_message, e.message, "Unexpected error message") if expected_message.is_a? Regexp
     end
   end
+
+
+  def in_total_sandbox &block
+    in_sandbox do | sandbox |
+      @dir = File.expand_path( sandbox.root )
+      @stdout = "#{ @dir }/stdout"
+      @stderr = "#{ @dir }/stderr"
+      @prompt = "#{ @dir } #{ Platform.user }$"
+      yield sandbox
+    end
+  end
+
+
+  def with_sandbox_installer &block
+    in_total_sandbox do |sandbox|
+      FileUtils.mkdir_p( "#{ sandbox.root }/work" )
+      
+      installer = Installer.new( 'my_installer' )
+      installer.path = sandbox.root
+      
+      yield sandbox, installer
+    end
+  end
 end
 
 

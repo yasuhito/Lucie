@@ -1,23 +1,23 @@
 ActionController::Routing::Routes.draw do |map|
-  # The priority is based upon order of creation: first created -> highest priority.
+
+  map.home '', Configuration.default_page
   
-  # Sample of regular route:
-  # map.connect 'products/:id', :controller => 'catalog', :action => 'view'
-  # Keep in mind you can assign values other than :controller and :action
+  map.resources :installers
 
-  # Sample of named route:
-  # map.purchase 'products/:id/purchase', :controller => 'catalog', :action => 'purchase'
-  # This route can be invoked with purchase_url(:id => product.id)
+  map.installer_without_builds 'builds/:installer', :controller => 'builds', :action => 'show'
+  map.build 'builds/:installer/:build', :controller => 'builds', :action => 'show', :build => /[^\/]+/
 
-  # You can have the root of your site routed by hooking up '' 
-  # -- just remember to delete public/index.html.
-  # map.connect '', :controller => "welcome"
+  map.build_artifact 'builds/:installer/:build/*path', :controller => 'builds', :action => 'artifact', :build => /[^\/]+/
+  map.code 'installers/code/:installer/*path', :controller => 'installers', :action => 'code'
 
-  # Allow downloading Web Service WSDL as a file with an extension
-  # instead of a file named 'wsdl'
-  map.connect ':controller/service.wsdl', :action => 'wsdl'
-
+  map.plugin_doc_list 'documentation/plugins', :controller => 'documentation', :action => 'plugins'
+  map.plugin_doc 'documentation/plugins/:type/:name', :controller => 'documentation', :action => 'plugins', :name => /[^\/]+/
+  map.document 'documentation/*path', :controller => 'documentation', :action => 'get'
+  
   # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id.:format'
   map.connect ':controller/:action/:id'
+
+  # Route for CCTray.NET
+  map.connect 'XmlStatusReport.aspx', :controller => 'installers', :action => 'index', :format => 'cctray'
+
 end
