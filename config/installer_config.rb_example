@@ -1,0 +1,38 @@
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
+
+Installer.configure do | installer |
+  # Installer logging level (default: :debug)
+  # installer.logging_level = :debug
+
+  # Build the installer using http proxy "http://proxy.mydomain.com:3128"
+  # installer.http_proxy = 'http://proxy.mydomain.com:3128/'
+
+  # Build the installer using package mirror server "http://cdn.debian.or.jp/debian/"
+  # installer.mirror = 'http://cdn.debian.or.jp/debian/'
+
+  # Build the installer for "debian" Linux distribution
+  # installer.distribution = 'debian'
+
+  # Set a version name of the Linux distribution
+  # installer.suite = 'etch'
+
+  # Build the installer with "linux-image-2.6.18-fai-kernels_1_i386.deb" kernel package in kernels/ directory.
+  # installer.kernel_package = 'linux-image-2.6.18-fai-kernels_1_i386.deb'
+
+  # Use the following sources_list while installation (default: "http://192.168.1.1:9999/debian main contrib non-free")
+  # Keep in mind that specified sources_list should be reachable from all nodes.
+  # installer.sources_list = 'deb http://192.168.1.1:9999/debian main contrib non-free'
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
