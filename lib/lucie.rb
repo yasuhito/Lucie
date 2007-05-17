@@ -10,9 +10,6 @@ require 'logger'
 
 
 module Lucie
-  VERSION = '0.0.1'
-
-
   PINK = { :console => "[0;31m", :html => "FFA0A0" }
   GREEN = { :console => "[0;32m", :html => "00CD00" }
   YELLOW = { :console => "[0;33m", :html => "FFFF60" }
