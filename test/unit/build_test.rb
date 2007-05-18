@@ -155,12 +155,12 @@ class BuildTest < Test::Unit::TestCase
   def test_build_command_customization
     with_sandbox_installer do | sandbox, installer |
       build_with_defaults = Build.new( installer, '1' )
-      assert_match( /installer_build.rake'; ARGV << '--nosearch' << 'installer:build'/, build_with_defaults.command )
+      assert_match( /installer_build.rake'; ARGV << '--trace' << 'installer:build'/, build_with_defaults.command )
       assert_nil build_with_defaults.rake_task
   
       installer.rake_task = 'my_build_task'
       build_with_custom_rake_task = Build.new( installer, '2' )
-      assert_match( /installer_build.rake'; ARGV << '--nosearch' << 'installer:build'/, build_with_custom_rake_task.command )
+      assert_match( /installer_build.rake'; ARGV << '--trace' << 'installer:build'/, build_with_custom_rake_task.command )
       assert_equal 'my_build_task', build_with_custom_rake_task.rake_task
   
       installer.rake_task = nil

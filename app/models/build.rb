@@ -65,8 +65,7 @@ class Build
 
   # [XXX] implement installer:build task
   def rake
-    # --nosearch flag here prevents Lucie from building itself when a installer has no Rakefile
-    return %{ruby -e "require 'rubygems' rescue nil; require 'rake'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--nosearch' << 'installer:build'; Rake.application.run"}
+    return %{ruby -I#{File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace' << 'installer:build'; Rake.application.run"}
   end
 
 

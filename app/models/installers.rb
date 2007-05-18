@@ -69,9 +69,13 @@ class Installers
 
 
   def write_config_example installer
-    config_example = File.join( RAILS_ROOT, 'config', 'lucie_config.rb_example' )
+    lucie_config_example = File.join( RAILS_ROOT, 'config', 'lucie_config.rb_example' )
     lucie_config = File.join( installer.path, 'lucie_config.rb' )
-    FileUtils.cp config_example, lucie_config
+    FileUtils.cp lucie_config_example, lucie_config
+
+    rakefile_example = File.join( RAILS_ROOT, 'config', 'Rakefile_example' )
+    rakefile = File.join( installer.path, 'Rakefile' )
+    FileUtils.cp rakefile_example, rakefile
   end
 
 

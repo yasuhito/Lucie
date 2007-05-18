@@ -1,0 +1,16 @@
+#
+# $Id: build.rb 69 2007-05-18 07:00:02Z yasuhito $
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision: 69 $
+# License:: GPL2
+
+
+load './work/installer_config.rb'
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
