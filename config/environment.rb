@@ -1,4 +1,12 @@
+#
 # Be sure to restart your web server when you modify this file.
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
 
 # Uncomment below to force Rails into production mode when 
 # you don't control web/app server and can't set it the proper way
@@ -47,6 +55,7 @@ Rails::Initializer.run do | config |
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
+  config.load_paths << "#{RAILS_ROOT}/builder_plugins/installed"
 
   # Force all environments to use the same logger level 
   # (by default production uses :info, the others :debug)
@@ -87,3 +96,10 @@ end
 
 # custom MIME type for CCTray application
 Mime::Type.register "application/cctray", :cctray
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
