@@ -144,32 +144,6 @@ class BuildTest < Test::Unit::TestCase
   end
 
 
-  def test_warn_on_mistake_check_out_if_trunk_dir_exists
-    with_sandbox_installer do | sandbox, installer |
-      sandbox.new :file => 'work/trunk/rakefile'
-    
-      expected_build_directory = File.join( sandbox.root, 'build-123' )
-  
-      build = Build.new( installer, 123 )
-  
-      expected_build_log = File.join( expected_build_directory, 'build.log' )
-      expected_redirect_options = {
-        :stdout => expected_build_log,
-        :stderr => expected_build_log,
-        :escape_quotes => false
-      }
-  
-      build.expects( :execute ).with( build.rake, expected_redirect_options ).raises( CommandLine::ExecutionError )
-      build.run
-      
-      log = File.open( expected_build_log ) do | file |
-        file.read
-      end
-      assert_match /trunk exists/, log
-    end
-  end
-
-
   def test_status
     with_sandbox_installer do | sandbox, installer |
       BuildStatus.any_instance.expects( :to_s )
