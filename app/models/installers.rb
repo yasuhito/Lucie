@@ -6,6 +6,9 @@
 # License:: GPL2
 
 
+require 'fileutils'
+
+
 class Installers
   def self.load_all
     Installers.new( Configuration.installers_directory ).load_all
@@ -32,6 +35,43 @@ class Installers
       Installers.load_installer child
     end
     return self
+  end
+
+
+  def checkout_local_copy installer
+    work_dir = File.join( installer.path, 'work' )
+    FileUtils.mkdir_p work_dir
+    installer.source_control.checkout work_dir
+  end
+
+
+  def << installer
+    if @list.include?( installer )
+      raise "installer named #{ installer.name.inspect } already exists"
+    end
+    begin
+      @list << installer
+      save_installer installer
+      checkout_local_copy installer
+      write_config_example installer
+      self
+    rescue
+      FileUtils.rm_rf "#{ @dir }/#{ installer.name }"
+      raise
+    end
+  end
+
+
+  def save_installer installer
+    installer.path = File.join( @dir, installer.name )
+    FileUtils.mkdir_p installer.path
+  end
+
+
+  def write_config_example installer
+    config_example = File.join( RAILS_ROOT, 'config', 'lucie_config.rb_example' )
+    lucie_config = File.join( installer.path, 'lucie_config.rb' )
+    FileUtils.cp config_example, lucie_config
   end
 
 

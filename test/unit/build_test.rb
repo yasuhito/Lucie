@@ -116,7 +116,7 @@ class BuildTest < Test::Unit::TestCase
 
       build.run
 
-      assert_equal 'COOL INSTALLER SETTINGS', file( 'build-123/installer_config.rb' ).contents
+      assert_equal 'COOL INSTALLER SETTINGS', file( 'build-123/lucie_config.rb' ).contents
       assert_equal 'COOL INSTALLER SETTINGS', Build.new( installer, 123 ).installer_settings
     end
   end
@@ -179,7 +179,7 @@ class BuildTest < Test::Unit::TestCase
       sandbox.new :file => 'build-1/coverage/functionals/index.html'
       sandbox.new :file => 'build-1/foo'
       sandbox.new :file => 'build-1/foo.txt'
-      sandbox.new :file => 'build-1/installer_config.rb'
+      sandbox.new :file => 'build-1/lucie_config.rb'
       sandbox.new :file => 'build-1/plugin_errors.log'
       sandbox.new :file => 'build.log'
       sandbox.new :file => 'build_status.failure'
@@ -192,7 +192,7 @@ class BuildTest < Test::Unit::TestCase
   end
 
 
-  def test_build_should_fail_if_installer_config_is_invalid
+  def test_build_should_fail_if_lucie_config_is_invalid
     with_sandbox_installer do | sandbox, installer |
       expected_build_directory = File.join( sandbox.root, 'build-123' )
       installer.stubs( :config_file_content ).returns( 'COOL INSTALLER SETTINGS' )

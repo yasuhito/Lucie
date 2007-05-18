@@ -26,27 +26,27 @@ class InstallerConfigTrackerTest < Test::Unit::TestCase
 
 
   def test_config_modifications_should_return_true_if_local_config_file_is_created
-    @sandbox.new :file => 'installer_config.rb'
+    @sandbox.new :file => 'lucie_config.rb'
     assert @tracker.config_modified?
   end
 
 
   def test_config_modifications_should_return_true_if_central_config_file_is_created
-    @sandbox.new :file => 'work/installer_config.rb'
+    @sandbox.new :file => 'work/lucie_config.rb'
     assert @tracker.config_modified?
   end
 
 
   def test_config_modifications_should_return_true_if_central_config_file_is_modified
     @tracker.central_mtime = 1.second.ago
-    @sandbox.new :file => 'work/installer_config.rb'
+    @sandbox.new :file => 'work/lucie_config.rb'
     assert @tracker.config_modified?
   end
 
 
   def test_config_modifications_should_return_true_if_local_config_file_is_modified
     @tracker.local_mtime = 1.second.ago
-    @sandbox.new :file => 'installer_config.rb'
+    @sandbox.new :file => 'lucie_config.rb'
     assert @tracker.config_modified?
   end
 
@@ -54,8 +54,8 @@ class InstallerConfigTrackerTest < Test::Unit::TestCase
   def test_config_modifications_should_return_false_if_config_files_not_modified
     assert_false @tracker.config_modified?
 
-    @sandbox.new :file => 'installer_config.rb'
-    @sandbox.new :file => 'work/installer_config.rb'
+    @sandbox.new :file => 'lucie_config.rb'
+    @sandbox.new :file => 'work/lucie_config.rb'
 
     assert @tracker.config_modified?
 
@@ -65,17 +65,17 @@ class InstallerConfigTrackerTest < Test::Unit::TestCase
 
 
   def test_config_modifications_should_return_true_if_local_config_was_deleted    
-    @sandbox.new :file => 'installer_config.rb'
+    @sandbox.new :file => 'lucie_config.rb'
     @tracker.update_timestamps
-    @sandbox.remove :file => 'installer_config.rb'
+    @sandbox.remove :file => 'lucie_config.rb'
     assert @tracker.config_modified?
   end
 
 
   def test_config_modifications_should_return_true_if_central_config_was_deleted
-    @sandbox.new :file => 'work/installer_config.rb'
+    @sandbox.new :file => 'work/lucie_config.rb'
     @tracker.update_timestamps
-    @sandbox.remove :file => 'work/installer_config.rb'    
+    @sandbox.remove :file => 'work/lucie_config.rb'    
     assert @tracker.config_modified?
   end
 end

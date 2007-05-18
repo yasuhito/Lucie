@@ -10,7 +10,7 @@ class Build
   include CommandLine
 
 
-  IGNORE_ARTIFACTS = /\A(\..*|build_status\..+|build.log|changeset.log|installer_config.rb|plugin_errors.log)\Z/
+  IGNORE_ARTIFACTS = /\A(\..*|build_status\..+|build.log|changeset.log|lucie_config.rb|plugin_errors.log)\Z/
 
 
   attr_reader :installer
@@ -132,7 +132,7 @@ class Build
 
   def installer_settings
     begin
-      return File.read( artifact( 'installer_config.rb' ) )
+      return File.read( artifact( 'lucie_config.rb' ) )
     rescue
       return ''
     end
@@ -142,7 +142,7 @@ class Build
   def run
     begin
       build_log = artifact( 'build.log' )
-      File.open( artifact( 'installer_config.rb' ), 'w' ) do | file |
+      File.open( artifact( 'lucie_config.rb' ), 'w' ) do | file |
         file << @installer.config_file_content
       end
       

@@ -35,7 +35,7 @@ class Installer
 
   def self.configure &block
     raise 'No installer is currently being created' unless @installer_in_the_works
-    block.call @installer_in_the_works.nfsroot
+    block.call @installer_in_the_works
   end
 
 
@@ -47,7 +47,6 @@ class Installer
     @plugins = []
     @plugins_by_name = {}
     @config_tracker = InstallerConfigTracker.new( self.path )
-    @nfsroot = Nfsroot.new
     @settings = ''
     @config_file_content = ''
     @error_message = ''

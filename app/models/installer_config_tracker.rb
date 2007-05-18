@@ -6,6 +6,9 @@
 # License:: GPL2
 
 
+#--
+# XXX remane to LucieConfigTracker?
+#++
 class InstallerConfigTracker
   attr_accessor :central_config_file
   attr_accessor :central_mtime
@@ -14,8 +17,8 @@ class InstallerConfigTracker
 
 
   def initialize installer_path
-    @central_config_file = File.expand_path( File.join( installer_path, 'work', 'installer_config.rb' ) )
-    @local_config_file = File.expand_path( File.join( installer_path, 'installer_config.rb' ) )
+    @central_config_file = File.expand_path( File.join( installer_path, 'work', 'lucie_config.rb' ) )
+    @local_config_file = File.expand_path( File.join( installer_path, 'lucie_config.rb' ) )
     update_timestamps
   end
 
