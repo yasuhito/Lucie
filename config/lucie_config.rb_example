@@ -1,5 +1,5 @@
 #
-# Project-specific configuration for CruiseControl.rb
+# Configuration for Lucie
 #
 # $Id$
 #
@@ -19,7 +19,7 @@ Installer.configure do | installer |
   # installer.rake_task = 'custom'
 
   # Build the installer by invoking shell script "build_my_app.sh". Keep in mind that when the script is invoked, current working directory is 
-  # [cruise]/installers/your_installer/work, so if you do not keep build_my_app.sh in version control, it should be '../build_my_app.sh' instead
+  # [lucie]/installers/your_installer/work, so if you do not keep build_my_app.sh in version control, it should be '../build_my_app.sh' instead
   # installer.build_command = 'build_my_app.sh'
 
   # Ping Subversion for new revisions every 5 minutes (default: 30 seconds)
