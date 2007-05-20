@@ -11,11 +11,6 @@ require 'popen3/apt'
 require 'popen3/debootstrap'
 require 'popen3/shell'
 require 'rake'
-begin
-  require 'rake/classic_namespace'
-rescue LoadError
-  # This is ok, do nothing.
-end
 require 'rake/tasklib'
 
 
@@ -33,33 +28,7 @@ class NfsrootBase < Rake::TaskLib
   attr_accessor :target_directory
 
 
-  def self.load_aptget aptget # :nodoc:
-    @@aptget = aptget
-  end
-
-
-  def self.load_debootstrap debootstrap # :nodoc:
-    Debootstrap.load_debootstrap debootstrap
-    @@debootstrap = debootstrap
-  end
-
-
-  def self.load_shell shell_class # :nodoc:
-    Kernel.load_shell shell_class
-  end
-
-
-  def self.reset # :nodoc:
-    load_aptget AptGet
-    load_debootstrap Popen3::Debootstrap
-    load_shell Popen3::Shell
-  end
-
-
-  reset
-
-
-  def initialize name = :installer_base # :yield: self
+  def initialize name = :nfsroot_base # :yield: self
     @logger = Lucie
     @name = name
     yield self if block_given?
@@ -67,23 +36,13 @@ class NfsrootBase < Rake::TaskLib
   end
 
 
-  def installer_base_target
+  def nfsroot_base_target
     return target( target_fname( @distribution, @suite ) )
   end
-  alias :tgz :installer_base_target
+  alias :tgz :nfsroot_base_target
 
 
   private
-
-
-  def task_name key
-    return {
-      :build => @name,
-      :tgz => installer_base_target,
-      :rebuild => paste( 're', @name ),
-      :clobber => paste( 'clobber_', @name )
-    }[ key ]
-  end
 
 
   def target path
@@ -98,34 +57,40 @@ class NfsrootBase < Rake::TaskLib
     define_task_tgz
 
     # define task dependencies.
-    task task_name( :build ) => [ task_name( :tgz ) ]
-    task task_name( :rebuild ) => [ task_name( :clobber ), task_name( :build ) ]
+    task paste( 'installer:', @name ) => [ nfsroot_base_target ]
+    task paste( 'installer:re', @name ) => [ paste( 'installer:clobber_', @name ), paste( 'installer:', @name ) ]
   end
 
 
   def define_task_build
-    desc "Build installer base tarball for #{ @distribution } distribution, version = ``#{ @suite }''."
-    task task_name( :build )
+    namespace 'installer' do
+      desc "Build installer base tarball for #{ @distribution } distribution, version = ``#{ @suite }''."
+      task @name
+    end
   end
 
 
   def define_task_rebuild
-    desc 'Force a rebuild of the installer base tarball.'
-    task task_name( :rebuild )
+    namespace 'installer' do
+      desc 'Force a rebuild of the installer base tarball.'
+      task paste( 're', @name )
+    end
   end
 
 
   def define_task_clobber
     desc "Remove #{ @target_directory }"
-    task task_name( :clobber ) do
-      sh_exec 'rm', '-rf', @target_directory
+    namespace 'installer' do
+      task paste( 'clobber_', @name ) do
+        sh_exec 'rm', '-rf', @target_directory
+      end
     end
   end
 
 
   def define_task_tgz
-    file task_name( :tgz ) do
-      @logger.info "Creating base system using debootstrap version #{ @@debootstrap.VERSION }"
+    file nfsroot_base_target do
+      @logger.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
       @logger.info "Calling debootstrap #{ suite } #{ target_directory } #{ mirror }"
 
       debootstrap do | option |
@@ -139,17 +104,17 @@ class NfsrootBase < Rake::TaskLib
         option.include = @include
       end
 
-      @@aptget.clean :root => @target_directory, :logger => @logger
+      AptGet.clean :root => @target_directory, :logger => @logger
 
       sh_exec 'rm', '-f', target( '/etc/resolv.conf' )
-      build_installer_base_tarball
+      build_nfsroot_base_tarball
     end
   end
 
 
-  def build_installer_base_tarball
-    @logger.info "Creating installer base tarball on #{ installer_base_target }."
-    sh_exec 'tar', '--one-file-system', '--directory', @target_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', installer_base_target, '.'
+  def build_nfsroot_base_tarball
+    @logger.info "Creating installer base tarball on #{ nfsroot_base_target }."
+    sh_exec 'tar', '--one-file-system', '--directory', @target_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', nfsroot_base_target, '.'
   end
 
 

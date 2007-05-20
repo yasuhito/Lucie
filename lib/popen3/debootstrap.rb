@@ -31,22 +31,9 @@ module Popen3
     end
 
 
-    def self.load_shell shell # :nodoc:
-      @@shell = shell
-    end
-
-
-    def self.reset
-      @@shell = Shell
-    end
-
-
-    reset
-
-
     def self.VERSION
       version = nil
-      @@shell.open do | shell |
+      Shell.open do | shell |
         shell.on_stdout do | line |
           # [XXX] raise an exception if version is not available.
           if /^ii\s+debootstrap\s+(\S+)/=~ line
@@ -83,7 +70,7 @@ module Popen3
     def exec_shell
       error_message = []
 
-      @shell = @@shell.open do | shell |
+      @shell = Shell.open do | shell |
         Thread.new do
           loop do
             shell.puts
@@ -120,23 +107,8 @@ end
 
 # Abbrebiation
 module Debootstrap
-  def load_debootstrap debootstrap # :nodoc:
-    @@debootstrap = debootstrap
-  end
-  module_function :load_debootstrap
-
-
-  def reset # :nodoc:
-    load_debootstrap Popen3::Debootstrap
-  end
-  module_function :reset
-
-
-  self.reset
-
-
   def debootstrap &block
-    @@debootstrap.new( &block )
+    Popen3::Debootstrap.new( &block )
   end
   module_function :debootstrap
 end

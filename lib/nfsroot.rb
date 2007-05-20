@@ -29,32 +29,6 @@ class Nfsroot < Rake::TaskLib
   attr_accessor :suite
 
 
-  def self.load_file file # :nodoc:
-    @@file = file
-  end
-
-
-  def self.load_aptget aptget # :nodoc:
-    @@aptget = aptget
-  end
-
-
-  def self.load_shell shell_class # :nodoc:
-    @@shell = shell_class
-    Kernel.load_shell shell_class
-  end
-
-
-  def self.reset # :nodoc:
-    load_file File
-    load_aptget AptGet
-    load_shell Popen3::Shell
-  end
-
-
-  reset
-
-
   def initialize
     @name = :nfsroot
 
@@ -73,7 +47,7 @@ class Nfsroot < Rake::TaskLib
     @root_password = "h29SP9GgVbLHE"
     @target_directory = './nfsroot'
 
-    @@shell.logger = Lucie
+    Popen3::Shell.logger = Lucie
   end
 
 
@@ -81,11 +55,12 @@ class Nfsroot < Rake::TaskLib
     nfsroot = self.new
     block.call nfsroot
     nfsroot.define_tasks
+    return nfsroot
   end
 
 
   def define_tasks
-    @installer_base = NfsrootBase.new do | task |
+    @nfsroot_base = NfsrootBase.new do | task |
       task.mirror = @mirror
       task.distribution = @distribution
       task.suite = @suite
@@ -93,56 +68,57 @@ class Nfsroot < Rake::TaskLib
       task.target_directory = '../.base'
     end
 
-    desc "Build an nfsroot using #{ @installer_base.tgz }."
-    task @name do
-      check_prerequisites
-      info 'Extracting installer base tarball. This may take a long time.'
-      begin
-        sh_exec 'tar', '-C', @target_directory, '-xzf', @installer_base.tgz
-        sh_exec 'cp', @installer_base.tgz, target( '/var/tmp' )
-
-        hoaks_packages
-        generate_etc_hosts
-        upgrade_nfsroot
-        add_packages_nfsroot
-        copy_lucie_files
-        finish_nfsroot
-        install_kernel_nfsroot
-        setup_ssh
-        setup_dhcp
-      ensure
-        umount_dirs
-      end
-    end
-
-    desc 'Force a rebuild of an nfsroot.'
-    task paste( 're', @name )
-
-    desc "Remove #{ @target_directory }."
-    task paste( 'clobber_', @name ) do
-      if File.exist?( @target_directory )
-        info "#{ @target_directory } already exists. Removing #{ @target_directory }"
-
-        sh_exec "umount #{ target( '/dev/pts' ) } 2>&1"
-        
-        ( Dir.glob( target( '/dev/.??*' ) ) + Dir.glob( target( '/*' ) ) ).each do | each |
-          sh_exec 'rm', '-rf', each
-        end
-        
-        # also remove files nfsroot/.? but not . and ..
-        @@shell.open do | shell |
-          shell.on_stdout do | line |
-            sh_exec 'rm', '-f', line
-          end
-          shell.exec( { 'LC_ALL' => 'C' }, 'find', @target_directory, '-xdev', '-maxdepth', '1', '!', '-type', 'd' )
-        end
-      end
-    end
-
     directory @target_directory
 
-    # define task dependencies.
-    task @name => [ paste( 'clobber_', @name ), @target_directory, :installer_base ]
+    namespace 'installer' do
+      desc "Build an nfsroot using #{ @nfsroot_base.tgz }."
+      task @name do
+        check_prerequisites
+        info 'Extracting installer base tarball. This may take a long time.'
+        begin
+          sh_exec 'tar', '-C', @target_directory, '-xzf', @nfsroot_base.tgz
+          sh_exec 'cp', @nfsroot_base.tgz, target( '/var/tmp' )
+
+          hoaks_packages
+          generate_etc_hosts
+          upgrade_nfsroot
+          add_packages_nfsroot
+          copy_lucie_files
+          finish_nfsroot
+          install_kernel_nfsroot
+          setup_ssh
+          setup_dhcp
+        ensure
+          umount_dirs
+        end
+      end
+
+      task @name => [ paste( 'installer:clobber_', @name ), @target_directory, 'installer:nfsroot_base' ]
+
+      desc 'Force a rebuild of an nfsroot.'
+      task paste( 're', @name )
+
+      desc "Remove #{ @target_directory }."
+      task paste( 'clobber_', @name ) do
+        if File.exist?( @target_directory )
+          info "#{ @target_directory } already exists. Removing #{ @target_directory }"
+
+          sh_exec "umount #{ target( '/dev/pts' ) } 2>&1"
+          
+          ( Dir.glob( target( '/dev/.??*' ) ) + Dir.glob( target( '/*' ) ) ).each do | each |
+            sh_exec 'rm', '-rf', each
+          end
+          
+          # also remove files nfsroot/.? but not . and ..
+          Popen3::Shell.open do | shell |
+            shell.on_stdout do | line |
+              sh_exec 'rm', '-f', line
+            end
+            shell.exec( { 'LC_ALL' => 'C' }, 'find', @target_directory, '-xdev', '-maxdepth', '1', '!', '-type', 'd' )
+          end
+        end
+      end
+    end
   end
 
 
@@ -177,10 +153,10 @@ class Nfsroot < Rake::TaskLib
     unless FileTest.directory?( target( 'var/puppet' ) )
       sh_exec "mkdir #{ target( 'var/puppet' ) }"
     end
-    @@file.open( target( 'etc/apt/sources.list' ), 'w' ) do | sources |
+    File.open( target( 'etc/apt/sources.list' ), 'w' ) do | sources |
       sources.puts "deb #{ @mirror } #{ suite } main contrib non-free"
     end
-    @@file.open( target( 'etc/apt/sources.list.client' ), 'w' ) do | sources |
+    File.open( target( 'etc/apt/sources.list.client' ), 'w' ) do | sources |
       sources.puts @sources_list
     end
   end
@@ -188,8 +164,8 @@ class Nfsroot < Rake::TaskLib
 
   # [TODO] Support configuration option for adding arbitrary /etc/hosts entries.
   def generate_etc_hosts
-    @@file.open( target( 'etc/hosts' ), 'w+' ) do | hosts |
-      @@shell.open do | shell |
+    File.open( target( 'etc/hosts' ), 'w+' ) do | hosts |
+      Popen3::Shell.open do | shell |
         shell.on_stdout do | line |
           if /inet addr:(\S+)\s+/=~ line
             hosts.print `getent hosts #{ $1 }`
@@ -218,9 +194,9 @@ class Nfsroot < Rake::TaskLib
     packages = ( [ 'ruby', 'reiserfsprogs', 'discover', 'module-init-tools', 'ssh', 'udev', 'console-tools', 'psmisc', 'puppet', 'file' ] << @extra_packages ).flatten.uniq.compact
     info "Adding packages to nfsroot: #{ packages.join( ', ' ) }"
     info "NOTE: Error outputs generated by package installation scripts can be safely ignored."
-    @@aptget.update apt_option
-    @@aptget.apt( [ '-y', '--fix-missing', 'install' ] + packages, apt_option )
-    @@aptget.clean apt_option
+    AptGet.update apt_option
+    AptGet.apt( [ '-y', '--fix-missing', 'install' ] + packages, apt_option )
+    AptGet.clean apt_option
   end
 
 
@@ -229,7 +205,7 @@ class Nfsroot < Rake::TaskLib
       raise "Option ``kernel_package'' is not set."
     end
 
-    kernel_version = @@shell.open do | shell |
+    kernel_version = Popen3::Shell.open do | shell |
       kv = nil
       shell.on_stdout do | line |
         if /^ Package: \S+\-image\-(\S+)$/=~ line
@@ -271,11 +247,11 @@ class Nfsroot < Rake::TaskLib
       sh_exec "cp -p /etc/resolv.conf #{ target( 'etc/resolv.conf' ) }"
     end
 
-    @@aptget.update apt_option
+    AptGet.update apt_option
     # [XXX] apt-get -fy install lucie-nfsroot
     sh_exec "mkdir -p #{ target( '/usr/lib/ruby/1.8' )}"
     sh_exec "cp -r ../../lib/* #{ target( '/usr/lib/ruby/1.8' )}"
-    @@aptget.check apt_option
+    AptGet.check apt_option
 
     sh_exec "rm -rf #{ target( 'etc/apm' ) }"
     sh_exec "mount -t proc /proc #{ target( 'proc' ) }"
@@ -283,13 +259,13 @@ class Nfsroot < Rake::TaskLib
     dpkg_divert '/sbin/start-stop-daemon', '/sbin/discover-modprobe'
 
     [ target( 'sbin/lucie-start-stop-daemon' ), target( 'sbin/start-stop-daemon' ) ].each do | each |
-      @@file.open( each, 'w+' ) do | file |
+      File.open( each, 'w+' ) do | file |
         file.puts start_stop_daemon
       end
       sh_exec "chmod +x #{ each }"
     end
 
-    @@aptget.apt [ '-y', 'dist-upgrade' ], apt_option
+    AptGet.apt [ '-y', 'dist-upgrade' ], apt_option
   end
 
 

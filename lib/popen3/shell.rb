@@ -213,21 +213,8 @@ end
 
 # [XXX] Kernel モジュールにメソッドを追加するのは極力やめる。Kernel.xxx なメソッド定義がファイル間で分散するので。
 module Kernel
-  def load_shell shell_class # :nodoc:
-    @@shell = shell_class
-  end
-
-
-  def reset # :nodoc:
-    @@shell = Popen3::Shell
-  end
-
-
-  reset
-
-
   def sh_exec *command
-    @@shell.open do | shell |
+    Popen3::Shell.open do | shell |
       shell.on_stderr do | line |
         if shell.logger
           shell.logger.error line
