@@ -6,7 +6,6 @@
 # License:: GPL2
 
 
-require 'lucie'
 require 'popen3/apt'
 require 'popen3/debootstrap'
 require 'popen3/shell'

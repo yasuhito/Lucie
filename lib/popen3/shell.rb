@@ -7,7 +7,6 @@
 
 
 require 'English'
-require 'lucie'
 require 'popen3'
 
 
