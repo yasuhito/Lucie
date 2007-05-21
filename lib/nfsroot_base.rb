@@ -21,7 +21,6 @@ class NfsrootBase < Rake::TaskLib
   attr_accessor :distribution
   attr_accessor :http_proxy
   attr_accessor :include
-  attr_accessor :logger
   attr_accessor :mirror
   attr_accessor :name
   attr_accessor :suite
@@ -29,7 +28,6 @@ class NfsrootBase < Rake::TaskLib
 
 
   def initialize name = :nfsroot_base # :yield: self
-    @logger = Lucie
     @name = name
     yield self if block_given?
     define_tasks
@@ -90,11 +88,10 @@ class NfsrootBase < Rake::TaskLib
 
   def define_task_tgz
     file nfsroot_base_target do
-      @logger.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
-      @logger.info "Calling debootstrap #{ suite } #{ target_directory } #{ mirror }"
+      Lucie::Log.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
+      Lucie::Log.info "Calling debootstrap #{ suite } #{ target_directory } #{ mirror }"
 
       debootstrap do | option |
-        option.logger = @logger
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
         # [???] Exclude option is hard-coded. This should be read only for most of users?
         option.exclude = [ 'dhcp-client', 'info' ]
@@ -104,7 +101,7 @@ class NfsrootBase < Rake::TaskLib
         option.include = @include
       end
 
-      AptGet.clean :root => @target_directory, :logger => @logger
+      AptGet.clean :root => @target_directory
 
       sh_exec 'rm', '-f', target( '/etc/resolv.conf' )
       build_nfsroot_base_tarball
@@ -113,7 +110,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def build_nfsroot_base_tarball
-    @logger.info "Creating installer base tarball on #{ nfsroot_base_target }."
+    Lucie::Log.info "Creating installer base tarball on #{ nfsroot_base_target }."
     sh_exec 'tar', '--one-file-system', '--directory', @target_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', nfsroot_base_target, '.'
   end
 
