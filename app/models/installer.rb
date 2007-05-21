@@ -119,7 +119,7 @@ class Installer
       load_and_remember config_tracker.local_config_file
     rescue Exception => e
       @error_message = "Could not load installer configuration: #{e.message} in #{e.backtrace.first}"
-      CruiseControl::Log.event(@error_message, :fatal) rescue nil
+      Lucie::Log.event(@error_message, :fatal) rescue nil
       @settings = ""
     end
     self
@@ -178,7 +178,7 @@ class Installer
       begin
         plugin.send(event, *event_parameters) if plugin.respond_to?(event)
       rescue => plugin_error
-        # CruiseControl::Log.error(plugin_error)
+        Lucie::Log.error(plugin_error)
         if (event_parameters.first and event_parameters.first.respond_to? :artifacts_directory)
           plugin_errors_log = File.join(event_parameters.first.artifacts_directory, 'plugin_errors.log')
           begin
@@ -186,7 +186,7 @@ class Installer
               f << "#{plugin_error.message} at #{plugin_error.backtrace.first}"
             end
           rescue => e
-            # CruiseControl::Log.error(e)
+            Lucie::Log.error(e)
           end
         end
         errors << "#{plugin.class}: #{plugin_error.message}"
@@ -395,7 +395,7 @@ def plugin_loader.load_plugin(plugin_path)
   plugin_is_directory = (plugin_file == 'init')  
   plugin_name = plugin_is_directory ? File.basename(File.dirname(plugin_path)) : plugin_file
 
-  # CruiseControl::Log.debug("Loading plugin #{plugin_name}")
+  Lucie::Log.debug("Loading plugin #{plugin_name}")
   if RAILS_ENV == 'development'
     load plugin_path
   else
