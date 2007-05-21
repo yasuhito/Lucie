@@ -7,9 +7,6 @@
 
 
 Nfsroot.configure do | nfsroot |
-  # Set logging level (default: :debug)
-  # nfsroot.logging_level = :debug
-
   # Build the nfsroot using http proxy "http://proxy.mydomain.com:3128"
   # nfsroot.http_proxy = 'http://proxy.mydomain.com:3128/'
 
