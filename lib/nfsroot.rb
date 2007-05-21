@@ -60,12 +60,11 @@ class Nfsroot < Rake::TaskLib
 
 
   def define_tasks
-    @nfsroot_base = NfsrootBase.new do | task |
+    @nfsroot_base = NfsrootBase.configure do | task |
       task.mirror = @mirror
       task.distribution = @distribution
       task.suite = @suite
       task.http_proxy = @http_proxy
-      task.target_directory = '../.base'
     end
 
     directory @target_directory

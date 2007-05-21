@@ -48,7 +48,6 @@ class NfsrootTest < Test::Unit::TestCase
   end
 
 
-  # XXX installer_base -> nfsroot_base
   # XXX use sandbox.
   # XXX rename reXXX -> update_XXX
   def test_all_targets_should_be_defined
@@ -62,7 +61,7 @@ class NfsrootTest < Test::Unit::TestCase
     assert Rake.application.lookup( 'installer:clobber_nfsroot' )
     assert Rake.application.lookup( 'installer:nfsroot_base' )
     assert Rake.application.lookup( 'installer:nfsroot' )
-    assert Rake.application.lookup( 'installer:renfsroot_base' )
+    assert Rake.application.lookup( 'installer:update_nfsroot_base' )
     assert Rake.application.lookup( 'installer:renfsroot' )
   end
 

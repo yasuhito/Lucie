@@ -22,15 +22,34 @@ class NfsrootBase < Rake::TaskLib
   attr_accessor :http_proxy
   attr_accessor :include
   attr_accessor :mirror
-  attr_accessor :name
   attr_accessor :suite
-  attr_accessor :target_directory
 
 
-  def initialize name = :nfsroot_base # :yield: self
-    @name = name
-    yield self if block_given?
-    define_tasks
+  def initialize
+    @name = :nfsroot_base
+    @target_directory = '../.base'
+    @distribution = 'debian'
+    @suite = 'etch'
+  end
+
+
+  def self.configure &block
+    nfsroot_base = self.new
+    block.call nfsroot_base
+    nfsroot_base.define_tasks
+    return nfsroot_base
+  end
+
+
+  def define_tasks
+    define_task_build
+    define_task_update
+    define_task_clobber
+    define_task_tgz
+
+    # define task dependencies.
+    task paste( 'installer:', @name ) => [ nfsroot_base_target ]
+    task paste( 'installer:update_', @name ) => [ paste( 'installer:clobber_', @name ), paste( 'installer:', @name ) ]
   end
 
 
@@ -48,18 +67,6 @@ class NfsrootBase < Rake::TaskLib
   end
 
 
-  def define_tasks
-    define_task_build
-    define_task_rebuild
-    define_task_clobber
-    define_task_tgz
-
-    # define task dependencies.
-    task paste( 'installer:', @name ) => [ nfsroot_base_target ]
-    task paste( 'installer:re', @name ) => [ paste( 'installer:clobber_', @name ), paste( 'installer:', @name ) ]
-  end
-
-
   def define_task_build
     namespace 'installer' do
       desc "Build installer base tarball for #{ @distribution } distribution, version = ``#{ @suite }''."
@@ -68,10 +75,10 @@ class NfsrootBase < Rake::TaskLib
   end
 
 
-  def define_task_rebuild
+  def define_task_update
     namespace 'installer' do
       desc 'Force a rebuild of the installer base tarball.'
-      task paste( 're', @name )
+      task paste( 'update_', @name )
     end
   end
 
@@ -89,7 +96,7 @@ class NfsrootBase < Rake::TaskLib
   def define_task_tgz
     file nfsroot_base_target do
       Lucie::Log.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
-      Lucie::Log.info "Calling debootstrap #{ suite } #{ target_directory } #{ mirror }"
+      Lucie::Log.info "Calling debootstrap #{ @suite } #{ @target_directory } #{ @mirror }"
 
       debootstrap do | option |
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
