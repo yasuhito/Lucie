@@ -49,7 +49,6 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   # XXX use sandbox.
-  # XXX rename reXXX -> update_XXX
   def test_all_targets_should_be_defined
     Nfsroot.new.define_tasks
 
@@ -57,12 +56,12 @@ class NfsrootTest < Test::Unit::TestCase
 
     assert Rake.application.lookup( '../.base/debian_etch.tgz' )
     assert Rake.application.lookup( './nfsroot' )
-    assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert Rake.application.lookup( 'installer:clobber_nfsroot' )
-    assert Rake.application.lookup( 'installer:nfsroot_base' )
+    assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert Rake.application.lookup( 'installer:nfsroot' )
+    assert Rake.application.lookup( 'installer:nfsroot_base' )
+    assert Rake.application.lookup( 'installer:update_nfsroot' )
     assert Rake.application.lookup( 'installer:update_nfsroot_base' )
-    assert Rake.application.lookup( 'installer:renfsroot' )
   end
 
 
