@@ -60,8 +60,8 @@ class NfsrootTest < Test::Unit::TestCase
     assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert Rake.application.lookup( 'installer:nfsroot' )
     assert Rake.application.lookup( 'installer:nfsroot_base' )
-    assert Rake.application.lookup( 'installer:update_nfsroot' )
-    assert Rake.application.lookup( 'installer:update_nfsroot_base' )
+    assert Rake.application.lookup( 'installer:rebuild_nfsroot' )
+    assert Rake.application.lookup( 'installer:rebuild_nfsroot_base' )
   end
 
 

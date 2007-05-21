@@ -22,6 +22,7 @@ class NfsrootBase < Rake::TaskLib
   attr_accessor :include
   attr_accessor :mirror
   attr_accessor :suite
+  attr_accessor :target_directory
 
 
   def initialize
@@ -42,13 +43,13 @@ class NfsrootBase < Rake::TaskLib
 
   def define_tasks
     define_task_build
-    define_task_update
+    define_task_rebuild
     define_task_clobber
     define_task_tgz
 
     # define task dependencies.
     task paste( 'installer:', @name ) => [ nfsroot_base_target ]
-    task paste( 'installer:update_', @name ) => [ paste( 'installer:clobber_', @name ), paste( 'installer:', @name ) ]
+    task paste( 'installer:rebuild_', @name ) => [ paste( 'installer:clobber_', @name ), paste( 'installer:', @name ) ]
   end
 
 
@@ -74,10 +75,10 @@ class NfsrootBase < Rake::TaskLib
   end
 
 
-  def define_task_update
+  def define_task_rebuild
     namespace 'installer' do
       desc 'Force a rebuild of the installer base tarball.'
-      task paste( 'update_', @name )
+      task paste( 'rebuild_', @name )
     end
   end
 

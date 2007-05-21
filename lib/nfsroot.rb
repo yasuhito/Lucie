@@ -85,7 +85,7 @@ class Nfsroot < Rake::TaskLib
       task @name => [ paste( 'installer:clobber_', @name ), @target_directory, 'installer:nfsroot_base' ]
 
       desc 'Force a rebuild of an nfsroot.'
-      task paste( 'update_', @name )
+      task paste( 'rebuild_', @name )
 
       desc "Remove #{ @target_directory }."
       task paste( 'clobber_', @name ) do
