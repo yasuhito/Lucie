@@ -65,7 +65,9 @@ class Build
 
   def rake
     verbose_option = Lucie::Log.verbose? ? " << '--trace'" : ''
-    return %{ruby -I#{File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace'#{ verbose_option } << 'installer:build'; Rake.application.run"}
+    rakefile = "#{ @installer.path }/work/installer_config.rb"
+
+    return %{ruby -I#{ File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace'#{ verbose_option } << '--rakefile=#{ rakefile }' << 'installer:build'; Rake.application.run"}
   end
 
 
@@ -118,6 +120,10 @@ class Build
     # build (if self.rake_task is not set, installer:build will try to
     # be smart about it)
     ENV[ 'LUCIE_RAKE_TASK' ] = self.rake_task
+    # Set RAILS_ROOT so that installer:build tasks can find kernel
+    # packages and Lucie libraries.
+    ENV[ 'RAILS_ROOT' ] = File.expand_path( RAILS_ROOT )
+
     Dir.chdir( installer.local_checkout ) do
       block.call
     end

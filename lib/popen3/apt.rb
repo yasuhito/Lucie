@@ -11,19 +11,6 @@ require 'popen3/shell'
 
 module Popen3
   class Apt
-    def self.load_shell shell # :nodoc:
-      @@shell = shell
-    end
-
-
-    def self.reset
-      @@shell = Shell
-    end
-
-
-    reset
-
-
     def self.get command, option = nil
       self.new command.split( ' ' ), option
     end
@@ -45,7 +32,6 @@ module Popen3
 
 
     def initialize command, option = nil
-      @logger = nil
       @root = nil
       @env = { 'LC_ALL' => 'C', 'DEBIAN_FRONTEND' => 'noninteractive' }
       case command
@@ -69,9 +55,6 @@ module Popen3
 
     def set_option option
       return unless option
-      if option[ :logger ]
-        @logger = option[ :logger ]
-      end
       if option[ :root ]
         @root = option[ :root ]
       end
@@ -88,16 +71,12 @@ module Popen3
         command_line = [ @env, 'apt-get' ] + @command
       end
 
-      @shell = @@shell.open do | shell |
+      @shell = Shell.open do | shell |
         shell.on_stdout do | line |
-          if @logger
-            @logger.debug line
-          end
+          Lucie::Log.debug line
         end
         shell.on_stderr do | line |
-          if @logger
-            @logger.error line
-          end
+          Lucie::Log.error line
         end
         shell.exec( *command_line )
       end

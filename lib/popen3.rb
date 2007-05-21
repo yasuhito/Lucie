@@ -12,11 +12,9 @@ module Popen3
     attr_reader :fromchild
     attr_reader :tochild
     attr_reader :childerr
-    attr_accessor :logger
 
 
     def initialize env, *command
-      @logger = nil
       @env = env
       @command = command
       @parent_pipe, @child_pipe = init_pipe
@@ -55,9 +53,7 @@ module Popen3
       @env.each do | key, value |
         env_string << "``#{ key }'' => ``#{ value }''"
       end
-      if @logger
-        @logger.debug " ENV{ #{ env_string.join( ', ' ) } } #{ @command.join( ' ' ) }"
-      end
+      Lucie::Log.debug " ENV{ #{ env_string.join( ', ' ) } } #{ @command.join( ' ' ) }"
 
       if block_given?
         begin

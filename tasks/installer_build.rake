@@ -51,22 +51,22 @@ namespace :installer do
         
         # perform standard Rails database cleanup/preparation tasks if they are defined in project
         # this is necessary because there is no up-to-date development database on a continuous integration box
-        if Rake.application.lookup('db:test:purge')
+        if Rake.application.lookup( 'db:test:purge' )
           Lucie::invoke_rake_task 'db:test:purge'
         end
-        if Rake.application.lookup('db:migrate')
+        if Rake.application.lookup( 'db:migrate' )
           Lucie::reconnect
           Lucie::invoke_rake_task 'db:migrate'
         end
       end
       
       # invoke 'test' or 'default' task
-      if Rake.application.lookup('nfsroot')
-        Lucie::invoke_rake_task 'nfsroot'
-      elsif Rake.application.lookup('default')
+      if Rake.application.lookup( 'installer:nfsroot' )
+        Lucie::invoke_rake_task 'installer:nfsroot'
+      elsif Rake.application.lookup( 'default' )
         Lucie::invoke_rake_task 'default'
       else
-        raise "'lucie', 'nfsroot' or 'default' tasks not found. Lucie doesn't know what to build."
+        raise "'lucie', 'installer:nfsroot' or 'default' tasks not found. Lucie doesn't know what to build."
       end
     end
   end

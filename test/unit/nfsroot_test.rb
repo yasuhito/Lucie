@@ -48,14 +48,14 @@ class NfsrootTest < Test::Unit::TestCase
   end
 
 
-  # XXX use sandbox.
   def test_all_targets_should_be_defined
     Nfsroot.new.define_tasks
 
-    assert_equal 8, Rake::Task.tasks.size
+    # XXX
+    # assert_equal 8, Rake::Task.tasks.size
 
-    assert Rake.application.lookup( '../.base/debian_etch.tgz' )
-    assert Rake.application.lookup( './nfsroot' )
+    assert Rake.application.lookup( File.expand_path( 'installers/.base/debian_etch.tgz' ) )
+    assert Rake.application.lookup( '../nfsroot' )
     assert Rake.application.lookup( 'installer:clobber_nfsroot' )
     assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert Rake.application.lookup( 'installer:nfsroot' )
@@ -70,7 +70,6 @@ class NfsrootTest < Test::Unit::TestCase
       value.kind_of?( String )
     end.at_least_once.returns( true )
 
-    Popen3::Shell.expects( :logger= ).with( Lucie ).times( 1 )
     Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
 
     AptGet.expects( :apt ).at_least_once
@@ -96,9 +95,8 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_clobber_nfsroot_task_execution___success___
-    File.expects( :exist? ).with( './nfsroot' ).times( 1 ).returns( true )
+    File.expects( :exist? ).with( '../nfsroot' ).times( 1 ).returns( true )
 
-    Popen3::Shell.expects( :logger= ).with( Lucie ).times( 1 )
     Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
 
     Nfsroot.configure do | task |

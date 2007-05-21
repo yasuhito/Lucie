@@ -6,14 +6,12 @@
 # License:: GPL2
 
 
+require 'lucie/log'
 require 'popen3/shell'
 
 
 module Popen3
   class Debootstrap
-    attr_accessor :logger
-
-
     class DebootstrapOption # :nodoc:
       attr_accessor :env
       attr_accessor :exclude
@@ -47,7 +45,6 @@ module Popen3
 
 
     def initialize
-      @logger = nil
       @option = DebootstrapOption.new
       yield self
       exec_shell
@@ -78,9 +75,8 @@ module Popen3
         end
 
         shell.on_stdout do | line |
-          if @logger
-            @logger.debug line
-          end
+          Lucie::Log.debug line
+          puts line
         end
 
         shell.on_stderr do | line |
@@ -88,9 +84,7 @@ module Popen3
           when /\Aln: \S+ File exists/
             raise RuntimeError, line
           end
-          if @logger
-            @logger.error line
-          end
+          Lucie::Log.error line
           error_message.push line
         end
 

@@ -36,7 +36,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
 
     assert_equal 4, Rake::Task.tasks.size
 
-    assert Rake.application.lookup( '../.base/debian_etch.tgz' )
+    assert Rake.application.lookup( File.expand_path( ENV[ 'RAILS_ROOT' ] + '/installers/.base/debian_etch.tgz' ) )
     assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert Rake.application.lookup( 'installer:nfsroot_base' )
     assert Rake.application.lookup( 'installer:update_nfsroot_base' )
@@ -49,7 +49,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.suite = 'WOODY'
     end
 
-    assert_equal [ '../.base/DEBIAN_WOODY.tgz' ], Rake::Task[ 'installer:nfsroot_base' ].prerequisites
+    assert_equal [ File.expand_path( ENV[ 'RAILS_ROOT' ] + '/installers/.base/DEBIAN_WOODY.tgz' ) ], Rake::Task[ 'installer:nfsroot_base' ].prerequisites
   end
 
 
@@ -71,13 +71,13 @@ class NfsrootBaseTest < Test::Unit::TestCase
   def test_tgz_target_should___success___
     Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
     Popen3::Debootstrap.expects( :new )
-    AptGet.expects( :clean ).with( { :root => '../.base' } )
+    AptGet.expects( :clean ).with( { :root => File.expand_path( ENV[ 'RAILS_ROOT' ] + '/installers/.base' ) } )
 
     NfsrootBase.configure do | task |
       task.distribution = 'DEBIAN'
       task.suite = 'SARGE'
     end
-    Rake::Task[ '../.base/DEBIAN_SARGE.tgz' ].execute
+    Rake::Task[ File.expand_path( ENV[ 'RAILS_ROOT' ] + '/installers/.base/DEBIAN_SARGE.tgz' ) ].execute
   end
 end
 

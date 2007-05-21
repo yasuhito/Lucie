@@ -14,10 +14,10 @@ module InstallPackages
         STDOUT.puts " ENV{ ``LC_ALL'' => ``C'' } #{ command.join( ' ' ) }"
       else
         shell.on_stdout do | line |
-          shell.logger.debug line
+          Lucie::Log.debug line
         end
         shell.on_stderr do | line |
-          shell.logger.error line
+          Lucie::Log.error line
         end
         shell.exec env, *command
       end

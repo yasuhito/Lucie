@@ -27,7 +27,7 @@ class NfsrootBase < Rake::TaskLib
 
   def initialize
     @name = :nfsroot_base
-    @target_directory = '../.base'
+    @target_directory = File.join( ENV[ 'RAILS_ROOT' ], 'installers/.base' )
     @distribution = 'debian'
     @suite = 'etch'
   end

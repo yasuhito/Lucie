@@ -6,7 +6,7 @@
 # License::  GPL2
 
 
-require 'lucie'
+require 'lucie/log'
 require 'nfsroot_base'
 require 'popen3/apt'
 require 'rake'
@@ -14,14 +14,10 @@ require 'rake/tasklib'
 
 
 class Nfsroot < Rake::TaskLib
-  include Lucie
-
-
   attr_accessor :distribution
   attr_accessor :extra_packages
   attr_accessor :http_proxy
   attr_accessor :kernel_package
-  attr_accessor :logging_level
   attr_accessor :mirror
   attr_accessor :root_password
   attr_accessor :sources_list
@@ -32,10 +28,6 @@ class Nfsroot < Rake::TaskLib
   def initialize
     @name = :nfsroot
 
-    @logging_level = :debug
-    # XXX logging_level is not configurable
-    Lucie.logging_level = @logging_level
-
     @http_proxy = nil
     @mirror = 'http://cdn.debian.or.jp/debian'
     @distribution = 'debian'
@@ -45,9 +37,7 @@ class Nfsroot < Rake::TaskLib
 
     @extra_packages = nil
     @root_password = "h29SP9GgVbLHE"
-    @target_directory = './nfsroot'
-
-    Popen3::Shell.logger = Lucie
+    @target_directory = '../nfsroot'
   end
 
 
@@ -125,7 +115,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def kernel_package_file
-    return File.join( '../../kernels', @kernel_package )
+    return File.join( ENV[ 'RAILS_ROOT' ], 'kernels', @kernel_package )
   end
 
 
@@ -211,9 +201,7 @@ class Nfsroot < Rake::TaskLib
           kv = $1
         end
       end
-      shell.logging_off
       shell.exec( { 'LC_ALL' => 'C' }, 'dpkg', '--info', kernel_package_file )
-      shell.logging_on
       kv
     end
 
@@ -249,7 +237,7 @@ class Nfsroot < Rake::TaskLib
     AptGet.update apt_option
     # [XXX] apt-get -fy install lucie-nfsroot
     sh_exec "mkdir -p #{ target( '/usr/lib/ruby/1.8' )}"
-    sh_exec "cp -r ../../lib/* #{ target( '/usr/lib/ruby/1.8' )}"
+    sh_exec "cp -r #{ ENV[ 'RAILS_ROOT' ] }/lib/* #{ target( '/usr/lib/ruby/1.8' )}"
     AptGet.check apt_option
 
     sh_exec "rm -rf #{ target( 'etc/apm' ) }"
@@ -268,9 +256,8 @@ class Nfsroot < Rake::TaskLib
   end
 
 
-  # [XXX] Eliminate hard-coded proxy URI and logger.
   def apt_option
-    return { :root => @target_directory, :env => { 'http_proxy' => @http_proxy }, :logger => Lucie }
+    return { :root => @target_directory, :env => { 'http_proxy' => @http_proxy } }
   end
 
 
@@ -318,21 +305,21 @@ class Nfsroot < Rake::TaskLib
     sh_exec "mkdir #{ target( '/etc/sysconfig' ) } #{ target( '/tmp/etc' ) }"
     sh_exec "cp -p /etc/resolv.conf #{ target( '/tmp/etc' ) }"
     sh_exec "ln -sf /tmp/etc/resolv.conf #{ target( '/etc/resolv.conf' )}"
-    sh_exec "cp ../../bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
+    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/bin/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
     sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
-    sh_exec "cp ../../bin/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
+    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/bin/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
-    sh_exec "cp ../../bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
+    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/bin/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/mount2dir' ) }"
-    sh_exec "cp ../../bin/install_packages #{ target( '/usr/sbin/install_packages' ) }"
+    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/bin/install_packages #{ target( '/usr/sbin/install_packages' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/install_packages' ) }"
-    sh_exec "cp ../../bin/fai-do-scripts #{ target( '/usr/sbin/fai-do-scripts' ) }"
+    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/bin/fai-do-scripts #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "mkdir #{ target( '/etc/lucie' ) }"
-    sh_exec "cp ./work/partition.rb #{ target( '/etc/lucie' ) }"
-    sh_exec "cp ./work/package.rb #{ target( '/etc/lucie' ) }"
-    sh_exec "cp -a ../../config/scripts #{ target( '/etc/lucie' ) }"
+    sh_exec "cp ../work/partition.rb #{ target( '/etc/lucie' ) }"
+    sh_exec "cp ../work/package.rb #{ target( '/etc/lucie' ) }"
+    sh_exec "cp -a #{ ENV[ 'RAILS_ROOT' ] }/config/scripts #{ target( '/etc/lucie' ) }"
 
     if FileTest.directory?( target( '/var/yp' ) )
       sh_exec "ln -s /tmp/binding #{ target( '/var/yp/binding' ) }"
@@ -351,7 +338,7 @@ class Nfsroot < Rake::TaskLib
   def check_prerequisites
     [ { :file => '/usr/lib/syslinux/pxelinux.0', :message => 'syslinux not installed' },
       { :file => '/usr/sbin/debootstrap', :message => 'debootstrap not installed' },
-      { :file => kernel_package_file, :message => "kernel_package (= '#{ @kernel_package}') not found" } ].each do | each |
+      { :file => kernel_package_file, :message => "kernel_package (= '#{ kernel_package_file }') not found" } ].each do | each |
       unless FileTest.exists?( each[ :file ] )
         raise each[ :message ]
       end
