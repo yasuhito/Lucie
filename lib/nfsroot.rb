@@ -23,6 +23,7 @@ class Nfsroot < Rake::TaskLib
   attr_accessor :sources_list
   attr_accessor :ssh_identity
   attr_accessor :suite
+  attr_accessor :target_directory
 
 
   def initialize
