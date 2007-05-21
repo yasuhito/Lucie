@@ -63,9 +63,9 @@ class Build
   end
 
 
-  # [XXX] implement installer:build task
   def rake
-    return %{ruby -I#{File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace' << 'installer:build'; Rake.application.run"}
+    verbose_option = Lucie::Log.verbose? ? " << '--trace'" : ''
+    return %{ruby -I#{File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace'#{ verbose_option } << 'installer:build'; Rake.application.run"}
   end
 
 
@@ -163,7 +163,7 @@ class Build
         file << e.message 
       end
       # [TODO] Do logging with Lucie::Log
-      # CruiseControl::Log.verbose? ? CruiseControl::Log.debug(e) : CruiseControl::Log.info(e.message)
+      Lucie::Log.verbose? ? Lucie::Log.debug(e) : Lucie::Log.info(e.message)
       time_escaped = ( Time.now - ( time || Time.now ) ).ceil
       if e.is_a?( ConfigError )
         @status.fail! time_escaped, e.message
