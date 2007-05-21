@@ -54,10 +54,6 @@ class NfsrootTest < Test::Unit::TestCase
   def test_all_targets_should_be_defined
     Nfsroot.new.define_tasks
 
-    Rake::Task.tasks.each do | each |
-      puts each.name
-    end
-
     assert_equal 8, Rake::Task.tasks.size
 
     assert Rake.application.lookup( '../.base/debian_etch.tgz' )
