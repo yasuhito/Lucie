@@ -75,11 +75,6 @@ class Installers
     if File.exists?( lucie_config_example ) and not File.exists?( lucie_config_in_subversion )
       FileUtils.cp lucie_config_example, lucie_config
     end
-
-    # XXX 
-    rakefile_example = File.join( RAILS_ROOT, 'config', 'Rakefile_example' )
-    rakefile = File.join( installer.path, 'Rakefile' )
-    FileUtils.cp rakefile_example, rakefile
   end
 
 
