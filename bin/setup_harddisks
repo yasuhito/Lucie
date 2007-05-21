@@ -9,7 +9,7 @@
 #
 # Depends: sfdisk, blkid, mke2fs, mkswap, mkfs.reiserfs, mkfs.xfs, swapon, mkfs.msdos etc.
 #
-# Author::   Yasuhito Takamiya (mailto:takamiya@matsulab.is.titech.ac.jp)
+# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
 # Revision:: $Revision$
 # License::  GPL2
 

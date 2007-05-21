@@ -2,7 +2,7 @@
 #
 # $Id: tc_nfsroot-task.rb 20 2007-05-07 08:15:18Z yasuhito $
 #
-# Author::   Yasuhito Takamiya (mailto:takamiya@matsulab.is.titech.ac.jp)
+# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
 # Revision:: $LastChangedRevision: 20 $
 # License::  GPL2
 
