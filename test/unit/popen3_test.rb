@@ -7,13 +7,12 @@
 # License:: GPL2
 
 
-$LOAD_PATH.unshift( '../../lib' ) if __FILE__ =~ /\.rb$/
+require File.dirname( __FILE__ ) + '/../test_helper'
 
 
 require 'rubygems'
 require 'flexmock'
 require 'popen3'
-require 'test/unit'
 
 
 class TC_Popen3 < Test::Unit::TestCase
@@ -65,10 +64,6 @@ class TC_Popen3 < Test::Unit::TestCase
     prepare_popen3_with_block_mock
 
     popen3 = Popen3::Popen3.new( dummy_env, 'COMMAND', 'ARG1', 'ARG2' )
-    logger_mock = flexmock( 'LOGGER_MOCK' )
-    logger_mock.should_receive( :debug ).with( String )
-    logger_mock.should_receive( :error ).with( String )
-    popen3.logger = logger_mock
 
     popen3.popen3 do | tochild, fromchild, childerr |
       assert_equal 'TOCHILD', tochild.mock_name
