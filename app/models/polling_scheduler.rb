@@ -80,12 +80,12 @@ class PollingScheduler
   end
 
 
-  def log_error(error)
+  def log_error error
     begin
-      CruiseControl::Log.error(error) 
+      Lucie::Log.error error
     rescue 
-      STDERR.puts(error.message)
-      STDERR.puts(error.backtrace.map { |l| "  #{l}"}.join("\n"))
+      STDERR.puts error.message
+      STDERR.puts( error.backtrace.map do |l| "  #{l}" end.join( "\n" ) )
     end
     @last_build_loop_error_source = error.backtrace.first
     @last_build_loop_error_time = Time.now
