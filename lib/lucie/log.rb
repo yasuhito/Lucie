@@ -47,16 +47,19 @@ module Lucie
       if method == :debug and not @verbose
         return
       end
+
       first_arg = args.shift
       message = backtrace = nil
       case first_arg
       when Exception
-        message = "#{print_severity(method)} #{first_arg.message}"
+        message = "#{ print_severity( method ) } #{ first_arg.message }"
         backtrace = first_arg.backtrace.map { |line| "#{print_severity(method)}   #{line}" }
       else
-        message = "#{print_severity(method)} #{first_arg}"
+        message = "#{ print_severity( method ) } #{ first_arg }"
       end
+
       logger.send method, message, *args, &block
+
       if backtrace and not defined?( Test )
         backtrace.each do | line |
           logger.send method, line

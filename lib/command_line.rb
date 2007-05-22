@@ -95,9 +95,7 @@ module CommandLine
 
     options[:env].each{|k,v| ENV[k]=v}
     begin
-      # XXX debug print with Lucie::Log.debug
-      STDERR.puts "#{Platform.prompt} #{cmd}" if options[:stdout].nil?
-      # CruiseControl::Log.debug "#{Platform.prompt} #{cmd}" if options[:stdout].nil?
+      Lucie::Log.debug "#{Platform.prompt} #{cmd}" if options[:stdout].nil?
       result = IO.popen(full_cmd, options[:mode]) do |io|
         if proc
           proc.call(io)

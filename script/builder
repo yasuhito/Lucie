@@ -8,7 +8,7 @@
 
 
 RAILS_ENV = 'builder'
-CCRB_THIS_PROCESS_IS_BUILDER = true
+LUCIE_THIS_PROCESS_IS_BUILDER = true
 
 
 require File.dirname( __FILE__ ) + '/../config/boot'
@@ -23,7 +23,9 @@ ARGV.options do | opts |
 
   opts.separator ""
 
-  opts.on("-t", "--trace", "Trace-level (verbose) logging") { INSTALLER_OPTIONS[:verbose] = true }
+  opts.on("-t", "--trace", "Trace-level (verbose) logging") do
+    INSTALLER_OPTIONS[ :verbose ] = true 
+  end
   opts.on( "-h", "--help", "Show this help message." ) do
     puts opts
     exit
@@ -58,9 +60,9 @@ unless File.directory?( installer_path )
 end
 
 
-def write_to_log_and_console(message, severity = :info)
-  Lucie::Log.event(message, severity) rescue nil
-  (puts message unless INSTALLER_OPTIONS[:verbose]) rescue nil 
+def write_to_log_and_console message, severity = :info
+  Lucie::Log.event( message, severity ) rescue nil
+  (puts message unless INSTALLER_OPTIONS[ :verbose ]) rescue nil 
 end
 
 

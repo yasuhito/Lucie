@@ -67,7 +67,7 @@ class Build
     verbose_option = Lucie::Log.verbose? ? " << '--trace'" : ''
     rakefile = "#{ @installer.path }/work/installer_config.rb"
 
-    return %{ruby -I#{ File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; ARGV << '--trace'#{ verbose_option } << '--rakefile=#{ rakefile }' << 'installer:build'; Rake.application.run"}
+    return %{ruby -I#{ File.expand_path( RAILS_ROOT ) }/lib -e "require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; Lucie::Log.verbose = #{ Lucie::Log.verbose?.to_s }; ARGV << '--trace'#{ verbose_option } << '--rakefile=#{ rakefile }' << 'installer:build'; Rake.application.run"}
   end
 
 
