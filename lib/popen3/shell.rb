@@ -152,9 +152,6 @@ module Popen3
 end
 
 
-# Abbreviations
-
-# [XXX] Kernel モジュールにメソッドを追加するのは極力やめる。Kernel.xxx なメソッド定義がファイル間で分散するので。
 module Kernel
   def sh_exec *command
     Popen3::Shell.open do | shell |
@@ -176,5 +173,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
