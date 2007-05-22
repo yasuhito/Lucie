@@ -7,6 +7,14 @@
 
 
 class Installer
+  @@plugin_names = []
+
+
+  def self.plugin(plugin_name)
+    @@plugin_names << plugin_name unless RAILS_ENV == 'test' or @@plugin_names.include? plugin_name
+  end
+
+
   def self.read dir, load_config = true
     @installer_in_the_works = Installer.new( File.basename( dir ) )
     begin
@@ -50,6 +58,7 @@ class Installer
     @settings = ''
     @config_file_content = ''
     @error_message = ''
+    instantiate_plugins
   end
 
 
@@ -174,9 +183,11 @@ class Installer
 
   def notify event, *event_parameters
     errors = []
-    results = @plugins.collect do |plugin| 
+    results = @plugins.collect do | plugin |
       begin
-        plugin.send(event, *event_parameters) if plugin.respond_to?(event)
+        if plugin.respond_to?( event )
+          plugin.send( event, *event_parameters )
+        end
       rescue => plugin_error
         Lucie::Log.error(plugin_error)
         if (event_parameters.first and event_parameters.first.respond_to? :artifacts_directory)
@@ -287,6 +298,14 @@ class Installer
   def log_changeset(artifacts_directory, revisions)
     File.open(File.join(artifacts_directory, 'changeset.log'), 'w') do |f|
       revisions.each { |rev| f << rev.to_s << "\n" }
+    end
+  end
+
+
+  def instantiate_plugins
+    @@plugin_names.each do |plugin_name|
+      plugin_instance = plugin_name.to_s.camelize.constantize.new(self)
+      self.add_plugin(plugin_instance)
     end
   end
 
