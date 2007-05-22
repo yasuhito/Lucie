@@ -76,7 +76,6 @@ module Popen3
 
         shell.on_stdout do | line |
           Lucie::Log.debug line
-          puts line
         end
 
         shell.on_stderr do | line |
@@ -110,5 +109,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
