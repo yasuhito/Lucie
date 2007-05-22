@@ -34,7 +34,7 @@ module Lucie
     end
 
 
-    def self.logger
+    def self.mylogger
       unless const_defined?( :RAILS_DEFAULT_LOGGER )
         return StderrLogger
       else
@@ -58,19 +58,19 @@ module Lucie
         message = "#{ print_severity( method ) } #{ first_arg }"
       end
 
-      logger.send method, message, *args, &block
+      mylogger.send method, message, *args, &block
 
       if backtrace and not defined?( Test )
         backtrace.each do | line |
-          logger.send method, line
+          mylogger.send method, line
         end
       end
-      is_error = (method == :error or method == :fatal)
-      if @verbose or is_error and defined?(RAILS_ENV) and RAILS_ENV != 'test'  
-        stream = is_error ? STDERR : STDOUT
-        stream.puts message
-        backtrace.each { |line| stream.puts line } if backtrace and @verbose
-      end
+#       is_error = (method == :error or method == :fatal)
+#       if @verbose or is_error and defined?( RAILS_ENV ) and RAILS_ENV != 'test'
+#         stream = is_error ? STDERR : STDOUT
+#         stream.puts message
+#         backtrace.each { |line| stream.puts line } if backtrace and @verbose
+#       end
     end
 
     
