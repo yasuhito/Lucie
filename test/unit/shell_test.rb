@@ -10,9 +10,6 @@
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
-require 'popen3/shell'
-
-
 class ShellTest < Test::Unit::TestCase
   def test_on_exit_block_should_be_called
     fromchild_mock = mock( 'FROMCHILD', :gets => nil )
