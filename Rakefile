@@ -20,6 +20,9 @@ require 'rake/rdoctask'
 require 'tasks/rails'
 
 
+CLEAN.exclude 'installers/*'
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8
