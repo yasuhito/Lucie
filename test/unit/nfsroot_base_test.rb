@@ -97,7 +97,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
       Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
       Popen3::Debootstrap.expects( :new )
       Lucie::Log.expects( :info ).at_least_once
-      AptGet.expects( :clean ).with( { :root => sandbox.root } )
+      AptGet.expects( :clean ).with( { :root => ENV[ 'RAILS_ROOT' ] + '/tmp/debootstrap' } )
       
       NfsrootBase.configure do | task |
         task.target_directory = sandbox.root
@@ -114,7 +114,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     in_sandbox do | sandbox |
       Lucie::Log.expects( :info ).at_least_once
       Popen3::Debootstrap.expects( :new )
-      AptGet.expects( :clean ).with( { :root => sandbox.root } )
+      AptGet.expects( :clean ).with( { :root => ENV[ 'RAILS_ROOT' ] + '/tmp/debootstrap' } )
       Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
 
       NfsrootBase.configure do | task |
@@ -132,7 +132,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     in_sandbox do | sandbox |
       Lucie::Log.expects( :info ).at_least_once
       Popen3::Debootstrap.expects( :new )
-      AptGet.expects( :clean ).with( { :root => sandbox.root } )
+      AptGet.expects( :clean ).with( { :root => ENV[ 'RAILS_ROOT' ] + '/tmp/debootstrap' } )
       Popen3::Shell.expects( :open ).at_least_once.returns( 'DUMMY_RETURN_VALUE' )
       
       NfsrootBase.configure do | task |

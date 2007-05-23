@@ -84,10 +84,10 @@ class NfsrootBase < Rake::TaskLib
 
 
   def define_task_clobber
-    desc "Remove #{ @target_directory }"
+    desc "Remove #{ temporary_nfsroot_directory }"
     namespace 'installer' do
       task paste( 'clobber_', @name ) do
-        sh_exec 'rm', '-rf', @target_directory
+        sh_exec 'rm', '-rf', temporary_nfsroot_directory + "/*"
       end
     end
   end
@@ -96,19 +96,19 @@ class NfsrootBase < Rake::TaskLib
   def define_task_tgz
     file nfsroot_base_target do
       Lucie::Log.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
-      Lucie::Log.info "Calling debootstrap #{ @suite } #{ @target_directory } #{ @mirror }"
+      Lucie::Log.info "Calling debootstrap #{ @suite } #{ temporary_nfsroot_directory } #{ @mirror }"
 
       debootstrap do | option |
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
         # [???] Exclude option is hard-coded. This should be read only for most of users?
         option.exclude = [ 'dhcp-client', 'info' ]
         option.suite = @suite
-        option.target = @target_directory
+        option.target = temporary_nfsroot_directory
         option.mirror = @mirror
         option.include = @include
       end
 
-      AptGet.clean :root => @target_directory
+      AptGet.clean :root => temporary_nfsroot_directory
 
       sh_exec 'rm', '-f', target( '/etc/resolv.conf' )
       build_nfsroot_base_tarball
@@ -118,12 +118,20 @@ class NfsrootBase < Rake::TaskLib
 
   def build_nfsroot_base_tarball
     Lucie::Log.info "Creating installer base tarball on #{ nfsroot_base_target }."
-    sh_exec 'tar', '--one-file-system', '--directory', @target_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', nfsroot_base_target, '.'
+    unless File.exists?( @target_directory )
+      sh_exec "mkdir #{ @target_directory }"
+    end
+    sh_exec 'tar', '--one-file-system', '--directory', temporary_nfsroot_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', nfsroot_base_target, '.'
   end
 
 
   def target_fname distribution, suite
     return distribution + '_' + suite + '.tgz'
+  end
+
+
+  def temporary_nfsroot_directory
+    return( ENV[ 'RAILS_ROOT' ] + '/tmp/debootstrap' )
   end
 end
 
