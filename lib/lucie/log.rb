@@ -8,6 +8,7 @@
 
 module Lucie
   class StderrLogger
+    # [???] ignoring block argument. is this OK?
     def self.method_missing method, *args, &block
       STDERR.puts args.join( ' ' )
     end
@@ -29,16 +30,16 @@ module Lucie
       if severity == :debug and not @verbose
         return
       end
-      message = "[#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}] #{description}"
+      message = "[#{ Time.now.strftime( '%Y-%m-%d %H:%M:%S' ) }] #{ description }"
       Log.send severity.to_sym, message
     end
 
 
-    def self.mylogger
-      unless const_defined?( :RAILS_DEFAULT_LOGGER )
-        return StderrLogger
-      else
+    def self.logger
+      if defined?( LUCIE_THIS_PROCESS_IS_BUILDER )
         return RAILS_DEFAULT_LOGGER
+      else
+        return StderrLogger
       end
     end
 
@@ -53,24 +54,31 @@ module Lucie
       case first_arg
       when Exception
         message = "#{ print_severity( method ) } #{ first_arg.message }"
-        backtrace = first_arg.backtrace.map { |line| "#{print_severity(method)}   #{line}" }
+        backtrace = first_arg.backtrace.map do | line |
+          "#{ print_severity( method ) }   #{ line }"
+        end
       else
         message = "#{ print_severity( method ) } #{ first_arg }"
       end
 
-      mylogger.send method, message, *args, &block
+      logger.send method, message, *args, &block
 
       if backtrace and not defined?( Test )
         backtrace.each do | line |
-          mylogger.send method, line
+          logger.send method, line
         end
       end
-#       is_error = (method == :error or method == :fatal)
-#       if @verbose or is_error and defined?( RAILS_ENV ) and RAILS_ENV != 'test'
-#         stream = is_error ? STDERR : STDOUT
-#         stream.puts message
-#         backtrace.each { |line| stream.puts line } if backtrace and @verbose
-#       end
+
+      is_error = ( method == :error or method == :fatal )
+      if @verbose or is_error and defined?( RAILS_ENV ) and RAILS_ENV != 'test'
+        stream = is_error ? STDERR : STDOUT
+        stream.puts message
+        if backtrace and @verbose
+          backtrace.each do | line |
+            stream.puts line
+          end
+        end
+      end
     end
 
     
