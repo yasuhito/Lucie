@@ -15,6 +15,14 @@ class Installers
   end
 
 
+  def self.find installer_name
+    # TODO: sanitize installer_name to prevent a query injection attack here
+    path = File.join(Configuration.installers_directory, installer_name)
+    return nil unless File.directory?(path)
+    load_installer(path)
+  end
+
+
   def self.load_installer dir
     installer = Installer.read( dir, load_config = false )
     installer.path = dir

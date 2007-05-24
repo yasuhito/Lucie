@@ -11,21 +11,22 @@
 
 
 require File.dirname( __FILE__ ) + '/../config/boot'
+require RAILS_ROOT + '/config/environment'
 require 'optparse'
 
 
 node_name = ARGV.shift
-mac_address = nil
+installer_name = nil
 trace = false
 
 
 ARGV.options do |opts|
-  opts.banner = 'usage: node add <node-name> --mac <MAC address>'
+  opts.banner = 'usage: node add <node-name> --installer <installer-name>'
 
   opts.separator ''
-  opts.on( '-m', '--mac MAC address', String,
-           "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
-    mac_address = v
+  opts.on( '-i', '--installer installer name', String,
+           "The installer name for the installation" ) do | v |
+    installer_name = v
   end
 
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
@@ -41,8 +42,8 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
-  unless node_name and mac_address
-    STDERR.puts 'Node name and Mac address are mandatory'
+  unless node_name and installer_name
+    STDERR.puts 'Node name and Installer name are mandatory'
     STDERR.puts
     puts opts
     exit -1
@@ -54,23 +55,29 @@ ARGV.options do |opts|
     exit -1
   end
 
-  hex = /[a-fA-F0-9][a-fA-F0-9]/
-  unless mac_address.match /\A#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex}\Z/
-    STDERR.puts "'#{mac_address}' is not a valid MAC address."
-    exit -1
+
+  unless Nodes.find( node_name )
+    STDERR.puts "Node '#{ node_name }' is not added yet. Please add node with 'node add <node-name>' first."
+    exit 1
+  end
+
+
+  unless Installers.find( installer_name )
+    STDERR.puts "Installer '#{ installer_name }' is not added yet. Please add installer with 'installer add <installer-name>' first."
+    exit 1
   end
 end
 
 
-puts "Adding node '#{node_name}' (this may take a while)..."
+puts "Setting up installer '#{ installer_name }' for node '#{ node_name }' (this may take a while)..."
 
 begin 
-  require RAILS_ROOT + '/config/environment'
+  node = Nodes.find( node_name )
+  node.install_with installer_name
 
-  node = Node.new( node_name, mac_address )
-  nodes = Nodes.load_all
-  nodes << node
-
+  Tftp.setup node_name, installer_name
+  Nfs.setup installer_name
+  Dhcp.setup installer_name
 rescue => e
   if trace
     raise
@@ -81,7 +88,7 @@ rescue => e
 end
 
 
-puts "Node '#{node_name}' added."
+puts "Installer '#{ installer_name }' setup finished."
 
 
 ### Local variables:

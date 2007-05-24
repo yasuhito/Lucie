@@ -1,5 +1,6 @@
 class Node
   attr_reader :name
+  attr_reader :mac_address
   attr_reader :path
 
 
@@ -16,9 +17,31 @@ class Node
   end
 
 
-  def initialize name
+  def initialize name, mac_address = nil
     @name = name
+    @mac_address = mac_address
     @path = File.join( Configuration.nodes_directory, @name )
+    unless @mac_address
+      load_mac_address
+    end
+  end
+
+
+  def install_with installer_name
+    FileUtils.touch File.join( @path, installer_name )
+  end
+
+
+  def load_mac_address
+    mac_address_file = Dir[ "#{ path }/*" ].collect do | each |
+      hex = /[a-fA-F0-9][a-fA-F0-9]/
+      /\A(#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex})\Z/=~ File.basename( each )
+      $1
+    end.first
+    unless mac_address_file
+      raise "MAC address for node '#{ @name }' not defined."
+    end
+    @mac_address = mac_address_file
   end
 
 

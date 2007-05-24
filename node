@@ -15,6 +15,11 @@ def add
 end
 
 
+def install
+  load File.dirname( __FILE__ ) + "/script/install_node"
+end
+
+
 def version
   puts <<-EOL
 Lucie, version #{ Lucie::VERSION::STRING }
@@ -54,6 +59,8 @@ def method_for_command command
   case command
   when 'add'
     return :add
+  when 'install'
+    return :install
   when 'version', '-v', '--version'
     return :version
   when 'help', '-h', '--help', '/?', '-?'
