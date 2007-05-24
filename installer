@@ -50,7 +50,7 @@ For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
   elsif method_for_command( command )
     self.send( method_for_command( command ) )
   else
-    STDERR.puts "Type 'lucie help' for usage."
+    STDERR.puts "Type 'installer help' for usage."
     exit -1
   end
 end
@@ -80,7 +80,7 @@ elsif command.nil?
   exit -1
 else
   STDERR.puts "Unknown command : '#{command}'"
-  STDERR.puts "Type 'lucie --help' for usage."
+  STDERR.puts "Type 'installer --help' for usage."
   exit -1
 end
 
