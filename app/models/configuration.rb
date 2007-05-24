@@ -12,6 +12,7 @@ class Configuration
   @dashboard_refresh_interval = 5.seconds
   @default_polling_interval = 10.seconds
   @installers_directory = File.expand_path( File.join( RAILS_ROOT, 'installers' ) )
+  @nodes_directory = File.expand_path( File.join( RAILS_ROOT, 'nodes' ) )
   @sleep_after_build_loop_error = 30.seconds
 
 
@@ -24,6 +25,7 @@ class Configuration
     attr_accessor :dashboard_refresh_interval
     attr_accessor :default_page
     attr_accessor :installers_directory
+    attr_accessor :nodes_directory
     attr_accessor :sleep_after_build_loop_error
   end
 end

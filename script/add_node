@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+#
+# $Id: add_installer 72 2007-05-18 07:11:38Z yasuhito $
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision: 72 $
+# License:: GPL2
+
+
+# ENV[ 'RAILS_ENV' ] = 'production'
+
+
+require File.dirname( __FILE__ ) + '/../config/boot'
+require 'optparse'
+
+
+node_name = ARGV.shift
+trace = false
+scm_options = {:interactive => true}
+
+
+ARGV.options do |opts|
+  opts.banner = 'usage: lucie add <node-name> --url <URL> [subversion options]'
+
+  opts.separator ''
+  opts.on( '-m', '--mac MAC address', String,
+           "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
+    mac_address = v
+  end
+
+  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+    trace = true
+  end
+
+  opts.separator ''
+
+  opts.on( '-h', '--help', 'Show this help message.' ) do
+    puts opts
+    exit 1
+  end
+
+  args = opts.parse!
+
+  unless node_name
+    STDERR.puts 'Node name is mandatory'
+    STDERR.puts
+    puts opts
+    exit -1
+  end
+
+  # Node Name can only contain alphanumeric characters and numbers
+  if node_name.match /[^-_a-zA-Z]/
+    STDERR.puts "'#{node_name}' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
+    exit -1
+  end
+end
+
+
+puts "Adding node '#{node_name}' (this may take a while)..."
+
+begin 
+  require RAILS_ROOT + '/config/environment'
+
+  node = Node.new( node_name )
+  nodes = Nodes.load_all
+  nodes << node
+
+rescue => e
+  if trace
+    raise
+  else
+    STDERR.puts "FAILED: #{e.message}"
+    exit -1
+  end
+end
+
+
+puts "Node '#{node_name}' added."
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
