@@ -20,7 +20,9 @@ require 'rake/rdoctask'
 require 'tasks/rails'
 
 
+# Exclude files generated with root permission.
 CLEAN.exclude 'installers/*'
+CLEAN.exclude 'tmp/debootstrap/*'
 
 
 ### Local variables:
