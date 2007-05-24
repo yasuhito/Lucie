@@ -10,6 +10,11 @@
 load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 
 
+def list
+  load File.dirname( __FILE__ ) + "/script/list_node"
+end
+
+
 def add
   load File.dirname( __FILE__ ) + "/script/add_node"
 end
@@ -42,6 +47,8 @@ Type 'node --version' to see the version number.
 
 Available commands:
   add        - adds a node
+  install    - install a node
+  list       - list registered nodes
 
 Lucie is a Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
@@ -61,6 +68,8 @@ def method_for_command command
     return :add
   when 'install'
     return :install
+  when 'list'
+    return :list
   when 'version', '-v', '--version'
     return :version
   when 'help', '-h', '--help', '/?', '-?'

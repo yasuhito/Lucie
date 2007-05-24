@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+#
+# $Id$
+#
+# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
+# Revision:: $LastChangedRevision$
+# License:: GPL2
+
+
+# ENV[ 'RAILS_ENV' ] = 'production'
+
+
+require File.dirname( __FILE__ ) + '/../config/boot'
+require 'optparse'
+
+
+node_name = ARGV.shift
+mac_address = nil
+trace = false
+
+
+ARGV.options do |opts|
+  opts.banner = 'usage: node list'
+
+  opts.separator ''
+
+  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+    trace = true
+  end
+
+  opts.separator ''
+
+  opts.on( '-h', '--help', 'Show this help message.' ) do
+    puts opts
+    exit 1
+  end
+
+  args = opts.parse!
+end
+
+
+begin 
+  require RAILS_ROOT + '/config/environment'
+
+  nodes = Nodes.load_all
+
+  puts "Nodes directory = '#{ nodes.dir }'"
+  nodes.list.each do | each |
+    installer_name = ( each.installer_name ? each.installer_name : '[DISABLED]' )
+    printf "%10s (installer = %s)\n", each.name, installer_name
+  end
+
+rescue => e
+  if trace
+    raise
+  else
+    STDERR.puts "FAILED: #{e.message}"
+    exit -1
+  end
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

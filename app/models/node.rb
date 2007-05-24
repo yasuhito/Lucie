@@ -32,10 +32,19 @@ class Node
   end
 
 
+  def installer_name
+    Dir[ "#{ path }/*" ].each do | each |
+      unless ( mac_address_re=~ File.basename( each ) )
+        return File.basename( each )
+      end
+    end
+    return nil
+  end
+
+
   def load_mac_address
     mac_address_file = Dir[ "#{ path }/*" ].collect do | each |
-      hex = /[a-fA-F0-9][a-fA-F0-9]/
-      /\A(#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex})\Z/=~ File.basename( each )
+      mac_address_re=~ File.basename( each )
       $1
     end.first
     unless mac_address_file
@@ -54,5 +63,14 @@ class Node
   def path= value
     # @config_tracker = NodeConfigTracker.new( value )
     @path = value
+  end
+
+
+  private
+
+
+  def mac_address_re
+    hex = /[a-fA-F0-9][a-fA-F0-9]/
+    return /\A(#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex})\Z/
   end
 end

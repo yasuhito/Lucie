@@ -26,6 +26,10 @@ class Nodes
   end
 
 
+  attr_reader :dir
+  attr_reader :list
+
+
   def initialize dir = Configuration.nodes_directory
     @dir = dir
     @list = []
