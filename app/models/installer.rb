@@ -364,6 +364,11 @@ class Installer
   end
 
 
+  def == another
+    return( another.is_a?( Installer ) and another.name == self.name )
+  end
+
+
   private
 
 
