@@ -15,7 +15,6 @@ require 'optparse'
 
 
 node_name = ARGV.shift
-mac_address = nil
 trace = false
 
 
@@ -42,13 +41,7 @@ end
 begin 
   require RAILS_ROOT + '/config/environment'
 
-  nodes = Nodes.load_all
-
-  puts "Nodes directory = '#{ nodes.dir }'"
-  nodes.list.each do | each |
-    installer_name = ( each.installer_name ? each.installer_name : '_disabled_' )
-    printf "%10s (installer = %s)\n", each.name, installer_name
-  end
+  Nodes.find( node_name ).disable
 
 rescue => e
   if trace

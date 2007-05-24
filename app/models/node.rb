@@ -27,7 +27,17 @@ class Node
   end
 
 
+  def disable
+    Dir[ @path + '/*' ].each do | each |
+      unless File.basename( each ) == @mac_address
+        FileUtils.rm each
+      end
+    end
+  end
+
+
   def install_with installer_name
+    disable
     FileUtils.touch File.join( @path, installer_name )
   end
 

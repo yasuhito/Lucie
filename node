@@ -10,6 +10,11 @@
 load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 
 
+def disable
+  load File.dirname( __FILE__ ) + "/script/disable_node"
+end
+
+
 def list
   load File.dirname( __FILE__ ) + "/script/list_node"
 end
@@ -48,6 +53,7 @@ Type 'node --version' to see the version number.
 Available commands:
   add        - adds a node
   install    - install a node
+  disable    - disable installation of a node
   list       - list registered nodes
 
 Lucie is a Automatic Cluster Installer.
@@ -64,9 +70,11 @@ end
 
 def method_for_command command
   case command
+  when 'disable'
+    return :disable
   when 'add'
     return :add
-  when 'install'
+  when 'install', 'enable'
     return :install
   when 'list'
     return :list
