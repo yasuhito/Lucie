@@ -20,7 +20,7 @@ scm_options = {:interactive => true}
 
 
 ARGV.options do |opts|
-  opts.banner = 'usage: lucie add <installer-name> --url <URL> [subversion options]'
+  opts.banner = 'usage: installer add <installer-name> --url <URL> [subversion options]'
 
   opts.separator ''
   opts.on("-u", "--url url", String,
