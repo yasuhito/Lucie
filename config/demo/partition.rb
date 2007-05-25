@@ -1,10 +1,4 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $Revision$
-# License:: GPL2
-#
+# Partition configuration for Lucie
 
 
 require 'lucie/setup-harddisks/config'
@@ -60,10 +54,3 @@ end
 #  p.preserve = true
 #  p.fstab_option << 'nosuid'
 #end
-
-
-### Local variables:
-### mode: Ruby
-### coding: euc-jp-unix
-### indent-tabs-mode: nil
-### End:

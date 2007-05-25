@@ -1,12 +1,8 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
+# Installer-specific configuration for Lucie
 
 
 Nfsroot.configure do | nfsroot |
+
   # Build the nfsroot using http proxy "http://proxy.mydomain.com:3128"
   # nfsroot.http_proxy = 'http://proxy.mydomain.com:3128/'
 
@@ -25,11 +21,5 @@ Nfsroot.configure do | nfsroot |
   # Use the following sources_list while installation (default: "http://192.168.1.1:9999/debian main contrib non-free")
   # Keep in mind that specified sources_list should be reachable from all nodes.
   # nfsroot.sources_list = 'deb http://192.168.1.1:9999/debian main contrib non-free'
+
 end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8
-### indent-tabs-mode: nil
-### End:

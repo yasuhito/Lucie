@@ -1,34 +1,15 @@
-#
-# Configuration for Lucie
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
+# Site-wide configuration for Lucie
 
 
 Installer.configure do | installer |
+
   # Send email notifications about broken and fixed builds to email1@your.site, email2@your.site (default: send to nobody)
   # installer.email_notifier.emails = ['email1@your.site', 'email2@your.site']
 
   # Set email 'from' field to john@doe.com:
   # installer.email_notifier.from = 'john@doe.com'
 
-  # Build the installer by invoking rake task 'custom'
-  # installer.rake_task = 'custom'
-
-  # Build the installer by invoking shell script "build_my_app.sh". Keep in mind that when the script is invoked, current working directory is 
-  # [lucie]/installers/your_installer/work, so if you do not keep build_my_app.sh in version control, it should be '../build_my_app.sh' instead
-  # installer.build_command = 'build_my_app.sh'
-
   # Ping Subversion for new revisions every 5 minutes (default: 30 seconds)
   # installer.scheduler.polling_interval = 5.minutes
+
 end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8
-### indent-tabs-mode: nil
-### End:
