@@ -369,6 +369,12 @@ class Installer
   end
 
 
+  # access plugins by their names
+  def method_missing method_name, *args, &block
+    @plugins_by_name.key?( method_name ) ? @plugins_by_name[ method_name ] : super
+  end
+
+
   private
 
 

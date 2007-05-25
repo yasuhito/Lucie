@@ -48,6 +48,11 @@ class Build
   end
 
 
+  def changeset
+    File.read(artifact('changeset.log')) rescue ''
+  end
+
+
   def failed?
     return @status.failed?
   end
