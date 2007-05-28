@@ -7,7 +7,7 @@ Nfsroot.configure do | nfsroot |
   # nfsroot.http_proxy = 'http://proxy.mydomain.com:3128/'
 
   # Build the nfsroot using package mirror server "http://cdn.debian.or.jp/debian/"
-  # nfsroot.mirror = 'http://cdn.debian.or.jp/debian/'
+  nfsroot.mirror = 'http://foo/bar/'
 
   # Build the nfsroot for "debian" Linux distribution
   # nfsroot.distribution = 'debian'
