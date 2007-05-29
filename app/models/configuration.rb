@@ -14,11 +14,13 @@ class Configuration
   @installers_directory = File.expand_path( File.join( RAILS_ROOT, 'installers' ) )
   @nodes_directory = File.expand_path( File.join( RAILS_ROOT, 'nodes' ) )
   @sleep_after_build_loop_error = 30.seconds
+  @disable_build_now = false
 
 
   class << self
     # published configuration options (mentioned in config/site_config.rb.example)
     attr_accessor :default_polling_interval
+    attr_accessor :disable_build_now
 
     # non-published configuration options.
     attr_accessor :build_request_checking_interval

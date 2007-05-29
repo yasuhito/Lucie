@@ -27,6 +27,16 @@ class Build
   end
 
 
+  def time
+    @status.timestamp
+  end
+
+
+  def plugin_errors
+    File.read( artifact( 'plugin_errors.log' ) ) rescue ''
+  end
+
+
   def brief_error
     if File.size( @status.status_file ) > 0
       return 'config error'
@@ -182,6 +192,11 @@ class Build
         @status.fail! time_escaped
       end
     end
+  end
+
+
+  def elapsed_time_in_progress
+    @status.elapsed_time_in_progress
   end
 end
 

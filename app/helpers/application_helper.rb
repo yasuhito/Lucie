@@ -19,10 +19,10 @@ module ApplicationHelper
     EOL
   end
 
-  def link_to_build(project, build)
+  def link_to_build(installer, build)
     text = build_label(build)
     text += " <span class='error'>FAILED</span>" if build.failed?
-    build_link(text, project, build)
+    build_link(text, installer, build)
   end
 
   def text_to_build(build, with_elapsed_time = true)
@@ -38,8 +38,8 @@ module ApplicationHelper
     return text
   end
   
-  def link_to_build_with_elapsed_time(project, build)
-    build_link(text_to_build(build), project, build)
+  def link_to_build_with_elapsed_time(installer, build)
+    build_link(text_to_build(build), installer, build)
   end
     
   def display_builder_state(state)
@@ -65,8 +65,8 @@ module ApplicationHelper
     end
   end
   
-  def build_link(text, project, build)
-    link_to text, build_url(:project => project.name, :build => build.label), :class => build.status
+  def build_link(text, installer, build)
+    link_to text, build_url(:installer => installer.name, :build => build.label), :class => build.status
   end
         
   private 

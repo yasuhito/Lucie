@@ -1,0 +1,2 @@
+page.replace_html('installers', :partial => 'installer', :collection => @installers) unless @installers.empty?
+page.replace_html('installers', :partial => 'no_installers') if @installers.empty?

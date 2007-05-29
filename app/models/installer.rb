@@ -62,6 +62,30 @@ class Installer
   end
 
 
+  def last_complete_build_status
+    if BuilderStatus.new( self ).fatal?
+      return 'failed'
+    end
+    last_complete_build ? last_complete_build.status : 'never_built'
+  end
+
+
+  def builder_state_and_activity
+    BuilderStatus.new( self ).status
+  end 
+
+
+  def builder_error_message
+    BuilderStatus.new(self).error_message
+  end
+
+
+
+  def last_five_builds
+    last_builds(5)
+  end
+
+
   def local_checkout
     @local_checkout or File.join(@path, 'work')
   end
@@ -461,6 +485,11 @@ def plugin_loader.load_all
       # a path is neither file nor directory. whatever else it may be, let's ignore it.
       # TODO: find out what happens with symlinks on a Linux here? how about broken symlinks?
     end
+  end
+
+
+  def remove_build_requested_flag_file
+    FileUtils.rm_f(Dir[build_requested_flag_file])
   end
 end
 

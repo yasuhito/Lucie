@@ -109,9 +109,9 @@ a.never_built, a.never_built:visited {
   color: #888;
 }
 
-/* Project dashboard */
+/* Installer dashboard */
 
-.project {
+.installer {
   margin: 0.5em 0;
   padding: 0 1.5em;
   min-height: 9.2em;
@@ -131,37 +131,37 @@ a.never_built, a.never_built:visited {
   margin-left: -2.5em;
 }
 
-.project table.project_pane {
+.installer table.installer_pane {
   padding-left: .75em;
   width: 100%;
 }
 
-.project table.project_pane td {
+.installer table.installer_pane td {
   vertical-align: top;
   text-align: left;
 }
 
-.project table.project_pane td.project_summary {
+.installer table.installer_pane td.installer_summary {
   width: 24%;
 }
 
-.project table.project_pane td.builder_control {
+.installer table.installer_pane td.builder_control {
   width: 12%;
 }
 
-.project table.project_pane td.build_details {
+.installer table.installer_pane td.build_details {
   width: 64%;
 }
 
-.project .project_summary .buttons {
+.installer .installer_summary .buttons {
   padding: 1.5em;
 }
 
-.project .project_summary .buttons form {
+.installer .installer_summary .buttons form {
   display: inline;
 }
 
-.project .build_button, .project .build_button_disabled {
+.installer .build_button, .installer .build_button_disabled {
   color: #000;
   font-weight:bold;
   background-repeat: no-repeat;
@@ -172,29 +172,29 @@ a.never_built, a.never_built:visited {
   border: none;
   background-color: transparent;
 }
-.project .build_button {
+.installer .build_button {
   background-image:url(/images/button.png);
 }
 
-.project .build_button_disabled {
+.installer .build_button_disabled {
   color: #999;
   background-image:url(/images/button_disabled.png);
 }
 
-.project .recent_builds {
+.installer .recent_builds {
   color: #666;
 }
 
-.project .recent_builds .lead {
+.installer .recent_builds .lead {
   float: left;
   padding-right: 0.5em;
 }
 
-.project .recent_builds .builds_list {
+.installer .recent_builds .builds_list {
   float: left;
 }
 
-.project .builder_control .builder_status_builder_down, .project .builder_control .builder_status_unknown, .project .builder_control .builder_status_svn_error {
+.installer .builder_control .builder_status_builder_down, .installer .builder_control .builder_status_unknown, .installer .builder_control .builder_status_svn_error {
   font-weight: bold;
   padding-top: 5px;
   padding-left: 25px;
@@ -203,7 +203,7 @@ a.never_built, a.never_built:visited {
   background-repeat: no-repeat;
 }
 
-.project .builder_control .builder_status_building, .project .builder_control .builder_status_build_requested {
+.installer .builder_control .builder_status_building, .installer .builder_control .builder_status_build_requested {
   font-weight: bold;
   padding-top: 5px;
   padding-left: 25px;
@@ -212,10 +212,10 @@ a.never_built, a.never_built:visited {
   background-repeat: no-repeat;
 }
 
-.project .build_summary {
+.installer .build_summary {
 }
 
-.project .project_name {
+.installer .installer_name {
   padding: 0;
   margin: 0;
   font-size: 2em;

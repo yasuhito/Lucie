@@ -33,6 +33,19 @@ class InstallersController < ApplicationController
       format.rss { render :action => 'show_rss', :layout => false }
     end
   end
+
+
+  def build
+    render :text => 'Installer not specified', :status => 404 and return unless params[:id]
+
+    @installer = Installers.find(params[:id])
+    render :text => "Installer #{params[:id].inspect} not found", :status => 404 and return unless @installer
+
+    @installer.request_build rescue nil
+    @installers = Installers.load_all
+
+    render :action => 'index_js'
+  end
 end
 
 
