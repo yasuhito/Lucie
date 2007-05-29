@@ -10,154 +10,68 @@
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
-require 'rubygems'
-require 'flexmock'
-require 'popen3'
+class Popen3Test < Test::Unit::TestCase
+  def test_popen3_with_no_block_returns_a_set_of_pipes
+    Kernel.expects( :fork ).times( 1 )
+    Lucie::Log.expects( :debug ).times( 1 )
 
+    tochild, fromchild, childerr = popen3( { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }, 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' )
 
-class TC_Popen3 < Test::Unit::TestCase
-  include FlexMock::TestCase
-
-
-  def test_kernel_popen3_no_block
-    prepare_popen3_no_block_mock
-
-    tochild, fromchild, childerr = popen3( dummy_env, 'COMMAND', 'ARG1', 'ARG2' )
-    assert_equal 'TOCHILD', tochild.mock_name
-    assert_equal 'FROMCHILD', fromchild.mock_name
-    assert_equal 'CHILDERR', childerr.mock_name
+    assert_kind_of IO, tochild
+    assert tochild.sync
+    assert_kind_of IO, fromchild
+    assert_kind_of IO, childerr
   end
 
 
-  def test_wait
-    prepare_popen3_no_block_mock
-    flexmock( Process, 'PROCESS' ).should_receive( :wait ).with( dummy_pid ).once
+  def test_wait_should_work
+    Kernel.expects( :fork ).times( 1 ).returns( 'DUMMY_PID' )
+    Lucie::Log.expects( :debug ).times( 1 )
+    Process.expects( :wait ).times( 1 ).with( 'DUMMY_PID' )
 
-    process = Popen3::Popen3.new( dummy_env, 'COMMAND', 'ARG1', 'ARG2' )
+    process = Popen3::Popen3.new( { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }, 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' )
     process.popen3
     process.wait
   end
 
 
-  def test_popen3_no_block
-    prepare_popen3_no_block_mock
+   def test_popen3_with_block_yields_a_set_of_pipes
+     Kernel.expects( :fork ).times( 1 )
+     Lucie::Log.expects( :debug ).times( 1 )
 
-    tochild, fromchild, childerr = Popen3::Popen3.new( dummy_env, 'COMMAND', 'ARG1', 'ARG2' ).popen3
-    assert_equal 'TOCHILD', tochild.mock_name
-    assert_equal 'FROMCHILD', fromchild.mock_name
-    assert_equal 'CHILDERR', childerr.mock_name
-  end
-
-
-  def test_kernel_popen3_with_block
-    prepare_popen3_with_block_mock
-
-    popen3( dummy_env, 'COMMAND', 'ARG1', 'ARG2' ) do | tochild, fromchild, childerr |
-      assert_equal 'TOCHILD', tochild.mock_name
-      assert_equal 'FROMCHILD', fromchild.mock_name
-      assert_equal 'CHILDERR', childerr.mock_name
-    end
-  end
+     popen3( { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }, 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' ) do | tochild, fromchild, childerr |
+       assert_kind_of IO, tochild
+       assert tochild.sync
+       assert_kind_of IO, fromchild
+       assert_kind_of IO, childerr
+     end
+   end
 
 
-  def test_popen3_with_block
-    prepare_popen3_with_block_mock
+   def test_popen3_execs_the_write_command
+     pipe_mock = mock( 'PIPE' )
+     pipe_mock.expects( :closed? ).at_least_once.returns( false )
+     pipe_mock.expects( :close ).at_least_once
+     pipe_mock.expects( :sync= ).at_least_once
 
-    popen3 = Popen3::Popen3.new( dummy_env, 'COMMAND', 'ARG1', 'ARG2' )
+     IO.expects( :pipe ).times( 3 ).returns( [ pipe_mock, pipe_mock ] )
 
-    popen3.popen3 do | tochild, fromchild, childerr |
-      assert_equal 'TOCHILD', tochild.mock_name
-      assert_equal 'FROMCHILD', fromchild.mock_name
-      assert_equal 'CHILDERR', childerr.mock_name
-    end
-  end
+     Kernel.expects( :fork ).times( 1 ).yields
+     Kernel.expects( :exec ).times( 1 ).with( 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' )
+     
+     STDIN.expects( :reopen ).times( 1 )
+     STDOUT.expects( :reopen ).times( 1 )
+     STDERR.expects( :reopen ).times( 1 )
 
+     Lucie::Log.expects( :debug ).times( 1 )
 
-  def prepare_popen3_with_block_mock
-    tochild, fromchild, childerr = prepare_popen3_no_block_mock
-
-    # ensure close_end_of @parent_pipe
-    tochild.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    tochild.should_receive( :close ).with_no_args.once.ordered
-    fromchild.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    fromchild.should_receive( :close ).with_no_args.once.ordered
-    childerr.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    childerr.should_receive( :close ).with_no_args.once.ordered
-  end
-
-
-  def prepare_popen3_no_block_mock
-    child_stdin = flexmock( 'CHILD_STDIN' )
-    tochild = flexmock( 'TOCHILD' )
-    fromchild = flexmock( 'FROMCHILD' )
-    child_stdout = flexmock( 'CHILD_STDOUT' )
-    childerr = flexmock( 'CHILDERR' )
-    child_stderr = flexmock( 'CHILD_STDERR' )
-
-    # init_pipe
-    flexmock( IO ).should_receive( :pipe ).times( 3 ).with_no_args.and_return( [ child_stdin, tochild ], [ fromchild, child_stdout ], [ childerr, child_stderr ] )
-
-    # Kernel.fork
-    kernel_class_mock = flexmock( Kernel )
-    kernel_class_mock.should_receive( :fork ).with( Proc ).once.and_return do | block |
-      block.call
-      dummy_pid
-    end
-
-    # Child Process ############################################################
-
-    # close_end_of @parent_pipe
-    tochild.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    tochild.should_receive( :close ).with_no_args.once.ordered
-    fromchild.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    fromchild.should_receive( :close ).with_no_args.once.ordered
-    childerr.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    childerr.should_receive( :close ).with_no_args.once.ordered
-
-    # STDIO reopen
-    flexmock( STDIN ).should_receive( :reopen ).with( on do | mock | mock.mock_name == 'CHILD_STDIN' end ).once
-    flexmock( STDOUT ).should_receive( :reopen ).with( on do | mock | mock.mock_name == 'CHILD_STDOUT' end ).once
-    flexmock( STDERR ).should_receive( :reopen ).with( on do | mock | mock.mock_name == 'CHILD_STDERR' end ).once
-
-    # close_end_of @child_pipe
-    child_stdin.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stdin.should_receive( :close ).with_no_args.once.ordered
-    child_stdout.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stdout.should_receive( :close ).with_no_args.once.ordered
-    child_stderr.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stderr.should_receive( :close ).with_no_args.once.ordered
-
-    flexmock( ENV ).should_receive( :[]= ).with( 'TEST_ENV_NAME', 'TEST_ENV_VALUE' ).once
-    kernel_class_mock.should_receive( :exec ).with( 'COMMAND', 'ARG1', 'ARG2' ).once
-
-    # Parent Process ############################################################
-
-    # close_end_of @child_pipe
-    child_stdin.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stdin.should_receive( :close ).with_no_args.once.ordered
-    child_stdout.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stdout.should_receive( :close ).with_no_args.once.ordered
-    child_stderr.should_receive( :closed? ).with_no_args.once.ordered.and_return( false )
-    child_stderr.should_receive( :close ).with_no_args.once.ordered
-
-    tochild.should_receive( :sync= ).with( true ).once.ordered
-
-    return [ tochild, fromchild, childerr ]
-  end
-
-
-  def dummy_env
-    return { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
-  end
-
-
-  def dummy_pid
-    return 'DUMMY_PID'
-  end
+     popen3( { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }, 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' )
+   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:

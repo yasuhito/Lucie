@@ -51,9 +51,9 @@ module Popen3
 
       env_string = []
       @env.each do | key, value |
-        env_string << "``#{ key }'' => ``#{ value }''"
+        env_string << "'#{ key }' => '#{ value }'"
       end
-      Lucie::Log.debug " ENV{ #{ env_string.join( ', ' ) } } #{ @command.join( ' ' ) }"
+      Lucie::Log.debug "ENV{ #{ env_string.join( ', ' ) } } #{ @command.join( ' ' ) }"
 
       if block_given?
         begin
@@ -99,5 +99,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
