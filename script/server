@@ -1,3 +1,28 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/../config/boot'
+require 'builder_starter'
+require 'optparse'
+
+
+# HACK: Options copy/pasted from mongrel.rb in order to add custom options.
+# (this section, therefore, may need to be manually updated when upgrading to a new Rails version)
+ARGV.clone.options do |opts|
+  opts.on( "-d", "--daemon", "Make server run as a Daemon." ) {}
+  opts.on( "--trace", "Start builders in verbose mode." ){ $VERBOSE_MODE = true }
+
+  opts.separator ""
+
+  opts.on( "-h", "--help", "Show this help message." ) { puts opts; exit }
+
+  opts.parse!
+end
+
+# Remove custom options so that they are not interpreted by 'commands/server'   
+ARGV.delete("--trace")
+
+# change default environment to production
+if (ARGV & ['-e', '--environment']).empty?
+  ARGV << '-e' << 'production'
+end
+
 require 'commands/server'

@@ -17,6 +17,9 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors, bad email addresses will be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-
 require 'site_config' if File.exists?("#{RAILS_ROOT}/config/site_config.rb")
-config.after_initialize { BuilderStarter.start_builders } unless defined? LUCIE_THIS_PROCESS_IS_BUILDER
+unless defined? LUCIE_THIS_PROCESS_IS_BUILDER
+  config.after_initialize do
+    BuilderStarter.start_builders
+  end
+end

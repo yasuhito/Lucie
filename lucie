@@ -71,7 +71,7 @@ elsif command.nil?
   STDERR.puts "Type 'lucie --help' for usage."
   exit -1
 else
-  STDERR.puts "Unknown command : '#{command}'"
+  STDERR.puts "Unknown command : '#{ command }'"
   STDERR.puts "Type 'lucie --help' for usage."
   exit -1
 end
