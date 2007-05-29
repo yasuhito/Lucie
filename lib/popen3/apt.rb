@@ -54,7 +54,10 @@ module Popen3
 
 
     def set_option option
-      return unless option
+      unless option
+        return
+      end
+
       if option[ :root ]
         @root = option[ :root ]
       end
@@ -65,12 +68,6 @@ module Popen3
 
 
     def exec_shell
-      if @root
-        command_line = [ @env, 'chroot', @root, 'apt-get' ] + @command
-      else
-        command_line = [ @env, 'apt-get' ] + @command
-      end
-
       @shell = Shell.open do | shell |
         shell.on_stdout do | line |
           Lucie::Log.debug line
@@ -78,8 +75,35 @@ module Popen3
         shell.on_stderr do | line |
           Lucie::Log.error line
         end
-        shell.exec( *command_line )
+
+        shell.on_failure do
+          raise "#{ command_line_string } failed!"
+        end
+
+        shell.exec( @env, *command_line )
       end
+    end
+
+
+    def chroot_command
+      if @root
+        return [ 'chroot', @root ]
+      end
+      return []
+    end
+
+
+    def command_line
+      return chroot_command + [ 'apt-get' ] + @command
+    end
+
+
+    def command_line_string
+      env_string = []
+      @env.each do | key, value |
+        env_string << "'#{ key }' => '#{ value }'"
+      end
+      return "ENV{ #{ env_string.join( ', ' ) } }, '#{ command_line.join( ' ' ) }'"
     end
   end
 end
@@ -113,5 +137,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8
 ### indent-tabs-mode: nil
 ### End:
