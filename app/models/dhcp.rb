@@ -1,31 +1,44 @@
-class Dhcp
-  def self.setup installer_name
-    config_file = "/etc/dhcp3/dhcpd.conf.#{ installer_name }_example"
+require 'facter'
+require 'resolv'
 
-    if /(\S+)/=~ `hostname -d`
-      domain_name = $1
-    else
+
+class Dhcp
+  def self.domain
+    domain = Facter.value( 'domain' )
+    unless domain
       raise "Cannnot resolve Lucie server's domain name."
     end
+    return domain
+  end
 
-    if /(\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3})/=~ `host #{ `hostname` }`
-      next_server = $1
-    else
-      raise "Cannnot resolve Lucie server's IP address."      
+
+  def self.ipaddress
+    ipaddress = Facter.value( 'ipaddress' )
+    unless ipaddress
+      raise "Cannnot resolve Lucie server's IP address."
     end
+    return ipaddress
+  end
+
+
+  def self.node_ipaddress hosts, name
+    node_ipaddress = Resolv::Hosts.new( hosts ).getaddress( name )
+    unless node_ipaddress
+      raise "Cannnot resolve host '#{ name }' IP address."
+    end
+    return node_ipaddress
+  end
+
+
+  def self.setup installer_name, hosts = '/etc/hosts'
+    config_file = "/etc/dhcp3/dhcpd.conf.#{ installer_name }_example"
 
     host_entries = ''
     nodes = Nodes.load_enabled( installer_name ).collect do | each |
-      if /(\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3})/=~ `host #{ each.name }`
-        ip_address = $1
-      else
-        raise "Cannnot resolve host '#{ each.name }' IP address."
-      end
-
       host_entries += <<-EOF
   host #{ each.name } {
     hardware ethernet #{ each.mac_address };
-    fixed-address #{ ip_address };
+    fixed-address #{ node_ipaddress( hosts, each.name ) };
   }
 EOF
       each.name
@@ -33,19 +46,16 @@ EOF
 
     File.open( config_file, 'w' ) do | file |
       file.puts <<-EOF
-option domain-name "#{ domain_name }";
-default-lease-time 600;
-max-lease-time 7200;
+option domain-name "#{ domain }";
 
-### REPLACE with your network configuration ###
-subnet 192.168.1.0 netmask 255.255.255.0 {
-  option broadcast-address 192.168.1.255;
-###############################################
+### REPLACE subnet, netmask, broadcast-address with your network configuration ###
+subnet ?.?.?.? netmask ?.?.?.? {
+  option broadcast-address ?.?.?.?;
 
-  next-server #{ next_server };
-  fiilename "pxelinux.0";
+  next-server #{ ipaddress };
+  filename "pxelinux.0";
 
-#{host_entries}
+#{ host_entries }
 }
 EOF
     end
