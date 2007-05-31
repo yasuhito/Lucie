@@ -56,7 +56,7 @@ class Node
     mac_address_file = Dir[ "#{ path }/*" ].collect do | each |
       mac_address_re=~ File.basename( each )
       $1
-    end.first
+    end.compact.first
     unless mac_address_file
       raise "MAC address for node '#{ @name }' not defined."
     end
