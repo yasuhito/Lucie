@@ -1,9 +1,9 @@
 #
 # $Id$
 #
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
+
+
+require 'lucie/log'
 
 
 module Popen3
