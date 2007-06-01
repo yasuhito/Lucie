@@ -34,7 +34,7 @@ class Nfsroot < Rake::TaskLib
     @distribution = 'debian'
     @suite = 'etch'
     @kernel_package = 'linux-image-2.6.18-fai-kernels_1_i386.deb'
-    @sources_list = 'deb http://192.168.1.1:9999/debian main contrib non-free'
+    @sources_list = 'deb http://192.168.1.1:9999/debian stable main contrib non-free'
 
     @extra_packages = nil
     @root_password = "h29SP9GgVbLHE"
