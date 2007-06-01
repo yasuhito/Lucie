@@ -10,11 +10,6 @@
 require 'English'
 require 'install-packages/app'
 require 'install-packages/options'
-require 'lucie'
-
-
-# [FIXME]: add --logging-level option.
-Lucie.logging_level = :debug
 
 
 if __FILE__ == $PROGRAM_NAME
