@@ -7,17 +7,13 @@
 # License::  GPL2
 
 
-require 'lucie'
+require 'lucie/log'
 require 'popen3/shell'
 
 
-Lucie.logging_level = :debug
+Lucie::Log.verbose = true
 
-
-include Lucie
-
-
-info "Creating a writable area on the install client."
+Lucie::Log.info "Creating a writable area on the install client."
 
 sh_exec "mount -n -t proc proc /proc"
 sh_exec "mount -t tmpfs tmpfs /tmp"
@@ -27,11 +23,11 @@ sh_exec "mkdir -p /tmp/etc /tmp/target"
 def mkrw dirs
   dirs.each do | each |
     unless FileTest.directory?( each )
-      debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
+      Lucie::Log.debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
       next
     end
     if sh_exec( "mktemp -q -p #{ each }").child_status.exitstatus == 0
-      debug "#{ each } is already writable."
+      Lucie::Log.debug "#{ each } is already writable."
       next
     end
 
@@ -90,21 +86,21 @@ sh_exec '/usr/sbin/sshd'
 ################################################################################
 # task_partition
 
-info 'Partitioning local harddisks'
+Lucie::Log.info 'Partitioning local harddisks'
 sh_exec 'setup_harddisks -d -X -l /tmp'
 
 
 ################################################################################
 # task_mountdisks
 
-info 'Mounting local harddisks'
+Lucie::Log.info 'Mounting local harddisks'
 sh_exec 'mount2dir /tmp/target /tmp/fstab'
 
 
 ################################################################################
 # task_extrbase
 
-info 'Extracting base system'
+Lucie::Log.info 'Extracting base system'
 
 sh_exec "zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -"
 sh_exec "mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old" 
@@ -220,16 +216,16 @@ end
 
 def wait_for_jobs
   while jobs_running
-    info 'Waiting for background jobs to finish.'
+    Lucie::Log.info 'Waiting for background jobs to finish.'
     sleep 10
   end
 end
 
 
 wait_for_jobs
-info 'Press <RETURN> to reboot or ctrol-c to execute a shell.'
+Lucie::Log.info 'Press <RETURN> to reboot or ctrol-c to execute a shell.'
 STDIN.gets
-info 'Rebooting...'
+Lucie::Log.info 'Rebooting...'
 Dir.chdir('/')
 sh_exec 'sync'
 sh_exec 'killall -q sshd udevd'
