@@ -7,7 +7,7 @@ class Nfs
     config_file = "/etc/exports.#{ installer_name }"
 
     File.open( config_file, 'w' ) do | file |
-      file.puts File.expand_path( "#{ RAILS_ROOT }/installers/#{ installer_name }/nfsroot #{ nodes }(sync,ro)" )
+      file.puts File.expand_path( "#{ RAILS_ROOT }/installers/#{ installer_name }/nfsroot #{ nodes }(async,ro,no_root_squash)" )
     end
 
     puts "File #{ config_file } generated SUCCESSFULLY"

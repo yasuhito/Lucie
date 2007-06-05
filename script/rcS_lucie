@@ -26,7 +26,9 @@ def mkrw dirs
       Lucie::Log.debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
       next
     end
-    if sh_exec( "mktemp -q -p #{ each }").child_status.exitstatus == 0
+    begin
+      sh_exec( "mktemp -q -p #{ each }")
+    rescue
       Lucie::Log.debug "#{ each } is already writable."
       next
     end
@@ -52,7 +54,11 @@ if FileTest.executable?( '/etc/init.d/udev' )
   sh_exec '/etc/init.d/udev start'
 end
 unless FileTest.directory?( '/var/run/network' )
-  sh_exec 'mkdir /var/run/network'
+  begin
+    sh_exec 'mkdir /var/run/network'
+  rescue
+    nil
+  end
 end
 unless FileTest.directory?( '/dev/shm/network' )
   sh_exec 'mkdir /dev/shm/network'
@@ -69,7 +75,9 @@ sh_exec 'mount -o remount,noatime,ro /dev/root /'
 ################################################################################
 # task_confdir
 
-sh_exec 'syslogd -m 0'
+
+# FIXME
+# sh_exec 'syslogd -m 0'
 sh_exec 'cp -p /etc/resolv.conf-lucieserver /tmp/etc/resolv.conf'
 
 
