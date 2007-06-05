@@ -93,7 +93,12 @@ class Nfsroot < Rake::TaskLib
         if File.exist?( @target_directory )
           Lucie::Log.info "#{ @target_directory } already exists. Removing #{ @target_directory }"
 
-          sh_exec "umount #{ target( '/dev/pts' ) } 2>&1"
+          begin
+            sh_exec "umount #{ target( '/dev/pts' ) } 2>&1"
+          rescue
+            # ignore errors when /dev/pts is not mounted.
+            nil
+          end
           
           ( Dir.glob( target( '/dev/.??*' ) ) + Dir.glob( target( '/*' ) ) ).each do | each |
             sh_exec 'rm', '-rf', each
