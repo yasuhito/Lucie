@@ -263,17 +263,8 @@ class Nfsroot < Rake::TaskLib
 
 
   def setup_ssh
-    unless FileTest.exists?( target( '/usr/bin/ssh' ) )
-      return
-    end
-    sh_exec "mkdir -p -m 700 #{ target( '/root/.ssh' ) }"
-
-    # enable root login
-    sh_exec "perl -pi -e 's/PermitRootLogin no/PermitRootLogin yes/' #{ target( 'etc/ssh/sshd_config' ) }"
-    if @ssh_identity && FileTest.exists?( @ssh_identity )
-      sh_exec "cp #{ @ssh_identity } #{ target( 'root/.ssh/authorized_keys' ) }"
-      sh_exec "chmod 0644 #{ target( 'root/.ssh/authorized_keys' ) }"
-      Lucie::Log.info "You can log into install clients without password using #{ @ssh_identity }"
+    SSH.setup do | ssh |
+      ssh.target_directory = @target_directory
     end
   end
 

@@ -86,6 +86,8 @@ class NfsrootTest < Test::Unit::TestCase
 
       File.expects( :open ).at_least_once
 
+      SSH.expects( :setup ).times( 1 )
+
       Nfsroot.configure do | task |
         task.target_directory = sandbox.root
       end

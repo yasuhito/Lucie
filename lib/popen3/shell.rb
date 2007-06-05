@@ -158,6 +158,9 @@ module Kernel
       shell.on_stderr do | line |
         Lucie::Log.error line
       end
+      shell.on_failure do
+        raise %{Command "#{ command.join( ' ' ) }" failed}
+      end
 
       shell.exec( { 'LC_ALL' => 'C' }, *command )
 
