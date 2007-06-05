@@ -11,6 +11,7 @@ require 'nfsroot_base'
 require 'popen3/apt'
 require 'rake'
 require 'rake/tasklib'
+require 'ssh'
 
 
 class Nfsroot < Rake::TaskLib
