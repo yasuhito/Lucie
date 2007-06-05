@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -51,16 +52,16 @@ end
 
 Lucie::Log.info 'Creating a writable area on the install client.'
 
-sh_exec "mount -n -t proc proc /proc"
+sh_exec 'mount -n -t proc proc /proc'
 
 begin
-  sh_exec "mount -t tmpfs tmpfs /tmp"
+  sh_exec 'mount -t tmpfs tmpfs /tmp'
 rescue
   ramdevice = '/dev/ram0'
   sh_exec "mke2fs -q -m 0 #{ ramdevice }"
   sh_exec "mount -n #{ ramdevice } /tmp"
 end
-sh_exec "mkdir -p /tmp/etc /tmp/target"
+sh_exec 'mkdir -p /tmp/etc /tmp/target'
 
 mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
 mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat /var/puppet /etc/puppet)
@@ -70,20 +71,19 @@ mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat /var/puppet /etc/puppet)
 # init
 
 sh_exec 'mount -t sysfs sysfs /sys'
+
 if FileTest.executable?( '/etc/init.d/udev' )
   sh_exec '/etc/init.d/udev start'
 end
 unless FileTest.directory?( '/var/run/network' )
-  begin
-    sh_exec 'mkdir /var/run/network'
-  rescue
-    nil
-  end
+  sh_exec 'mkdir /var/run/network'
 end
 unless FileTest.directory?( '/dev/shm/network' )
   sh_exec 'mkdir /dev/shm/network'
 end
+
 sh_exec 'ifup lo'
+
 if FileTest.executable?( '/sbin/portmap' )
   sh_exec '/sbin/portmap'
 end
@@ -95,9 +95,7 @@ sh_exec 'mount -o remount,noatime,ro /dev/root /'
 ################################################################################
 # task_confdir
 
-
-# FIXME
-# sh_exec 'syslogd -m 0'
+sh_exec 'syslogd -m 0'
 sh_exec 'cp -p /etc/resolv.conf-lucieserver /tmp/etc/resolv.conf'
 
 
