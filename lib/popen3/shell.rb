@@ -156,7 +156,7 @@ module Kernel
   def sh_exec *command
     Popen3::Shell.open do | shell |
       shell.on_stderr do | line |
-        Lucie::Log.error line
+        Lucie::Log.debug line
       end
       shell.on_failure do
         raise %{Command "#{ command.join( ' ' ) }" failed}

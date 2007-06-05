@@ -1,39 +1,43 @@
-#!/usr/bin/env ruby
 #
 # $Id$
 #
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $Revision$
-# License::  GPL2
 
 
 require 'lucie/log'
 require 'popen3/shell'
 
 
+################################################################################
+# Global options
+
 Lucie::Log.verbose = true
 
-Lucie::Log.info "Creating a writable area on the install client."
 
-sh_exec "mount -n -t proc proc /proc"
-sh_exec "mount -t tmpfs tmpfs /tmp"
-sh_exec "mkdir -p /tmp/etc /tmp/target"
+################################################################################
+# Functions
 
-
+# 1. Save all directories and files under the directory,
+# 2. Mount tmpfs on top of the directory,
+# 3. Extract directories and files into the tmpfs.
 def mkrw dirs
   dirs.each do | each |
     unless FileTest.directory?( each )
       Lucie::Log.debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
       next
     end
+
     begin
-      sh_exec( "mktemp -q -p #{ each }")
+      if sh_exec( "mktemp -q -p #{ each }" ).child_status.exitstatus == 0
+        Lucie::Log.debug "#{ each } is already writable."
+        next
+      end
     rescue
-      Lucie::Log.debug "#{ each } is already writable."
-      next
+      # The directory is not writable. OK.
+      nil
     end
 
     tmpfile = `mktemp`.chomp
+
     sh_exec "tar -C #{ each } -cf #{ tmpfile } ."
     sh_exec "mount -n -o size=10m -t tmpfs tmpfs #{ each }"
     sh_exec "tar -C #{ each } -xf #{ tmpfile }"
@@ -42,8 +46,24 @@ def mkrw dirs
 end
 
 
+################################################################################
+# Create ramdisk
+
+Lucie::Log.info 'Creating a writable area on the install client.'
+
+sh_exec "mount -n -t proc proc /proc"
+
+begin
+  sh_exec "mount -t tmpfs tmpfs /tmp"
+rescue
+  ramdevice = '/dev/ram0'
+  sh_exec "mke2fs -q -m 0 #{ ramdevice }"
+  sh_exec "mount -n #{ ramdevice } /tmp"
+end
+sh_exec "mkdir -p /tmp/etc /tmp/target"
+
 mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
-mkrw %w(/var/lib/cfengine2 /var/lib/heardbeat /var/puppet /etc/puppet)
+mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat /var/puppet /etc/puppet)
 
 
 ################################################################################
@@ -247,4 +267,3 @@ exec 'reboot -dfi'
 ### coding: euc-jp-unix
 ### indent-tabs-mode: nil
 ### End:
-

@@ -146,7 +146,7 @@ class ShellTest < Test::Unit::TestCase
   def test_sh_exec_should___success___
     shell_mock = mock( 'SHELL' )
     shell_mock.expects( :on_stderr ).yields( 'STDERR' )
-    Lucie::Log.expects( :error ).times( 1 ).with( 'STDERR' )
+    Lucie::Log.expects( :debug ).times( 1 ).with( 'STDERR' )
     shell_mock.expects( :on_failure )
     shell_mock.expects( :exec ).times( 1 ).with( { 'LC_ALL' => 'C' }, 'TEST_COMMAND', 'TEST_ARG1', 'TEST_ARG2' )
     Popen3::Shell.expects( :open ).times( 1 ).yields( shell_mock ).returns( 'SUCCESS' )
