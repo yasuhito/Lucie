@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
@@ -145,6 +136,8 @@ class ShellTest < Test::Unit::TestCase
 
   def test_sh_exec_should___success___
     shell_mock = mock( 'SHELL' )
+    shell_mock.expects( :on_stdout ).yields( 'STDOUT' )
+    Lucie::Log.expects( :debug ).times( 1 ).with( 'STDOUT' )
     shell_mock.expects( :on_stderr ).yields( 'STDERR' )
     Lucie::Log.expects( :debug ).times( 1 ).with( 'STDERR' )
     shell_mock.expects( :on_failure )

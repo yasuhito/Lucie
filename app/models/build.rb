@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 class Build
   include CommandLine
 
@@ -165,11 +157,11 @@ class Build
       File.open( artifact( 'lucie_config.rb' ), 'w' ) do | file |
         file << @installer.config_file_content
       end
-      
+
       unless @installer.config_valid?
         raise ConfigError.new( @installer.error_message )
       end
-      
+
       # build_command must be set before doing chdir, because there may
       # be some relative paths
       build_command = self.command
@@ -181,7 +173,7 @@ class Build
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e
       File.open( build_log, 'a' ) do | file |
-        file << e.message 
+        file << e.message
       end
       # [TODO] Do logging with Lucie::Log
       Lucie::Log.verbose? ? Lucie::Log.debug(e) : Lucie::Log.info(e.message)

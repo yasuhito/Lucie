@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# $Id: tc_nfsroot-task.rb 20 2007-05-07 08:15:18Z yasuhito $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 20 $
-# License::  GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
@@ -33,7 +24,6 @@ class NfsrootTest < Test::Unit::TestCase
         task.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
         task.root_password = 'XXXXXXXX'
         task.sources_list = 'DEB HTTP://MY.SOURCES.LIST/DEBIAN MAIN CONTRIB NON-FREE'
-        task.ssh_identity = 'PUBLIC_KEY'
         task.suite = 'SARGE'
       end
 
@@ -45,7 +35,6 @@ class NfsrootTest < Test::Unit::TestCase
       assert_equal 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/', nfsroot_task.mirror
       assert_equal 'XXXXXXXX', nfsroot_task.root_password
       assert_equal 'DEB HTTP://MY.SOURCES.LIST/DEBIAN MAIN CONTRIB NON-FREE', nfsroot_task.sources_list
-      assert_equal 'PUBLIC_KEY', nfsroot_task.ssh_identity
       assert_equal 'SARGE', nfsroot_task.suite
     end
   end
@@ -115,10 +104,3 @@ class NfsrootTest < Test::Unit::TestCase
     end
   end
 end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8
-### indent-tabs-mode: nil
-### End:

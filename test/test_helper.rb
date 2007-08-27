@@ -14,6 +14,15 @@ require 'test_help'
 require "#{RAILS_ROOT}/vendor/file_sandbox/lib/file_sandbox"
 
 
+module FileSandbox
+  class Sandbox
+    def new_empty_file name
+      new :file => name, :with_content => ''
+    end
+  end
+end
+
+
 class Test::Unit::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
   # in a transaction that's rolled back on completion.  This ensures that the

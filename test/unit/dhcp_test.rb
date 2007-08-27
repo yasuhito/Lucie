@@ -16,9 +16,12 @@ class DhcpTest < Test::Unit::TestCase
 
       file_mock = mock( 'FILE' )
       file_mock.expects( :puts ).times( 1 )
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER_example', 'w' ).times( 1 ).yields( file_mock )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( file_mock )
 
-      Dhcp.setup 'TEST_INSTALLER', sandbox.root + '/hosts'
+      Facter.expects( :value ).with( 'ipaddress' ).returns( '192.168.0.1' )
+      Facter.expects( :value ).with( 'domain' ).returns( 'FAKE.DOMAIN' )
+
+      Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
     end
   end
 
@@ -31,12 +34,12 @@ class DhcpTest < Test::Unit::TestCase
 
       Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
 
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER_example', 'w' ).times( 1 ).yields( nil )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( nil )
 
       Facter.expects( :value ).with( 'domain' ).returns( nil )
 
       assert_raises( "Cannnot resolve Lucie server's domain name." ) do
-        Dhcp.setup 'TEST_INSTALLER', sandbox.root + '/hosts'
+        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
       end
     end
   end
@@ -50,13 +53,13 @@ class DhcpTest < Test::Unit::TestCase
 
       Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
 
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER_example', 'w' ).times( 1 ).yields( nil )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( nil )
 
       Facter.expects( :value ).with( 'domain' ).returns( 'DOMAIN' )
       Facter.expects( :value ).with( 'ipaddress' ).returns( nil )
 
       assert_raises( "Cannnot resolve Lucie server's IP address." ) do
-        Dhcp.setup 'TEST_INSTALLER', sandbox.root + '/hosts'
+        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
       end
     end
   end
@@ -75,7 +78,7 @@ class DhcpTest < Test::Unit::TestCase
       Resolv::Hosts.expects( :new ).returns( resolver_mock )
 
       assert_raises( "Cannnot resolve host 'TEST_NODE' IP address." ) do
-        Dhcp.setup 'TEST_INSTALLER', sandbox.root + '/hosts'
+        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
       end
     end
   end

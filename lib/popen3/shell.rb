@@ -155,6 +155,9 @@ end
 module Kernel
   def sh_exec *command
     Popen3::Shell.open do | shell |
+      shell.on_stdout do | line |
+        Lucie::Log.debug line
+      end
       shell.on_stderr do | line |
         Lucie::Log.debug line
       end

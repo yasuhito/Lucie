@@ -49,7 +49,7 @@ ARGV.options do |opts|
   end
 
   # Node Name can only contain alphanumeric characters and numbers
-  if node_name.match /[^-_a-zA-Z]/
+  if node_name.match /[^-_a-zA-Z0-9]/
     STDERR.puts "'#{node_name}' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
     exit -1
   end

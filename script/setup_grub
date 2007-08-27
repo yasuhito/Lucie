@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+
+require 'fileutils'
+require 'popen3/shell'
+
+
+File.open( '/tmp/disk_var.sh', 'r' ).each_line do | each |
+  if /^(\S+)=(\S+)$/=~ each
+    eval "#{ $1 } = '#{ $2 }'"
+  end
+end
+
+FileUtils.mkdir_p '/tmp/target/boot/grub'
+File.open( '/tmp/target/boot/grub/menu.lst', 'w' ) do | file |
+  file.puts( <<-MENU_LST )
+timeout 5
+default 0
+color cyan/blue white/blue
+
+### BEGIN AUTOMAGIC KERNELS LIST
+## lines between the AUTOMAGIC KERNELS LIST markers will be modified
+## by the debian update-grub script except for the default optons below
+
+## DO NOT UNCOMMENT THEM, Just edit them to your needs
+
+## ## Start Default Options ##
+## default kernel options
+# kopt=root=#{ ROOT_PARTITION } ro 
+
+## default grub root device
+## e.g. groot=(hd0,0)
+# groot=(hd0,0)
+
+## should update-grub create alternative boot options
+## e.g. alternative=true
+##      alternative=false
+# alternative=true
+
+## should update-grub lock alternative boot options
+## e.g. lockalternative=true
+##      lockalternative=false
+# lockalternative=true
+
+## altoption boot targets option
+## multiple altoptions lines are allowed
+## e.g. altoptions=(extra menu suffix) extra boot options
+##      altoptions=(recovery mode) single
+# altoptions=(recovery mode) single
+
+## add memtest86 if found
+# memtest86=true
+
+## ## End Default Options ##
+
+### END DEBIAN AUTOMAGIC KERNELS LIST
+MENU_LST
+end
+
+sh_exec "grub-install --no-floppy --root-directory=/tmp/target #{ BOOT_DEVICE }"
+sh_exec 'chroot /tmp/target /usr/sbin/update-grub'

@@ -1,25 +1,22 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require 'fileutils'
 
 
 class Installers
+  attr_reader :list
+
+
   def self.load_all
     Installers.new( Configuration.installers_directory ).load_all
   end
 
 
-  def self.find installer_name
-    # TODO: sanitize installer_name to prevent a query injection attack here
-    path = File.join(Configuration.installers_directory, installer_name)
-    return nil unless File.directory?(path)
-    load_installer(path)
+  def load_all
+    @list = Dir[ "#{ @dir }/*" ].find_all do | child |
+      File.directory? child
+    end.collect do | child |
+      Installers.load_installer child
+    end
+    return self
   end
 
 
@@ -30,26 +27,19 @@ class Installers
   end
 
 
+  def self.find installer_name
+    # TODO: sanitize installer_name to prevent a query injection attack here
+    path = File.join( Configuration.installers_directory, installer_name )
+    unless File.directory?( path )
+      return nil
+    end
+    load_installer path
+  end
+
+
   def initialize dir = Configuration.installers_directory
     @dir = dir
     @list = []
-  end
-
-
-  def load_all
-    @list = Dir[ "#{@dir}/*" ].find_all do | child |
-      File.directory? child
-    end.collect do | child |
-      Installers.load_installer child
-    end
-    return self
-  end
-
-
-  def checkout_local_copy installer
-    work_dir = File.join( installer.path, 'work' )
-    FileUtils.mkdir_p work_dir
-    installer.source_control.checkout work_dir
   end
 
 
@@ -70,9 +60,33 @@ class Installers
   end
 
 
+  def sort_by_name
+    sorted_list = @list.sort_by do | installer |
+      installer.name
+    end
+    return sorted_list
+  end
+
+
+  # delegate everything else to the underlying @list
+  def method_missing method, *args, &block
+    @list.send method, *args, &block
+  end
+
+
+  private
+
+
   def save_installer installer
     installer.path = File.join( @dir, installer.name )
     FileUtils.mkdir_p installer.path
+  end
+
+
+  def checkout_local_copy installer
+    work_dir = File.join( installer.path, 'work' )
+    FileUtils.mkdir_p work_dir
+    installer.source_control.checkout work_dir
   end
 
 
@@ -84,17 +98,4 @@ class Installers
       FileUtils.cp lucie_config_example, lucie_config
     end
   end
-
-
-  # delegate everything else to the underlying @list
-  def method_missing method, *args, &block
-    @list.send method, *args, &block
-  end
 end
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8
-### indent-tabs-mode: nil
-### End:

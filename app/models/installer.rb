@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 class Installer
   @@plugin_names = []
 
@@ -72,7 +64,7 @@ class Installer
 
   def builder_state_and_activity
     BuilderStatus.new( self ).status
-  end 
+  end
 
 
   def builder_error_message
@@ -97,13 +89,13 @@ class Installer
   end
 
 
-  def previous_build(current_build)  
+  def previous_build(current_build)
     all_builds = builds
     index = get_build_index(all_builds, current_build.label)
-    
+
     if index > 0
       return all_builds[index-1]
-    else  
+    else
       return nil
     end
   end
@@ -227,7 +219,7 @@ class Installer
         errors << "#{plugin.class}: #{plugin_error.message}"
       end
     end
-    
+
     if errors.empty?
       return results.compact
     else
@@ -263,11 +255,11 @@ class Installer
     notify(:build_initiated)
     if revisions.nil?
       revisions = new_revisions
-      revisions = [@source_control.latest_revision(self)] if revisions.empty? 
+      revisions = [@source_control.latest_revision(self)] if revisions.empty?
     end
-    previous_build = last_build    
+    previous_build = last_build
     last_revision = revisions.last
-    
+
     build = Build.new(self, create_build_label(last_revision.number))
     log_changeset(build.artifacts_directory, revisions)
     @source_control.update(self, last_revision)
@@ -277,7 +269,7 @@ class Installer
       notify :configuration_modified
       throw :reload_installer
     end
-    
+
     notify(:build_started, build)
     build.run
     notify(:build_finished, build)
@@ -290,7 +282,7 @@ class Installer
       end
     end
 
-    build    
+    build
   end
 
 
@@ -356,7 +348,7 @@ class Installer
       BuilderStarter.begin_builder(name)
       10.times do
         sleep 1.second
-        break if builder_state_and_activity != 'builder_down' 
+        break if builder_state_and_activity != 'builder_down'
       end
     end
     unless build_requested?
@@ -413,18 +405,18 @@ class Installer
     when [revision_number] then "#{revision_number}.1"
     else
       rebuild_numbers = related_builds.map { |label| label.split('.')[1] }.compact
-      last_rebuild_number = rebuild_numbers.sort_by { |x| x.to_i }.last 
+      last_rebuild_number = rebuild_numbers.sort_by { |x| x.to_i }.last
       "#{revision_number}.#{last_rebuild_number.next}"
     end
   end
 
 
-  # sorts a array of builds in order of revision number and rebuild number 
+  # sorts a array of builds in order of revision number and rebuild number
   def order_by_label builds
     builds.sort_by do | build |
       number_and_rebuild = build.label.split( '.' )
       number_and_rebuild.map do | x |
-        x.to_i 
+        x.to_i
       end
     end
   end
@@ -433,7 +425,7 @@ class Installer
   def get_build_index(all_builds, build_label)
     result = 0;
     all_builds.each_with_index {|build, index| result = index if build.label.to_s == build_label}
-    result 
+    result
   end
 end
 
@@ -446,7 +438,7 @@ plugin_loader = Object.new
 
 def plugin_loader.load_plugin(plugin_path)
   plugin_file = File.basename(plugin_path).sub(/\.rb$/, '')
-  plugin_is_directory = (plugin_file == 'init')  
+  plugin_is_directory = (plugin_file == 'init')
   plugin_name = plugin_is_directory ? File.basename(File.dirname(plugin_path)) : plugin_file
 
   Lucie::Log.debug("Loading plugin #{plugin_name}")

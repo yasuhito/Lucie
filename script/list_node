@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 # ENV[ 'RAILS_ENV' ] = 'production'
@@ -45,16 +39,19 @@ begin
   nodes = Nodes.load_all
 
   puts "Nodes directory = '#{ nodes.dir }'"
-  nodes.list.each do | each |
-    installer_name = ( each.installer_name ? each.installer_name : '_disabled_' )
-    printf "%10s (installer = %s)\n", each.name, installer_name
+  if nodes.size == 0
+    puts 'No node is added yet.'
+  else
+    nodes.list.each do | each |
+      installer_name = ( each.installer_name ? each.installer_name : 'NOT ASSIGNED' )
+      printf "%10s (installer = %s)\n", each.name, installer_name
+    end
   end
-
 rescue => e
   if trace
     raise
   else
-    STDERR.puts "FAILED: #{e.message}"
+    STDERR.puts "FAILED: #{ e.message }"
     exit -1
   end
 end

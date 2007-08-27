@@ -17,7 +17,7 @@ module InstallPackages
           Lucie::Log.debug line
         end
         shell.on_stderr do | line |
-          Lucie::Log.error line
+          Lucie::Log.debug line
         end
         shell.exec env, *command
       end

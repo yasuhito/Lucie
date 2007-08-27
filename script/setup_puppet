@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+
+File.open( '/tmp/target/etc/puppet/puppetd.conf', 'w' ) do | file |
+  file.puts( <<-EOF )
+[puppetd]
+logdir=/var/log/puppet
+vardir=/var/lib/puppet
+rundir=/var/run
+
+server=#{ ARGV[ 0 ] }
+EOF
+end

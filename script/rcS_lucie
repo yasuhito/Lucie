@@ -1,7 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
 
 
 require 'lucie/log'
@@ -112,148 +109,14 @@ sh_exec '/usr/sbin/sshd'
 
 
 ################################################################################
-# task_partition
+# prompt
 
-Lucie::Log.info 'Partitioning local harddisks'
-sh_exec 'setup_harddisks -d -X -l /tmp'
-
-
-################################################################################
-# task_mountdisks
-
-Lucie::Log.info 'Mounting local harddisks'
-sh_exec 'mount2dir /tmp/target /tmp/fstab'
+puts 'Lucie client SUCCESSFULLY started.'
+puts 'Waiting for installation jobs to be submitted...'
 
 
-################################################################################
-# task_extrbase
-
-Lucie::Log.info 'Extracting base system'
-
-sh_exec "zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -"
-sh_exec "mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old" 
-sh_exec "cp -a /tmp/fstab /tmp/target/etc/fstab" 
-
-
-################################################################################
-# task_updatebase
-
-
-sh_exec 'cp /etc/apt/sources.list.client /tmp/target/etc/apt/sources.list'
-
-# some packages must access /proc even in chroot environment
-sh_exec 'mount -t proc proc /tmp/target/proc'
-
-# some packages must access /sys even in chroot environment
-sh_exec 'mount -t sysfs sysfs /tmp/target/sys'
-
-# if we are using udev, also mount it into /tmp/target
-if FileTest.exists?( '/etc/init.d/udev' )
-  sh_exec 'mount --bind /dev /tmp/target/dev'
-end
-
-# [XXX] duplicated!
-def divert *path
-  path.each do | each |
-    sh_exec "chroot /tmp/target dpkg-divert --package lucie --rename --add #{ each }"
-    diversion_path = File.join( '/tmp/target', each )
-    File.open( diversion_path, 'w' ) do | file |
-      file.puts( <<-DIVERSION )
-#! /bin/sh
-# diversion of #{ diversion_path } created by Lucie
-exit 0
-DIVERSION
-    end
-    sh_exec "chmod a+rx #{ diversion_path }"
-  end
-end
-
-# if libc is upgraded init u is called in chroot environment and then
-# init will eat up much cpu time
-divert '/sbin/init', '/usr/sbin/liloconfig', '/usr/sbin/invoke-rc.d'
-# fake some more programs
-divert '/etc/init.d/nis', '/sbin/start-stop-daemon', '/usr/sbin/policy-rc.d'
-sh_exec 'cp /sbin/start-stop-daemon /tmp/target/sbin/start-stop-daemon'
-# never start any daemons inside chroot during installation
-File.open( '/tmp/target/usr/sbin/policy-rc.d', 'w' ) do | file |
-  file.puts( <<-POLICY_RC )
-#! /bin/sh
-exit 101
-POLICY_RC
-  sh_exec 'chmod a+rx /tmp/target/usr/sbin/policy-rc.d'
-end
-
-# update the apt-get information inside the nfsroot
-apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
-sh_exec "chroot /tmp/target apt-get #{ apt_option } update"
-begin
-  sh_exec "chroot /tmp/target apt-get #{ apt_option } check"
-rescue
-  sh_exec "chroot /tmp/target apt-get -f install </dev/null"
-end
-begin
-  sh_exec "chroot /tmp/target dpkg -C"
-rescue
-  sh_exec "yes '' | chroot /tmp/target dpkg --configure -a"
-end
-sh_exec "chroot /tmp/target apt-get -f -y dist-upgrade </dev/null"
-# update dpkg info which packages are available
-tmpfile = `chroot /tmp/target mktemp`.chomp
-sh_exec "chroot /tmp/target apt-cache dumpavail > /tmp/target/#{ tmpfile }"
-sh_exec "chroot /tmp/target dpkg --update-avail #{ tmpfile }"
-sh_exec "rm -f /tmp/target/#{ tmpfile }"
-
-
-################################################################################
-# task_instsoft
-
-system "install_packages --config-file=/etc/lucie/package.rb"
-
-
-################################################################################
-# task_finish
-
-sh_exec 'swapoff -a'
-
-# undo fake of all programs made by lucie
-items = `chroot /tmp/target dpkg-divert --list lucie | awk '{ print $3 }'`.split("\n")
-items.each do | each |
-  sh_exec "rm -f /tmp/target/#{ each }"
-  sh_exec "chroot /tmp/target dpkg-divert --package lucie --rename --remove #{ each }"
-  # when a diversion was made before the file exists
-  distrib_dpkg_new = File.join( '/tmp/target', each + '.distrib.dpkg-new' )
-  if FileTest.exists?( distrib_dpkg_new )
-    sh_exec "mv #{ distrib_dpkg_new } #{ File.join( '/tmp/target', each ) }"
-  end
-end
-
-
-################################################################################
-# task_configure
-
-sh_exec 'fai-do-scripts -L /tmp /etc/lucie/scripts'
-
-
-################################################################################
-# task_lucieend
-
-def jobs_running
-  return system( %{ps r | egrep -qv "ps r|TIME COMMAND" } )
-end
-
-
-def wait_for_jobs
-  while jobs_running
-    Lucie::Log.info 'Waiting for background jobs to finish.'
-    sleep 10
-  end
-end
-
-
-wait_for_jobs
-Lucie::Log.info 'Press <RETURN> to reboot or ctrol-c to execute a shell.'
 STDIN.gets
-Lucie::Log.info 'Rebooting...'
+puts 'Rebooting...'
 Dir.chdir('/')
 sh_exec 'sync'
 sh_exec 'killall -q sshd udevd'

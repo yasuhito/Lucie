@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
@@ -158,7 +149,7 @@ class AptTest < Test::Unit::TestCase
     shell_mock = mock( 'SHELL' )
     Lucie::Log.expects( :debug ).times( 1 ).with( 'STDOUT' )
     shell_mock.expects( :on_stdout ).yields( 'STDOUT' )
-    Lucie::Log.expects( :error ).times( 1 ).with( 'STDERR' )
+    Lucie::Log.expects( :debug ).times( 1 ).with( 'STDERR' )
     shell_mock.expects( :on_stderr ).yields( 'STDERR' )
     shell_mock.expects( :on_failure )
 

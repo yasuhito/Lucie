@@ -44,7 +44,7 @@ Available commands:
   add        - adds a installer
   build      - builds a installer
 
-Lucie is a Automatic Cluster Installer.
+Lucie is an Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
     EOL
   elsif method_for_command( command )

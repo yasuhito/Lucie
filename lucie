@@ -38,7 +38,7 @@ Type 'lucie --version' to see the version number.
 Available commands:
   start - starts the web server
 
-Lucie is a Automatic Cluster Installer.
+Lucie is an Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
     EOL
   elsif method_for_command( command )

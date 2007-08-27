@@ -1,46 +1,21 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 module Lucie
-  class StderrLogger
-    # [???] ignoring block argument. is this OK?
-    def self.method_missing method, *args, &block
-      STDERR.puts args.join( ' ' )
-    end
-  end
-
-
   class Log
     def self.verbose= verbose
       @verbose = verbose
     end
 
-    
+
     def self.verbose?
       @verbose or false
     end
 
-  
+
     def self.event description, severity = :info
       if severity == :debug and not @verbose
         return
       end
       message = "[#{ Time.now.strftime( '%Y-%m-%d %H:%M:%S' ) }] #{ description }"
       Log.send severity.to_sym, message
-    end
-
-
-    def self.logger
-      if defined?( LUCIE_THIS_PROCESS_IS_BUILDER )
-        return RAILS_DEFAULT_LOGGER
-      else
-        return StderrLogger
-      end
     end
 
 
@@ -61,11 +36,13 @@ module Lucie
         message = "#{ print_severity( method ) } #{ first_arg }"
       end
 
-      logger.send method, message, *args, &block
+      if defined?( RAILS_DEFAULT_LOGGER )
+        RAILS_DEFAULT_LOGGER.send method, message, *args, &block
 
-      if backtrace and not defined?( Test )
-        backtrace.each do | line |
-          logger.send method, line
+        if backtrace
+          backtrace.each do | line |
+            RAILS_DEFAULT_LOGGER.send method, line
+          end
         end
       end
 
@@ -81,7 +58,7 @@ module Lucie
       end
     end
 
-    
+
     # nicely aligned printout of message severity
     def self.print_severity severity
       severity = severity.to_s

@@ -8,7 +8,7 @@ class SSH < Rake::TaskLib
 
 
   def initialize
-    @ssh_user_home = '/root/'
+    @ssh_user_home = File.expand_path( '~/' )
   end
 
 

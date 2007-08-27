@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+
+File.open( '/tmp/target/etc/hostname', 'w' ) do | file |
+  file.puts ARGV[ 0 ]
+end
+
+File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
+  file.puts( <<-INTERFACES )
+auto lo eth0
+iface lo inet loopback
+
+iface eth0 inet dhcp
+INTERFACES
+end

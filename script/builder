@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 RAILS_ENV = 'builder'
@@ -15,7 +9,7 @@ require File.dirname( __FILE__ ) + '/../config/boot'
 require 'optparse'
 
 
-INSTALLER_OPTIONS = {  :verbose => false }
+INSTALLER_OPTIONS = { :verbose => false }
 
 
 ARGV.options do | opts |
@@ -24,7 +18,7 @@ ARGV.options do | opts |
   opts.separator ""
 
   opts.on("-t", "--trace", "Trace-level (verbose) logging") do
-    INSTALLER_OPTIONS[ :verbose ] = true 
+    INSTALLER_OPTIONS[ :verbose ] = true
   end
   opts.on( "-h", "--help", "Show this help message." ) do
     puts opts

@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 ENV[ 'RAILS_ENV' ] = 'production'
@@ -16,7 +10,7 @@ require 'optparse'
 
 installer_name = ARGV.shift
 trace = false
-scm_options = {:interactive => true}
+scm_options = { :interactive => true }
 
 
 ARGV.options do |opts|
@@ -59,7 +53,7 @@ end
 
 puts "Adding installer '#{installer_name}' (this may take a while)..."
 
-begin 
+begin
   require RAILS_ROOT + '/config/environment'
 
   source_control = Subversion.new( scm_options )

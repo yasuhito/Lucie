@@ -73,7 +73,7 @@ module Popen3
           Lucie::Log.debug line
         end
         shell.on_stderr do | line |
-          Lucie::Log.error line
+          Lucie::Log.debug line
         end
 
         shell.on_failure do

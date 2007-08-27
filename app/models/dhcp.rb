@@ -30,8 +30,8 @@ class Dhcp
   end
 
 
-  def self.setup installer_name, hosts = '/etc/hosts'
-    config_file = "/etc/dhcp3/dhcpd.conf.#{ installer_name }_example"
+  def self.setup installer_name, ip_address, netmask_address, hosts = '/etc/hosts'
+    config_file = "/etc/dhcp3/dhcpd.conf.#{ installer_name }"
 
     host_entries = ''
     nodes = Nodes.load_enabled( installer_name ).collect do | each |
@@ -48,9 +48,8 @@ EOF
       file.puts <<-EOF
 option domain-name "#{ domain }";
 
-### REPLACE subnet, netmask, broadcast-address with your network configuration ###
-subnet ?.?.?.? netmask ?.?.?.? {
-  option broadcast-address ?.?.?.?;
+subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ netmask_address } {
+  option broadcast-address #{ Network.broadcast_address( ip_address, netmask_address ) };
 
   next-server #{ ipaddress };
   filename "pxelinux.0";
@@ -61,5 +60,7 @@ EOF
     end
 
     puts "File #{ config_file } generated SUCCESFULLY"
+    puts " Please replace your /etc/dhcp3/dhcpd.conf and restart DHCP server manually."
+    puts " % cp #{ config_file } /etc/dhcp3/dhcpd.conf && /etc/init.d/dhcp3-server restart"
   end
 end

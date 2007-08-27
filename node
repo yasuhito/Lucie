@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
@@ -15,18 +9,23 @@ def disable
 end
 
 
-def list
-  load File.dirname( __FILE__ ) + "/script/list_node"
-end
-
-
 def add
   load File.dirname( __FILE__ ) + "/script/add_node"
 end
 
 
+def enable
+  load File.dirname( __FILE__ ) + "/script/enable_node"
+end
+
+
 def install
   load File.dirname( __FILE__ ) + "/script/install_node"
+end
+
+
+def list
+  load File.dirname( __FILE__ ) + "/script/list_node"
 end
 
 
@@ -52,11 +51,11 @@ Type 'node --version' to see the version number.
 
 Available commands:
   add        - adds a node
-  install    - install a node
+  enable     - enable installation of a node
   disable    - disable installation of a node
   list       - list registered nodes
 
-Lucie is a Automatic Cluster Installer.
+Lucie is an Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/trac/lucie/
     EOL
   elsif method_for_command( command )
@@ -74,7 +73,9 @@ def method_for_command command
     return :disable
   when 'add'
     return :add
-  when 'install', 'enable'
+  when 'enable'
+    return :enable
+  when 'install'
     return :install
   when 'list'
     return :list

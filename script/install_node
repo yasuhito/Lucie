@@ -1,36 +1,23 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
-# ENV[ 'RAILS_ENV' ] = 'production'
+RAILS_ENV = 'installer'
 
 
 require File.dirname( __FILE__ ) + '/../config/boot'
-require RAILS_ROOT + '/config/environment'
+require RAILS_ROOT + '/lib/popen3/shell'
 require 'optparse'
 
 
-node_name = ARGV.shift
-installer_name = nil
-trace = false
+INSTALLER_OPTIONS = { :verbose => false }
+INSTALLER_OPTIONS[ :node_name ] = ARGV.shift
 
 
-ARGV.options do |opts|
-  opts.banner = 'usage: node add <node-name> --installer <installer-name>'
-
-  opts.separator ''
-  opts.on( '-i', '--installer installer name', String,
-           "The installer name for the installation" ) do | v |
-    installer_name = v
-  end
+ARGV.options do | opts |
+  opts.banner = 'usage: node install <node-name>'
 
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    trace = true
+    INSTALLER_OPTIONS[ :verbose ] = true
   end
 
   opts.separator ''
@@ -42,53 +29,121 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
-  unless node_name and installer_name
-    STDERR.puts 'Node name and Installer name are mandatory'
+  unless INSTALLER_OPTIONS[ :node_name ]
+    STDERR.puts 'Node name is mandatory'
     STDERR.puts
     puts opts
     exit -1
   end
 
   # Node Name can only contain alphanumeric characters and numbers
-  if node_name.match /[^-_a-zA-Z]/
-    STDERR.puts "'#{node_name}' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
+  if INSTALLER_OPTIONS[ :node_name ].match /[^-_a-zA-Z0-9]/
+    STDERR.puts "'#{ INSTALLER_OPTIONS[ :node_name ] }' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
     exit -1
   end
 
-
-  unless Nodes.find( node_name )
-    STDERR.puts "Node '#{ node_name }' is not added yet. Please add node with 'node add <node-name>' first."
-    exit 1
-  end
-
-
-  unless Installers.find( installer_name )
-    STDERR.puts "Installer '#{ installer_name }' is not added yet. Please add installer with 'installer add <installer-name>' first."
-    exit 1
-  end
+  INSTALLER_OPTIONS[ :log_file_name ] = "log/#{ INSTALLER_OPTIONS[ :node_name ] }_installer.log"
 end
 
 
-puts "Setting up installer '#{ installer_name }' for node '#{ node_name }' (this may take a while)..."
+require RAILS_ROOT + '/config/environment'
 
-begin 
-  node = Nodes.find( node_name )
-  node.install_with installer_name
+unless Nodes.find( INSTALLER_OPTIONS[ :node_name ] )
+  STDERR.puts "Node '#{ INSTALLER_OPTIONS[ :node_name ] }' is not added yet. Please add node with 'node add <node-name>' first."
+  exit 1
+end
 
-  Tftp.setup node_name, installer_name
-  Nfs.setup installer_name
-  Dhcp.setup installer_name
-rescue => e
-  if trace
+
+Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
+
+
+module Kernel
+  def ssh_exec node_name, *command
+    Popen3::Shell.open do | shell |
+      shell.on_stdout do | line |
+        Lucie::Log.debug line
+      end
+
+      shell.on_stderr do | line |
+        Lucie::Log.debug line
+      end
+
+      shell.on_failure do
+        raise %{Command "#{ command.join( ' ' ) }" failed}
+      end
+
+      Lucie::Log.debug "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command.join( ' ' )
+      shell.exec( { 'LC_ALL' => 'C' }, *( [ 'ssh', "root@#{ INSTALLER_OPTIONS[ :node_name ] }" ] + command ) )
+
+      # Returns a instance of Popen3::Shell as a return value from
+      # this block, in order to get child_status from the return value
+      # of Kernel::ssh_exec.
+      shell
+    end
+  end
+  module_function :ssh_exec
+end
+
+
+puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
+
+begin
+  Lucie::Log.event "Installation for '#{ INSTALLER_OPTIONS[ :node_name ] }' started."
+
+  Lucie::Log.info 'Partitioning local harddisks'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'setup_harddisks -d -X -l /tmp'
+
+  Lucie::Log.info 'Mounting local harddisks'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount2dir /tmp/target /tmp/fstab'
+
+  Lucie::Log.info 'Extracting base system'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'cp -a /tmp/fstab /tmp/target/etc/fstab'
+
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'cp /etc/apt/sources.list.client /tmp/target/etc/apt/sources.list'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount -t proc proc /tmp/target/proc'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount -t sysfs sysfs /tmp/target/sys'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], '[ -f /etc/init.d/udev ] && mount --bind /dev/ /tmp/target/dev'
+
+  apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], "chroot /tmp/target apt-get #{ apt_option } update"
+
+  sh_exec "scp #{ RAILS_ROOT }/config/files/etc/kernel-img.conf root@#{ INSTALLER_OPTIONS[ :node_name ] }:/tmp/target/etc/"
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'install_packages --config-file=/etc/lucie/package.rb'
+
+  Lucie::Log.info 'Setting up GRUB'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'setup_grub'
+
+  Lucie::Log.info 'Setting up network'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], "setup_network #{ INSTALLER_OPTIONS[ :node_name ] }"
+  sh_exec "scp /etc/hosts root@#{ INSTALLER_OPTIONS[ :node_name ] }:/tmp/target/etc/"
+
+  Lucie::Log.info 'Setting up puppet'
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], "setup_puppet #{ `hostname -f`.chomp }"
+
+  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'swapoff -a'
+rescue Exception => e
+  begin
+    Lucie::Log.fatal e.message
+
+  rescue => logging_error
+    STDERR.puts e.message
+    STDERR.puts e.backtrace
+    STDERR.puts "Attempt to log the above error failed with this:"
+    STDERR.puts logging_error.message
+    STDERR.puts logging_error.backtrace
+  end
+
+  if INSTALLER_OPTIONS[ :verbose ]
     raise
   else
-    STDERR.puts "FAILED: #{e.message}"
-    exit -1
+    exit 1
   end
 end
 
 
-puts "Installer '#{ installer_name }' setup finished."
+Lucie::Log.event "Installation for '#{ INSTALLER_OPTIONS[ :node_name ] }' finished."
 
 
 ### Local variables:
