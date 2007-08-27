@@ -1,3 +1,6 @@
+require 'ftools'
+
+
 class Nfs
   def self.setup installer_name
     nodes = Nodes.load_enabled( installer_name ).collect do | each |

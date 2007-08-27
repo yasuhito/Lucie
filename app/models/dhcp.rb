@@ -1,4 +1,5 @@
 require 'facter'
+require 'ftools'
 require 'resolv'
 
 
