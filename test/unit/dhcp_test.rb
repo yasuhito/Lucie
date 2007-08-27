@@ -16,7 +16,8 @@ class DhcpTest < Test::Unit::TestCase
 
       file_mock = mock( 'FILE' )
       file_mock.expects( :puts ).times( 1 )
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( file_mock )
+      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( file_mock )
 
       Facter.expects( :value ).with( 'ipaddress' ).returns( '192.168.0.1' )
       Facter.expects( :value ).with( 'domain' ).returns( 'FAKE.DOMAIN' )
@@ -34,7 +35,8 @@ class DhcpTest < Test::Unit::TestCase
 
       Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
 
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( nil )
+      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( nil )
 
       Facter.expects( :value ).with( 'domain' ).returns( nil )
 
@@ -53,7 +55,8 @@ class DhcpTest < Test::Unit::TestCase
 
       Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
 
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf.TEST_INSTALLER', 'w' ).times( 1 ).yields( nil )
+      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
+      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( nil )
 
       Facter.expects( :value ).with( 'domain' ).returns( 'DOMAIN' )
       Facter.expects( :value ).with( 'ipaddress' ).returns( nil )
@@ -72,6 +75,8 @@ class DhcpTest < Test::Unit::TestCase
       sandbox.new :file => 'TEST_NODE/TEST_INSTALLER', :with_content => ''
 
       Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
+
+      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
 
       resolver_mock = mock( 'Resolv::Hosts' )
       resolver_mock.expects( :getaddress ).returns( nil )

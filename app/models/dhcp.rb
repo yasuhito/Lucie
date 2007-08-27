@@ -31,7 +31,8 @@ class Dhcp
 
 
   def self.setup installer_name, ip_address, netmask_address, hosts = '/etc/hosts'
-    config_file = "/etc/dhcp3/dhcpd.conf.#{ installer_name }"
+    config_file = '/etc/dhcp3/dhcpd.conf'
+    File.copy config_file, config_file + '.orig'
 
     host_entries = ''
     nodes = Nodes.load_enabled( installer_name ).collect do | each |
@@ -60,7 +61,6 @@ EOF
     end
 
     puts "File #{ config_file } generated SUCCESFULLY"
-    puts " Please replace your /etc/dhcp3/dhcpd.conf and restart DHCP server manually."
-    puts " % cp #{ config_file } /etc/dhcp3/dhcpd.conf && /etc/init.d/dhcp3-server restart"
+    system '/etc/init.d/dhcp3-server restart'
   end
 end

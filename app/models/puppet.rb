@@ -32,6 +32,6 @@ EOF
 EOF
     end
 
-    system( '/etc/init.d/puppetmaster restart' )
+    system '/etc/init.d/puppetmaster restart'
   end
 end
