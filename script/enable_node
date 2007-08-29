@@ -101,7 +101,7 @@ begin
   Puppet.setup Installers.find( installer_name ).local_checkout
 
   if wol
-    WakeOnLan.wake node.mac_address, Network.broadcast_address( ip_address, netmask_address ), ip_address
+    WakeOnLan.wake node.mac_address
   end
 rescue => e
   if trace
