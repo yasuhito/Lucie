@@ -14,6 +14,7 @@ installer_name = nil
 ip_address = nil
 netmask_address = nil
 gateway_address = nil
+wol = false
 trace = false
 
 
@@ -35,6 +36,10 @@ ARGV.options do |opts|
 
   opts.on( '-g', '--gateway address', String, 'Gateway address' ) do | v |
     gateway_address = v
+  end
+
+  opts.on( '-w', '--wol', 'Remote power-on using wake on LAN' ) do
+    wol = true
   end
 
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
@@ -94,6 +99,10 @@ begin
   Nfs.setup installer_name
   Dhcp.setup installer_name, ip_address, netmask_address
   Puppet.setup Installers.find( installer_name ).local_checkout
+
+  if wol
+    WakeOnLan.wake node.mac_address, Network.broadcast_address( ip_address, netmask_address ), ip_address
+  end
 rescue => e
   if trace
     raise
