@@ -2,13 +2,10 @@
 
 
 class WakeOnLan
-  attr :socket
-
-
   def wake mac_addr, broadcast='', ip_addr=''
     begin
-      @socket = UDPSocket.open()
-      @socket.setsockopt( Socket::SOL_SOCKET, Socket::SO_BROADCAST, 1 )
+      socket = UDPSocket.open()
+      socket.setsockopt( Socket::SOL_SOCKET, Socket::SO_BROADCAST, 1 )
 
       wol_magic=( 0xff.chr ) * 6 + ( mac_addr.split( /:/ ).pack( 'H*H*H*H*H*H*') ) * 16
       # Set broadcast. Assume that standard IP-class.
@@ -36,10 +33,10 @@ class WakeOnLan
       end
 
       3.times do
-        @socket.send wol_magic, 0, broadcast, 'discard'
+        socket.send wol_magic, 0, broadcast, 'discard'
       end
     ensure
-      @socket.close
+      socket.close
     end
   end
 end

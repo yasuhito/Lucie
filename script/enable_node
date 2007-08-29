@@ -113,7 +113,7 @@ rescue => e
 end
 
 
-puts "Installer '#{ installer_name }' setup finished."
+puts "Node '#{ node_name }' setup finished."
 
 
 ### Local variables:
