@@ -15,8 +15,6 @@ kernel vmlinuz-install
 append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ nfsroot },v2,rsize=32768,wsize=32768
 EOF
       end
-      
-      puts "File #{ config_file } generated SUCCESFULLY"
     end
 
     system 'update-inetd --group BOOT --remove "tftp.*/usr/sbin/in.tftpd.*"'

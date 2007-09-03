@@ -60,8 +60,6 @@ subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ ne
 }
 EOF
     end
-
-    puts "File #{ config_file } generated SUCCESFULLY"
     system '/etc/init.d/dhcp3-server restart'
   end
 end

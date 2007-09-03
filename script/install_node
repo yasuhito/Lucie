@@ -16,6 +16,8 @@ INSTALLER_OPTIONS[ :node_name ] = ARGV.shift
 ARGV.options do | opts |
   opts.banner = 'usage: node install <node-name>'
 
+  opts.separator ''
+
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
     INSTALLER_OPTIONS[ :verbose ] = true
   end
