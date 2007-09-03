@@ -175,7 +175,6 @@ class Build
       File.open( build_log, 'a' ) do | file |
         file << e.message
       end
-      # [TODO] Do logging with Lucie::Log
       Lucie::Log.verbose? ? Lucie::Log.debug(e) : Lucie::Log.info(e.message)
       time_escaped = ( Time.now - ( time || Time.now ) ).ceil
       if e.is_a?( ConfigError )

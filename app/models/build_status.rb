@@ -1,14 +1,6 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 class BuildStatus
   def initialize artifacts_directory
-    @artifacts_directory = artifacts_directory 
+    @artifacts_directory = artifacts_directory
   end
 
 
@@ -57,7 +49,7 @@ class BuildStatus
 
 
   def elapsed_time_in_progress
-    if incomplete? 
+    if incomplete?
       return ( Time.now - created_at ).ceil
     end
     return nil
@@ -72,7 +64,7 @@ class BuildStatus
     return $1.to_i
   end
 
-  
+
   def to_s
     return read_latest_status.to_s
   end
@@ -97,7 +89,7 @@ class BuildStatus
       build_log_mtime = File.mtime( "#{ @artifacts_directory }/build.log" )
     rescue
       return build_dir_mtime
-    end      
+    end
     if build_log_mtime > build_dir_mtime
       return build_log_mtime
     end
@@ -123,7 +115,7 @@ class BuildStatus
     FileUtils.rm_f Dir[ "#{ @artifacts_directory }/build_status.*" ]
   end
 
-  
+
   def read_latest_status
     file = status_file
     if file

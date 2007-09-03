@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
@@ -55,7 +47,7 @@ class Test::Unit::TestCase
     expected_error = arg1.is_a?(Exception) ? arg1 : nil
     expected_class = arg1.is_a?(Class) ? arg1 : nil
     expected_message = arg1.is_a?(String) ? arg1 : arg2
-    begin 
+    begin
       yield
       fail "expected error was not raised"
     rescue Test::Unit::AssertionFailedError
@@ -82,13 +74,23 @@ class Test::Unit::TestCase
 
 
   def with_sandbox_installer &block
-    in_total_sandbox do |sandbox|
+    in_total_sandbox do | sandbox |
       FileUtils.mkdir_p( "#{ sandbox.root }/work" )
-      
+
       installer = Installer.new( 'my_installer' )
       installer.path = sandbox.root
-      
+
       yield sandbox, installer
+    end
+  end
+
+
+  def with_sandbox_node &block
+    in_total_sandbox do | sandbox |
+      node = Node.new( 'my_node', '00:0C:29:74:AD:A3' )
+      node.path = sandbox.root
+
+      yield sandbox, node
     end
   end
 end

@@ -1,6 +1,7 @@
 class Node
-  attr_reader :name
+  attr_reader :install_command
   attr_reader :mac_address
+  attr_reader :name
   attr_reader :path
 
 

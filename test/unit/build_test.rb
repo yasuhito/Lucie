@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
@@ -19,7 +10,7 @@ class BuildTest < Test::Unit::TestCase
       sandbox.new :file => 'build-2/build_status.success.in9.235s'
       sandbox.new :file => 'build-2/build.log', :with_content => 'SOME CONTENT'
       build = Build.new( installer, 2 )
-  
+
       assert_equal 2, build.label
       assert_equal true, build.successful?
       assert_equal 'SOME CONTENT', build.output
@@ -31,7 +22,7 @@ class BuildTest < Test::Unit::TestCase
     with_sandbox_installer do | sandbox, installer |
       sandbox.new :file => 'build-2/build_status.failed.in2s'
       build = Build.new( installer, 2 )
-  
+
       assert_equal 2, build.label
       assert_equal true, build.failed?
     end
@@ -40,8 +31,8 @@ class BuildTest < Test::Unit::TestCase
 
   def test_output_grabs_log_file_when_file_exists
     with_sandbox_installer do | sandbox, installer |
-      File.expects( :read ).with( "#{ installer.path }/build-1/build.log" ).returns( [ 'line 1', 'line 2' ] )
-      assert_equal [ 'line 1', 'line 2' ], Build.new( installer, 1 ).output
+      File.expects( :read ).with( "#{ installer.path }/build-1/build.log" ).returns( [ 'LINE 1', 'LINE 2' ] )
+      assert_equal [ 'LINE 1', 'LINE 2' ], Build.new( installer, 1 ).output
     end
   end
 
@@ -61,7 +52,7 @@ class BuildTest < Test::Unit::TestCase
       sandbox.new :file => 'build-3/build_status.failure'
       sandbox.new :file => 'build-4/build_status.crap'
       sandbox.new :file => 'build-5/foo'
-  
+
       assert Build.new( installer, 1 ).successful?
       assert Build.new( installer, 2 ).successful?
       assert !Build.new( installer, 3 ).successful?
@@ -75,7 +66,7 @@ class BuildTest < Test::Unit::TestCase
     with_sandbox_installer do | sandbox, installer |
       sandbox.new :file => 'build-1/build_status.incomplete'
       sandbox.new :file => 'build-2/build_status.something_else'
-  
+
       assert Build.new( installer, 1 ).incomplete?
       assert !Build.new( installer, 2 ).incomplete?
     end
@@ -85,9 +76,9 @@ class BuildTest < Test::Unit::TestCase
   def test_run_successful_build
     with_sandbox_installer do | sandbox, installer |
       expected_build_directory = File.join( sandbox.root, 'build-123' )
-  
+
       build = Build.new( installer, 123 )
-  
+
       expected_build_log = File.join( expected_build_directory, 'build.log' )
       expected_redirect_options = {
         :stdout => expected_build_log,
@@ -110,7 +101,7 @@ class BuildTest < Test::Unit::TestCase
     with_sandbox_installer do | sandbox, installer |
       expected_build_directory = File.join( sandbox.root, 'build-123' )
       installer.stubs( :config_file_content ).returns( 'COOL INSTALLER SETTINGS' )
-  
+
       build = Build.new( installer, 123 )
       build.stubs :execute
 
@@ -125,9 +116,9 @@ class BuildTest < Test::Unit::TestCase
   def test_run_unsuccessful_build
     with_sandbox_installer do | sandbox, installer |
       expected_build_directory = File.join( sandbox.root, 'build-123' )
-  
+
       build = Build.new( installer, 123 )
-  
+
       expected_build_log = File.join( expected_build_directory, 'build.log' )
       expected_redirect_options = {
         :stdout => expected_build_log,
@@ -138,7 +129,7 @@ class BuildTest < Test::Unit::TestCase
       build.expects( :execute ).with( build.rake, expected_redirect_options ).raises( CommandLine::ExecutionError )
       Time.stubs( :now ).returns( Time.at( 1 ) )
       BuildStatus.any_instance.expects( :start! )
-      BuildStatus.any_instance.expects( :fail! ).with( 0 )  
+      BuildStatus.any_instance.expects( :fail! ).with( 0 )
       build.run
     end
   end
@@ -157,12 +148,12 @@ class BuildTest < Test::Unit::TestCase
       build_with_defaults = Build.new( installer, '1' )
       assert_match( /installer_build.rake';.*ARGV << .* << 'installer:build'/, build_with_defaults.command )
       assert_nil build_with_defaults.rake_task
-  
+
       installer.rake_task = 'my_build_task'
       build_with_custom_rake_task = Build.new( installer, '2' )
       assert_match( /installer_build.rake';.*ARGV << .* << 'installer:build'/, build_with_custom_rake_task.command )
       assert_equal 'my_build_task', build_with_custom_rake_task.rake_task
-  
+
       installer.rake_task = nil
       installer.build_command = 'my_build_script.sh'
       build_with_custom_script = Build.new( installer, '3' )
@@ -185,7 +176,7 @@ class BuildTest < Test::Unit::TestCase
       sandbox.new :file => 'build_status.failure'
       sandbox.new :file => 'changeset.log'
 
-      
+
       build = Build.new( installer, 1 )
       assert_equal %w(coverage foo foo.txt), build.additional_artifacts.sort
     end
@@ -214,7 +205,7 @@ class BuildTest < Test::Unit::TestCase
       sandbox.new :file => 'build-1/build.log'
       installer.stubs( :error_message ).returns( 'FAIL MESSAGE' )
       installer.stubs( :config_valid? ).returns( false )
-      
+
       build = Build.new( installer, 1 )
       build.run
       fail_message = File.open( 'build-1/build_status.failed.in0s' ) do | file |
@@ -222,7 +213,7 @@ class BuildTest < Test::Unit::TestCase
       end
       assert_equal 'FAIL MESSAGE', fail_message
       assert_equal 'config error', build.brief_error
-    end   
+    end
   end
 
 
@@ -232,8 +223,8 @@ class BuildTest < Test::Unit::TestCase
       build = Build.new( installer, 1 )
       build.stubs( :plugin_errors ).returns( 'PLUGIN ERROR' )
       assert_equal 'plugin error', build.brief_error
-    end   
-  end    
+    end
+  end
 
 
   def test_should_generate_build_url_with_dashboard_url
@@ -244,12 +235,12 @@ class BuildTest < Test::Unit::TestCase
       dashboard_url = 'http://www.my.com'
       Configuration.expects( :dashboard_url ).returns( dashboard_url )
       assert_equal "#{ dashboard_url }/builds/#{ installer.name }/#{ build.to_param }", build.url
-      
+
       Configuration.expects( :dashboard_url ).returns( nil )
       assert_raise( RuntimeError ) do
         build.url
       end
-    end   
+    end
   end
 end
 
