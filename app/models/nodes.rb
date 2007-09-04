@@ -1,6 +1,3 @@
-require 'pp'
-
-
 class Nodes
   def self.summary installer_name
     nodes = self.load_all.select do | each |
