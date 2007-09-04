@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
 
 
@@ -19,10 +10,21 @@ class InstallerTest < Test::Unit::TestCase
     @installer = Installer.new( 'LEMMINGS' )
     @installer.source_control = @svn
   end
-  
+
 
   def test_default_scheduler
     assert_equal PollingScheduler, @installer.scheduler.class
+  end
+
+
+  def test_install
+    node = Object.new
+    install = Object.new
+
+    Install.stubs( :new ).with( node, :new ).returns( install )
+    install.expects( :run )
+
+    assert_equal install, Installer.install( node )
   end
 
 
@@ -41,7 +43,7 @@ class InstallerTest < Test::Unit::TestCase
                     @installer.builds.collect do | each |
                       "#{each.label} - #{each.status}"
                     end.join( ", " ) )
-      
+
       assert_equal '10', @installer.last_build.label
     end
   end
@@ -76,7 +78,7 @@ class InstallerTest < Test::Unit::TestCase
       build = new_mock_build( '5' )
 
       build.stubs( :artifacts_directory ).returns( sandbox.root )
-      
+
       @installer.stubs( :builds ).returns( [] )
       @installer.stubs( :config_modified? ).returns( false )
       @svn.expects( :latest_revision ).returns( revision )
@@ -125,7 +127,7 @@ class InstallerTest < Test::Unit::TestCase
       @installer.path = sandbox.root
 
       @installer.expects(:builds).returns([])
-      error = StandardError.new   
+      error = StandardError.new
       @svn.expects(:latest_revision).raises(error)
 
       # event expectations
@@ -151,7 +153,7 @@ class InstallerTest < Test::Unit::TestCase
       new_build.stubs(:successful?).returns(false)
       new_build.stubs(:failed?).returns(true)
       new_build.expects(:run)
-      
+
       @installer.expects(:last_build).returns(successful_build)
       @installer.stubs(:builds).returns([successful_build])
       @installer.stubs(:log_changeset)
@@ -181,7 +183,7 @@ class InstallerTest < Test::Unit::TestCase
         true
       end
 
-      FileUtils.mkdir_p 'build-1' 
+      FileUtils.mkdir_p 'build-1'
       mock_build = Object.new
       Build.expects( :new ).returns( mock_build )
       mock_build.expects( :artifacts_directory ).returns( 'build-1' )
@@ -201,7 +203,7 @@ class InstallerTest < Test::Unit::TestCase
   def test_notify_should_create_plugin_error_log_if_plugin_fails_and_notify_has_a_build
     in_sandbox do |sandbox|
       @installer.path = sandbox.root
-      
+
       mock_build = Object.new
       mock_build.stubs(:artifacts_directory).returns(sandbox.root)
 
@@ -272,7 +274,7 @@ class InstallerTest < Test::Unit::TestCase
       revision = new_revision(2)
       build = new_mock_build('2')
       @installer.stubs(:last_build).returns(nil)
-      build.stubs(:artifacts_directory).returns(sandbox.root)      
+      build.stubs(:artifacts_directory).returns(sandbox.root)
       @svn.expects(:revisions_since).with(@installer, 1).returns([revision])
       @svn.expects(:update).with(@installer, revision)
 
@@ -299,11 +301,11 @@ class InstallerTest < Test::Unit::TestCase
 
   def test_notify_should_handle_plugin_error
     plugin = Object.new
-    
+
     @installer.plugins << plugin
-    
+
     plugin.expects(:hey_you).raises("Plugin talking")
-    
+
     assert_raises("Error in plugin Object: Plugin talking") { @installer.notify(:hey_you) }
   end
 
@@ -311,9 +313,9 @@ class InstallerTest < Test::Unit::TestCase
   def test_notify_should_handle_multiple_plugin_errors
     plugin1 = Object.new
     plugin2 = Object.new
-    
+
     @installer.plugins << plugin1 << plugin2
-    
+
     plugin1.expects(:hey_you).raises("Plugin 1 talking")
     plugin2.expects(:hey_you).raises("Plugin 2 talking")
 
@@ -323,11 +325,11 @@ class InstallerTest < Test::Unit::TestCase
 
   def test_request_build_should_start_builder_if_builder_was_down
     in_sandbox do |sandbox|
-      @installer.path = sandbox.root                        
+      @installer.path = sandbox.root
       @installer.expects(:builder_state_and_activity).times(2).returns('builder_down', 'sleeping')
       BuilderStarter.expects(:begin_builder).with(@installer.name)
       @installer.request_build
-    end       
+    end
   end
 
 
@@ -354,7 +356,7 @@ class InstallerTest < Test::Unit::TestCase
 
       listener = Object.new
       listener.expects(:build_requested).never
-      
+
       @installer.expects(:build_requested?).returns(true)
       @installer.expects(:create_build_requested_flag_file).never
 
@@ -364,7 +366,7 @@ class InstallerTest < Test::Unit::TestCase
 
 
   def test_build_if_requested_should_build_if_build_requested_file_exists
-    in_sandbox do |sandbox|      
+    in_sandbox do |sandbox|
       @installer.path = sandbox.root
       sandbox.new :file => 'build_requested'
       @installer.expects(:remove_build_requested_flag_file)
@@ -381,18 +383,18 @@ class InstallerTest < Test::Unit::TestCase
   end
 
 
-  def test_build_should_generate_new_label_if_same_name_label_exists    
+  def test_build_should_generate_new_label_if_same_name_label_exists
     existing_build1 = stub_build('20')
     existing_build2 = stub_build('20.1')
     new_build = stub_build('20.2')
     new_build_with_interesting_number = stub_build('2')
-                 
+
     installer = Installer.new( 'installer1', @svn )
     @svn.stubs(:update)
-    installer.stubs(:log_changeset) 
+    installer.stubs(:log_changeset)
     installer.stubs(:builds).returns([existing_build1, existing_build2])
-    installer.stubs(:last_build).returns(nil)      
-    Build.expects(:new).with(installer, '20.2').returns(new_build) 
+    installer.stubs(:last_build).returns(nil)
+    Build.expects(:new).with(installer, '20.2').returns(new_build)
     installer.build([new_revision(20)])
 
     Build.expects(:new).with(installer, '2').returns(new_build)
@@ -402,7 +404,7 @@ class InstallerTest < Test::Unit::TestCase
 
   def test_should_load_configuration_from_work_directory_and_then_root_directory
     in_sandbox do |sandbox|
-      @installer.path = sandbox.root 
+      @installer.path = sandbox.root
       begin
         sandbox.new :file => 'work/lucie_config.rb', :with_contents => '$foobar=42; $barfoo = 12345'
         sandbox.new :file => 'lucie_config.rb', :with_contents => '$barfoo = 54321'
@@ -419,7 +421,7 @@ class InstallerTest < Test::Unit::TestCase
   def test_should_mark_config_invalid_if_exception_raised_during_load_config
     in_sandbox do |sandbox|
       invalid_ruby_code = 'class Invalid'
-      @installer.path = sandbox.root 
+      @installer.path = sandbox.root
       sandbox.new :file => 'work/lucie_config.rb', :with_contents => invalid_ruby_code
       @installer.load_config
       assert @installer.settings.empty?
@@ -432,7 +434,7 @@ class InstallerTest < Test::Unit::TestCase
 
   def test_should_remember_settings
     in_sandbox do |sandbox|
-      @installer.path = sandbox.root 
+      @installer.path = sandbox.root
       sandbox.new :file => 'work/lucie_config.rb', :with_contents => 'good = 4'
       sandbox.new :file => 'lucie_config.rb', :with_contents => 'time = 5'
 
@@ -458,10 +460,10 @@ class InstallerTest < Test::Unit::TestCase
       sandbox.new :file => "build-1/build_status.success"
       sandbox.new :file => "build-2/build_status.failure"
       sandbox.new :file => "build-3/build_status.incomplete"
-      
+
       build = @installer.find_build('2')
       assert_equal('1', @installer.previous_build(build).label)
-      
+
       build = @installer.find_build('1')
       assert_equal(nil, @installer.previous_build(build))
     end
@@ -474,13 +476,13 @@ class InstallerTest < Test::Unit::TestCase
       sandbox.new :file => "build-1/build_status.success"
       sandbox.new :file => "build-2/build_status.failure"
       sandbox.new :file => "build-3/build_status.incomplete"
-      
+
       build = @installer.find_build('1')
       assert_equal('2', @installer.next_build(build).label)
-      
+
       build = @installer.find_build('2')
       assert_equal('3', @installer.next_build(build).label)
-      
+
       build = @installer.find_build('3')
       assert_equal(nil, @installer.next_build(build))
     end
@@ -493,7 +495,7 @@ class InstallerTest < Test::Unit::TestCase
       sandbox.new :file => "build-1/build_status.success"
       sandbox.new :file => "build-2/build_status.failure"
       sandbox.new :file => "build-3/build_status.incomplete"
-      
+
       assert_equal 2, @installer.last_builds(2).length
       assert_equal 3, @installer.last_builds(5).length
     end

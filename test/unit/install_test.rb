@@ -75,18 +75,10 @@ class InstallTest < Test::Unit::TestCase
 
   def test_run_successful_install
     with_sandbox_node do | sandbox, node |
-      expected_install_directory = File.join( sandbox.root, 'install-123' )
-
       install = Install.new( node, 123 )
 
-      expected_install_log = File.join( expected_install_directory, 'install.log' )
-      expected_redirect_options = {
-        :stdout => expected_install_log,
-        :stderr => expected_install_log,
-        :escape_quotes => false
-      }
       Time.expects( :now ).at_least( 2 ).returns( Time.at( 0 ), Time.at( 3.2 ) )
-      install.expects( :execute ).with( install.rake, expected_redirect_options )
+      install.expects( :install )
 
       InstallStatus.any_instance.expects( :start! )
       InstallStatus.any_instance.expects( :succeed! ).with( 4 )
@@ -99,18 +91,10 @@ class InstallTest < Test::Unit::TestCase
 
   def test_run_unsuccessful_install
     with_sandbox_node do | sandbox, node |
-      expected_install_directory = File.join( sandbox.root, 'install-123' )
-
       install = Install.new( node, 123 )
 
-      expected_install_log = File.join( expected_install_directory, 'install.log' )
-      expected_redirect_options = {
-        :stdout => expected_install_log,
-        :stderr => expected_install_log,
-        :escape_quotes => false
-      }
       Time.stubs( :now ).returns( Time.at( 1 ) )
-      install.expects( :execute ).with( install.rake, expected_redirect_options ).raises( CommandLine::ExecutionError )
+      install.expects( :install ).raises
 
       InstallStatus.any_instance.expects( :start! )
       InstallStatus.any_instance.expects( :fail! ).with( 0 )

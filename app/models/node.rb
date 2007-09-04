@@ -29,7 +29,7 @@ class Node
 
 
   def latest_install
-    return Install.new( self )
+    return Install.new( self, :latest )
   end
 
 

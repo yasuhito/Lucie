@@ -50,85 +50,20 @@ end
 
 require RAILS_ROOT + '/config/environment'
 
-unless Nodes.find( INSTALLER_OPTIONS[ :node_name ] )
+unless node = Nodes.find( INSTALLER_OPTIONS[ :node_name ] )
   STDERR.puts "Node '#{ INSTALLER_OPTIONS[ :node_name ] }' is not added yet. Please add node with 'node add <node-name>' first."
   exit 1
 end
 
 
 Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
-
-
-module Kernel
-  def ssh_exec node_name, *command
-    Popen3::Shell.open do | shell |
-      shell.on_stdout do | line |
-        Lucie::Log.debug line
-      end
-
-      shell.on_stderr do | line |
-        Lucie::Log.debug line
-      end
-
-      shell.on_failure do
-        raise %{Command "#{ command.join( ' ' ) }" failed}
-      end
-
-      Lucie::Log.debug "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command.join( ' ' )
-      shell.exec( { 'LC_ALL' => 'C' }, *( [ 'ssh', "root@#{ INSTALLER_OPTIONS[ :node_name ] }" ] + command ) )
-
-      # Returns a instance of Popen3::Shell as a return value from
-      # this block, in order to get child_status from the return value
-      # of Kernel::ssh_exec.
-      shell
-    end
-  end
-  module_function :ssh_exec
-end
-
-
 puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
 
 begin
-  Lucie::Log.event "Installation for '#{ INSTALLER_OPTIONS[ :node_name ] }' started."
-
-  Lucie::Log.info 'Partitioning local harddisks'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'setup_harddisks -d -X -l /tmp'
-
-  Lucie::Log.info 'Mounting local harddisks'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount2dir /tmp/target /tmp/fstab'
-
-  Lucie::Log.info 'Extracting base system'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'cp -a /tmp/fstab /tmp/target/etc/fstab'
-
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'cp /etc/apt/sources.list.client /tmp/target/etc/apt/sources.list'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount -t proc proc /tmp/target/proc'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'mount -t sysfs sysfs /tmp/target/sys'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], '[ -f /etc/init.d/udev ] && mount --bind /dev/ /tmp/target/dev'
-
-  apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], "chroot /tmp/target apt-get #{ apt_option } update"
-
-  sh_exec "scp #{ RAILS_ROOT }/config/files/etc/kernel-img.conf root@#{ INSTALLER_OPTIONS[ :node_name ] }:/tmp/target/etc/"
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'install_packages --config-file=/etc/lucie/package.rb'
-
-  Lucie::Log.info 'Setting up GRUB'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'setup_grub'
-
-  Lucie::Log.info 'Setting up network'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], "setup_network #{ INSTALLER_OPTIONS[ :node_name ] }"
-  sh_exec "scp /etc/hosts root@#{ INSTALLER_OPTIONS[ :node_name ] }:/tmp/target/etc/"
-
-  Lucie::Log.info 'Setting up puppet'
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], "setup_puppet #{ `hostname -f`.chomp }"
-
-  ssh_exec INSTALLER_OPTIONS[ :node_name ], 'swapoff -a'
+  Installer.install node
 rescue Exception => e
   begin
     Lucie::Log.fatal e.message
-
   rescue => logging_error
     STDERR.puts e.message
     STDERR.puts e.backtrace

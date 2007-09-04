@@ -2,6 +2,13 @@ class Installer
   @@plugin_names = []
 
 
+  def self.install node
+    install = Install.new( node, :new )
+    install.run
+    return install
+  end
+
+
   def self.plugin(plugin_name)
     @@plugin_names << plugin_name unless RAILS_ENV == 'test' or @@plugin_names.include? plugin_name
   end
