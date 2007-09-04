@@ -13,8 +13,10 @@ class Install
       @label = labels.max
     when :new
       @label = labels.max + 1
-    else
+    when Numeric
       @label = label
+    else
+      @label = 0
     end
     unless File.exist?( artifacts_directory )
       FileUtils.mkdir_p artifacts_directory

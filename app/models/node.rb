@@ -50,7 +50,7 @@ class Node
 
   def installer_name
     Dir[ "#{ path }/*" ].each do | each |
-      unless ( mac_address_re=~ File.basename( each ) )
+      if( File.file?( each ) and ( not mac_address_re=~ File.basename( each ) ) )
         return File.basename( each )
       end
     end

@@ -1,6 +1,6 @@
 class Nodes
   def self.summary installer_name
-    nodes = self.load_all.select do | each |
+    nodes = self.load_all.list.select do | each |
       each.installer_name == installer_name
     end
     if nodes.size == 0
