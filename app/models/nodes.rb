@@ -1,4 +1,27 @@
+require 'pp'
+
+
 class Nodes
+  def self.summary installer_name
+    nodes = self.load_all.select do | each |
+      each.installer_name == installer_name
+    end
+    if nodes.size == 0
+      return 'No nodes available'
+    else
+      up_nodes = nodes.select do | each |
+        each.latest_install.successful?
+      end
+
+      down_nodes = nodes.select do | each |
+        not each.latest_install.successful?
+      end
+
+      return "#{ up_nodes.size } nodes UP, #{ down_nodes.size } nodes DOWN"
+    end
+  end
+
+
   def self.load_all
     Nodes.new( Configuration.nodes_directory ).load_all
   end

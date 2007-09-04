@@ -6,9 +6,16 @@ class Install
   attr_reader :node
 
 
-  def initialize node, label
+  def initialize node, label = nil
     @node = node
-    @label = label
+    if label
+      @label = label
+    else
+      @label = Dir[ @node.path + '/install-*' ].collect do | each |
+        /install-(\d+)\Z/=~ each
+        $1.to_i
+      end.max
+    end
     unless File.exist?( artifacts_directory )
       FileUtils.mkdir_p artifacts_directory
     end
@@ -37,7 +44,7 @@ class Install
 
 
   def artifacts_directory
-    return( @artifacts_dir ||= File.join( @node.path, "install-#{ label }" ) )
+    return File.join( @node.path, "install-#{ label }" )
   end
 
 

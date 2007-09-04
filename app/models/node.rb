@@ -28,6 +28,11 @@ class Node
   end
 
 
+  def latest_install
+    return Install.new( self )
+  end
+
+
   def disable
     Dir[ @path + '/*' ].each do | each |
       unless File.basename( each ) == @mac_address

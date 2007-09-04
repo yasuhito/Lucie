@@ -2,7 +2,7 @@
 <% @installers.each { |p| @rss_feeds["#{p.name} builds"] = installer_url(:controller => 'installers', :action => 'show', :id => p, :format => 'rss')} -%>
 
 <div id="installers">
-  <% @installers.each do |installer| -%>
+  <% @installers.each do | installer | -%>
     <%= render :partial => 'installer', :locals => {:installer => installer }%>
   <% end -%>
    

@@ -10,6 +10,12 @@
       </span>
     </div>
 
+    <div>
+      <span class="node_summary">
+        <%= Nodes.summary( installer.name ) %>
+      </span>
+    </div>
+
     <div class="recent_builds">
 
       <% recent_builds = installer.last_five_builds %>
@@ -42,7 +48,7 @@
                         "$('build_#{installer.to_param}').className = 'build_button_disabled'; " +
                         "Element.update('build_#{installer.to_param}', 'Wait...')"
            ) do %>
-        <button 
+        <button
             <% if Configuration.disable_build_now -%>
               onclick="alert('Build Now button is disabled on this site.'); return false;"
             <% end -%>
@@ -73,7 +79,7 @@
         <div><%= link_to latest_build.brief_error, {:action => 'show', :id => installer.name}, {:class => "failed"} %></div>
       <% end %>
       <div class="error_message"><%= installer.builder_error_message %></div>
-    <% end %>   
+    <% end %>
   </td>
 </tr>
 </table>
