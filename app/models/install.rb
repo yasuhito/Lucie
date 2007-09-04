@@ -22,6 +22,9 @@ class Install
       end
     when Numeric
       @label = label
+      unless File.exist?( artifacts_directory )
+        FileUtils.mkdir_p artifacts_directory
+      end
     else
       @label = 0
     end
@@ -79,10 +82,9 @@ class Install
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e
       @install_log << e.message
+      Lucie::Log.fatal e.message
 
-      Lucie::Log.verbose? ? Lucie::Log.debug( e ) : Lucie::Log.info( e.message )
       time_escaped = ( Time.now - ( time || Time.now ) ).ceil
-
       if e.is_a?( ConfigError )
         @status.fail! time_escaped, e.message
       else
