@@ -12,7 +12,11 @@ class Install
     when :latest
       @label = labels.max
     when :new
-      @label = labels.max + 1
+      if labels.max
+        @label = labels.max + 1
+      else
+        @label = 0
+      end
     when Numeric
       @label = label
     else
