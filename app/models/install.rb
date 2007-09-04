@@ -17,13 +17,13 @@ class Install
       else
         @label = 0
       end
+      unless File.exist?( artifacts_directory )
+        FileUtils.mkdir_p artifacts_directory
+      end
     when Numeric
       @label = label
     else
       @label = 0
-    end
-    unless File.exist?( artifacts_directory )
-      FileUtils.mkdir_p artifacts_directory
     end
     @status = InstallStatus.new( artifacts_directory )
     @install_log = STDERR
