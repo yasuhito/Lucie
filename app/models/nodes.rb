@@ -9,8 +9,8 @@ class Nodes
         status[ each.latest_install.status ] += 1
       end
       summary = []
-      if status[ 'failure' ] > 0
-        summary << "#{ status[ 'failure' ] } FAIL"
+      if status[ 'failed' ] > 0
+        summary << "#{ status[ 'failed' ] } FAIL"
       end
       if status[ 'incomplete' ] > 0
         summary << "#{ status[ 'incomplete' ] } incomplete"

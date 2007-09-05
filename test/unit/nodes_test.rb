@@ -37,7 +37,7 @@ class NodesTest < Test::Unit::TestCase
 
       sandbox.new :file => 'NODE-1/INSTALLER_NAME'
       sandbox.new :file => 'NODE-1/00:00:00:00:00:01'
-      sandbox.new :file => 'NODE-1/install-10/install_status.failure'
+      sandbox.new :file => 'NODE-1/install-10/install_status.failed'
 
       sandbox.new :file => 'NODE-2/INSTALLER_NAME'
       sandbox.new :file => 'NODE-2/00:00:00:00:00:02'
@@ -62,7 +62,7 @@ class NodesTest < Test::Unit::TestCase
 
       sandbox.new :file => 'NODE-3/INSTALLER_NAME'
       sandbox.new :file => 'NODE-3/00:00:00:00:00:03'
-      sandbox.new :file => 'NODE-3/install-30/install_status.failure'
+      sandbox.new :file => 'NODE-3/install-30/install_status.failed'
 
       sandbox.new :file => 'NODE-4/INSTALLER_NAME'
       sandbox.new :file => 'NODE-4/00:00:00:00:00:04'
