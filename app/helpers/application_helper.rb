@@ -41,7 +41,7 @@ module ApplicationHelper
   def text_to_install install, with_elapsed_time = true
     text = install_label( install )
     if install.failed?
-      text += ' FAILED'
+      text += " <span class='error'>FAILED</span>"
     elsif install.incomplete?
       text += ' incomplete'
     else

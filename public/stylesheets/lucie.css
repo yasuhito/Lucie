@@ -82,7 +82,7 @@ a:hover {
 
 /* install status stuff */
 
-.install_status { font-weight: bold; }
+.install_status { font-weight: bold; color: #888; }
 .install_failed .install_status, .install_never_installed .install_status { text-transform: uppercase; }
 .install_success .install_status { color: #0A0; }
 .install_failed .install_status { color: #C00; }
@@ -92,12 +92,17 @@ a:hover {
 
 /* build status stuff */
 
-.build_status { font-weight: bold; }
+.build_status { font-weight: bold; color: #888; }
 .build_failed .build_status, .build_never_built .build_status { text-transform: uppercase; }
 .build_success .build_status { color: #0A0; }
 .build_failed .build_status { color: #C00; }
 .build_never_built .build_status { color: #888; }
 .build_committed_by { font-weight: bold; }
+
+a.install_status {
+  font-weight: bold;
+  color: #888;
+}
 
 a.success, a.success:visited {
 }

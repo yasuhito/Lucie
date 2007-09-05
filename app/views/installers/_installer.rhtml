@@ -9,7 +9,7 @@
         <%= link_to installer.name, :action => 'show', :id => installer.name %>
       </span>
       <span>
-        (<%= Nodes.load_node_list( installer.name ).size %> nodes)
+        <%= link_to "(#{ Nodes.load_node_list( installer.name ).size } nodes)", { :controller => 'nodes' }, :class => 'install_status' %>
       </span>
     </div>
 
@@ -19,8 +19,8 @@
       </span>
 
       <div>
-        <span class="install_status">
-          <%= link_to Nodes.summary( installer.name ), :controller => 'nodes' %>
+        <span>
+          <%= link_to Nodes.summary( installer.name ), { :controller => 'nodes' }, :class => 'install_status' %>
         </span>
       </div>
     </div>
