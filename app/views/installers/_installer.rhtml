@@ -8,6 +8,9 @@
       <span class="installer_name">
         <%= link_to installer.name, :action => 'show', :id => installer.name %>
       </span>
+      <span>
+        (<%= Nodes.load_node_list( installer.name ).size %> nodes)
+      </span>
     </div>
 
     <div>

@@ -1,8 +1,6 @@
 class Nodes
   def self.summary installer_name
-    nodes = self.load_all.list.select do | each |
-      each.installer_name == installer_name
-    end
+    nodes = load_node_list( installer_name )
     if nodes.size == 0
       return 'No nodes available'
     else
@@ -19,8 +17,15 @@ class Nodes
   end
 
 
+  def self.load_node_list installer_name
+    load_all.list.select do | each |
+      each.installer_name == installer_name
+    end
+  end
+
+
   def self.load_all
-    Nodes.new( Configuration.nodes_directory ).load_all
+    return Nodes.new( Configuration.nodes_directory ).load_all
   end
 
 
