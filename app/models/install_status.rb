@@ -61,6 +61,35 @@ class InstallStatus
   end
 
 
+  def timestamp
+    install_dir_mtime = File.mtime( @artifacts_directory )
+    begin
+      install_log_mtime = File.mtime( "#{ @artifacts_directory }/install.log" )
+    rescue
+      return install_dir_mtime
+    end
+    if install_log_mtime > install_dir_mtime
+      return install_log_mtime
+    end
+    return install_dir_mtime
+  end
+
+
+  def elapsed_time
+    file = status_file
+    return match_elapsed_time( File.basename( file ) )
+  end
+
+
+  def match_elapsed_time file_name
+    match = /\Ainstall_status\.[^\.]+\.in(\d+)s\Z/.match( file_name )
+    if !match or !$1
+      raise 'Could not parse elapsed time.'
+    end
+    return $1.to_i
+  end
+
+
   private
 
 

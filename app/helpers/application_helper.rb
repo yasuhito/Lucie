@@ -4,11 +4,13 @@ module ApplicationHelper
   def format_time(time, format = :iso)
     TimeFormatter.send(format, time)
   end
-  
+
+
   def format_seconds(total_seconds, format = :general)
     DurationFormatter.new(total_seconds).send(format)
   end
-  
+
+
   def setting_row(label, value, help = '&nbsp;')
     <<-EOL
     <tr>
@@ -19,11 +21,38 @@ module ApplicationHelper
     EOL
   end
 
+
+  def link_to_install install
+    text = install_label( install )
+    if install.failed?
+      text += " <span class='error'>FAILED</span>"
+    end
+    return text
+  end
+
+
   def link_to_build(installer, build)
     text = build_label(build)
     text += " <span class='error'>FAILED</span>" if build.failed?
     build_link(text, installer, build)
   end
+
+
+  def text_to_install install, with_elapsed_time = true
+    text = install_label( install )
+    if install.failed?
+      text += ' FAILED'
+    elsif install.incomplete?
+      text += ' incomplete'
+    else
+      elapsed_time_text = install_elapsed_time( install )
+      if (with_elapsed_time and !elapsed_time_text.empty?)
+        text += " took #{elapsed_time_text}"
+      end
+    end
+    return text
+  end
+
 
   def text_to_build(build, with_elapsed_time = true)
     text = build_label(build)
@@ -32,16 +61,16 @@ module ApplicationHelper
     elsif build.incomplete?
       text += ' incomplete'
     else
-      elapsed_time_text = elapsed_time(build)
+      elapsed_time_text = build_elapsed_time(build)
       text += " took #{elapsed_time_text}" if (with_elapsed_time and !elapsed_time_text.empty?)
     end
     return text
   end
-  
+
   def link_to_build_with_elapsed_time(installer, build)
     build_link(text_to_build(build), installer, build)
   end
-    
+
   def display_builder_state(state)
     case state
     when 'building', 'builder_down', 'build_requested', 'svn_error'
@@ -56,21 +85,40 @@ module ApplicationHelper
   def format_changeset_log(log)
     h(log.strip)
   end
-  
-  def elapsed_time(build, format = :general)
+
+
+  def install_elapsed_time install, format = :general
     begin
-      "<span>#{format_seconds(build.elapsed_time, format)}</span>"
+      "<span>#{ format_seconds( install.elapsed_time, format ) }</span>"
+    rescue
+      '' # The install time is not present.
+    end
+  end
+
+
+  def build_elapsed_time build, format = :general
+    begin
+      "<span>#{ format_seconds( build.elapsed_time, format ) }</span>"
     rescue
       '' # The build time is not present.
     end
   end
-  
+
+
   def build_link(text, installer, build)
     link_to text, build_url(:installer => installer.name, :build => build.label), :class => build.status
   end
-        
-  private 
+
+
+  private
+
+
   def build_label(build)
     "#{build.label} (#{format_time(build.time, :human)})"
-  end    
+  end
+
+
+  def install_label install
+    "#{ install.label } (#{ format_time( install.time, :human ) })"
+  end
 end

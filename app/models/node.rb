@@ -44,7 +44,10 @@ class Node
 
 
   def installs
-    raise "Node #{name.inspect} has no path" unless path
+    unless path
+      raise "Node #{ name.inspect } has no path"
+    end
+
     the_installs = Dir[ "#{ path }/install-*/install_status.*" ].collect do | status_file |
       install_directory = File.basename( File.dirname( status_file ) )
       install_label = install_directory[ 8..-1 ]
@@ -54,13 +57,9 @@ class Node
   end
 
 
-  # sorts a array of installs in order of revision number and reinstall number
   def order_by_label installs
     installs.sort_by do | install |
-      number_and_reinstall = install.label.split( '.' )
-      number_and_reinstall.map do | x |
-        x.to_i
-      end
+      install.label
     end
   end
 

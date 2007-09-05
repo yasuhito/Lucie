@@ -20,8 +20,8 @@ class Install
       unless File.exist?( artifacts_directory )
         FileUtils.mkdir_p artifacts_directory
       end
-    when Numeric
-      @label = label
+    when Numeric, String
+      @label = label.to_i
       unless File.exist?( artifacts_directory )
         FileUtils.mkdir_p artifacts_directory
       end
@@ -30,6 +30,16 @@ class Install
     end
     @status = InstallStatus.new( artifacts_directory )
     @install_log = STDERR
+  end
+
+
+  def time
+    @status.timestamp
+  end
+
+
+  def elapsed_time
+    return @status.elapsed_time
   end
 
 
