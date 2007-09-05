@@ -20,7 +20,7 @@
 
       <div>
         <span class="install_status">
-          <%= Nodes.summary( installer.name ) %>
+          <%= link_to Nodes.summary( installer.name ), :controller => 'nodes' %>
         </span>
       </div>
     </div>
