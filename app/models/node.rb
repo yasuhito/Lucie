@@ -28,6 +28,53 @@ class Node
   end
 
 
+  def last_complete_install_status
+    last_complete_install ? last_complete_install.status : 'never_installed'
+  end
+
+
+  def last_complete_install
+    installs.reverse.each do | each |
+      unless each.incomplete?
+        return each
+      end
+    end
+    return nil
+  end
+
+
+  def installs
+    raise "Node #{name.inspect} has no path" unless path
+    the_installs = Dir[ "#{ path }/install-*/install_status.*" ].collect do | status_file |
+      install_directory = File.basename( File.dirname( status_file ) )
+      install_label = install_directory[ 8..-1 ]
+      Install.new self, install_label
+    end
+    order_by_label the_installs
+  end
+
+
+  # sorts a array of installs in order of revision number and reinstall number
+  def order_by_label installs
+    installs.sort_by do | install |
+      number_and_reinstall = install.label.split( '.' )
+      number_and_reinstall.map do | x |
+        x.to_i
+      end
+    end
+  end
+
+
+  def last_installs n
+    result = installs.reverse[ 0..( n - 1 ) ]
+  end
+
+
+  def last_five_installs
+    last_installs( 5 )
+  end
+
+
   def latest_install
     return Install.new( self, :latest )
   end

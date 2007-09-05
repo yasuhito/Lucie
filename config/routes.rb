@@ -2,7 +2,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.home '', Configuration.default_page
   
-  map.resources :installers
+  map.resources :installers, :nodes
 
   map.installer_without_builds 'builds/:installer', :controller => 'builds', :action => 'show'
   map.build 'builds/:installer/:build', :controller => 'builds', :action => 'show', :build => /[^\/]+/

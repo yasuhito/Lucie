@@ -1,0 +1,55 @@
+<div id="node_<%= node.name %>" class="node install_<%= node.last_complete_install_status %>">
+<table class="node_pane">
+<tr>
+
+  <td class="node_summary">
+
+    <div>
+      <span class="node_name">
+        <%= link_to node.name, :action => 'show', :id => node.name %>
+      </span>
+    </div>
+
+
+    <div class="recent_installs">
+
+      <% recent_installs = node.last_five_installs %>
+
+      <span class="lead">
+        <%= recent_installs.first ? 'install ' : '<span class="install_status">Never installed</span>' %>
+      </span>
+
+      <% unless recent_installs.empty? %>
+        <div class="installs_list">
+          <% recent_installs.each do |install| %>
+            <% if install == recent_installs.first %>
+                <div class="install_summary"><%= link_to_install_with_elapsed_time(node, install) %></div>
+            <% else %>
+                <div class="install_summary"><%= link_to_install(node, install) %></div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </td>
+
+  <td class="install_details">
+    <% latest_install = recent_installs.first %>
+    <% if latest_install %>
+      <% if latest_install.incomplete? %>
+        <div>
+          Now installing: <%= latest_install.label %>
+          for <%= format_seconds(latest_install.elapsed_time_in_progress, :general) %>
+        </div>
+      <% end %>
+      <%= show_revisions_in_install(revisions_in_install(latest_install)) %>
+      <br>
+      <% if latest_install.brief_error %>
+        <div><%= link_to latest_install.brief_error, {:action => 'show', :id => node.name}, {:class => "failed"} %></div>
+      <% end %>
+      <div class="error_message"><%= node.installer_error_message %></div>
+    <% end %>
+  </td>
+</tr>
+</table>
+</div>

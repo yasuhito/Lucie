@@ -241,6 +241,130 @@ a.never_built, a.never_built:visited {
   font-weight: normal;
 }
 
+
+/* Node dashboard */
+
+.node {
+  margin: 0.5em 0;
+  padding: 0 1.5em;
+  min-height: 9.2em;
+}  
+
+.install_success, .install_never_installed, .install_incomplete {
+  background-image: url(/images/gray_gradient.png);
+  background-position: bottom;
+  background-repeat: repeat-x;
+  margin-left: -2.5em;
+}
+
+.install_failed {
+  background-image: url(/images/red_gradient.png);
+  background-position: bottom;
+  background-repeat: repeat-x;
+  margin-left: -2.5em;
+}
+
+.node table.node_pane {
+  padding-left: .75em;
+  width: 100%;
+}
+
+.node table.node_pane td {
+  vertical-align: top;
+  text-align: left;
+}
+
+.node table.node_pane td.node_summary {
+  width: 24%;
+}
+
+.node table.node_pane td.installer_control {
+  width: 12%;
+}
+
+.node table.node_pane td.install_details {
+  width: 64%;
+}
+
+.node .node_summary .buttons {
+  padding: 1.5em;
+}
+
+.node .node_summary .buttons form {
+  display: inline;
+}
+
+.node .install_button, .node .install_button_disabled {
+  color: #000;
+  font-weight:bold;
+  background-repeat: no-repeat;
+  font-size: 11px;
+  text-align: center;
+  width: 110px;
+  height: 23px;
+  border: none;
+  background-color: transparent;
+}
+.node .install_button {
+  background-image:url(/images/button.png);
+}
+
+.node .install_button_disabled {
+  color: #999;
+  background-image:url(/images/button_disabled.png);
+}
+
+.node .recent_installs {
+  color: #666;
+}
+
+.node .recent_installs .lead {
+  float: left;
+  padding-right: 0.5em;
+}
+
+.node .recent_installs {
+  color: #666;
+}
+
+.node .recent_installs .lead {
+  float: left;
+  padding-right: 0.5em;
+}
+
+.node .recent_installs .installs_list {
+  float: left;
+}
+
+.node .installer_control .installer_status_installer_down, .node .installer_control .installer_status_unknown, .node .installer_control .installer_status_svn_error {
+  font-weight: bold;
+  padding-top: 5px;
+  padding-left: 25px;
+  background-image: url(/images/spinner_error.gif);
+  background-position: left;
+  background-repeat: no-repeat;
+}
+
+.node .installer_control .installer_status_installing, .node .installer_control .installer_status_install_requested {
+  font-weight: bold;
+  padding-top: 5px;
+  padding-left: 25px;
+  background-image: url(/images/spinner.gif);
+  background-position: left;
+  background-repeat: no-repeat;
+}
+
+.node .install_summary {
+}
+
+.node .node_name {
+  padding: 0;
+  margin: 0;
+  font-size: 2em;
+  font-weight: normal;
+}
+
+
 /* Other classes */
 .warning {
   color: #F28218;

@@ -1,18 +1,10 @@
-#
-# $Id: installer_test.rb 35 2007-05-14 07:37:03Z yasuhito $
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 35 $
-# License:: GPL2
-
-
 class InstallersController < ApplicationController
   layout 'default'
 
-  
+
   def index
     @installers = Installers.load_all
-    
+
     respond_to do |format|
       format.html
       format.js { render :action => 'index_js' }
