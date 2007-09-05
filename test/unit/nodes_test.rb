@@ -5,11 +5,11 @@ class NodesTest < Test::Unit::TestCase
   include FileSandbox
 
 
-  def test_summary_gives_no_nodes_available
+  def test_summary_gives_never_installed
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
 
-      assert_equal 'No nodes available', Nodes.summary( 'INSTALLER_NAME' )
+      assert_equal 'Never installed', Nodes.summary( 'INSTALLER_NAME' )
     end
   end
 
@@ -26,7 +26,7 @@ class NodesTest < Test::Unit::TestCase
       sandbox.new :file => 'NODE-2/00:00:00:00:00:02'
       sandbox.new :file => 'NODE-2/install-20/install_status.success'
 
-      assert_equal '2 nodes UP, 0 nodes DOWN', Nodes.summary( 'INSTALLER_NAME' )
+      assert_equal 'OK', Nodes.summary( 'INSTALLER_NAME' )
     end
   end
 
@@ -43,7 +43,7 @@ class NodesTest < Test::Unit::TestCase
       sandbox.new :file => 'NODE-2/00:00:00:00:00:02'
       sandbox.new :file => 'NODE-2/install-20/install_status.incomplete'
 
-      assert_equal '0 nodes UP, 2 nodes DOWN', Nodes.summary( 'INSTALLER_NAME' )
+      assert_equal '1 FAIL, 1 incomplete', Nodes.summary( 'INSTALLER_NAME' )
     end
   end
 
@@ -72,7 +72,7 @@ class NodesTest < Test::Unit::TestCase
       sandbox.new :file => 'NODE-5/00:00:00:00:00:05'
       sandbox.new :file => 'NODE-5/install-50/install_status.incomplete'
 
-      assert_equal '2 nodes UP, 2 nodes DOWN', Nodes.summary( 'INSTALLER_NAME' )
+      assert_equal '1 FAIL, 1 incomplete', Nodes.summary( 'INSTALLER_NAME' )
     end
   end
 end

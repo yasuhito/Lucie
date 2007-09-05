@@ -13,11 +13,18 @@
       </span>
     </div>
 
-    <div>
-      <span class="node_summary">
-        <%= Nodes.summary( installer.name ) %>
+    <div class="recent_installs">
+      <span class="lead">
+        install
       </span>
+
+      <div>
+        <span class="install_status">
+          <%= Nodes.summary( installer.name ) %>
+        </span>
+      </div>
     </div>
+
 
     <div class="recent_builds">
 

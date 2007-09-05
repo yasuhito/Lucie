@@ -2,17 +2,21 @@ class Nodes
   def self.summary installer_name
     nodes = load_node_list( installer_name )
     if nodes.size == 0
-      return 'No nodes available'
-    else
-      up_nodes = nodes.select do | each |
-        each.latest_install.successful?
+      return 'Never installed'
+    else nodes.size > 0
+      status = Hash.new( 0 )
+      nodes.each do | each |
+        status[ each.latest_install.status ] += 1
       end
-
-      down_nodes = nodes.select do | each |
-        not each.latest_install.successful?
+      summary = []
+      if status[ 'failure' ] > 0
+        summary << "#{ status[ 'failure' ] } FAIL"
       end
-
-      return "#{ up_nodes.size } nodes UP, #{ down_nodes.size } nodes DOWN"
+      if status[ 'incomplete' ] > 0
+        summary << "#{ status[ 'incomplete' ] } incomplete"
+      end
+      return 'OK' if summary == []
+      return summary.join( ', ' )
     end
   end
 

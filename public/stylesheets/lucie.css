@@ -80,6 +80,16 @@ a:hover {
   color: #C00;
 }
 
+/* install status stuff */
+
+.install_status { font-weight: bold; }
+.install_failed .install_status, .install_never_installed .install_status { text-transform: uppercase; }
+.install_success .install_status { color: #0A0; }
+.install_failed .install_status { color: #C00; }
+.install_never_installed .install_status { color: #888; }
+.install_committed_by { font-weight: bold; }
+
+
 /* build status stuff */
 
 .build_status { font-weight: bold; }
@@ -179,6 +189,15 @@ a.never_built, a.never_built:visited {
 .installer .build_button_disabled {
   color: #999;
   background-image:url(/images/button_disabled.png);
+}
+
+.installer .recent_installs {
+  color: #666;
+}
+
+.installer .recent_installs .lead {
+  float: left;
+  padding-right: 0.5em;
 }
 
 .installer .recent_builds {

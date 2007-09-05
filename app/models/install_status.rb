@@ -56,6 +56,11 @@ class InstallStatus
   end
 
 
+  def to_s
+    return read_latest_status
+  end
+
+
   private
 
 
