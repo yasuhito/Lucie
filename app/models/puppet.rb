@@ -8,6 +8,11 @@ class Puppet
   end
 
 
+  def self.restart
+    self.new.restart_puppet
+  end
+
+
   attr_reader :manifest_dir
   attr_reader :files_dir
 

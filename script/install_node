@@ -60,6 +60,7 @@ Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
 puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
 
 begin
+  Puppet.restart
   Installer.install node
 rescue Exception => e
   begin

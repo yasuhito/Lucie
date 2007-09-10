@@ -42,9 +42,10 @@ class PuppetTest < Test::Unit::TestCase
   def test_restart_puppet___SUCCESS___
     puppet = Puppet.new
     puppet.stubs( :sh_exec )
+    Puppet.stubs( :new ).returns( puppet )
 
     assert_nothing_raised do
-      puppet.restart_puppet
+      Puppet.restart
     end
   end
 end
