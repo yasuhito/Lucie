@@ -80,10 +80,8 @@ class Node
 
 
   def disable
-    Dir[ @path + '/*' ].each do | each |
-      unless File.basename( each ) == @mac_address
-        FileUtils.rm each
-      end
+    if installer_name
+      FileUtils.rm File.join( @path, installer_name )
     end
   end
 
