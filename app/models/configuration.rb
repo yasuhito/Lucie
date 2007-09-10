@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 class Configuration
   @default_page = {:controller => 'installers', :action => 'index'}
   @build_request_checking_interval = 5.seconds
@@ -15,6 +7,7 @@ class Configuration
   @nodes_directory = File.expand_path( File.join( RAILS_ROOT, 'nodes' ) )
   @sleep_after_build_loop_error = 30.seconds
   @disable_build_now = false
+  @tftp_root = '/srv/tftp/lucie/'
 
 
   class << self
@@ -29,6 +22,7 @@ class Configuration
     attr_accessor :installers_directory
     attr_accessor :nodes_directory
     attr_accessor :sleep_after_build_loop_error
+    attr_accessor :tftp_root
   end
 end
 
