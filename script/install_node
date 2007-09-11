@@ -61,6 +61,7 @@ puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while).
 
 begin
   Puppet.restart
+  FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
   Installer.install node
 rescue Exception => e
   begin
