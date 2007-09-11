@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 # ENV[ 'RAILS_ENV' ] = 'production'
@@ -38,7 +32,7 @@ ARGV.options do |opts|
 end
 
 
-begin 
+begin
   require RAILS_ROOT + '/config/environment'
 
   Nodes.find( node_name ).disable
