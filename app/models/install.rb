@@ -1,3 +1,6 @@
+require 'facter'
+
+
 class Install
   include CommandLine
 
@@ -173,7 +176,7 @@ class Install
     sh_exec "scp /etc/hosts root@#{ @node.name }:/tmp/target/etc/"
 
     Lucie::Log.info 'Setting up puppet'
-    ssh_exec @node.name, "setup_puppet #{ `hostname -f`.chomp }"
+    ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
 
     ssh_exec @node.name, 'swapoff -a'
   end
