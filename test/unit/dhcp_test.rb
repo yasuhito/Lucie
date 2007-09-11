@@ -8,83 +8,55 @@ class DhcpTest < Test::Unit::TestCase
 
   def test_setup___success__
     in_sandbox do | sandbox |
-      sandbox.new :file => 'hosts', :with_content => '192.168.1.1 TEST_NODE'
       sandbox.new :file => 'TEST_NODE/00:00:00:00:00:00', :with_content => ''
       sandbox.new :file => 'TEST_NODE/TEST_INSTALLER', :with_content => ''
 
-      Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
 
-      file_mock = mock( 'FILE' )
-      file_mock.expects( :puts ).times( 1 )
-      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( file_mock )
+      file = Object.new
+      file.stubs( :puts )
+      File.stubs( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' )
+      File.stubs( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).yields( file )
 
-      Facter.expects( :value ).with( 'ipaddress' ).returns( '192.168.0.1' )
-      Facter.expects( :value ).with( 'domain' ).returns( 'FAKE.DOMAIN' )
+      Facter.stubs( :value ).with( 'ipaddress' ).returns( '192.168.0.1' )
+      Facter.stubs( :value ).with( 'domain' ).returns( 'FAKE.DOMAIN' )
 
-      Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
-    end
-  end
+      resolver = Object.new
+      resolver.stubs( :getaddress ).with( 'TEST_NODE' ).returns( '192.168.1.100' )
+      Resolv::Hosts.stubs( :new ).returns( resolver )
 
-
-  def test_setup___fail___with_lucie_server_domain_resolv_failure
-    in_sandbox do | sandbox |
-      sandbox.new :file => 'hosts', :with_content => '192.168.1.1 TEST_NODE'
-      sandbox.new :file => 'TEST_NODE/00:00:00:00:00:00', :with_content => ''
-      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER', :with_content => ''
-
-      Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
-
-      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( nil )
-
-      Facter.expects( :value ).with( 'domain' ).returns( nil )
-
-      assert_raises( "Cannnot resolve Lucie server's domain name." ) do
-        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
+      assert_nothing_raised do
+        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0'
       end
     end
   end
 
 
-  def test_setup___fail___with_lucie_server_ipaddress_resolv_failure
-    in_sandbox do | sandbox |
-      sandbox.new :file => 'hosts', :with_content => '192.168.1.1 TEST_NODE'
-      sandbox.new :file => 'TEST_NODE/00:00:00:00:00:00', :with_content => ''
-      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER', :with_content => ''
+  def test_domain_resolve_failure
+    Facter.stubs( :value ).with( 'domain' ).returns( false )
 
-      Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
-
-      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
-      File.expects( :open ).with( '/etc/dhcp3/dhcpd.conf', 'w' ).times( 1 ).yields( nil )
-
-      Facter.expects( :value ).with( 'domain' ).returns( 'DOMAIN' )
-      Facter.expects( :value ).with( 'ipaddress' ).returns( nil )
-
-      assert_raises( "Cannnot resolve Lucie server's IP address." ) do
-        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
-      end
+    assert_raises( "Cannnot resolve Lucie server's domain name." ) do
+      Dhcp.new.domain
     end
   end
 
 
-  def test_setup___fail___with_no_ipaddress_resolv_failure
-    in_sandbox do | sandbox |
-      sandbox.new :file => 'hosts', :with_content => '192.168.1.1 TEST_NODE'
-      sandbox.new :file => 'TEST_NODE/00:00:00:00:00:00', :with_content => ''
-      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER', :with_content => ''
+  def test_ipaddress_resolve_failure
+    Facter.stubs( :value ).with( 'ipaddress' ).returns( false )
 
-      Configuration.expects( :nodes_directory ).at_least_once.returns( sandbox.root )
+    assert_raises( "Cannnot resolve Lucie server's IP address." ) do
+      Dhcp.new.ipaddress
+    end
+  end
 
-      File.expects( :copy ).with( '/etc/dhcp3/dhcpd.conf', '/etc/dhcp3/dhcpd.conf.orig' ).times( 1 )
 
-      resolver_mock = mock( 'Resolv::Hosts' )
-      resolver_mock.expects( :getaddress ).returns( nil )
-      Resolv::Hosts.expects( :new ).returns( resolver_mock )
+  def test_node_ipaddress_resolve_failure
+    resolver = Object.new
+    resolver.stubs( :getaddress ).with( 'NODE_NAME' ).returns( false )
+    Resolv::Hosts.stubs( :new ).returns( resolver )
 
-      assert_raises( "Cannnot resolve host 'TEST_NODE' IP address." ) do
-        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', sandbox.root + '/hosts'
-      end
+    assert_raises( "Cannnot resolve host 'NODE_NAME' IP address." ) do
+      Dhcp.new.node_ipaddress 'NODE_NAME'
     end
   end
 end

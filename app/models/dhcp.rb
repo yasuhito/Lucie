@@ -4,48 +4,18 @@ require 'resolv'
 
 
 class Dhcp
-  def self.domain
-    domain = Facter.value( 'domain' )
-    unless domain
-      raise "Cannnot resolve Lucie server's domain name."
-    end
-    return domain
+  def self.setup installer_name, ip_address, netmask_address
+    self.new.setup installer_name, ip_address, netmask_address
   end
 
 
-  def self.ipaddress
-    ipaddress = Facter.value( 'ipaddress' )
-    unless ipaddress
-      raise "Cannnot resolve Lucie server's IP address."
-    end
-    return ipaddress
-  end
+  attr_reader :installer_name
 
 
-  def self.node_ipaddress hosts, name
-    node_ipaddress = Resolv::Hosts.new( hosts ).getaddress( name )
-    unless node_ipaddress
-      raise "Cannnot resolve host '#{ name }' IP address."
-    end
-    return node_ipaddress
-  end
+  def setup installer_name, ip_address, netmask_address
+    @installer_name = installer_name
 
-
-  def self.setup installer_name, ip_address, netmask_address, hosts = '/etc/hosts'
-    config_file = '/etc/dhcp3/dhcpd.conf'
     File.copy config_file, config_file + '.orig'
-
-    host_entries = ''
-    nodes = Nodes.load_enabled( installer_name ).collect do | each |
-      host_entries += <<-EOF
-  host #{ each.name } {
-    hardware ethernet #{ each.mac_address };
-    fixed-address #{ node_ipaddress( hosts, each.name ) };
-  }
-EOF
-      each.name
-    end.join( "\n" )
-
     File.open( config_file, 'w' ) do | file |
       file.puts <<-EOF
 option domain-name "#{ domain }";
@@ -61,5 +31,54 @@ subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ ne
 EOF
     end
     system '/etc/init.d/dhcp3-server restart'
+  end
+
+
+  def domain
+    my_domain = Facter.value( 'domain' )
+    unless my_domain
+      raise "Cannnot resolve Lucie server's domain name."
+    end
+    return my_domain
+  end
+
+
+  def ipaddress
+    my_ipaddress = Facter.value( 'ipaddress' )
+    unless my_ipaddress
+      raise "Cannnot resolve Lucie server's IP address."
+    end
+    return my_ipaddress
+  end
+
+
+  def node_ipaddress name
+    address = Resolv::Hosts.new.getaddress( name )
+    unless address
+      raise "Cannnot resolve host '#{ name }' IP address."
+    end
+    return address
+  end
+
+
+  private
+
+
+  def host_entries
+    entries = ''
+    Nodes.load_enabled( installer_name ).each do | each |
+      entries += <<-EOF
+  host #{ each.name } {
+    hardware ethernet #{ each.mac_address };
+    fixed-address #{ node_ipaddress( each.name ) };
+  }
+EOF
+    end
+    return entries
+  end
+
+
+  def config_file
+    return '/etc/dhcp3/dhcpd.conf'
   end
 end
