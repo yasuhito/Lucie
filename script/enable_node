@@ -113,9 +113,6 @@ rescue => e
 end
 
 
-puts "Node '#{ node_name }' setup finished."
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8

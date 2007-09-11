@@ -1,6 +1,7 @@
 require 'facter'
 require 'ftools'
 require 'resolv'
+require 'popen3/shell'
 
 
 class Dhcp
@@ -30,7 +31,7 @@ subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ ne
 }
 EOF
     end
-    system '/etc/init.d/dhcp3-server restart'
+    sh_exec '/etc/init.d/dhcp3-server restart'
   end
 
 

@@ -25,6 +25,10 @@ class DhcpTest < Test::Unit::TestCase
       resolver.stubs( :getaddress ).with( 'TEST_NODE' ).returns( '192.168.1.100' )
       Resolv::Hosts.stubs( :new ).returns( resolver )
 
+      dhcp = Dhcp.new
+      Dhcp.stubs( :new ).returns( dhcp )
+      dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' )
+
       assert_nothing_raised do
         Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0'
       end
