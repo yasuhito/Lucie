@@ -97,7 +97,7 @@ begin
 
   Tftp.setup node_name, installer_name
   Nfs.setup installer_name
-  Dhcp.setup installer_name, ip_address, netmask_address
+  Dhcp.setup installer_name, ip_address, netmask_address, gateway_address
   Puppet.setup Installers.find( installer_name ).local_checkout
 
   if wol
