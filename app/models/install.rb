@@ -173,7 +173,6 @@ class Install
 
     Lucie::Log.info 'Setting up network'
     ssh_exec @node.name, "setup_network #{ @node.name } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
-    sh_exec "scp /etc/hosts root@#{ @node.name }:/tmp/target/etc/"
 
     Lucie::Log.info 'Setting up puppet'
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
