@@ -1,10 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
 # ENV[ 'RAILS_ENV' ] = 'production'
@@ -64,7 +58,7 @@ end
 
 puts "Adding node '#{node_name}' (this may take a while)..."
 
-begin 
+begin
   require RAILS_ROOT + '/config/environment'
 
   node = Node.new( node_name, mac_address )
