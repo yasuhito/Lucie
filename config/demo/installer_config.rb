@@ -18,8 +18,8 @@ Nfsroot.configure do | nfsroot |
   # Build the nfsroot with "linux-image-2.6.18-fai-kernels_1_i386.deb" kernel package in kernels/ directory.
   # nfsroot.kernel_package = 'linux-image-2.6.18-fai-kernels_1_i386.deb'
 
-  # Use the following sources_list while installation (default: "http://192.168.1.1:9999/debian main contrib non-free")
+  # Use the following sources_list while installation (default: "http://192.168.1.1:9999/debian stable main contrib non-free")
   # Keep in mind that specified sources_list should be reachable from all nodes.
-  # nfsroot.sources_list = 'deb http://192.168.1.1:9999/debian main contrib non-free'
+  # nfsroot.sources_list = 'deb http://192.168.1.1:9999/debian stable main contrib non-free'
 
 end
