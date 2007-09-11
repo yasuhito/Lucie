@@ -1,9 +1,16 @@
 #!/usr/bin/env ruby
 
 
+$host_name = ARGV[ 0 ]
+$domain_name = ARGV[ 1 ]
+$lucie_server = ARGV[ 2 ]
+$lucie_server_ipaddress = ARGV[ 3 ]
+
+
 File.open( '/tmp/target/etc/hostname', 'w' ) do | file |
-  file.puts ARGV[ 0 ]
+  file.puts $host_name
 end
+
 
 File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
   file.puts( <<-INTERFACES )
@@ -12,4 +19,21 @@ iface lo inet loopback
 
 iface eth0 inet dhcp
 INTERFACES
+end
+
+
+File.open( '/tmp/target/etc/hosts', 'w' ) do | file |
+  file.puts( <<-EOF )
+127.0.0.1\tlocalhost\t#{ $host_name }
+#{ Facter.value( 'ipaddress' ) }\t#{ $host_name }.#{ $domain_name }\t#{ $host_name }
+#{ $lucie_server_ipaddress }\t#{ $lucie_server }.#{ $domain_name }\t#{ $lucie_server }
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+  EOF
 end
