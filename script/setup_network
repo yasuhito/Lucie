@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
 
+require 'facter'
+
+
 $host_name = ARGV[ 0 ]
 $domain_name = ARGV[ 1 ]
 $lucie_server = ARGV[ 2 ]
