@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+
+
+# ENV[ 'RAILS_ENV' ] = 'production'
+
+
+require File.dirname( __FILE__ ) + '/../config/boot'
+require 'optparse'
+
+
+node_name = ARGV.shift
+trace = false
+
+
+ARGV.options do |opts|
+  opts.banner = 'usage: node remove <node-name>'
+
+  opts.separator ''
+
+  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+    trace = true
+  end
+
+  opts.separator ''
+
+  opts.on( '-h', '--help', 'Show this help message.' ) do
+    puts opts
+    exit 1
+  end
+
+  args = opts.parse!
+
+  unless node_name
+    STDERR.puts 'Node name is mandatory'
+    STDERR.puts
+    puts opts
+    exit -1
+  end
+
+  # Node Name can only contain alphanumeric characters and numbers
+  if node_name.match /[^-_a-zA-Z0-9]/
+    STDERR.puts "'#{node_name}' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
+    exit -1
+  end
+end
+
+
+puts "Removing node '#{ node_name }' (this may take a while)..."
+
+begin
+  require RAILS_ROOT + '/config/environment'
+
+  Nodes.remove node_name
+
+rescue => e
+  if trace
+    raise
+  else
+    STDERR.puts "FAILED: #{ e.message }"
+    exit -1
+  end
+end
+
+
+puts "Node '#{ node_name }' removed."
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

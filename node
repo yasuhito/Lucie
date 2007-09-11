@@ -14,6 +14,11 @@ def add
 end
 
 
+def remove
+  load File.dirname( __FILE__ ) + "/script/remove_node"
+end
+
+
 def enable
   load File.dirname( __FILE__ ) + "/script/enable_node"
 end
@@ -51,6 +56,7 @@ Type 'node --version' to see the version number.
 
 Available commands:
   add        - adds a node
+  remove     - removes a node
   enable     - enable installation of a node
   disable    - disable installation of a node
   list       - list registered nodes
@@ -73,6 +79,8 @@ def method_for_command command
     return :disable
   when 'add'
     return :add
+  when 'delete', 'remove', 'rm', 'del'
+    return :remove
   when 'enable'
     return :enable
   when 'install'
