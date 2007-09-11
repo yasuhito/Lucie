@@ -30,7 +30,7 @@ class DhcpTest < Test::Unit::TestCase
       dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' )
 
       assert_nothing_raised do
-        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0'
+        Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.2'
       end
     end
   end

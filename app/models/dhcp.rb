@@ -5,15 +5,15 @@ require 'popen3/shell'
 
 
 class Dhcp
-  def self.setup installer_name, ip_address, netmask_address
-    self.new.setup installer_name, ip_address, netmask_address
+  def self.setup installer_name, ip_address, netmask_address, gateway_address
+    self.new.setup installer_name, ip_address, netmask_address, gateway_address
   end
 
 
   attr_reader :installer_name
 
 
-  def setup installer_name, ip_address, netmask_address
+  def setup installer_name, ip_address, netmask_address, gateway_address
     @installer_name = installer_name
 
     File.copy config_file, config_file + '.orig'
@@ -22,6 +22,7 @@ class Dhcp
 option domain-name "#{ domain }";
 
 subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ netmask_address } {
+  option routers #{ gateway_address };
   option broadcast-address #{ Network.broadcast_address( ip_address, netmask_address ) };
 
   next-server #{ ipaddress };
