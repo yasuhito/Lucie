@@ -49,7 +49,10 @@ EOF
       file.puts 'RUN_DAEMON=yes'
       file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
     end
-    sh_exec '/etc/init.d/tftpd-hpa restart'
+
+    # HACK: /etc/init.d/tftpd-hpa restart does not work correctly
+    sh_exec '/etc/init.d/tftpd-hpa stop' rescue nil
+    sh_exec '/etc/init.d/tftpd-hpa start'
   end
 
 
