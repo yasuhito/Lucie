@@ -16,8 +16,7 @@ class Tftp
     @installer_name = installer_name
 
     setup_pxe
-    setup_inetd
-    setup_atftpd
+    setup_tftpd
   end
 
 
@@ -45,20 +44,12 @@ EOF
   end
 
 
-  def setup_inetd
-    sh_exec 'update-inetd --group BOOT --remove "tftp.*/usr/sbin/in.tftpd.*"'
-    sh_exec "update-inetd --group BOOT --add \"tftp dgram udp wait nobody /usr/sbin/tcpd /usr/sbin/in.tftpd --tftpd-timeout 300 --retry-timeout 5 --mcast-port 1758 --mcast-addr 239.239.239.0-255 --mcast-ttl 1 --maxthread 100 --verbose=5 #{Configuration.tftp_root}\""
-  end
-
-
-  def setup_atftpd
-    File.open( '/etc/default/atftpd', 'w' ) do | file |
-      file.puts 'USE_INETD=true'
-      file.puts "OPTIONS='--daemon --port 69 --tftpd-timeout 300 --retry-timeout 5 --mcast-port 1758 --mcast-addr 239.239.239.0-255 --mcast-ttl 1 --maxthread 100 --verbose=5 #{Configuration.tftp_root}'"
+  def setup_tftpd
+    File.open( '/etc/default/tftpd-hpa', 'w' ) do | file |
+      file.puts 'RUN_DAEMON=yes'
+      file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
     end
-    if File.exists?( '/etc/init.d/atftpd' )
-      sh_exec '/etc/init.d/atftpd restart'
-    end
+    sh_exec '/etc/init.d/tftpd-hpa restart'
   end
 
 

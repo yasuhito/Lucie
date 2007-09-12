@@ -9,8 +9,7 @@ class TftpTest < Test::Unit::TestCase
     tftp = Tftp.new
     Tftp.stubs( :new ).returns( tftp )
     tftp.stubs( :setup_pxe )
-    tftp.stubs( :setup_inetd )
-    tftp.stubs( :setup_atftpd )
+    tftp.stubs( :setup_tftpd )
 
     Tftp.setup 'NODE_NAME', 'INSTALLER_NAME'
   end
@@ -49,28 +48,15 @@ class TftpTest < Test::Unit::TestCase
   end
 
 
-  def test_setup_inetd___SUCCESS___
-    tftp = Tftp.new
-    tftp.stubs( :sh_exec )
-
-    Configuration.stubs( :tftp_root ).returns( 'TFTP_ROOT' )
-
-    assert_nothing_raised do
-      tftp.setup_inetd
-    end
-  end
-
-
-  def test_setup_atftpd___SUCCESS___
+  def test_setup_tftpd___SUCCESS___
     tftp = Tftp.new
     file = Object.new
     file.stubs( :puts )
-    File.stubs( :open ).with( '/etc/default/atftpd', 'w' ).yields( file )
-    File.stubs( :exists? ).with( '/etc/init.d/atftpd' ).returns( true )
+    File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' ).yields( file )
     tftp.stubs( :sh_exec )
 
     assert_nothing_raised do
-      tftp.setup_atftpd
+      tftp.setup_tftpd
     end
   end
 end
