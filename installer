@@ -5,12 +5,12 @@ load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 
 
 def add
-  load File.dirname(__FILE__) + "/script/add_installer"
+  load './script/add_installer'
 end
 
 
 def builder
-  load File.dirname(__FILE__) + "/script/builder"
+  load './script/builder'
 end
 
 

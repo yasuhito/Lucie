@@ -5,32 +5,32 @@ load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 
 
 def disable
-  load File.dirname( __FILE__ ) + "/script/disable_node"
+  load './script/disable_node'
 end
 
 
 def add
-  load File.dirname( __FILE__ ) + "/script/add_node"
+  load './script/add_node'
 end
 
 
 def remove
-  load File.dirname( __FILE__ ) + "/script/remove_node"
+  load './script/remove_node'
 end
 
 
 def enable
-  load File.dirname( __FILE__ ) + "/script/enable_node"
+  load './script/enable_node'
 end
 
 
 def install
-  load File.dirname( __FILE__ ) + "/script/install_node"
+  load './script/install_node'
 end
 
 
 def list
-  load File.dirname( __FILE__ ) + "/script/list_node"
+  load './script/list_node'
 end
 
 

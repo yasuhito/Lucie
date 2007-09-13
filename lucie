@@ -5,7 +5,7 @@ load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 
 
 def start
-  load File.dirname( __FILE__ ) + "/script/server"
+  load './script/server'
 end
 
 
