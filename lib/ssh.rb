@@ -56,8 +56,10 @@ class SSH < Rake::TaskLib
       if FileTest.exists?( public_key_file )
         sh_exec "cat #{ public_key_file } >> #{ authorized_keys_file }"
         FileUtils.chmod 0644, authorized_keys_file
+        return
       end
     end
+    raise "No ssh public key was found in #{ File.join( @ssh_user_home, '/.ssh/' ) }"
   end
 
 

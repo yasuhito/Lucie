@@ -63,6 +63,7 @@ class SSHTest < Test::Unit::TestCase
   def test_should_ssh_known_hosts_file_copied
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
+      sandbox.new :file => '/.ssh/id_rsa.pub'
       sandbox.new :file => '/.ssh/known_hosts'
       sandbox.new :file => '/etc/ssh/sshd_config'
 
