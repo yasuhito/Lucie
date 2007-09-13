@@ -10,6 +10,18 @@ class SSHTest < Test::Unit::TestCase
   end
 
 
+  def test_setup___SUCCESS___
+    SSH.stubs( :configure )
+    task = Object.new
+    task.stubs( :invoke )
+    Rake::Task.stubs( :[] ).with( 'installer:ssh' ).returns( task )
+
+    assert_nothing_raised do
+      SSH.setup
+    end
+  end
+
+
   def test_should_raise_if_no_ssh_is_available_in_nfsroot
     in_sandbox do | sandbox |
       SSH.configure do | ssh |
@@ -77,6 +89,23 @@ class SSHTest < Test::Unit::TestCase
       end
 
       assert FileTest.exists?( sandbox.root + '/root/.ssh/known_hosts' )
+    end
+  end
+
+
+  def test_exception_raised_if_no_ssh_pulic_key_found
+    in_sandbox do | sandbox |
+      sandbox.new :file => '/usr/bin/ssh'
+      sandbox.new :file => '/etc/ssh/sshd_config'
+
+      SSH.configure do | ssh |
+        ssh.target_directory = sandbox.root
+        ssh.ssh_user_home = sandbox.root
+      end
+
+      assert_raises( "No ssh public key was found in #{ File.join( sandbox.root, '/.ssh/' ) }" ) do
+        Rake::Task[ 'installer:ssh' ].invoke
+      end
     end
   end
 
