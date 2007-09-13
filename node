@@ -99,7 +99,10 @@ end
 
 command = ARGV.shift
 if method_for_command( command )
-  self.send method_for_command( command )
+  require 'fileutils'
+  FileUtils.cd( File.dirname( __FILE__ ) ) do
+    self.send method_for_command( command )
+  end
 elsif command.nil?
   STDERR.puts "Type 'node --help' for usage."
   exit -1
