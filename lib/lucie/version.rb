@@ -3,7 +3,7 @@ module Lucie
     unless defined? MAJOR
       MAJOR = 0
       MINOR = 1
-      MAINTENANCE = 1
+      MAINTENANCE = 2
 
       STRING = [ MAJOR, MINOR, MAINTENANCE ].join( '.' )
     end
