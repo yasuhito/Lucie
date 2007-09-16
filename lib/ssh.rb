@@ -36,8 +36,8 @@ class SSH < Rake::TaskLib
         FileUtils.mkdir_p target( '/root/.ssh' )
         FileUtils.chmod 0700, target( '/root/.ssh' )
 
-        if FileTest.exists?( @ssh_user_home + '/.ssh/known_hosts' )
-          FileUtils.cp @ssh_user_home + '/.ssh/known_hosts', target( '/root/.ssh/known_hosts' )
+        if FileTest.exists?( ssh_user_home + '/.ssh/known_hosts' )
+          FileUtils.cp ssh_user_home + '/.ssh/known_hosts', target( '/root/.ssh/known_hosts' )
         end
         copy_authorized_keys
 
@@ -52,14 +52,14 @@ class SSH < Rake::TaskLib
 
   def copy_authorized_keys
     [ 'id_dsa.pub', 'id_rsa.pub' ].each do | each |
-      public_key_file = @ssh_user_home + '/.ssh/' + each
+      public_key_file = ssh_user_home + '/.ssh/' + each
       if FileTest.exists?( public_key_file )
         sh_exec "cat #{ public_key_file } >> #{ authorized_keys_file }"
         FileUtils.chmod 0644, authorized_keys_file
         return
       end
     end
-    raise "No ssh public key was found in #{ File.join( @ssh_user_home, '/.ssh/' ) }"
+    raise "No ssh public key was found in #{ File.join( ssh_user_home, '/.ssh/' ) }"
   end
 
 

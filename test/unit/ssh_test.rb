@@ -39,8 +39,10 @@ class SSHTest < Test::Unit::TestCase
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/etc/ssh/sshd_config'
+      sandbox.new :file => '.ssh/id_rsa.pub'
 
       SSH.configure do | ssh |
+        ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
 
@@ -58,8 +60,10 @@ class SSHTest < Test::Unit::TestCase
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/etc/ssh/sshd_config', :with_content => 'PermitRootLogin no'
+      sandbox.new :file => '.ssh/id_rsa.pub'
 
       SSH.configure do | ssh |
+        ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
 
