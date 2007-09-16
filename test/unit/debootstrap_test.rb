@@ -1,14 +1,4 @@
-#!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require File.dirname( __FILE__ ) + '/../test_helper'
-
 require 'popen3/debootstrap'
 
 
@@ -16,13 +6,25 @@ class DebootstrapTest < Test::Unit::TestCase
   include Debootstrap
 
 
-  def test_debootstrap_version
-    shell_mock = mock( 'SHELL' )
-    shell_mock.expects( :on_stdout ).yields( 'ii  debootstrap    0.2.45-0.2     Bootstrap a basic Debian system' )
-    shell_mock.expects( :exec ).with( { 'LC_ALL' => 'C' }, 'dpkg', '-l' )
-    Popen3::Shell.expects( :open ).yields( shell_mock )
+  def test_debootstrap_version___success___
+    shell = Object.new
+    shell.stubs( :on_stdout ).yields( 'ii  debootstrap    0.2.45-0.2     Bootstrap a basic Debian system' )
+    shell.stubs( :exec ).with( { 'LC_ALL' => 'C' }, 'dpkg', '-l' )
+    Popen3::Shell.expects( :open ).yields( shell )
 
     assert_equal( '0.2.45-0.2', Popen3::Debootstrap.VERSION )
+  end
+
+
+  def test_debootstrap_version___fail___
+    shell = Object.new
+    shell.stubs( :on_stdout ).yields( '' )
+    shell.stubs( :exec ).with( { 'LC_ALL' => 'C' }, 'dpkg', '-l' )
+    Popen3::Shell.expects( :open ).yields( shell )
+
+    assert_raises 'Cannot determine debootstrap version.' do
+      Popen3::Debootstrap.VERSION
+    end
   end
 
 
@@ -32,6 +34,7 @@ class DebootstrapTest < Test::Unit::TestCase
 
     debootstrap = Popen3::Debootstrap.new do | option |
       option.env = { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
+      option.arch = 'i386'
       option.exclude = [ 'DHCP-CLIENT', 'INFO' ]
       option.suite = 'WOODY'
       option.target = '/TMP'
@@ -49,6 +52,7 @@ class DebootstrapTest < Test::Unit::TestCase
 
     debootstrap = debootstrap do | option |
       option.env = { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
+      option.arch = 'i386'
       option.exclude = [ 'DHCP-CLIENT', 'INFO' ]
       option.suite = 'WOODY'
       option.target = '/TMP'
@@ -68,6 +72,7 @@ class DebootstrapTest < Test::Unit::TestCase
 
     debootstrap = Popen3::Debootstrap.new do | option |
       option.env = { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
+      option.arch = 'i386'
       option.exclude = [ 'DHCP-CLIENT', 'INFO' ]
       option.suite = 'WOODY'
       option.target = '/TMP'
@@ -85,6 +90,7 @@ class DebootstrapTest < Test::Unit::TestCase
 
     debootstrap = Popen3::Debootstrap.new do | option |
       option.env = { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
+      option.arch = 'i386'
       option.exclude = [ 'DHCP-CLIENT', 'INFO' ]
       option.suite = 'WOODY'
       option.target = '/TMP'
@@ -116,6 +122,7 @@ class DebootstrapTest < Test::Unit::TestCase
     assert_raises( 'STDERR' ) do
       debootstrap = Popen3::Debootstrap.new do | option |
         option.env = { 'TEST_ENV_NAME' => 'TEST_ENV_VALUE' }
+        option.arch = 'i386'
         option.exclude = [ 'DHCP-CLIENT', 'INFO' ]
         option.suite = 'WOODY'
         option.target = '/TMP'
