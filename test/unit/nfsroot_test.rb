@@ -18,6 +18,7 @@ class NfsrootTest < Test::Unit::TestCase
       nfsroot_task = Nfsroot.configure do | task |
         task.target_directory = sandbox.root
         task.distribution = 'DEBIAN'
+        task.arch = 'amd64'
         task.extra_packages = [ 'EXTRA_PACKAGE_1', 'EXTRA_PACKAGE_2' ]
         task.http_proxy = 'HTTP://PROXY/'
         task.kernel_package = 'KERNEL.DEB'
@@ -29,6 +30,7 @@ class NfsrootTest < Test::Unit::TestCase
 
       assert_equal sandbox.root, nfsroot_task.target_directory
       assert_equal 'DEBIAN', nfsroot_task.distribution
+      assert_equal 'amd64', nfsroot_task.arch
       assert_equal [ 'EXTRA_PACKAGE_1', 'EXTRA_PACKAGE_2' ], nfsroot_task.extra_packages
       assert_equal 'HTTP://PROXY/', nfsroot_task.http_proxy
       assert_equal 'KERNEL.DEB', nfsroot_task.kernel_package

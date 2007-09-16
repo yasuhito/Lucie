@@ -7,6 +7,7 @@ require 'ssh'
 
 
 class Nfsroot < Rake::TaskLib
+  attr_accessor :arch
   attr_accessor :distribution
   attr_accessor :extra_packages
   attr_accessor :http_proxy
@@ -21,6 +22,7 @@ class Nfsroot < Rake::TaskLib
   def initialize
     @name = :nfsroot
 
+    @arch = 'i386'
     @http_proxy = nil
     @mirror = 'http://cdn.debian.or.jp/debian'
     @distribution = 'debian'
