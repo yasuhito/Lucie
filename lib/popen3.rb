@@ -1,8 +1,3 @@
-#
-# $Id$
-#
-
-
 require 'lucie/log'
 
 
