@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require 'English'
 require 'popen3'
 
@@ -30,7 +22,7 @@ module Popen3
 
 
     def child_status
-      @child_status ||= $CHILD_STATUS
+      $CHILD_STATUS
     end
 
 
@@ -101,12 +93,6 @@ module Popen3
 
 
     def handle_exitstatus
-      # In the unit tests, child_status is not set. Return
-      # immediately.
-      if child_status.nil?
-        return
-      end
-
       if child_status.exitstatus == 0
         do_success
       else
