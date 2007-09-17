@@ -93,12 +93,8 @@ class Nfsroot < Rake::TaskLib
         if File.exist?( @target_directory )
           Lucie::Log.info "#{ @target_directory } already exists. Removing #{ @target_directory }"
 
-          begin
-            sh_exec "umount #{ target( '/dev/pts' ) } 2>&1"
-          rescue
-            # ignore errors when /dev/pts is not mounted.
-            nil
-          end
+          # ignore errors when /dev/pts is not mounted.
+          sh_exec "umount #{ target( '/dev/pts' ) } 2>&1" rescue nil
           
           ( Dir.glob( target( '/dev/.??*' ) ) + Dir.glob( target( '/*' ) ) ).each do | each |
             sh_exec 'rm', '-rf', each
@@ -117,11 +113,8 @@ class Nfsroot < Rake::TaskLib
   end
 
 
-  private
-
-
   def kernel_package_file
-    return File.join( ENV[ 'RAILS_ROOT' ], 'kernels', @kernel_package )
+    return File.join( rails_root, 'kernels', @kernel_package )
   end
 
 
@@ -196,7 +189,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def get_kernel_version
-    if @kernel_package.nil?
+    if kernel_package.nil?
       raise "Option ``kernel_package'' is not set."
     end
 
@@ -243,7 +236,7 @@ class Nfsroot < Rake::TaskLib
     AptGet.update apt_option
     # [XXX] apt-get -fy install lucie-nfsroot
     sh_exec "mkdir -p #{ target( '/usr/lib/ruby/1.8' )}"
-    sh_exec "cp -r #{ ENV[ 'RAILS_ROOT' ] }/lib/* #{ target( '/usr/lib/ruby/1.8' )}"
+    sh_exec "cp -r #{ rails_root }/lib/* #{ target( '/usr/lib/ruby/1.8' )}"
     AptGet.check apt_option
 
     sh_exec "rm -rf #{ target( 'etc/apm' ) }"
@@ -302,27 +295,27 @@ class Nfsroot < Rake::TaskLib
     sh_exec "mkdir #{ target( '/etc/sysconfig' ) } #{ target( '/tmp/etc' ) }"
     sh_exec "cp -p /etc/resolv.conf #{ target( '/tmp/etc' ) }"
     sh_exec "ln -sf /tmp/etc/resolv.conf #{ target( '/etc/resolv.conf' )}"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
+    sh_exec "cp #{ rails_root }/script/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
     sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
+    sh_exec "cp #{ rails_root }/script/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/setup_grub #{ target( '/usr/sbin/setup_grub' ) }"
+    sh_exec "cp #{ rails_root }/script/setup_grub #{ target( '/usr/sbin/setup_grub' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_grub' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/setup_network #{ target( '/usr/sbin/setup_network' ) }"
+    sh_exec "cp #{ rails_root }/script/setup_network #{ target( '/usr/sbin/setup_network' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_network' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/setup_puppet #{ target( '/usr/sbin/setup_puppet' ) }"
+    sh_exec "cp #{ rails_root }/script/setup_puppet #{ target( '/usr/sbin/setup_puppet' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_puppet' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
+    sh_exec "cp #{ rails_root }/script/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/mount2dir' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/install_packages #{ target( '/usr/sbin/install_packages' ) }"
+    sh_exec "cp #{ rails_root }/script/install_packages #{ target( '/usr/sbin/install_packages' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/install_packages' ) }"
-    sh_exec "cp #{ ENV[ 'RAILS_ROOT' ] }/script/fai-do-scripts #{ target( '/usr/sbin/fai-do-scripts' ) }"
+    sh_exec "cp #{ rails_root }/script/fai-do-scripts #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "mkdir #{ target( '/etc/lucie' ) }"
     sh_exec "cp ../work/partition.rb #{ target( '/etc/lucie' ) }"
     sh_exec "cp ../work/package.rb #{ target( '/etc/lucie' ) }"
-    sh_exec "cp -a #{ ENV[ 'RAILS_ROOT' ] }/config/scripts #{ target( '/etc/lucie' ) }"
+    sh_exec "cp -a #{ rails_root }/config/scripts #{ target( '/etc/lucie' ) }"
 
     if FileTest.directory?( target( '/var/yp' ) )
       sh_exec "ln -s /tmp/binding #{ target( '/var/yp/binding' ) }"
@@ -353,6 +346,14 @@ class Nfsroot < Rake::TaskLib
     path.each do | each |
       sh_exec "chroot #{ @target_directory } dpkg-divert --quiet --add --rename #{ each }"
     end
+  end
+
+
+  def rails_root
+    unless ENV[ 'RAILS_ROOT' ]
+      raise 'RAILS_ROOT is not set.'
+    end
+    ENV[ 'RAILS_ROOT' ]
   end
 
 

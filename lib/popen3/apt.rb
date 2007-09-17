@@ -1,52 +1,52 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require 'popen3/shell'
 
 
 module Popen3
   class Apt
     def self.get command, option = nil
-      self.new command.split( ' ' ), option
+      self.new( option ).get command
     end
 
 
     def self.clean option = nil
-      self.new :clean, option
+      self.new( option ).clean
     end
 
 
     def self.update option = nil
-      self.new :update, option
+      self.new( option ).update
     end
 
 
     def self.check option = nil
-      self.new :check, option
+      self.new( option ).check
     end
 
 
-    def initialize command, option = nil
+    def initialize option = nil
       @root = nil
       @env = { 'LC_ALL' => 'C', 'DEBIAN_FRONTEND' => 'noninteractive' }
-      case command
-      when String, Symbol
-        @command = [ command.to_s ]
-      when Array
-        @command = command
-      end
       set_option option
-      exec_shell
     end
 
 
-    def child_status
-      return @shell.child_status
+    def get command
+      exec_shell command.split( ' ' )
+    end
+
+
+    def clean
+      exec_shell [ 'clean' ]
+    end
+
+
+    def update
+      exec_shell [ 'update' ]
+    end
+
+
+    def check
+      exec_shell [ 'check' ]
     end
 
 
@@ -67,7 +67,7 @@ module Popen3
     end
 
 
-    def exec_shell
+    def exec_shell command
       @shell = Shell.open do | shell |
         shell.on_stdout do | line |
           Lucie::Log.debug line
@@ -77,10 +77,10 @@ module Popen3
         end
 
         shell.on_failure do
-          raise "#{ command_line_string } failed!"
+          raise "#{ command_line_string( command ) } failed!"
         end
 
-        shell.exec( @env, *command_line )
+        shell.exec( @env, *command_line( command ) )
       end
     end
 
@@ -93,17 +93,17 @@ module Popen3
     end
 
 
-    def command_line
-      return chroot_command + [ 'apt-get' ] + @command
+    def command_line command
+      return chroot_command + [ 'apt-get' ] + command
     end
 
 
-    def command_line_string
+    def command_line_string command
       env_string = []
       @env.each do | key, value |
         env_string << "'#{ key }' => '#{ value }'"
       end
-      return "ENV{ #{ env_string.join( ', ' ) } }, '#{ command_line.join( ' ' ) }'"
+      return "ENV{ #{ env_string.join( ', ' ) } }, '#{ command_line( command ).join( ' ' ) }'"
     end
   end
 end
@@ -111,25 +111,25 @@ end
 
 module AptGet
   def apt command, option
-    return Popen3::Apt.new( command, option )
+    return Popen3::Apt.get( command, option )
   end
   module_function :apt
 
 
   def clean option = nil
-    return apt( :clean, option )
+    return Popen3::Apt.clean( option )
   end
   module_function :clean
 
 
   def check option = nil
-    return apt( :check, option )
+    return Popen3::Apt.check( option )
   end
   module_function :check
 
 
   def update option = nil
-    return apt( :update, option )
+    return Popen3::Apt.update( option )
   end
   module_function :update
 end

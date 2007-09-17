@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require 'popen3/apt'
 require 'popen3/debootstrap'
 require 'popen3/shell'
@@ -13,6 +5,16 @@ require 'rake'
 require 'rake/tasklib'
 
 
+# Defines 4 rake targets:
+#
+#  * ENV[ 'RAILS_ROOT' ] + '/installers/.base/DISTRIBUTION_SUITE.tgz': builds debootstrap tarball
+#  * installer:nfsroot_base: is an alias for tarball target.
+#  * installer:clobber_nfsroot_base: clobbers temporary nfsroot directory.
+#  * installer:rebuild_nfsroot_base: clobbers and rebuilds tarball
+#
+#--
+# [???] define clean target that removes temporary debootstrap directory and redefine clobber target that does clean and also removes tarball?
+#++
 class NfsrootBase < Rake::TaskLib
   include Debootstrap
 
@@ -27,7 +29,7 @@ class NfsrootBase < Rake::TaskLib
 
   def initialize
     @name = :nfsroot_base
-    @target_directory = File.join( ENV[ 'RAILS_ROOT' ], 'installers/.base' )
+    @target_directory = File.join( rails_root, 'installers/.base' )
     @distribution = 'debian'
     @suite = 'etch'
   end
@@ -57,9 +59,6 @@ class NfsrootBase < Rake::TaskLib
     return target( target_fname( @distribution, @suite ) )
   end
   alias :tgz :nfsroot_base_target
-
-
-  private
 
 
   def target path
@@ -131,7 +130,15 @@ class NfsrootBase < Rake::TaskLib
 
 
   def temporary_nfsroot_directory
-    return( ENV[ 'RAILS_ROOT' ] + '/tmp/debootstrap' )
+    return( rails_root + '/tmp/debootstrap' )
+  end
+
+
+  def rails_root
+    unless ENV[ 'RAILS_ROOT' ]
+      raise 'RAILS_ROOT is not set.'
+    end
+    ENV[ 'RAILS_ROOT' ]
   end
 end
 

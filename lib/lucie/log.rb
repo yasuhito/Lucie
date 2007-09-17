@@ -26,6 +26,7 @@ module Lucie
 
       first_arg = args.shift
       message = backtrace = nil
+
       case first_arg
       when Exception
         message = "#{ print_severity( method ) } #{ first_arg.message }"
@@ -47,7 +48,7 @@ module Lucie
       end
 
       is_error = ( method == :error or method == :fatal )
-      if @verbose or is_error and defined?( RAILS_ENV ) and RAILS_ENV != 'test'
+      if @verbose or is_error
         stream = is_error ? STDERR : STDOUT
         stream.puts message
         if backtrace and @verbose

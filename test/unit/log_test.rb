@@ -31,8 +31,13 @@ class LogTest < Test::Unit::TestCase
 
 
   def test_error
+    Lucie::Log.verbose = true
+
+    exception = Exception.new
+    exception.stubs( :backtrace ).returns( [ 'DUMMY_BACKTRACE' ] )
+
     assert_nothing_raised do
-      Lucie::Log.error 'DESCRIPTION'
+      Lucie::Log.error exception
     end
   end
 
@@ -44,3 +49,9 @@ class LogTest < Test::Unit::TestCase
   end
 end
 
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
