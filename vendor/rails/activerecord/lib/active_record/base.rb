@@ -4,8 +4,8 @@ require 'set'
 require 'active_record/deprecated_finders'
 
 module ActiveRecord #:nodoc:
-  class ActiveRecordError < StandardError #:nodoc:
-  end
+#  class ActiveRecordError < StandardError #:nodoc:
+#  end
   class SubclassNotFound < ActiveRecordError #:nodoc:
   end
   class AssociationTypeMismatch < ActiveRecordError #:nodoc:
