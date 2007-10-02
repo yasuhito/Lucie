@@ -3,11 +3,14 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'spec/rails'
+require "#{ RAILS_ROOT }/vendor/file_sandbox/lib/file_sandbox"
+
 
 Spec::Runner.configure do |config|
   config.use_transactional_fixtures = true
   config.use_instantiated_fixtures  = false
   config.fixture_path = RAILS_ROOT + '/spec/fixtures'
+  config.mock_with :mocha
 
   # You can declare fixtures for each behaviour like this:
   #   describe "...." do

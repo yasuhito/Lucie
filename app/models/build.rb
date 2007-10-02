@@ -51,7 +51,7 @@ class Build
 
 
   def changeset
-    File.read(artifact('changeset.log')) rescue ''
+    File.read( artifact( 'changeset.log' ) ) rescue ''
   end
 
 
