@@ -1,3 +1,10 @@
+=0.2.0
+
+ * リファクタリング
+ * テストの RSpec 化
+ * installer_config.rb での arch オプションを追加
+ 
+
 =0.1.2
 
  * node remove コマンドを追加

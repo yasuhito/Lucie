@@ -2,8 +2,8 @@ module Lucie
   module VERSION #:nodoc:
     unless defined? MAJOR
       MAJOR = 0
-      MINOR = 1
-      MAINTENANCE = 2
+      MINOR = 2
+      MAINTENANCE = 0
 
       STRING = [ MAJOR, MINOR, MAINTENANCE ].join( '.' )
     end
