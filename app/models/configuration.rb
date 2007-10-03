@@ -1,5 +1,5 @@
 class Configuration
-  @default_page = {:controller => 'installers', :action => 'index'}
+  @default_page = { :controller => 'installers', :action => 'index' }
   @build_request_checking_interval = 5.seconds
   @dashboard_refresh_interval = 5.seconds
   @default_polling_interval = 10.seconds
