@@ -2,20 +2,6 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
 describe "All Builds", :shared => true do
-  include FileSandbox
-
-
-  def in_total_sandbox &block
-    in_sandbox do | sandbox |
-      @dir = File.expand_path( sandbox.root )
-      @stdout = "#{ @dir }/stdout"
-      @stderr = "#{ @dir }/stderr"
-      @prompt = "#{ @dir } #{ Platform.user }$"
-      yield sandbox
-    end
-  end
-
-
   def with_sandbox_installer &block
     in_total_sandbox do | sandbox |
       FileUtils.mkdir_p( "#{ sandbox.root }/work" )

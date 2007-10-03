@@ -24,3 +24,17 @@ Spec::Runner.configure do |config|
   # If you declare global fixtures, be aware that they will be declared
   # for all of your examples, even those that don't use them.
 end
+
+
+include FileSandbox
+
+
+def in_total_sandbox &block
+  in_sandbox do | sandbox |
+    @dir = File.expand_path( sandbox.root )
+    @stdout = "#{ @dir }/stdout"
+    @stderr = "#{ @dir }/stderr"
+    @prompt = "#{ @dir } #{ Platform.user }$"
+    yield sandbox
+  end
+end

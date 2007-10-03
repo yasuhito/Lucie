@@ -9,6 +9,7 @@ class Install
   attr_reader :node
 
 
+  # [FIXME] split into Install.latest, Install.new, etc ?
   def initialize node, label
     @node = node
     case label
@@ -120,19 +121,11 @@ class Install
 
   def ssh_exec node_name, *command
     Popen3::Shell.open do | shell |
-      shell.on_stdout do | line |
-        @install_log.puts line
-      end
+      shell.on_stdout { | line | @install_log.puts line }
+      shell.on_stderr { | line | @install_log.puts line }
+      shell.on_failure { raise %{Command "#{ command.join( ' ' ) }" failed} }
 
-      shell.on_stderr do | line |
-        @install_log.puts line
-      end
-
-      shell.on_failure do
-        raise %{Command "#{ command.join( ' ' ) }" failed}
-      end
-
-      @install_log.puts "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command.join( ' ' )
+      @install_log << "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command.join( ' ' )
       shell.exec( { 'LC_ALL' => 'C' }, *( [ 'ssh', "root@#{ INSTALLER_OPTIONS[ :node_name ] }" ] + command ) )
 
       # Returns a instance of Popen3::Shell as a return value from
