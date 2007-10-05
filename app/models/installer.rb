@@ -2,7 +2,13 @@ class Installer
   @@plugin_names = []
 
 
+  # [FIXME] Installer#install メソッドにインストール可能かの判定やインストール処理自体をまとめる
   def self.install node
+    installer = Installer.new( node.installer_name )
+    unless installer.last_build.successful?
+      raise "Installer `#{ node.installer_name }' is broken."
+    end
+
     install = Install.new( node, :new )
     install.run
     return install

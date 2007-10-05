@@ -339,10 +339,35 @@ describe Installer do
   end
 
 
+  it 'should abort installation unless last build was successful' do
+    node = Object.new
+    node.stubs( :installer_name ).returns( 'DUMMY_INSTALLER' )
+
+    failed_last_build = Object.new
+    failed_last_build.stubs( :successful? ).returns( false )
+
+    installer = Object.new
+    installer.stubs( :last_build ).returns( failed_last_build )
+    Installer.expects( :new ).with( 'DUMMY_INSTALLER' ).returns( installer )
+
+    lambda do
+      Installer.install node
+    end.should raise_error( RuntimeError, "Installer `DUMMY_INSTALLER' is broken." )
+  end
+
+
   it 'should run successful install' do
     node = Object.new
-    install = Object.new
+    node.stubs( :installer_name ).returns( 'DUMMY_INSTALLER' )
 
+    success_last_build = Object.new
+    success_last_build.stubs( :successful? ).returns( true )
+
+    installer = Object.new
+    installer.stubs( :last_build ).returns( success_last_build )
+    Installer.expects( :new ).with( 'DUMMY_INSTALLER' ).returns( installer )
+
+    install = Object.new
     Install.stubs( :new ).with( node, :new ).returns( install )
     install.expects( :run )
 
