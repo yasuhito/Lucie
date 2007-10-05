@@ -75,13 +75,13 @@ class Installer
 
 
   def builder_error_message
-    BuilderStatus.new(self).error_message
+    BuilderStatus.new( self ).error_message
   end
 
 
 
   def last_five_builds
-    last_builds(5)
+    last_builds 5
   end
 
 
@@ -114,10 +114,12 @@ class Installer
 
 
   def builds
-    raise "Installer #{name.inspect} has no path" unless path
+    unless path
+      raise "Installer #{ name.inspect } has no path"
+    end
 
-    the_builds = Dir[ "#{path}/build-*/build_status.*" ].collect do | status_file |
-      build_directory = File.basename( File.dirname( status_file ) )
+    the_builds = Dir[ "#{ path }/build-*/build_status.*" ].collect do | each |
+      build_directory = File.basename( File.dirname( each ) )
       build_label = build_directory[ 6..-1 ]
       Build.new self, build_label
     end
@@ -143,16 +145,16 @@ class Installer
         if retried_after_update
           raise
         else
-          @source_control.update(self)
+          @source_control.update self
           retried_after_update = true
           retry
         end
       end
       load_and_remember config_tracker.local_config_file
     rescue Exception => e
-      @error_message = "Could not load installer configuration: #{e.message} in #{e.backtrace.first}"
-      Lucie::Log.event(@error_message, :fatal) rescue nil
-      @settings = ""
+      @error_message = "Could not load installer configuration: #{ e.message } in #{ e.backtrace.first }"
+      Lucie::Log.event( @error_message, :fatal ) rescue nil
+      @settings = ''
     end
     self
   end
@@ -187,8 +189,7 @@ class Installer
 
 
   def new_revisions
-    builds.empty? ? [ @source_control.latest_revision( self ) ] :
-                    @source_control.revisions_since( self, builds.last.label.to_i )
+    builds.empty? ? [ @source_control.latest_revision( self ) ] : @source_control.revisions_since( self, builds.last.label.to_i )
   end
 
 
@@ -365,20 +366,20 @@ class Installer
   end
 
 
-  def next_build(current_build)
+  def next_build current_build
     all_builds = builds
-    index = get_build_index(all_builds, current_build.label)
+    index = get_build_index( all_builds, current_build.label )
 
-    if index == (all_builds.size - 1)
+    if index == ( all_builds.size - 1 )
       return nil
     else
-      return all_builds[index + 1]
+      return all_builds[ index + 1 ]
     end
   end
 
 
-  def last_builds(n)
-    result = builds.reverse[0..(n-1)]
+  def last_builds n
+    builds.reverse[ 0..( n - 1 ) ]
   end
 
 
@@ -420,8 +421,8 @@ class Installer
 
   # sorts a array of builds in order of revision number and rebuild number
   def order_by_label builds
-    builds.sort_by do | build |
-      number_and_rebuild = build.label.split( '.' )
+    builds.sort_by do | each |
+      number_and_rebuild = each.label.split( '.' )
       number_and_rebuild.map do | x |
         x.to_i
       end
@@ -429,9 +430,13 @@ class Installer
   end
 
 
-  def get_build_index(all_builds, build_label)
+  def get_build_index all_builds, build_label
     result = 0;
-    all_builds.each_with_index {|build, index| result = index if build.label.to_s == build_label}
+    all_builds.each_with_index do | each, index |
+      if each.label.to_s == build_label
+        result = index
+      end
+    end
     result
   end
 end
