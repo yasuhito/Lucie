@@ -7,7 +7,7 @@ describe 'All Installers', :shared => true do
 
   before( :each ) do
     @svn = Object.new
-    @installer = Installer.new( 'LEMMINGS' )
+    @installer = Installer.new( 'DUMMY_INSTALLER' )
     @installer.source_control = @svn
   end
 
@@ -154,25 +154,6 @@ describe Installer, 'when handling previous builds' do
   end
 
 
-  it 'should have last complete build status never_built when never built' do
-    successful_builder_status = Object.new
-    successful_builder_status.expects( :fatal? ).returns( false )
-    BuilderStatus.expects( :new ).with( @installer ).returns( successful_builder_status )
-    @installer.expects( :last_complete_build ).returns( nil )
-
-    @installer.last_complete_build_status.should == 'never_built'
-  end
-
-
-  it 'should have last complete build status failed if builder status is fatal' do
-    fatal_builder_status = Object.new
-    fatal_builder_status.expects( :fatal? ).returns( true )
-    BuilderStatus.expects( :new ).with( @installer ).returns( fatal_builder_status )
-
-    @installer.last_complete_build_status.should == 'failed'
-  end
-
-
   it 'should get last n builds' do
     in_sandbox do | sandbox |
       @installer.path = sandbox.root
@@ -312,6 +293,134 @@ describe Installer, 'when generating events' do
 end
 
 
+describe Installer, 'when checking last complete build status' do
+  it_should_behave_like 'All Installers'
+
+
+
+  it "should have 'success' status if last build succeeded" do
+    BuilderStatus.stubs( :new ).returns( ok_builder_status )
+    @installer.stubs( :builds ).returns( [ successful_build ] )
+
+    @installer.last_complete_build_status.should == 'success'
+  end
+
+
+  it "should have 'failed' status if last build failed" do
+    BuilderStatus.stubs( :new ).returns( ok_builder_status )
+    @installer.stubs( :builds ).returns( [ failed_build ] )
+
+    @installer.last_complete_build_status.should == 'failed'
+  end
+
+
+  it "should have 'never_built' status if never built" do
+    BuilderStatus.stubs( :new ).returns( ok_builder_status )
+    @installer.stubs( :last_complete_build ).returns( nil )
+
+    @installer.last_complete_build_status.should == 'never_built'
+  end
+
+
+  it "should have 'failed' status if builder status is fatal" do
+    BuilderStatus.stubs( :new ).returns( fatal_builder_status )
+
+    @installer.last_complete_build_status.should == 'failed'
+  end
+
+
+  def fatal_builder_status
+    builder_status = Object.new
+    builder_status.stubs( :fatal? ).returns( true )
+    builder_status
+  end
+
+
+  def ok_builder_status
+    builder_status = Object.new
+    builder_status.stubs( :fatal? ).returns( false )
+    builder_status
+  end
+
+
+  def successful_build
+    build = Object.new
+    build.stubs( :incomplete? ).returns( false )
+    build.stubs( :status ).returns( 'success' )
+    build
+  end
+
+
+  def failed_build
+    build = Object.new
+    build.stubs( :incomplete? ).returns( false )
+    build.stubs( :status ).returns( 'failed' )
+    build
+  end
+end
+
+
+describe Installer, 'when installing' do
+  it_should_behave_like 'All Installers'
+
+
+  it 'should run successful install' do
+    Installer.stubs( :new ).returns( @installer )
+    @installer.stubs( :last_build ).returns( completed_build_status )
+    @installer.stubs( :last_complete_build_status ).returns( 'success' )
+
+    install = Object.new
+    Install.stubs( :new ).returns( install )
+    install.expects( :run )
+
+    Installer.install( dummy_node ).should == install
+  end
+
+
+  it 'should abort if build incomplete' do
+    Installer.stubs( :new ).returns( @installer )
+    @installer.stubs( :last_build ).returns( incomplete_build_status )
+    @installer.stubs( :last_complete_build_status ).returns( 'failed' )
+
+    lambda do
+      Installer.install dummy_node
+    end.should raise_error( RuntimeError, "Installer `DUMMY_INSTALLER' is incomplete." )
+  end
+
+
+  it 'should abort if last build failed' do
+    Installer.stubs( :new ).returns( @installer )
+    @installer.stubs( :last_build ).returns( completed_build_status )
+    @installer.stubs( :last_complete_build_status ).returns( 'failed' )
+
+    lambda do
+      Installer.install dummy_node
+    end.should raise_error( RuntimeError, "Installer `DUMMY_INSTALLER' is broken." )
+  end
+
+
+  def incomplete_build_status
+    build = Object.new
+    build.stubs( :incomplete? ).returns( true )
+    build
+  end
+
+
+  def completed_build_status
+    build = Object.new
+    build.stubs( :incomplete? ).returns( false )
+    build
+  end
+
+
+  def dummy_node
+    node = Object.new
+    node.stubs( :installer_name ).returns( 'DUMMY_INSTALLER' )
+    node
+  end
+end
+
+
 describe Installer do
   it_should_behave_like 'All Installers'
 
@@ -336,42 +445,6 @@ describe Installer do
     BuilderStatus.stubs( :new ).returns( error_message )
 
     @installer.builder_error_message.should == 'ERROR_MESSAGE'
-  end
-
-
-  it 'should abort installation unless last build was successful' do
-    node = Object.new
-    node.stubs( :installer_name ).returns( 'DUMMY_INSTALLER' )
-
-    failed_last_build = Object.new
-    failed_last_build.stubs( :successful? ).returns( false )
-
-    installer = Object.new
-    installer.stubs( :last_build ).returns( failed_last_build )
-    Installer.expects( :new ).with( 'DUMMY_INSTALLER' ).returns( installer )
-
-    lambda do
-      Installer.install node
-    end.should raise_error( RuntimeError, "Installer `DUMMY_INSTALLER' is broken." )
-  end
-
-
-  it 'should run successful install' do
-    node = Object.new
-    node.stubs( :installer_name ).returns( 'DUMMY_INSTALLER' )
-
-    success_last_build = Object.new
-    success_last_build.stubs( :successful? ).returns( true )
-
-    installer = Object.new
-    installer.stubs( :last_build ).returns( success_last_build )
-    Installer.expects( :new ).with( 'DUMMY_INSTALLER' ).returns( installer )
-
-    install = Object.new
-    Install.stubs( :new ).with( node, :new ).returns( install )
-    install.expects( :run )
-
-    Installer.install( node ).should == install
   end
 
 

@@ -2,16 +2,9 @@ class Installer
   @@plugin_names = []
 
 
-  # [FIXME] Installer#install メソッドにインストール可能かの判定やインストール処理自体をまとめる
   def self.install node
     installer = Installer.new( node.installer_name )
-    unless installer.last_build.successful?
-      raise "Installer `#{ node.installer_name }' is broken."
-    end
-
-    install = Install.new( node, :new )
-    install.run
-    return install
+    installer.run node
   end
 
 
@@ -402,6 +395,24 @@ class Installer
   # access plugins by their names
   def method_missing method_name, *args, &block
     @plugins_by_name.key?( method_name ) ? @plugins_by_name[ method_name ] : super
+  end
+
+
+  def run node
+    if last_build.incomplete?
+      raise "Installer `#{ node.installer_name }' is incomplete."
+    end
+
+    case last_complete_build_status
+    when 'never_built'
+      raise "Installer `#{ node.installer_name }' is never built."
+    when 'failed'
+      raise "Installer `#{ node.installer_name }' is broken."
+    end
+
+    install = Install.new( node, :new )
+    install.run
+    return install
   end
 
 
