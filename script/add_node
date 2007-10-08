@@ -9,24 +9,58 @@ require 'optparse'
 
 
 node_name = ARGV.shift
+
+gateway_address = nil
+installer_name = nil
+ip_address = nil
 mac_address = nil
+netmask_address = nil
+wol = false
+
 trace = false
 
 
 ARGV.options do |opts|
-  opts.banner = 'usage: node add <node-name> --mac <MAC address>'
+  opts.banner = 'usage: node add <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway> --mac <MAC address>'
 
   opts.separator ''
-  opts.on( '-m', '--mac MAC address', String,
-           "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
-    mac_address = v
+
+  opts.on( '-i', '--installer installer name', String, 'The installer name for the installation' ) do | v |
+    installer_name = v
+  end
+
+  opts.on( '-a', '--address address', String, 'IP address' ) do | v |
+    ip_address = v
+  end
+
+  opts.on( '-n', '--netmask address', String, 'Netmask address' ) do | v |
+    netmask_address = v
+  end
+
+  opts.on( '-g', '--gateway address', String, 'Gateway address' ) do | v |
+    gateway_address = v
   end
 
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
     trace = true
   end
 
+  opts.on( '-m', '--mac MAC address', String,
+           "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
+    mac_address = v
+  end
+
   opts.separator ''
+
+  opts.on( '-w', '--wol', 'Remote power-on using wake on LAN' ) do
+    wol = true
+  end
+
+  opts.separator ''
+
+  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+    trace = true
+  end
 
   opts.on( '-h', '--help', 'Show this help message.' ) do
     puts opts
@@ -35,12 +69,20 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
-  unless node_name and mac_address
-    STDERR.puts 'Node name and Mac address are mandatory'
+  unless node_name and installer_name
+    STDERR.puts 'Node name and Installer name are mandatory'
     STDERR.puts
     puts opts
     exit -1
   end
+
+  unless( ip_address and netmask_address and gateway_address and mac_address )
+    STDERR.puts 'IP, Netmask, Gateway, and MAC address are mandatory'
+    STDERR.puts
+    puts opts
+    exit -1
+  end
+
 
   # Node Name can only contain alphanumeric characters and numbers
   if node_name.match /[^-_a-zA-Z0-9]/
@@ -56,26 +98,32 @@ ARGV.options do |opts|
 end
 
 
-puts "Adding node '#{node_name}' (this may take a while)..."
-
 begin
   require RAILS_ROOT + '/config/environment'
 
-  node = Node.new( node_name, mac_address )
-  nodes = Nodes.load_all
-  nodes << node
+  ENV[ 'NODE_NAME' ] = node_name
+  ENV[ 'INSTALLER_NAME' ] = installer_name
+  ENV[ 'MAC_ADDRESS' ] = mac_address
+  ENV[ 'IP_ADDRESS' ] = ip_address
+  ENV[ 'GATEWAY_ADDRESS' ] = gateway_address
+  ENV[ 'NETMASK_ADDRESS' ] = netmask_address
+  
+  load './lib/tasks/add_node.rake'
+  Rake::Task[ 'lucie:add_node' ].invoke
 
+  load './lib/tasks/enable_node.rake'
+  Rake::Task[ 'lucie:enable_node' ].invoke
 rescue => e
   if trace
     raise
   else
-    STDERR.puts "FAILED: #{e.message}"
+    STDERR.puts "FAILED: #{ e.message }"
     exit -1
   end
 end
 
 
-puts "Node '#{node_name}' added."
+puts "Node '#{ node_name }' added."
 
 
 ### Local variables:

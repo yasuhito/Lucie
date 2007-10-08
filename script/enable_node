@@ -3,7 +3,6 @@
 
 # ENV[ 'RAILS_ENV' ] = 'production'
 
-
 require File.dirname( __FILE__ ) + '/../config/boot'
 require RAILS_ROOT + '/config/environment'
 require 'optparse'
@@ -18,7 +17,7 @@ wol = false
 trace = false
 
 
-ARGV.options do |opts|
+ARGV.options do | opts |
   opts.banner = 'usage: node enable <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway>'
 
   opts.separator ''
@@ -55,6 +54,7 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
+
   unless node_name and installer_name
     STDERR.puts 'Node name and Installer name are mandatory'
     STDERR.puts
@@ -89,28 +89,7 @@ ARGV.options do |opts|
 end
 
 
-puts "Setting up installer '#{ installer_name }' for node '#{ node_name }' (this may take a while)..."
-
-begin
-  node = Nodes.find( node_name )
-  node.install_with installer_name
-
-  Tftp.setup node_name, installer_name
-  Nfs.setup installer_name
-  Dhcp.setup installer_name, ip_address, netmask_address, gateway_address
-  Puppet.setup Installers.find( installer_name ).local_checkout
-
-  if wol
-    WakeOnLan.wake node.mac_address
-  end
-rescue => e
-  if trace
-    raise
-  else
-    STDERR.puts "FAILED: #{e.message}"
-    exit -1
-  end
-end
+load './lib/tasks/enable_node'
 
 
 ### Local variables:

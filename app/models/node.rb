@@ -3,27 +3,39 @@ class Node
   attr_reader :mac_address
   attr_reader :name
   attr_reader :path
+  attr_reader :gateway_address
+  attr_reader :ip_address
+  attr_reader :netmask_address
 
 
-  def self.read dir, load_config = true
+  def self.read dir
     @node_in_the_works = Node.new( File.basename( dir ) )
-    begin
-      if load_config
-        @node_in_the_works.load_config
-      end
-      return @node_in_the_works
-    ensure
-      @node_in_the_works = nil
-    end
   end
 
 
-  def initialize name, mac_address = nil
+  def initialize name, options = {}
     @name = name
-    @mac_address = mac_address
+    @mac_address = options[ :mac_address ]
+    @gateway_address = options[ :gateway_address ]
+    @ip_address = options[ :ip_address ]
+    @netmask_address = options[ :netmask_address ]
     @path = File.join( Configuration.nodes_directory, @name )
-    unless @mac_address
-      load_mac_address
+
+    if options.empty?
+      load_network_config
+    end
+
+    if @mac_address.nil?
+      raise "MAC address for node '#{ @name }' not defined."
+    end
+    if @ip_address.nil?
+      raise "IP address for node '#{ @name }' not defined."
+    end
+    if @gateway_address.nil?
+      raise "Gateway address for node '#{ @name }' not defined."
+    end
+    if @netmask_address.nil?
+      raise "Netmask address for node '#{ @name }' not defined."
     end
   end
 
@@ -102,7 +114,7 @@ class Node
   end
 
 
-  def load_mac_address
+  def load_network_config
     mac_address_file = Dir[ "#{ path }/*" ].collect do | each |
       mac_address_re=~ File.basename( each )
       $1
@@ -111,6 +123,10 @@ class Node
       raise "MAC address for node '#{ @name }' not defined."
     end
     @mac_address = mac_address_file
+    File.open( File.join( path, mac_address_file ) ).read.each_line do | each |
+      variable, value = each.chomp.split( ':' )
+      eval "@#{ variable } = '#{ value }'"
+    end
   end
 
 
@@ -131,6 +147,6 @@ class Node
 
   def mac_address_re
     hex = /[a-fA-F0-9][a-fA-F0-9]/
-    return /\A(#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex})\Z/
+    return /\A(#{ hex }:#{ hex }:#{ hex }:#{ hex }:#{ hex }:#{ hex })\Z/
   end
 end

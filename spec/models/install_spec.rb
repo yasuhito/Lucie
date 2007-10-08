@@ -217,7 +217,7 @@ describe Install do
 
   def with_sandbox_node &block
     in_total_sandbox do | sandbox |
-      node = Node.new( 'my_node', '00:0C:29:74:AD:A3' )
+      node = Node.new( 'TEST_NODE', :mac_address => '11:22:33:44:55:66', :gateway_address => '192.168.1.254', :ip_address => '192.168.1.1', :netmask_address => '255.255.255.0' )
       node.path = sandbox.root
 
       yield sandbox, node

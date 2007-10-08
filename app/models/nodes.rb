@@ -59,7 +59,7 @@ class Nodes
 
 
   def self.load_node dir
-    node = Node.read( dir, load_config = false )
+    node = Node.read( dir )
     node.path = dir
     return node
   end
@@ -89,7 +89,7 @@ class Nodes
 
 
   def load_all
-    @list = Dir[ "#{@dir}/*" ].find_all do | child |
+    @list = Dir[ "#{ @dir }/*" ].find_all do | child |
       File.directory? child
     end.collect do | child |
       Nodes.load_node child
@@ -123,7 +123,14 @@ class Nodes
   def write_config node
     mac_address_config = File.join( node.path, node.mac_address )
 
-    FileUtils.touch mac_address_config
+    # FileUtils.touch mac_address_config
+    File.open( mac_address_config, 'w' ) do | file |
+      file.puts <<-EOF
+gateway_address:#{ node.gateway_address }
+ip_address:#{ node.ip_address }
+netmask_address:#{ node.netmask_address }
+EOF
+    end
   end
 
 

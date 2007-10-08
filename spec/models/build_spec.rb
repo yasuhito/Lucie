@@ -60,7 +60,7 @@ describe Build do
         build.run
       }.should_not raise_error
 
-      file( 'build-123/lucie_config.rb' ).contents.should == 'COOL INSTALLER SETTINGS'
+      File.open( 'build-123/lucie_config.rb', 'r' ).read.should == 'COOL INSTALLER SETTINGS'
       Build.new( installer, 123 ).installer_settings.should == 'COOL INSTALLER SETTINGS'
     end
   end
