@@ -1,7 +1,7 @@
 require 'facter'
 require 'ftools'
-require 'resolv'
 require 'popen3/shell'
+require 'resolv'
 
 
 class Dhcp
