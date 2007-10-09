@@ -1,10 +1,10 @@
 class Node
+  attr_accessor :path
+  attr_reader :gateway_address
   attr_reader :install_command
+  attr_reader :ip_address
   attr_reader :mac_address
   attr_reader :name
-  attr_reader :path
-  attr_reader :gateway_address
-  attr_reader :ip_address
   attr_reader :netmask_address
 
 
@@ -106,7 +106,7 @@ class Node
 
   def installer_name
     Dir[ "#{ path }/*" ].each do | each |
-      if( File.file?( each ) and ( not mac_address_re=~ File.basename( each ) ) )
+      if( File.file?( each ) and ( not mac_address_file_regex=~ File.basename( each ) ) )
         return File.basename( each )
       end
     end
@@ -115,17 +115,15 @@ class Node
 
 
   def load_network_config
-    mac_address_file = Dir[ "#{ path }/*" ].collect do | each |
-      mac_address_re=~ File.basename( each )
-      $1
-    end.compact.first
     unless mac_address_file
       raise "MAC address for node '#{ @name }' not defined."
     end
-    @mac_address = mac_address_file
-    File.open( File.join( path, mac_address_file ) ).read.each_line do | each |
-      variable, value = each.chomp.split( ':' )
-      eval "@#{ variable } = '#{ value }'"
+    @mac_address = mac_address_file.gsub( '_', ':' )
+    File.open( File.join( path, mac_address_file ) ) do | file |
+      file.read.each_line do | each |
+        variable, value = each.chomp.split( ':' )
+        instance_variable_set "@#{ variable }".to_sym, value
+      end
     end
   end
 
@@ -135,18 +133,19 @@ class Node
   end
 
 
-  # XXX needs NodeConfigTracker?
-  def path= value
-    # @config_tracker = NodeConfigTracker.new( value )
-    @path = value
-  end
-
-
   private
 
 
-  def mac_address_re
+  def mac_address_file
+    Dir[ "#{ path }/*" ].collect do | each |
+      mac_address_file_regex=~ File.basename( each )
+      $1
+    end.compact.first
+  end
+
+
+  def mac_address_file_regex
     hex = /[a-fA-F0-9][a-fA-F0-9]/
-    return /\A(#{ hex }:#{ hex }:#{ hex }:#{ hex }:#{ hex }:#{ hex })\Z/
+    return /\A(#{ hex }_#{ hex }_#{ hex }_#{ hex }_#{ hex }_#{ hex })\Z/
   end
 end

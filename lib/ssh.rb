@@ -54,7 +54,11 @@ class SSH < Rake::TaskLib
     [ 'id_dsa.pub', 'id_rsa.pub' ].each do | each |
       public_key_file = ssh_user_home + '/.ssh/' + each
       if FileTest.exists?( public_key_file )
-        sh_exec "cat #{ public_key_file } >> #{ authorized_keys_file }"
+        File.open( authorized_keys_file, 'a+' ) do | authorized_keys |
+          File.open( public_key_file, 'r' ) do | public_key |
+            authorized_keys.puts public_key.read
+          end
+        end
         FileUtils.chmod 0644, authorized_keys_file
         return
       end

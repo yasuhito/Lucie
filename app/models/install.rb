@@ -79,7 +79,11 @@ class Install
 
   def output
     begin
-      return File.read( artifact( 'install.log' ) )
+      log = ''
+      File.open( artifact( 'install.log' ) ) do | file |
+        log = file.read
+      end
+      return log
     rescue
       return ''
     end

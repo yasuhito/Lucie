@@ -132,7 +132,7 @@ describe Node do
   it 'should be able to load network settings' do
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
-      sandbox.new :file => 'TEST_NODE/11:22:33:44:55:66', :with_contents => mac_address_file
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => mac_address_file
 
       node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
       node.name.should == 'TEST_NODE'

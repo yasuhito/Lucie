@@ -42,6 +42,8 @@ class SSHTest < Test::Unit::TestCase
       sandbox.new :file => '.ssh/id_rsa.pub'
 
       SSH.configure do | ssh |
+        ssh.stubs( :copy_authorized_keys )
+        ssh.stubs( :sh_exec )
         ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
@@ -62,7 +64,11 @@ class SSHTest < Test::Unit::TestCase
       sandbox.new :file => '/etc/ssh/sshd_config', :with_content => 'PermitRootLogin no'
       sandbox.new :file => '.ssh/id_rsa.pub'
 
+      FileUtils.stubs( :chmod )
+
       SSH.configure do | ssh |
+        ssh.expects( :sh_exec ).with( %{ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ File.join( sandbox.root, '/etc/ssh/sshd_config' ) }} )
+        ssh.stubs( :copy_authorized_keys )
         ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
@@ -70,8 +76,6 @@ class SSHTest < Test::Unit::TestCase
       assert_nothing_raised do
         Rake::Task[ 'installer:ssh' ].invoke
       end
-
-      assert_equal 'PermitRootLogin yes', File.read( sandbox.root + '/etc/ssh/sshd_config' )
     end
   end
 
@@ -83,7 +87,10 @@ class SSHTest < Test::Unit::TestCase
       sandbox.new :file => '/.ssh/known_hosts'
       sandbox.new :file => '/etc/ssh/sshd_config'
 
+      FileUtils.stubs( :chmod )
+
       SSH.configure do | ssh |
+        ssh.stubs( :sh_exec )
         ssh.target_directory = sandbox.root
         ssh.ssh_user_home = sandbox.root
       end
@@ -120,7 +127,10 @@ class SSHTest < Test::Unit::TestCase
       sandbox.new :file => '/.ssh/id_dsa.pub'
       sandbox.new :file => '/etc/ssh/sshd_config'
 
+      FileUtils.stubs( :chmod )
+
       SSH.configure do | ssh |
+        ssh.stubs( :sh_exec )
         ssh.target_directory = sandbox.root
         ssh.ssh_user_home = sandbox.root
       end
@@ -141,7 +151,10 @@ class SSHTest < Test::Unit::TestCase
       sandbox.new :file => '/.ssh/id_rsa.pub'
       sandbox.new :file => '/etc/ssh/sshd_config'
 
+      FileUtils.stubs( :chmod )
+
       SSH.configure do | ssh |
+        ssh.stubs( :sh_exec )
         ssh.target_directory = sandbox.root
         ssh.ssh_user_home = sandbox.root
       end

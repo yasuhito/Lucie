@@ -25,7 +25,15 @@ class Build
 
 
   def plugin_errors
-    File.read( artifact( 'plugin_errors.log' ) ) rescue ''
+    begin
+      log = ''
+      File.open( artifact( 'plugin_errors.log' ) ) do | file |
+        log = file.read
+      end
+      return log
+    rescue
+      return ''
+    end
   end
 
 
@@ -51,7 +59,15 @@ class Build
 
 
   def changeset
-    File.read( artifact( 'changeset.log' ) ) rescue ''
+    begin
+      log = ''
+      File.open( artifact( 'changeset.log' ) ) do | file |
+        log = file.read
+      end
+      return log
+    rescue
+      return ''
+    end
   end
 
 
@@ -87,7 +103,11 @@ class Build
 
   def output
     begin
-      return File.read( artifact( 'build.log' ) )
+      log = ''
+      File.open( artifact( 'build.log' ), 'r' ) do | file |
+        log = file.read
+      end
+      return log
     rescue
       return ''
     end
@@ -144,7 +164,11 @@ class Build
 
   def installer_settings
     begin
-      return File.read( artifact( 'lucie_config.rb' ) )
+      log = ''
+      File.open( artifact( 'lucie_config.rb' ) ) do | file |
+        log = file.read
+      end
+      return log
     rescue
       return ''
     end

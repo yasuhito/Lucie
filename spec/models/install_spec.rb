@@ -70,9 +70,9 @@ describe Install do
 
   it 'should grab log file when file exists' do
     with_sandbox_node do | sandbox, node |
-      File.stubs( :read ).with( "#{ node.path }/install-1/install.log" ).returns( [ 'LINE 1', 'LINE 2' ] )
+      sandbox.new :file => "install-1/install.log", :with_contents => 'INSTALL_LOG'
 
-      Install.new( node, 1 ).output.should == [ 'LINE 1', 'LINE 2' ]
+      Install.new( node, 1 ).output.should == 'INSTALL_LOG'
     end
   end
 

@@ -60,7 +60,6 @@ class Nodes
 
   def self.load_node dir
     node = Node.read( dir )
-    node.path = dir
     return node
   end
 
@@ -121,7 +120,7 @@ class Nodes
 
 
   def write_config node
-    mac_address_config = File.join( node.path, node.mac_address )
+    mac_address_config = File.join( node.path, node.mac_address.gsub( ':', '_' ) )
 
     # FileUtils.touch mac_address_config
     File.open( mac_address_config, 'w' ) do | file |

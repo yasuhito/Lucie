@@ -19,21 +19,12 @@ describe Build do
   it_should_behave_like 'All Builds'
 
 
-  it 'should load build log' do
-    with_sandbox_installer do | sandbox, installer |
-      sandbox.new :file => 'build-2/build.log', :with_content => 'SOME CONTENT'
-      build = Build.new( installer, 2 )
-
-      build.output.should == 'SOME CONTENT'
-    end
-  end
-
-
   it 'should grab log file' do
     with_sandbox_installer do | sandbox, installer |
-      File.expects( :read ).with( "#{ installer.path }/build-1/build.log" ).returns( [ 'LINE 1', 'LINE 2' ] )
+      sandbox.new :file => "build-1/build.log", :with_content => 'BUILD_LOG'
+      build = Build.new( installer, 1 )
 
-      Build.new( installer, 1 ).output.should == [ 'LINE 1', 'LINE 2' ]
+      build.output.should == 'BUILD_LOG'
     end
   end
 
@@ -42,7 +33,7 @@ describe Build do
     with_sandbox_installer do | sandbox, installer |
       build = Build.new( installer, 123 )
 
-      File.stubs( :read ).with( build.artifact( 'lucie_config.rb' ) ).raises( RuntimeError )
+      File.stubs( :open ).raises( RuntimeError )
 
       build.installer_settings.should == ''
     end
@@ -60,7 +51,9 @@ describe Build do
         build.run
       }.should_not raise_error
 
-      File.open( 'build-123/lucie_config.rb', 'r' ).read.should == 'COOL INSTALLER SETTINGS'
+      File.open( 'build-123/lucie_config.rb', 'r' ) do | file |
+        file.read.should == 'COOL INSTALLER SETTINGS'
+      end
       Build.new( installer, 123 ).installer_settings.should == 'COOL INSTALLER SETTINGS'
     end
   end
@@ -172,7 +165,7 @@ describe Build do
 
   it 'should get empty string when log file does not exist' do
     with_sandbox_installer do | sandbox, installer |
-      File.expects( :read ).with( "#{ installer.path }/build-1/build.log" ).raises( StandardError )
+      File.expects( :open ).with( "#{ installer.path }/build-1/build.log", 'r' ).raises( StandardError )
       Build.new( installer, 1 ).output.should == ''
     end
   end
@@ -342,18 +335,6 @@ describe Build, ' (fail)' do
       end
       fail_message.should == 'FAIL MESSAGE'
       build.brief_error.should == 'config error'
-    end
-  end
-
-
-  it 'should pass error to build status if plugin error happens' do
-    with_sandbox_installer do | sandbox, installer |
-      sandbox.new :file => 'build-1/build_status.success.in0s'
-
-      build = Build.new( installer, 1 )
-      File.stubs( :read ).with( build.artifact( 'plugin_errors.log' ) ).returns( 'PLUGIN ERROR' )
-
-      build.brief_error.should == 'plugin error'
     end
   end
 
