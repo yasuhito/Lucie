@@ -52,7 +52,7 @@ EOF
 
     # HACK: /etc/init.d/tftpd-hpa restart does not work correctly
     sh_exec '/etc/init.d/tftpd-hpa stop' rescue nil
-    sh_exec '/etc/init.d/tftpd-hpa start'
+    sh_exec '/etc/init.d/tftpd-hpa start' rescue nil
   end
 
 

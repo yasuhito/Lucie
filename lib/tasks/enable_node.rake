@@ -15,7 +15,7 @@ task 'lucie:enable_node' do
   Dhcp.setup node.installer_name, node.ip_address, node.netmask_address, node.gateway_address
   Puppet.setup Installers.find( node.installer_name ).local_checkout
     
-  if wol
+  if ENV[ 'WOL' ]
     WakeOnLan.wake node.mac_address
   end
 end
