@@ -1,5 +1,4 @@
 require 'popen3/apt'
-require 'popen3/debootstrap'
 require 'popen3/shell'
 require 'rake'
 require 'rake/tasklib'
@@ -16,9 +15,7 @@ require 'rake/tasklib'
 # [???] define clean target that removes temporary debootstrap directory and redefine clobber target that does clean and also removes tarball?
 #++
 class NfsrootBase < Rake::TaskLib
-  include Debootstrap
-
-
+  attr_accessor :arch
   attr_accessor :distribution
   attr_accessor :http_proxy
   attr_accessor :include
@@ -32,6 +29,7 @@ class NfsrootBase < Rake::TaskLib
     @target_directory = File.join( rails_root, 'installers/.base' )
     @distribution = 'debian'
     @suite = 'etch'
+    @arch = 'i386'
   end
 
 
@@ -94,10 +92,11 @@ class NfsrootBase < Rake::TaskLib
 
   def define_task_tgz
     file nfsroot_base_target do
-      Lucie::Log.info "Creating base system using debootstrap version #{ Popen3::Debootstrap.VERSION }"
+      Lucie::Log.info "Creating base system using debootstrap version #{ Debootstrap.VERSION }"
       Lucie::Log.info "Calling debootstrap #{ @suite } #{ temporary_nfsroot_directory } #{ @mirror }"
 
-      debootstrap do | option |
+      Debootstrap.start do | option |
+        option.arch = @arch
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
         # [???] Exclude option is hard-coded. This should be read only for most of users?
         option.exclude = [ 'dhcp-client', 'info' ]
