@@ -251,7 +251,7 @@ class Nfsroot < Rake::TaskLib
       sh_exec "chmod +x #{ each }"
     end
 
-    AptGet.apt [ '-y', 'dist-upgrade' ], apt_option
+    AptGet.apt '-y dist-upgrade', apt_option
   end
 
 
@@ -284,7 +284,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def finish_nfsroot
-    sh_exec "rm #{ target( '/etc/mtab' ) } #{ target( '/dev/MAKEDEV' ) }"
+    sh_exec "rm #{ target( '/etc/mtab' ) } #{ target( '/dev/MAKEDEV' ) }" rescue nil
     sh_exec "ln -s /proc/mounts #{ target( '/etc/mtab' ) }"
     unless FileTest.directory?( target( '/var/lib/discover' ) )
       sh_exec "mkdir #{ target( '/var/lib/discover' ) }"

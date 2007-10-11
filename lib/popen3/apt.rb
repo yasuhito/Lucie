@@ -31,7 +31,12 @@ module Popen3
 
 
     def get command
-      exec_shell command.split( ' ' )
+      case command
+      when Array
+        exec_shell command
+      when String
+        exec_shell command.split( ' ' )
+      end
     end
 
 

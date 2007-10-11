@@ -18,7 +18,7 @@ module Popen3
         arch = @arch ? "--arch #{ @arch }" : "--arch i386"
         exclude = @exclude ? "--exclude=#{ @exclude.join( ',' ) }" : nil
         include = @include ? "--include=#{ @include.join( ',' ) }" : nil
-        return [ '/usr/sbin/debootstrap', arch, exclude, include, @suite, @target, @mirror ].compact
+        return [ '/usr/sbin/debootstrap', exclude, include, @suite, @target, @mirror ].compact
       end
     end
 
@@ -27,14 +27,15 @@ module Popen3
       version = nil
       Shell.open do | shell |
         shell.on_stdout do | line |
-          # [TODO] raise an exception if version is not available.
           if /^ii\s+debootstrap\s+(\S+)/=~ line
             version = $1
-          else
-            raise 'Cannot determine debootstrap version.'
           end
         end
         shell.exec( { 'LC_ALL' => 'C' }, 'dpkg', '-l' )
+      end
+
+      unless version
+        raise 'Cannot determine debootstrap version.'
       end
       return version
     end
