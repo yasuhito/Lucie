@@ -43,7 +43,7 @@ begin
     puts 'No node is added yet.'
   else
     nodes.list.each do | each |
-      installer_name = ( each.installer_name ? each.installer_name : 'NOT ASSIGNED' )
+      installer_name = ( each.installer_name ? each.installer_name : 'DISABLED' )
       printf "%10s (installer = %s)\n", each.name, installer_name
     end
   end
