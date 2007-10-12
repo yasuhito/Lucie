@@ -1,5 +1,5 @@
 require 'facter'
-require 'lib/popen3/shell'
+require 'popen3/shell'
 
 
 class Puppet
