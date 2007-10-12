@@ -2,7 +2,21 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 require 'rake'
 
 
-describe Node, 'when creating a new node from custom rake task' do
+describe 'Common Node', :shared => true do
+  include FileSandbox
+
+
+  def mac_address_file
+    <<-EOF
+gateway_address:192.168.1.254
+ip_address:192.168.1.1
+netmask_address:255.255.255.0
+EOF
+  end
+end
+
+
+describe Node, 'when creating a new node with custom rake task' do
   include FileSandbox
 
 
@@ -30,7 +44,10 @@ describe Node, 'when creating a new node from custom rake task' do
     load './lib/tasks/add_node.rake'
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
-      Rake::Task[ 'lucie:add_node' ].invoke
+
+      lambda do
+        Rake::Task[ 'lucie:add_node' ].invoke
+      end.should_not raise_error
 
       Nodes.load_all.list.size.should == 1
       node = Nodes.load_all.list[ 0 ]
@@ -84,6 +101,48 @@ describe Node, 'when creating a new node from custom rake task' do
 end
 
 
+describe Node, 'when enabling installation for a node with custom rake task' do
+  it_should_behave_like 'Common Node'
+
+
+  before( :each ) do
+    Rake::Task.clear
+    STDOUT.stubs( :puts )
+    ENV[ 'NODE_NAME' ] = 'TEST_NODE'
+    ENV[ 'INSTALLER_NAME' ] = 'TEST_INSTALLER'
+  end
+
+
+  after( :each ) do
+    ENV[ 'NODE_NAME' ] = nil
+    ENV[ 'INSTALLER_NAME' ] = nil
+  end
+
+
+  it 'should be able to enable installation for a node' do
+    load './lib/tasks/enable_node.rake'
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => mac_address_file
+
+      Tftp.stubs( :setup )
+      Nfs.stubs( :setup )
+      Dhcp.stubs( :setup )
+      Puppet.stubs( :setup )
+      installer = Object.new
+      installer.stubs( :local_checkout )
+      Installers.stubs( :find ).returns( installer )
+
+      lambda do
+        Rake::Task[ 'lucie:enable_node' ].invoke
+      end.should_not raise_error
+
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/TEST_INSTALLER' ) ).should == true
+    end
+  end
+end
+
+
 describe Node, 'when creating a new node' do
   it 'should raise if MAC address is not set' do
     lambda do
@@ -115,7 +174,7 @@ end
 
 
 describe Node do
-  include FileSandbox
+  it_should_behave_like 'Common Node'
 
 
   it 'should have network settings' do
@@ -141,14 +200,5 @@ describe Node do
       node.ip_address == '192.168.1.1'
       node.netmask_address == '255.255.255.0'
     end
-  end
-
-
-  def mac_address_file
-    <<-EOF
-gateway_address:192.168.1.254
-ip_address:192.168.1.1
-netmask_address:255.255.255.0
-EOF
   end
 end
