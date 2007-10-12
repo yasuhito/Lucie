@@ -60,6 +60,8 @@ rescue => e
   end
 end
 
+puts "Build requested for '#{ installer_name }' installer."
+
 
 ### Local variables:
 ### mode: Ruby
