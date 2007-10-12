@@ -110,12 +110,14 @@ describe Node, 'when enabling installation for a node with custom rake task' do
     STDOUT.stubs( :puts )
     ENV[ 'NODE_NAME' ] = 'TEST_NODE'
     ENV[ 'INSTALLER_NAME' ] = 'TEST_INSTALLER'
+    ENV[ 'WOL' ] = 'WOL'
   end
 
 
   after( :each ) do
     ENV[ 'NODE_NAME' ] = nil
     ENV[ 'INSTALLER_NAME' ] = nil
+    ENV[ 'WOL' ] = nil
   end
 
 
@@ -125,13 +127,15 @@ describe Node, 'when enabling installation for a node with custom rake task' do
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
       sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => mac_address_file
 
-      Tftp.stubs( :setup )
-      Nfs.stubs( :setup )
-      Dhcp.stubs( :setup )
-      Puppet.stubs( :setup )
+      # Ensure that all daemons and services are setup and restarted.
+      Tftp.expects( :setup ).with( 'TEST_NODE', 'TEST_INSTALLER' )
+      Nfs.expects( :setup ).with( 'TEST_INSTALLER' )
+      Dhcp.expects( :setup ).with( 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.254' )
+      Puppet.expects( :setup )
       installer = Object.new
       installer.stubs( :local_checkout )
-      Installers.stubs( :find ).returns( installer )
+      Installers.expects( :find ).with( 'TEST_INSTALLER' ).returns( installer )
+      WakeOnLan.expects( :wake ).with( '00:00:00:00:00:00' )
 
       lambda do
         Rake::Task[ 'lucie:enable_node' ].invoke
