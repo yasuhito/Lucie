@@ -521,3 +521,21 @@ describe Installer do
     end
   end
 end
+
+
+describe Installer, 'when upgrading installer' do
+  it_should_behave_like 'All Installers'
+
+
+  it 'should success' do
+    source_control = Object.new
+    @installer.source_control = source_control
+
+    source_control.expects( :update )
+    @installer.expects( :request_build )
+
+    lambda do
+      @installer.upgrade
+    end.should_not raise_error
+  end
+end

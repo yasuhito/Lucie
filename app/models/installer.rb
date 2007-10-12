@@ -60,6 +60,12 @@ class Installer
   end
 
 
+  def upgrade
+    @source_control.update self
+    request_build
+  end
+
+
   def last_complete_build_status
     if BuilderStatus.new( self ).fatal?
       return 'failed'
@@ -352,10 +358,12 @@ class Installer
 
   def request_build
     if builder_state_and_activity == 'builder_down'
-      BuilderStarter.begin_builder(name)
+      BuilderStarter.begin_builder name
       10.times do
         sleep 1.second
-        break if builder_state_and_activity != 'builder_down'
+        if builder_state_and_activity != 'builder_down'
+          break
+        end
       end
     end
     unless build_requested?

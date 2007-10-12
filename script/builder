@@ -103,9 +103,9 @@ begin
   rescue Interrupt
     # this is okay, we're just control-c'ing the app
   rescue Exception => e
-    begin 
+    begin
       Lucie::Log.fatal(e)
-          
+
       rescue => logging_error
         STDERR.puts e.message
         STDERR.puts e.backtrace
