@@ -352,7 +352,7 @@ class Installer
 
 
   def create_build_requested_flag_file
-    FileUtils.touch(build_requested_flag_file)
+    FileUtils.touch build_requested_flag_file
   end
 
 
