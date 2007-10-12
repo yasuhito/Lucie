@@ -50,7 +50,6 @@ describe Debootstrap, 'when executing debootstrap' do
     Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
 
     result = Debootstrap.start do | option |
-      option.arch = 'i386'
       option.suite = 'WOODY'
       option.target = '/TMP'
       option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
@@ -70,7 +69,6 @@ describe Debootstrap, 'when executing debootstrap' do
 
     lambda do
       Debootstrap.start do | option |
-        option.arch = 'i386'
         option.suite = 'WOODY'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
@@ -89,21 +87,9 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
   end
 
 
-  it 'should fail if mandatory arch option not set' do
-    lambda do
-      Debootstrap.start do | option |
-        option.suite = 'WOODY'
-        option.target = '/TMP'
-        option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
-      end
-    end.should raise_error( RuntimeError, 'arch option is a mandatory' )
-  end
-
-
   it 'should fail if mandatory suite option not set' do
     lambda do
       Debootstrap.start do | option |
-        option.arch = 'i386'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
       end
@@ -114,7 +100,6 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
   it 'should fail if mandatory target option not set' do
     lambda do
       Debootstrap.start do | option |
-        option.arch = 'i386'
         option.suite = 'etch'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
       end
@@ -125,7 +110,6 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
   it 'should fail if mandatory mirror option not set' do
     lambda do
       Debootstrap.start do | option |
-        option.arch = 'i386'
         option.suite = 'etch'
         option.target = '/TMP'
       end
@@ -147,7 +131,6 @@ describe Debootstrap, 'when logging debootstrap outputs' do
     Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
 
     Debootstrap.start do | option |
-      option.arch = 'i386'
       option.suite = 'WOODY'
       option.target = '/TMP'
       option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
@@ -167,7 +150,6 @@ describe Debootstrap, 'when logging debootstrap outputs' do
     Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
 
     Debootstrap.start do | option |
-      option.arch = 'i386'
       option.suite = 'WOODY'
       option.target = '/TMP'
       option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
@@ -189,7 +171,6 @@ describe Debootstrap, 'when logging debootstrap outputs' do
 
     lambda do
       Debootstrap.start do | option |
-        option.arch = 'i386'
         option.suite = 'WOODY'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'

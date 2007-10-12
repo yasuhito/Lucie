@@ -15,7 +15,6 @@ require 'rake/tasklib'
 # [???] define clean target that removes temporary debootstrap directory and redefine clobber target that does clean and also removes tarball?
 #++
 class NfsrootBase < Rake::TaskLib
-  attr_accessor :arch
   attr_accessor :distribution
   attr_accessor :http_proxy
   attr_accessor :include
@@ -29,7 +28,6 @@ class NfsrootBase < Rake::TaskLib
     @target_directory = File.join( rails_root, 'installers/.base' )
     @distribution = 'debian'
     @suite = 'etch'
-    @arch = 'i386'
   end
 
 
@@ -96,7 +94,6 @@ class NfsrootBase < Rake::TaskLib
       Lucie::Log.info "Calling debootstrap #{ @suite } #{ temporary_nfsroot_directory } #{ @mirror }"
 
       Debootstrap.start do | option |
-        option.arch = @arch
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
         # [???] Exclude option is hard-coded. This should be read only for most of users?
         option.exclude = [ 'dhcp-client', 'info' ]
