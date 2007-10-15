@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'popen3/shell'
 require 'rake/tasklib'
 
@@ -39,7 +40,7 @@ class SSH < Rake::TaskLib
         if FileTest.exists?( ssh_user_home + '/.ssh/known_hosts' )
           FileUtils.cp ssh_user_home + '/.ssh/known_hosts', target( '/root/.ssh/known_hosts' )
         end
-        copy_authorized_keys
+        register_authorized_keys
 
         sh_exec %{ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ target( '/etc/ssh/sshd_config' ) }}
       end
@@ -50,20 +51,31 @@ class SSH < Rake::TaskLib
   private
 
 
-  def copy_authorized_keys
-    [ 'id_dsa.pub', 'id_rsa.pub' ].each do | each |
-      public_key_file = ssh_user_home + '/.ssh/' + each
-      if FileTest.exists?( public_key_file )
+  def register_authorized_keys
+    [ 'dsa', 'rsa' ].each do | each |
+      if FileTest.exists?( public_key_file( each ) )
         File.open( authorized_keys_file, 'a+' ) do | authorized_keys |
-          File.open( public_key_file, 'r' ) do | public_key |
-            authorized_keys.puts public_key.read
-          end
+          authorized_keys.puts public_key_contents( each )
         end
         FileUtils.chmod 0644, authorized_keys_file
         return
       end
     end
     raise "No ssh public key was found in #{ File.join( ssh_user_home, '/.ssh/' ) }"
+  end
+
+
+  def public_key_contents type
+    contents = nil
+    File.open( public_key_file( type ), 'r' ) do | file |
+      contents = file.read
+    end
+    contents
+  end
+
+
+  def public_key_file type
+    File.join( ssh_user_home, '/.ssh/', "id_#{ type }.pub" )
   end
 
 

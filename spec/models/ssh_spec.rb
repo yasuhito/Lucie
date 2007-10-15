@@ -1,64 +1,83 @@
-require File.dirname( __FILE__ ) + '/../test_helper'
+require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-class SSHTest < Test::Unit::TestCase
-  include FileSandbox
-
-
-  def teardown
+describe SSH do
+  before( :each ) do
     Rake::Task.clear
   end
 
 
-  def test_setup___SUCCESS___
+  it 'should setup successfully' do
     SSH.stubs( :configure )
     task = Object.new
     task.stubs( :invoke )
     Rake::Task.stubs( :[] ).with( 'installer:ssh' ).returns( task )
 
-    assert_nothing_raised do
+    lambda do
       SSH.setup
-    end
+    end.should_not raise_error
   end
 
 
-  def test_should_raise_if_no_ssh_is_available_in_nfsroot
+  it 'should raise if no ssh is available in the nfsroot' do
     in_sandbox do | sandbox |
       SSH.configure do | ssh |
         ssh.target_directory = sandbox.root
       end
 
-      assert_raises( "No ssh executable was found in #{ sandbox.root }" ) do
+      lambda do
         Rake::Task[ 'installer:ssh' ].invoke
-      end
+      end.should raise_error( RuntimeError, "No ssh executable was found in #{ sandbox.root }" )
     end
   end
 
 
-  def test_should_root_sshdir_created_and_is_mode_700
+  it 'should copy known_host file' do
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/etc/ssh/sshd_config'
-      sandbox.new :file => '.ssh/id_rsa.pub'
+      sandbox.new :file => '/.ssh/id_rsa.pub'
 
       SSH.configure do | ssh |
-        ssh.stubs( :copy_authorized_keys )
+        ssh.stubs( :register_authorized_keys )
         ssh.stubs( :sh_exec )
         ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
 
-      assert_nothing_raised do
+      lambda do
         Rake::Task[ 'installer:ssh' ].invoke
-      end
+      end.should_not raise_error
 
-      assert FileTest.exists?( File.join( sandbox.root, '/root/.ssh' ) )
-      assert_equal 040700, File.stat( File.join( sandbox.root, '/root/.ssh' ) ).mode
+      FileTest.exists?( File.join( sandbox.root, '/root/.ssh' ) ).should == true
     end
   end
 
 
-  def test_should_root_login_enabled
+  it 'should create root ssh directory' do
+    in_sandbox do | sandbox |
+      sandbox.new :file => '/usr/bin/ssh'
+      sandbox.new :file => '/etc/ssh/sshd_config'
+      sandbox.new :file => '/.ssh/id_rsa.pub'
+      sandbox.new :file => '/.ssh/known_hosts'
+
+      SSH.configure do | ssh |
+        ssh.stubs( :register_authorized_keys )
+        ssh.stubs( :sh_exec )
+        ssh.stubs( :ssh_user_home ).returns( sandbox.root )
+        ssh.target_directory = sandbox.root
+      end
+
+      lambda do
+        Rake::Task[ 'installer:ssh' ].invoke
+      end.should_not raise_error
+
+      FileTest.exists?( File.join( sandbox.root, '/root/.ssh/known_hosts' ) ).should == true
+    end
+  end
+
+
+  it 'should enable root ssh login' do
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/etc/ssh/sshd_config', :with_content => 'PermitRootLogin no'
@@ -68,43 +87,19 @@ class SSHTest < Test::Unit::TestCase
 
       SSH.configure do | ssh |
         ssh.expects( :sh_exec ).with( %{ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ File.join( sandbox.root, '/etc/ssh/sshd_config' ) }} )
-        ssh.stubs( :copy_authorized_keys )
+        ssh.stubs( :register_authorized_keys )
         ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root
       end
 
-      assert_nothing_raised do
+      lambda do
         Rake::Task[ 'installer:ssh' ].invoke
-      end
+      end.should_not raise_error
     end
   end
 
 
-  def test_should_ssh_known_hosts_file_copied
-    in_sandbox do | sandbox |
-      sandbox.new :file => '/usr/bin/ssh'
-      sandbox.new :file => '/.ssh/id_rsa.pub'
-      sandbox.new :file => '/.ssh/known_hosts'
-      sandbox.new :file => '/etc/ssh/sshd_config'
-
-      FileUtils.stubs( :chmod )
-
-      SSH.configure do | ssh |
-        ssh.stubs( :sh_exec )
-        ssh.target_directory = sandbox.root
-        ssh.ssh_user_home = sandbox.root
-      end
-
-      assert_nothing_raised do
-        Rake::Task[ 'installer:ssh' ].invoke
-      end
-
-      assert FileTest.exists?( sandbox.root + '/root/.ssh/known_hosts' )
-    end
-  end
-
-
-  def test_exception_raised_if_no_ssh_pulic_key_found
+  it 'should raise if no ssh public key was found' do
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/etc/ssh/sshd_config'
@@ -114,14 +109,14 @@ class SSHTest < Test::Unit::TestCase
         ssh.ssh_user_home = sandbox.root
       end
 
-      assert_raises( "No ssh public key was found in #{ File.join( sandbox.root, '/.ssh/' ) }" ) do
+      lambda do
         Rake::Task[ 'installer:ssh' ].invoke
-      end
+      end.should raise_error( RuntimeError, "No ssh public key was found in #{ File.join( sandbox.root, '/.ssh/' ) }" )
     end
   end
 
 
-  def test_should_id_dsa_file_copied
+  it 'should copy id_dsa file' do
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/.ssh/id_dsa.pub'
@@ -139,13 +134,12 @@ class SSHTest < Test::Unit::TestCase
         Rake::Task[ 'installer:ssh' ].invoke
       end
 
-      assert FileTest.exists?( sandbox.root + '/root/.ssh/authorized_keys' )
-      assert_equal 0100644, File.stat( sandbox.root + '/root/.ssh/authorized_keys' ).mode
+      FileTest.exists?( authorized_keys_file( sandbox.root ) ).should == true
     end
   end
 
 
-  def test_should_id_rsa_file_copied
+  it 'should copy id_rsa file' do
     in_sandbox do | sandbox |
       sandbox.new :file => '/usr/bin/ssh'
       sandbox.new :file => '/.ssh/id_rsa.pub'
@@ -163,8 +157,12 @@ class SSHTest < Test::Unit::TestCase
         Rake::Task[ 'installer:ssh' ].invoke
       end
 
-      assert FileTest.exists?( sandbox.root + '/root/.ssh/authorized_keys' )
-      assert_equal 0100644, File.stat( sandbox.root + '/root/.ssh/authorized_keys' ).mode
+      FileTest.exists?( authorized_keys_file( sandbox.root ) ).should == true
     end
+  end
+
+
+  def authorized_keys_file root
+    File.join( root, '/root/.ssh/authorized_keys' )
   end
 end
