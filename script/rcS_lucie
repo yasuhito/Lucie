@@ -121,7 +121,7 @@ Dir.chdir('/')
 sh_exec 'sync'
 sh_exec 'killall -q sshd udevd'
 sh_exec 'umount /tmp/target/proc'
-sh_exec 'umount -ar'
+sh_exec 'umount -ar' rescue nil
 exec 'reboot -dfi'
 
 
