@@ -1,14 +1,14 @@
 class sudo {
   case $operatingsystem {
     default: {
-      # sudo ƒpƒbƒP[ƒW‚ªƒCƒ“ƒXƒg[ƒ‹‚³‚ê‚Ä‚¢‚é‚±‚Æ‚ð•ÛØ
+      # sudo ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ãŒã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã•ã‚Œã¦ã„ã‚‹ã“ã¨ã‚’ä¿è¨¼
       package { 'sudo':
         ensure => installed
       }
     }
   }
 
-  # /etc/sudoers ‚ð puppet/files/sudoers ‚©‚çƒRƒs[‚µA“KØ‚Èƒp[ƒ~ƒbƒVƒ‡ƒ“‚ðÝ’è
+  # /etc/sudoers ã‚’ puppet/files/sudoers ã‹ã‚‰ã‚³ãƒ”ãƒ¼ã—ã€é©åˆ‡ãªãƒ‘ãƒ¼ãƒŸãƒƒã‚·ãƒ§ãƒ³ã‚’è¨­å®š
   file { 'sudoers':
     path => $operatingsystem ? {
       default => '/etc/sudoers'
@@ -21,3 +21,10 @@ class sudo {
     }
   }
 }
+
+
+### Local variables:
+### mode: Puppet
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
