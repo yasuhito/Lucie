@@ -17,7 +17,7 @@ class admin_users {
 class not_users {
   realize(
     User["bad"],
-    User["evil"],
+    User["evil"]
   )
 
   setpass { "bad":
