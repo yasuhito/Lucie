@@ -1,0 +1,8 @@
+define setpass($hash) {
+  ensure_key_value{ "set_pass_$name":
+    file      => '/etc/shadow',
+    key       => $name,
+    value     => "$hash:13572:0:99999:7:::",
+    delimiter => ':'
+  }
+}
