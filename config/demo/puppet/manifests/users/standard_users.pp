@@ -4,8 +4,7 @@
   gid         =>  "wheel",
   comment     =>  "root",
   home        =>  "/root",
-  shell       =>  "/bin/sh",
-  managehome  =>  "true"
+  shell       =>  "/bin/sh"
 }
 
 
@@ -15,6 +14,5 @@
   gid         =>  "wheel",
   comment     =>  "Sheeri Kritzer",
   home        =>  "/home/awfief",
-  shell       =>  "/bin/bash",
-  managehome  =>  "true"
+  shell       =>  "/bin/bash"
 }
