@@ -5,7 +5,7 @@ class absent_users {
     gid        => "wheel",
     comment    => "bad user no biscuit",
     home       => "/home/bad",
-    shell      => "/bin/bash",
+    shell      => "/bin/bash"
     managehome =>  "true"
   }
 
