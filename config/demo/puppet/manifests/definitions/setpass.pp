@@ -1,4 +1,4 @@
-define setpass($hash) {
+define setpass( $hash ) {
   ensure_key_value{ "set_pass_$name":
     file      => '/etc/shadow',
     key       => $name,
@@ -6,3 +6,10 @@ define setpass($hash) {
     delimiter => ':'
   }
 }
+
+
+### Local variables:
+### mode: Puppet
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

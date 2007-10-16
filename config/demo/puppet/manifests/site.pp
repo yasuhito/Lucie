@@ -1,7 +1,9 @@
-import 'definitions/sudo.pp'
+import 'definitions/*'
+import 'users/*'
 
 
 node default {
+  include admin_users
   include sudo
 }
 

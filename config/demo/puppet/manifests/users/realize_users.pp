@@ -28,3 +28,10 @@ class not_users {
     hash  => '!!'
   }
 }
+
+
+### Local variables:
+### mode: Puppet
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
