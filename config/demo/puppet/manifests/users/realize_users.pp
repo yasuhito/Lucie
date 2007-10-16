@@ -5,11 +5,11 @@ class admin_users {
   )
 
   setpass { "root":
-    hash => 'q1w2e3r4t5y6u7i8o9p0'
+    hash => 'h29SP9GgVbLHE'
   }
 
   setpass { "awfief":
-    hash => 'a1s2d3f4g5h6j7k8l9!0'
+    hash => 'h29SP9GgVbLHE'
   }
 }
 
@@ -32,6 +32,6 @@ class not_users {
 
 ### Local variables:
 ### mode: Puppet
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

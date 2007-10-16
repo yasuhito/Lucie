@@ -19,3 +19,10 @@ class absent_users {
     managehome =>  "true"
   }
 }
+
+
+### Local variables:
+### mode: Puppet
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
