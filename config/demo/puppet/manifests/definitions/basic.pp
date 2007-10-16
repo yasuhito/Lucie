@@ -6,7 +6,7 @@ define ensure_key_value( $file, $key, $value, $delimiter = " " ) {
   }
 
   # update it if it already exists...
-  exec { "sed -i '' 's/^$key$delimiter.*$/$key$delimiter$value/g' $file":
+  exec { "sed -i -e 's/^$key$delimiter.*$/$key$delimiter$value/g' $file":
     unless => "grep -xqe '$key[[:space:]]*$delimiter[[:space:]]*$value' -- $file",
     path => "/bin:/usr/bin"
   }
