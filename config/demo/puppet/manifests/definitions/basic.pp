@@ -1,4 +1,4 @@
-define ensure_key_value( $file, $key, $value, $delimeter = " " ) {
+define ensure_key_value( $file, $key, $value, $delimiter = " " ) {
   # append line if "$key" not in "$file"
   exec { "echo '$key$delimeter$value' >> $file":
     unless => "grep -qe '^$key[[:space:]]*$delimeter' -- $file",
