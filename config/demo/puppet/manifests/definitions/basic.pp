@@ -1,13 +1,13 @@
 define ensure_key_value( $file, $key, $value, $delimiter = " " ) {
   # append line if "$key" not in "$file"
-  exec { "echo '$key$delimeter$value' >> $file":
-    unless => "grep -qe '^$key[[:space:]]*$delimeter' -- $file",
+  exec { "echo '$key$delimiter$value' >> $file":
+    unless => "grep -qe '^$key[[:space:]]*$delimiter' -- $file",
     path => "/bin:/usr/bin"
   }
 
   # update it if it already exists...
-  exec { "sed -i '' 's/^$key$delimeter.*$/$key$delimeter$value/g' $file":
-    unless => "grep -xqe '$key[[:space:]]*$delimeter[[:space:]]*$value' -- $file",
+  exec { "sed -i '' 's/^$key$delimiter.*$/$key$delimiter$value/g' $file":
+    unless => "grep -xqe '$key[[:space:]]*$delimiter[[:space:]]*$value' -- $file",
     path => "/bin:/usr/bin"
   }
 }
