@@ -11,7 +11,7 @@ class admin_users {
     password_hash => 'h29SP9GgVbLHE'
   }
 
-  enable_user { "awfief":
+  enable_user { "yasuhito":
     password_hash => 'h29SP9GgVbLHE'
   }
 }
