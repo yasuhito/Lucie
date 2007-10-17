@@ -2,10 +2,11 @@
 # ドを設定します。
 #
 # グループ名は 'class' に続く名前 (ex. admin_users, disabled_users) で
-# 表されます。このグループ名は site.pp から "include [グループ名]" のよ
-# うに参照されます。
+# 表されます。このグループは site.pp 中から include されます。include
+# されたグループに含まれるユーザのみが実際に作成されます。
 
 
+# 管理ユーザ
 class admin_users {
   enable_user { "root":
     password_hash => 'h29SP9GgVbLHE'
@@ -17,6 +18,15 @@ class admin_users {
 }
 
 
+# 一般ユーザ
+class users {
+  enable_user { "miyasaka":
+    password_hash => 'h29SP9GgVbLHE'
+  }
+}
+
+
+# 無効にしたいユーザ
 class disabled_users {
   disable_user { "bad": }
   disable_user { "evil": }

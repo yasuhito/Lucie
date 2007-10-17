@@ -3,8 +3,12 @@ import 'users/*'
 
 
 node default {
+  # ユーザの定義
   include admin_users
+  include users
   include disabled_users
+
+  # ソフトウェア設定の定義
   include sudo
 }
 
