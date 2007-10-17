@@ -12,7 +12,7 @@ define set_password( $hash ) {
 define add_group {
   exec { "addgroup $name":
     unless => "grep -qe '^$name[[:space:]]*:' -- $file",
-    path =>  "/usr/sbin"
+    path =>  "/bin:/usr/sbin"
   }
 }
 
