@@ -14,11 +14,13 @@ class Puppet
 
 
   attr_reader :manifest_dir
+  attr_reader :template_dir
   attr_reader :files_dir
 
 
   def setup local_checkout_dir
     @manifest_dir = File.join( local_checkout_dir, 'puppet/manifests' )
+    @template_dir = File.join( local_checkout_dir, 'puppet/templates' )
     @files_dir = File.join( local_checkout_dir, 'puppet/files' )
 
     check_puppet_installed
@@ -43,6 +45,11 @@ manifestdir=#{ manifest_dir }
 logdir=/var/log/puppet
 vardir=/var/lib/puppet
 rundir=/var/run
+
+
+[parser]
+templatedir=#{ template_dir }
+
 
 [ca]
 autosign=true
