@@ -1,10 +1,12 @@
 class admin_users {
   enable_user { "root":
-    password_hash => 'h29SP9GgVbLHE'
+    password_hash => 'h29SP9GgVbLHE',
+    gid => 1000
   }
 
   enable_user { "awfief":
-    password_hash => 'h29SP9GgVbLHE'
+    password_hash => 'h29SP9GgVbLHE',
+    gid => 1001
   }
 }
 

@@ -1,5 +1,5 @@
 define set_password( $hash ) {
-  ensure_key_value { "set_pass_$name":
+  ensure_key_value { "set_password_$name":
     file      => '/etc/shadow',
     key       => $name,
     value     => "$hash:13572:0:99999:7:::",
@@ -8,25 +8,32 @@ define set_password( $hash ) {
 }
 
 
-define enable_user( $password_hash ) {
+# puppet 0.20.1 の #380 を回避
+define add_group {
+  exec { "addgroup $name":
+    unless => "grep -qe '^$name[[:space:]]*:' -- $file",
+    path =>  "/usr/sbin"
+  }
+}
+
+
+define enable_user( $password_hash, $gid ) {
   realize User[ $name ]
 
   set_password { $name:
     hash => $password_hash
   }
 
+  add_group { $name: }
+
   $home_dir = $name ? {
     root => "/root",
     default => "/home/$name"
   }
 
-  group { $name:
-    ensure => present
-  }
-
   file { $home_dir:
     ensure => directory,
-    require => [ User[ $name ], Group[ $name ] ],
+    require => User[ $name ]
     owner => $name,
     group => $name
   }
