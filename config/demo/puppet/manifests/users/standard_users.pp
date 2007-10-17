@@ -4,7 +4,8 @@
   gid         =>  "root",
   comment     =>  "root",
   home        =>  "/root",
-  shell       =>  "/bin/sh"
+  shell       =>  "/bin/sh",
+  require     =>  exec[ "addgroup_root" ]
 }
 
 
@@ -15,7 +16,8 @@
   groups      =>  [ "awfief", "operator" ],
   comment     =>  "Sheeri Kritzer",
   home        =>  "/home/awfief",
-  shell       =>  "/bin/bash"
+  shell       =>  "/bin/bash",
+  require     =>  exec[ "addgroup_awfief" ]
 }
 
 

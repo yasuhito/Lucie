@@ -11,6 +11,7 @@ define set_password( $hash ) {
 define enable_user( $password_hash ) {
   realize User[ $name ]
 
+  # [HACK]: netinfo 以外の provider ではパスワード管理をサポートしていないので、/etc/shadow を直接編集
   set_password { $name:
     hash => $password_hash
   }
@@ -19,7 +20,8 @@ define enable_user( $password_hash ) {
   # 本来なら、user type の managehome プロパティでホームディレクトリを作成してしまいたい
   exec { "addgroup $name":
     unless => "grep -qe '^$name[[:space:]]*:' -- /etc/group",
-    path =>  "/bin:/usr/sbin"
+    path =>  "/bin:/usr/sbin",
+    alias => "addgroup_$name"
   }
 
   $home_dir = $name ? {
