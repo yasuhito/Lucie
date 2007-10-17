@@ -4,6 +4,7 @@ import 'users/*'
 
 node default {
   include admin_users
+  include disabled_users
   include sudo
 }
 

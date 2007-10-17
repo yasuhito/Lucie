@@ -1,3 +1,4 @@
+# [HACK]: netinfo 以外の provider ではパスワード管理をサポートしていないので、/etc/shadow を直接編集
 define set_password( $hash ) {
   ensure_key_value { "set_password_$name":
     file      => '/etc/shadow',
@@ -8,10 +9,18 @@ define set_password( $hash ) {
 }
 
 
+define disable_user( $password_hash ) {
+  realize User[ $name ]
+
+  set_password { $name:
+    hash => '!!'
+  }
+}
+
+
 define enable_user( $password_hash ) {
   realize User[ $name ]
 
-  # [HACK]: netinfo 以外の provider ではパスワード管理をサポートしていないので、/etc/shadow を直接編集
   set_password { $name:
     hash => $password_hash
   }
