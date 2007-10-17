@@ -11,7 +11,7 @@ define set_password( $hash ) {
 # puppet 0.20.1 の #380 を回避
 define add_group {
   exec { "addgroup $name":
-    unless => "grep -qe '^$name[[:space:]]*:' -- $file",
+    unless => "grep -qe '^$name[[:space:]]*:' -- /etc/group",
     path =>  "/bin:/usr/sbin"
   }
 }
