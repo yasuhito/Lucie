@@ -10,6 +10,14 @@ class ganglia {
     content => template( "ganglia/gmond.conf.erb" ),
     require => Package[ "ganglia-monitor" ]
   }
+
+  service { 'gmond':
+    enable => true,
+    ensure => running,
+    require => [ Package[ 'ganglia-monitor' ], File[ '/etc/gmond.conf' ] ],
+    subscribe => [ Package[ 'ganglia-monitor' ], File[ '/etc/gmond.conf' ] ],
+    restart => '/etc/init.d/ganglia-monitor restart'
+  }
 }
 
 
