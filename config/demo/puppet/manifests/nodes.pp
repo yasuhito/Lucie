@@ -6,6 +6,7 @@ node default {
 
   # ソフトウェア設定の定義
   include sudo
+  include timezone
 }
 
 
