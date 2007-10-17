@@ -8,16 +8,22 @@ define set_password( $hash ) {
 }
 
 
-define realize_and_set_password( $password_hash ) {
+define enable_user( $password_hash ) {
   realize User[ $name ]
 
   set_password { $name:
     hash => $password_hash
   }
 
-  file { "/home/$name":
+  $home_dir = $name ? {
+    root => "/root",
+    default => "/home/$name"
+  }
+
+  file { $home_dir:
     ensure => directory,
     require => User[ $name ]
+    owner => $name
   }
 }
 

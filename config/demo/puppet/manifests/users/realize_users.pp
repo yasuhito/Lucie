@@ -1,20 +1,20 @@
 class admin_users {
-  realize_and_set_password { "root":
+  enable_user { "root":
     password_hash => 'h29SP9GgVbLHE'
   }
 
-  realize_and_set_password { "awfief":
+  enable_user { "awfief":
     password_hash => 'h29SP9GgVbLHE'
   }
 }
 
 
 class not_users {
-  realize_and_set_password { "bad":
+  enable_user { "bad":
     password_hash => '!!'
   }
 
-  realize_and_set_password { "evil":
+  enable_user { "evil":
     password_hash => '!!'
   }
 }
