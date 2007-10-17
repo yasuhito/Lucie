@@ -1,9 +1,15 @@
 class admin_users {
+  group { "root":
+    ensure => present
+  }
   enable_user { "root":
     password_hash => 'h29SP9GgVbLHE',
     gid => 1000
   }
 
+  group { "awfief":
+    ensure => present
+  }
   enable_user { "awfief":
     password_hash => 'h29SP9GgVbLHE',
     gid => 1001
@@ -11,15 +17,15 @@ class admin_users {
 }
 
 
-class not_users {
-  enable_user { "bad":
-    password_hash => '!!'
-  }
+# class not_users {
+#   enable_user { "bad":
+#     password_hash => '!!'
+#   }
 
-  enable_user { "evil":
-    password_hash => '!!'
-  }
-}
+#   enable_user { "evil":
+#     password_hash => '!!'
+#   }
+# }
 
 
 ### Local variables:
