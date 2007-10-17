@@ -20,10 +20,15 @@ define enable_user( $password_hash ) {
     default => "/home/$name"
   }
 
+  group { $name:
+    ensure => present
+  }
+
   file { $home_dir:
     ensure => directory,
-    require => User[ $name ],
-    owner => $name
+    require => [ User[ $name ], Group[ $name ] ],
+    owner => $name,
+    group => $name
   }
 }
 
