@@ -11,7 +11,7 @@ class ganglia {
     require => Package[ "ganglia-monitor" ]
   }
 
-  service { 'gmond':
+  service { 'ganglia-monitor':
     enable => true,
     ensure => running,
     require => [ Package[ 'ganglia-monitor' ], File[ '/etc/gmond.conf' ] ],
