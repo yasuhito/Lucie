@@ -11,7 +11,8 @@
 @user { "awfief":
   ensure      =>  "present",
   uid         =>  "10001",
-  gid         =>  "operator",
+  gid         =>  "awfief",
+  groups      =>  [ "awfief", "operator" ],
   comment     =>  "Sheeri Kritzer",
   home        =>  "/home/awfief",
   shell       =>  "/bin/bash"

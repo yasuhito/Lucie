@@ -15,7 +15,8 @@ define enable_user( $password_hash ) {
     hash => $password_hash
   }
 
-  # puppet 0.20.1 の #380 を回避
+  # [HACK]: puppet 0.20.1 の #380 (http://reductivelabs.com/trac/puppet/ticket/380) を回避
+  # 本来なら、user type の managehome プロパティでホームディレクトリを作成してしまいたい
   exec { "addgroup $name":
     unless => "grep -qe '^$name[[:space:]]*:' -- /etc/group",
     path =>  "/bin:/usr/sbin"
