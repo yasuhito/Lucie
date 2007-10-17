@@ -9,7 +9,7 @@ define set_password( $hash ) {
 }
 
 
-define disable_user( $password_hash ) {
+define disable_user {
   realize User[ $name ]
 
   set_password { $name:
