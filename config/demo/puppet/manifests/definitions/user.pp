@@ -33,7 +33,7 @@ define enable_user( $password_hash, $gid ) {
 
   file { $home_dir:
     ensure => directory,
-    require => User[ $name ]
+    require => User[ $name ],
     owner => $name,
     group => $name
   }
