@@ -22,7 +22,7 @@ define enable_user( $password_hash ) {
 
   file { $home_dir:
     ensure => directory,
-    require => User[ $name ]
+    require => User[ $name ],
     owner => $name
   }
 }
