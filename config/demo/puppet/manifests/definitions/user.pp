@@ -8,23 +8,18 @@ define set_password( $hash ) {
 }
 
 
-# puppet 0.20.1 の #380 を回避
-define add_group {
-  exec { "addgroup $name":
-    unless => "grep -qe '^$name[[:space:]]*:' -- /etc/group",
-    path =>  "/bin:/usr/sbin"
-  }
-}
-
-
-define enable_user( $password_hash, $gid ) {
+define enable_user( $password_hash ) {
   realize User[ $name ]
 
   set_password { $name:
     hash => $password_hash
   }
 
-  add_group { $name: }
+  # puppet 0.20.1 の #380 を回避
+  exec { "addgroup $name":
+    unless => "grep -qe '^$name[[:space:]]*:' -- /etc/group",
+    path =>  "/bin:/usr/sbin"
+  }
 
   $home_dir = $name ? {
     root => "/root",
@@ -33,7 +28,7 @@ define enable_user( $password_hash, $gid ) {
 
   file { $home_dir:
     ensure => directory,
-    require => User[ $name ],
+    require => [ User[ $name ], exec[ "addgroup $name" ] ],
     owner => $name,
     group => $name
   }
