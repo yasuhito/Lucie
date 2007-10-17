@@ -4,9 +4,13 @@ node default {
   include users
   include disabled_users
 
-  # ソフトウェア設定の定義
+  # ソフトウェアごとの設定
   include sudo
   include timezone
+
+  $ganglia_cluster_name = "My Cluster"
+  $ganglia_trusted_hosts = "192.168.0.1, 192.168.0.2"
+  include ganglia
 }
 
 
