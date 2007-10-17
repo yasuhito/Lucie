@@ -15,7 +15,7 @@ node default {
 
 
 ### Local variables:
-### mode: Ruby
+### mode: Puppet
 ### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
