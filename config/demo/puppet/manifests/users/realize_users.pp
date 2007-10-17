@@ -1,31 +1,21 @@
 class admin_users {
-  realize(
-    User["root"],
-    User["awfief"]
-  )
-
-  setpass { "root":
+  realize_and_set_password { "root":
     hash => 'h29SP9GgVbLHE'
   }
 
-  setpass { "awfief":
+  realize_and_set_password { "awfief":
     hash => 'h29SP9GgVbLHE'
   }
 }
 
 
 class not_users {
-  realize(
-    User["bad"],
-    User["evil"]
-  )
-
-  setpass { "bad":
-    hash  => '!!'
+  realize_and_set_password { "bad":
+    hash => '!!'
   }
 
-  setpass { "evil":
-    hash  => '!!'
+  realize_and_set_password { "evil":
+    hash => '!!'
   }
 }
 
