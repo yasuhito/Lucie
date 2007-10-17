@@ -10,8 +10,14 @@ define set_password( $hash ) {
 
 define realize_and_set_password( $password_hash ) {
   realize User[ $name ]
+
   set_password { $name:
     hash => $password_hash
+  }
+
+  file { "/home/$name":
+    ensure => directory,
+    require => User[ $name ]
   }
 }
 
