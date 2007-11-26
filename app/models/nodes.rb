@@ -38,23 +38,25 @@ class Nodes
   end
 
 
-  def self.remove node_name
-    node = find( node_name )
-    if node
-      FileUtils.rm_r node.path
-    else
+  def self.path node_name
+    File.join( Configuration.nodes_directory, node_name )
+  end
+
+
+  def self.remove! node_name
+    unless File.directory?( path( node_name ) )
       raise "Node '#{ node_name }' not found."
     end
+    FileUtils.rm_rf path( node_name )
   end
 
 
   def self.find node_name
     # TODO: sanitize node_name to prevent a query injection attack here
-    path = File.join( Configuration.nodes_directory, node_name )
-    unless File.directory?( path )
+    unless File.directory?( path( node_name ) )
       return nil
     end
-    load_node path
+    load_node path( node_name )
   end
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 
-# ENV[ 'RAILS_ENV' ] = 'production'
+ENV[ 'RAILS_ENV' ] = 'production'
 
 
 require File.dirname( __FILE__ ) + '/../config/boot'
@@ -30,6 +30,11 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
+  if node_name == '--help' or node_name == '-h'
+    puts opts
+    exit 1
+  end
+
   unless node_name
     STDERR.puts 'Node name is mandatory'
     STDERR.puts
@@ -48,10 +53,10 @@ end
 puts "Removing node '#{ node_name }' (this may take a while)..."
 
 begin
+  # load Nodes class.
   require RAILS_ROOT + '/config/environment'
 
-  Nodes.remove node_name
-
+  Nodes.remove! node_name
 rescue => e
   if trace
     raise
