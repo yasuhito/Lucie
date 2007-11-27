@@ -5,34 +5,6 @@ require 'rbehave'
 require 'spec'
 
 
-Story "Read the 'node add' help message", %(
-  As a cluster administrator
-  I want to read help message of 'node add'
-  So that I can understand how to add a node to the system) do
-
-
-  Scenario 'node help add' do
-    When 'I run', './node help add' do | command |
-      @help_message = output_with( command ).split
-    end
-
-    Then 'the help message should look like', expected_help_message do | message |
-      @help_message.should == message.strip.split( /\s+/ )
-    end
-  end
-
-  Scenario 'node add --help' do
-    When 'I run', './node add --help'
-    Then 'the help message should look like', expected_help_message
-  end
-
-  Scenario 'node add -h' do
-    When 'I run', './node add -h'
-    Then 'the help message should look like', expected_help_message
-  end
-end
-
-
 Story "Add a node with 'node' command",
 %(As a cluster administrator
   I want to add a node using 'node' command
@@ -158,26 +130,6 @@ Story 'Trace node add command',
       @error_message.should match( /^\s+from/ )
     end
   end
-end
-
-
-def expected_help_message
-  %(
-Node name and Installer name are mandatory
-
-usage: node add <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway> --mac <MAC address>
-
-    -i, --installer installer name   The installer name for the installation
-    -a, --address address            IP address
-    -n, --netmask address            Netmask address
-    -g, --gateway address            Gateway address
-    -m, --mac MAC address            The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)
-
-    -w, --wol                        Remote power-on using wake on LAN
-
-    -t, --trace                      Print out exception stack traces
-    -h, --help                       Show this help message.
-  )
 end
 
 

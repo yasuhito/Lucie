@@ -5,34 +5,6 @@ require 'rbehave'
 require 'spec'
 
 
-Story "Read the 'node disable' help message", %(
-  As a cluster administrator
-  I want to read help message of 'node disable'
-  So that I can understand how to disable a node) do
-
-
-  Scenario 'node help disable' do
-    When 'I run', './node help disable' do | command |
-      @help_message = output_with( command ).split
-    end
-
-    Then 'the help message should look like', expected_help_message do | message |
-      @help_message.should == message.strip.split( /\s+/ )
-    end
-  end
-
-  Scenario 'node disable --help' do
-    When 'I run', './node disable --help'
-    Then 'the help message should look like', expected_help_message
-  end
-
-  Scenario 'node disable -h' do
-    When 'I run', './node disable -h'
-    Then 'the help message should look like', expected_help_message
-  end
-end
-
-
 Story "Disable a node with 'node' command",
 %(As a cluster administrator
   I want to disable a node using 'node' command
@@ -86,17 +58,6 @@ Story 'Trace node disable command',
       @error_message.should match( /^\s+from/ )
     end
   end
-end
-
-
-def expected_help_message
-  %(
-usage: node disable <node-name>
-
-    -t, --trace                      Print out exception stack traces
-
-    -h, --help                       Show this help message.
-  )
 end
 
 

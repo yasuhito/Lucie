@@ -5,33 +5,6 @@ require 'rbehave'
 require 'spec'
 
 
-Story "Read the 'node remove' help message", %(
-  As a cluster administrator
-  I want to read help message of 'node remove'
-  So that I can understand how to remove a node from the system) do
-
-  Scenario 'node help remove' do
-    When 'I run', './node help remove' do | command |
-      @help_message = output_with( command ).split
-    end
-
-    Then 'the help message should look like', expected_help_message do | message |
-      @help_message.should == message.strip.split( /\s+/ )
-    end
-  end
-
-  Scenario 'node remove --help' do
-    When 'I run', './node remove --help'
-    Then 'the help message should look like', expected_help_message
-  end
-
-  Scenario 'node remove -h' do
-    When 'I run', './node remove -h'
-    Then 'the help message should look like', expected_help_message
-  end
-end
-
-
 Story "Remove a node with 'node remove' command", %(
   As a cluster administrator
   I want to remove a node using 'node remove' command
@@ -39,7 +12,7 @@ Story "Remove a node with 'node remove' command", %(
 
   Scenario 'remove a node' do
     Given 'a node named', 'TEST_NODE' do | node_name |
-      FileUtils.mkdir File.join( './nodes', node_name )
+      FileUtils.mkdir File.join( './nodes', node_name ) rescue nil
     end
 
     When 'I remove the node', 'TEST_NODE' do | node_name |
@@ -80,17 +53,6 @@ Story 'Trace node remove command',
       @error_message.should match( /^\s+from/ )
     end
   end
-end
-
-
-def expected_help_message
-  %(
-usage: node remove <node-name>
-
-    -t, --trace                      Print out exception stack traces
-
-    -h, --help                       Show this help message.
-  )
 end
 
 

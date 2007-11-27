@@ -5,34 +5,6 @@ require 'rbehave'
 require 'spec'
 
 
-Story "Read the 'node enable' help message", %(
-  As a cluster administrator
-  I want to read help message of 'node enable'
-  So that I can understand how to enable a node) do
-
-
-  Scenario 'node help enable' do
-    When 'I run', './node help enable' do | command |
-      @help_message = output_with( command ).split
-    end
-
-    Then 'the help message should look like', expected_help_message do | message |
-      @help_message.should == message.strip.split( /\s+/ )
-    end
-  end
-
-  Scenario 'node enable --help' do
-    When 'I run', './node enable --help'
-    Then 'the help message should look like', expected_help_message
-  end
-
-  Scenario 'node enable -h' do
-    When 'I run', './node enable -h'
-    Then 'the help message should look like', expected_help_message
-  end
-end
-
-
 Story "Enable a node with 'node' command",
 %(As a cluster administrator
   I want to enable a node using 'node' command
@@ -100,20 +72,6 @@ Story 'Trace node add command',
       @error_message.should match( /^\s+from/ )
     end
   end
-end
-
-
-def expected_help_message
-  %(
-Node name and Installer name are mandatory
-
-usage: node enable <node-name> --installer <installer-name>
-
-    -i, --installer installer name   The installer name for the installation
-    -t, --trace                      Print out exception stack traces
-
-    -h, --help                       Show this help message.
-  )
 end
 
 
