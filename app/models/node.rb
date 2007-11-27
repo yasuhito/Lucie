@@ -91,7 +91,7 @@ class Node
   end
 
 
-  def disable
+  def disable!
     if installer_name
       FileUtils.rm File.join( @path, installer_name )
     end
@@ -99,7 +99,7 @@ class Node
 
 
   def install_with installer_name
-    disable
+    disable!
     FileUtils.touch File.join( @path, installer_name )
   end
 

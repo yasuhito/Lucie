@@ -40,7 +40,7 @@ end
 begin
   require RAILS_ROOT + '/config/environment'
 
-  Nodes.find( node_name ).disable
+  Nodes.find( node_name ).disable!
 
 rescue => e
   if trace
