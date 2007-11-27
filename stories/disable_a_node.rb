@@ -46,6 +46,7 @@ Story "Disable a node with 'node' command",
       unless FileTest.directory?( './nodes/TEST_NODE' )
         FileUtils.mkdir './nodes/TEST_NODE'
       end
+      # [TODO] ’¥¤’¥ó’¥¹’¥È’¡¼’¥é’¥Õ’¥¡’¥¤’¥ë’¤¬’Ìµ’¤¤’¾ì’¹ç’¤Î’¥·’¥Ê’¥ê’¥ª
       FileUtils.touch @installer_file
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
@@ -66,6 +67,23 @@ netmask_address:255.255.255.0
 
     Then 'Installer file should be removed' do
       FileTest.exists?( @installer_file ).should_not be_true
+    end
+  end
+end
+
+
+Story 'Trace node disable command',
+%(As a cluster administrator
+  I can trace a failed 'node disable' command
+  So that I can report detailed backtrace to Lucie developers) do
+
+  Scenario 'run node disable with --trace option' do
+    When 'I run a command that fails with --trace option' do
+      @error_message = output_with( "./node disable NO_SUCH_NODE --trace" )
+    end
+
+    Then 'I get backtrace' do
+      @error_message.should match( /^\s+from/ )
     end
   end
 end
