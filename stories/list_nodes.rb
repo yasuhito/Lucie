@@ -1,10 +1,3 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story "list nodes with 'node' command",
 %(As a cluster administrator
   I want to get a nodes list using 'node' command
@@ -13,9 +6,7 @@ Story "list nodes with 'node' command",
 
   Scenario 'node list success' do
     Given 'TEST_NODE is already added and is disabled' do
-      unless FileTest.directory?( './nodes/TEST_NODE' )
-        FileUtils.mkdir './nodes/TEST_NODE'
-      end
+      add_fresh_node 'TEST_NODE'
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
 gateway_address:192.168.0.254
@@ -28,7 +19,7 @@ netmask_address:255.255.255.0
     When 'I run', './node list' do | command |
       @message = output_with( command ).split( /\s+/ )
     end
-    
+
     Then 'the output should look like', %(
 Nodes directory = '/cygdrive/d/01projects/lucie/nodes'
  TEST_NODE (installer = DISABLED)
@@ -53,13 +44,5 @@ Story 'Trace node enable command',
     Then 'I get backtrace' do
       @error_message.should match( /^\s+from/ )
     end
-  end
-end
-
-
-# [FIXME] move to helper methods file
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
   end
 end

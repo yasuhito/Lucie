@@ -1,10 +1,3 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story 'Read the help message', %(
   As a cluster administrator
   I want to read help message of node command
@@ -209,12 +202,4 @@ usage: node list
     -h, --help                       Show this help message.
   )
  }
-end
-
-
-# [TODO] move to helper methods library file
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
-  end
 end

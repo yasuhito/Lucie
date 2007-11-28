@@ -1,18 +1,11 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story "Add a node with 'node' command",
 %(As a cluster administrator
   I want to add a node using 'node' command
   So that I can add a node to the system) do
 
   Scenario 'node add success' do
-    Given 'TEST_NODE is not added yet' do
-      system( './node remove TEST_NODE 2>&1 >/dev/null' )
+    Given 'No node is added' do
+      cleanup_nodes
     end
 
     Given 'TEST_NODE has a NIC' do
@@ -38,8 +31,13 @@ Story "Add a node with 'node' command",
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }" do | command |
       @error_message = output_with( command )
     end
-    
+
     Then 'MAC address file should be created with path =', './nodes/TEST_NODE/00_00_00_00_00_00' do | path |
+      FileTest.exists?( path ).should be_true
+    end
+
+    Then 'installer file should be created with path =', './nodes/TEST_NODE/TEST_INSTALLER' do | path |
+      pending 'On windows environment, lucie:enable_node task that creates installer file always fails.'
       FileTest.exists?( path ).should be_true
     end
 
@@ -48,15 +46,17 @@ Story "Add a node with 'node' command",
       ip_address:192.168.0.1
       netmask_address:255.255.255.0
     ) do | contents |
-      File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'r' ).read.split.should == contents.strip.split( /\s+/ )
+
+      File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'r' ) do | file |
+        file.read.split.should == contents.strip.split( /\s+/ )
+      end
     end
   end
 
   Scenario 'node add fails if IP address is missing' do
-    Given 'TEST_NODE is not added yet'
+    Given 'No node is added'
 
     Given 'TEST_NODE has a NIC'
-
     Given 'MAC address is', '00:00:00:00:00:00'
     Given 'Netmask address is', '255.255.255.0'
     Given 'Gateway address is', '192.168.0.254'
@@ -69,10 +69,9 @@ Story "Add a node with 'node' command",
   end
 
   Scenario 'node add fails if netmask address is missing' do
-    Given 'TEST_NODE is not added yet'
+    Given 'No node is added'
 
     Given 'TEST_NODE has a NIC'
-
     Given 'IP address is', '192.168.0.1'
     Given 'MAC address is', '00:00:00:00:00:00'
     Given 'Gateway address is', '192.168.0.254'
@@ -83,10 +82,9 @@ Story "Add a node with 'node' command",
   end
 
   Scenario 'node add fails if gateway address is missing' do
-    Given 'TEST_NODE is not added yet'
+    Given 'No node is added'
 
     Given 'TEST_NODE has a NIC'
-
     Given 'IP address is', '192.168.0.1'
     Given 'Netmask address is', '255.255.255.0'
     Given 'MAC address is', '00:00:00:00:00:00'
@@ -97,10 +95,9 @@ Story "Add a node with 'node' command",
   end
 
   Scenario 'node add fails if MAC address is missing' do
-    Given 'TEST_NODE is not added yet'
+    Given 'No node is added'
 
     Given 'TEST_NODE has a NIC'
-
     Given 'IP address is', '192.168.0.1'
     Given 'Netmask address is', '255.255.255.0'
     Given 'Gateway address is', '192.168.0.254'
@@ -118,23 +115,23 @@ Story 'Trace node add command',
   So that I can report detailed backtrace to Lucie developers) do
 
   Scenario 'run node add with --trace option' do
-    Given 'TEST_NODE is already added' do
-      system( 'mkdir ./nodes/TEST_NODE' )
+    Given './nodes/TEST_NODE already exists' do
+      add_fresh_node 'TEST_NODE'
     end
 
-    When 'I run a command that fails with --trace option' do
-      @error_message = output_with( "./node add TEST_NODE --installer TEST_INSTALLER -a 192.168.0.1 -n 255.255.255.0 -g 192.68.0.254 -m 00:00:00:00:00:00 --trace" )
+    When "I run 'node add' with --trace option" do
+      @error_message = output_with( './node add TEST_NODE --installer TEST_INSTALLER -a 192.168.0.1 -n 255.255.255.0 -g 192.168.0.254 -m 00:00:00:00:00:00 --trace' )
     end
 
-    Then 'I get backtrace' do
+    Then 'I get an error and backtrace message' do
       @error_message.should match( /^\s+from/ )
     end
   end
 end
 
 
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
-  end
-end
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

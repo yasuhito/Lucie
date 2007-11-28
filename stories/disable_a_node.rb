@@ -1,24 +1,17 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story "Disable a node with 'node' command",
 %(As a cluster administrator
   I want to disable a node using 'node' command
   So that I can disable a node) do
 
-
   Scenario 'node disable success' do
-    Given 'TEST_NODE is already added' do
+    Given 'all nodes are cleaned' do
+      cleanup_nodes
+    end
+
+    Given 'TEST_NODE is then added' do
       @installer_file = './nodes/TEST_NODE/TEST_INSTALLER'
 
-      unless FileTest.directory?( './nodes/TEST_NODE' )
-        FileUtils.mkdir './nodes/TEST_NODE'
-      end
-      # [TODO] ’¥¤’¥ó’¥¹’¥È’¡¼’¥é’¥Õ’¥¡’¥¤’¥ë’¤¬’Ìµ’¤¤’¾ì’¹ç’¤Î’¥·’¥Ê’¥ê’¥ª
+      add_fresh_node 'TEST_NODE'
       FileUtils.touch @installer_file
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
@@ -61,9 +54,8 @@ Story 'Trace node disable command',
 end
 
 
-# [FIXME] move to helper methods file
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
-  end
-end
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

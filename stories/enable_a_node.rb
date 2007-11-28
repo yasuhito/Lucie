@@ -1,10 +1,3 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story "Enable a node with 'node' command",
 %(As a cluster administrator
   I want to enable a node using 'node' command
@@ -21,9 +14,7 @@ Story "Enable a node with 'node' command",
     end
 
     Given 'TEST_NODE is already added and is disabled' do
-      unless FileTest.directory?( './nodes/TEST_NODE' )
-        FileUtils.mkdir './nodes/TEST_NODE'
-      end
+      add_fresh_node 'TEST_NODE'
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
 gateway_address:192.168.0.254
@@ -36,7 +27,7 @@ netmask_address:255.255.255.0
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER' do | command |
       @error_message = output_with( command )
     end
-    
+
     Then 'It should succeeed with no error message' do
       pending
       @error_message.should be_empty
@@ -52,15 +43,11 @@ Story 'Trace node add command',
 
   Scenario 'run node enable with --trace option' do
     Given 'TEST_NODE is already added' do
-      unless FileTest.directory?( './nodes/TEST_NODE' )
-        FileUtils.mkdir './nodes/TEST_NODE'
-      end
+      add_fresh_node 'TEST_NODE'
     end
 
     Given 'TEST_INSTALLER is not added yet' do
-      if FileTest.directory?( './installers/TEST_INSTALLER' )
-        FileUtils.rm_rf './installers/TEST_INSTALLER'
-      end
+      FileUtils.rm_rf './installers/TEST_INSTALLER'
     end
 
     When 'I run a command that fails with --trace option' do
@@ -71,13 +58,5 @@ Story 'Trace node add command',
       pending
       @error_message.should match( /^\s+from/ )
     end
-  end
-end
-
-
-# [FIXME] move to helper methods file
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
   end
 end

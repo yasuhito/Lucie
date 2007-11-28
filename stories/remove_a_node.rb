@@ -1,10 +1,3 @@
-require 'rubygems'
-
-require 'open3'
-require 'rbehave'
-require 'spec'
-
-
 Story "Remove a node with 'node remove' command", %(
   As a cluster administrator
   I want to remove a node using 'node remove' command
@@ -12,13 +5,13 @@ Story "Remove a node with 'node remove' command", %(
 
   Scenario 'remove a node' do
     Given 'a node named', 'TEST_NODE' do | node_name |
-      FileUtils.mkdir File.join( './nodes', node_name ) rescue nil
+      add_fresh_node node_name
     end
 
     When 'I remove the node', 'TEST_NODE' do | node_name |
       system( "./node remove #{ node_name } 2>&1 >/dev/null" )
     end
-    
+
     Then 'the following directory should be removed:', File.join( './nodes', 'TEST_NODE' ) do | node_directory |
       FileTest.exists?( node_directory ).should_not be_true
     end
@@ -52,12 +45,5 @@ Story 'Trace node remove command',
       @error_message.should match( /\(RuntimeError\)/ )
       @error_message.should match( /^\s+from/ )
     end
-  end
-end
-
-
-def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
   end
 end
