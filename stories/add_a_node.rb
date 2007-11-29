@@ -3,7 +3,7 @@ Story "Add a node with 'node' command",
   I want to add a node using 'node' command
   So that I can add a node to the system) do
 
-  Scenario 'node add success' do
+  Scenario 'node add succeeds' do
     Given 'No node is added' do
       cleanup_nodes
     end
@@ -37,7 +37,8 @@ Story "Add a node with 'node' command",
     end
 
     Then 'installer file should be created with path =', './nodes/TEST_NODE/TEST_INSTALLER' do | path |
-      pending 'On windows environment, lucie:enable_node task that creates installer file always fails.'
+      # On Windows environment, the lucie:enable_node task invoked
+      # from 'node add' command always fails, so installer file never created.
       FileTest.exists?( path ).should be_true
     end
 
@@ -47,11 +48,10 @@ Story "Add a node with 'node' command",
       netmask_address:255.255.255.0
     ) do | contents |
 
-      File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'r' ) do | file |
-        file.read.split.should == contents.strip.split( /\s+/ )
-      end
+      File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'r' ).read.split.should == contents.strip.split( /\s+/ )
     end
   end
+
 
   Scenario 'node add fails if IP address is missing' do
     Given 'No node is added'
@@ -68,6 +68,7 @@ Story "Add a node with 'node' command",
     end
   end
 
+
   Scenario 'node add fails if netmask address is missing' do
     Given 'No node is added'
 
@@ -81,6 +82,7 @@ Story "Add a node with 'node' command",
     Then 'the error message matches with', /IP, Netmask, Gateway, and MAC address are mandatory/
   end
 
+
   Scenario 'node add fails if gateway address is missing' do
     Given 'No node is added'
 
@@ -93,6 +95,7 @@ Story "Add a node with 'node' command",
 
     Then 'the error message matches with', /IP, Netmask, Gateway, and MAC address are mandatory/
   end
+
 
   Scenario 'node add fails if MAC address is missing' do
     Given 'No node is added'
