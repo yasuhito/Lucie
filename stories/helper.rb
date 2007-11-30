@@ -18,6 +18,11 @@ def add_fresh_node node_name
 end
 
 
+def cleanup_installers
+  FileUtils.rm_rf Dir.glob( './installers/*' )
+end
+
+
 def cleanup_nodes
   FileUtils.rm_rf Dir.glob( './nodes/*' )
 end

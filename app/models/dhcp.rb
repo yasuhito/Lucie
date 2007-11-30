@@ -55,7 +55,7 @@ EOF
 
 
   def node_ipaddress name
-    address = Resolv::Hosts.new.getaddress( name )
+    address = Nodes.find( name ).ip_address
     unless address
       raise "Cannnot resolve host '#{ name }' IP address."
     end

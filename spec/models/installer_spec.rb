@@ -389,7 +389,7 @@ describe Installer, 'when installing' do
 
 
   it 'should abort if last build failed' do
-    pending( "last_complete_build_status ‚ğæ“¾‚·‚éÛAroot Œ ŒÀ‚Å“®ì‚·‚é Builder ‚Ì pid ƒtƒ@ƒCƒ‹‚ª‘‚«‚ß‚È‚¢‚½‚ßAˆÈ‰º‚ÌƒeƒXƒg‚ª FAIL ‚·‚é" ) do
+    pending( "last_complete_build_status ã‚’å–å¾—ã™ã‚‹éš›ã€root æ¨©é™ã§å‹•ä½œã™ã‚‹ Builder ã® pid ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ›¸ãè¾¼ã‚ãªã„ãŸã‚ã€ä»¥ä¸‹ã®ãƒ†ã‚¹ãƒˆãŒ FAIL ã™ã‚‹" ) do
       Installer.stubs( :new ).returns( @installer )
       @installer.stubs( :last_build ).returns( completed_build_status )
       @installer.stubs( :last_complete_build_status ).returns( 'failed' )
@@ -541,3 +541,10 @@ describe Installer, 'when upgrading installer' do
     end.should_not raise_error
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

@@ -17,26 +17,25 @@ Story "Enable a node with 'node' command",
       add_fresh_node 'TEST_NODE'
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
-gateway_address:192.168.0.254
-ip_address:192.168.0.1
+gateway_address:192.168.2.254
+ip_address:192.168.2.1
 netmask_address:255.255.255.0
         EOF
       end
     end
 
-    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER' do | command |
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder' do | command |
       @error_message = output_with( command )
     end
 
     Then 'It should succeeed with no error message' do
-      pending
       @error_message.should be_empty
     end
   end
 end
 
 
-Story 'Trace node add command',
+Story 'Trace node enable command',
 %(As a cluster administrator
   I can trace a failed 'node enable' command
   So that I can report a detailed backtrace to Lucie developers) do
@@ -47,7 +46,7 @@ Story 'Trace node add command',
     end
 
     Given 'TEST_INSTALLER is not added yet' do
-      FileUtils.rm_rf './installers/TEST_INSTALLER'
+      cleanup_installers
     end
 
     When 'I run a command that fails with --trace option' do
@@ -55,7 +54,6 @@ Story 'Trace node add command',
     end
 
     Then 'I get backtrace' do
-      pending
       @error_message.should match( /^\s+from/ )
     end
   end

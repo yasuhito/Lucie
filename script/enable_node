@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
+ENV[ 'RAILS_ENV' ] = 'production'
 
-# ENV[ 'RAILS_ENV' ] = 'production'
+LUCIE_THIS_PROCESS_IS_BUILDER = true
 
 require File.dirname( __FILE__ ) + '/../config/boot'
 require RAILS_ROOT + '/config/environment'
@@ -9,6 +10,7 @@ require 'optparse'
 
 
 node_name = ARGV.shift
+start_builder = true
 installer_name = nil
 wol = false
 trace = false
@@ -20,6 +22,10 @@ ARGV.options do | opts |
   opts.separator ''
   opts.on( '-i', '--installer installer name', String, 'The installer name for the installation' ) do | v |
     installer_name = v
+  end
+
+  opts.on( '-n', '--no-builder', 'Disable installer builder' ) do
+    start_builder = false
   end
 
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
@@ -35,6 +41,10 @@ ARGV.options do | opts |
 
   args = opts.parse!
 
+  if node_name == '--help' or node_name == '-h'
+    puts opts
+    exit 1
+  end
 
   unless node_name and installer_name
     STDERR.puts 'Node name and Installer name are mandatory'
@@ -71,7 +81,7 @@ begin
   ENV[ 'INSTALLER_NAME' ] = installer_name
 
   # [TODO] sh_exec で失敗した場合の例外をちゃんと上げてほしい。
-  sh_exec %{sudo ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; Rake::Task[ 'lucie:enable_node' ].invoke"}
+  sh_exec %{sudo ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; BuilderStarter.run_builders_at_startup = #{ start_builder }; Rake::Task[ 'lucie:enable_node' ].invoke"}
 rescue => e
   if trace
     raise

@@ -39,21 +39,21 @@ end
 
 describe Dhcp, 'when resolving IP address of a node' do
   before( :each ) do
-    @resolver = Object.new
+    @node = Object.new
   end
 
 
   it 'should resolve IP address of a node' do
-    @resolver.stubs( :getaddress ).with( 'NODE_NAME' ).returns( '192.168.1.1' )
-    Resolv::Hosts.stubs( :new ).returns( @resolver )
+    @node.stubs( :ip_address ).returns( '192.168.1.1' )
+    Nodes.stubs( :find ).returns @node
 
     Dhcp.new.node_ipaddress( 'NODE_NAME' ).should == '192.168.1.1'
   end
 
 
   it 'should fail if failed to resolve IP address of a node' do
-    @resolver.stubs( :getaddress ).with( 'NODE_NAME' ).returns( false )
-    Resolv::Hosts.stubs( :new ).returns( @resolver )
+    @node.stubs( :ip_address ).returns( false )
+    Nodes.stubs( :find ).returns @node
 
     lambda do
       Dhcp.new.node_ipaddress 'NODE_NAME'
