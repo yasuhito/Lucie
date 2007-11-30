@@ -176,11 +176,11 @@ usage: node remove <node-name>
   ),
 
     :node_enable => %(
-Node name and Installer name are mandatory
-
 usage: node enable <node-name> --installer <installer-name>
 
     -i, --installer installer name   The installer name for the installation
+    -n, --no-builder                 Disable installer builder
+
     -t, --trace                      Print out exception stack traces
 
     -h, --help                       Show this help message.

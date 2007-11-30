@@ -28,6 +28,8 @@ ARGV.options do | opts |
     start_builder = false
   end
 
+  opts.separator ''
+
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
     trace = true
   end
