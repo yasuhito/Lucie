@@ -2,12 +2,20 @@ class InstallerBlocker
   @@pid_files = {}
 
 
-  def self.block(installer)
-    raise already_locked_error_message(installer) if @@pid_files.include?(pid_file(installer))
+  def self.pid_files= hash
+    @@pid_files = hash
+  end
+
+
+  def self.block installer
+    if @@pid_files.include?( pid_file( installer ) )
+      raise already_locked_error_message( installer )
+    end
+
     lock = File.open(pid_file(installer), 'w')
-    locked = lock.flock(File::LOCK_EX | File::LOCK_NB)
+    locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
     if locked
-      @@pid_files[pid_file(installer)] = lock
+      @@pid_files[ pid_file( installer ) ] = lock
     else
       lock.close
       raise cannot_lock_error_message( installer )
@@ -15,26 +23,28 @@ class InstallerBlocker
   end
 
 
-  def self.blocked?(installer)
-    return true if @@pid_files.include?(pid_file(installer))
+  def self.blocked? installer
+    if @@pid_files.include?( pid_file( installer ) )
+      return true
+    end
 
-    lock = File.open(pid_file(installer), 'w')
+    lock = File.open( pid_file( installer ), 'w' )
     begin
-      return !lock.flock(File::LOCK_EX | File::LOCK_NB)
+      return !lock.flock( File::LOCK_EX | File::LOCK_NB )
     ensure
-      lock.flock(File::LOCK_UN | File::LOCK_NB)
+      lock.flock( File::LOCK_UN | File::LOCK_NB )
       lock.close
     end
   end
 
 
-  def self.release(installer)
-    lock = @@pid_files[pid_file(installer)]
+  def self.release installer
+    lock = @@pid_files[ pid_file( installer ) ]
     if lock
-      lock.flock(File::LOCK_UN | File::LOCK_NB)
+      lock.flock( File::LOCK_UN | File::LOCK_NB )
       lock.close
-      File.delete(lock.path)
-      @@pid_files.delete(pid_file(installer))
+      File.delete( lock.path )
+      @@pid_files.delete( pid_file( installer ))
     end
   end
 
