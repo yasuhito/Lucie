@@ -105,13 +105,15 @@ describe Installer, 'when reading a installer using Installer.read (load_config 
 end
 
 
+# As a installer builder
+# I want to load a installer object from installers/ directory
+# So that I can build a installer.
+
 describe Installer, 'when reading a broken installer using Installer.read' do
   it_should_behave_like 'Installers read with Installer.read'
 
 
   before( :each ) do
-    Lucie::Log.stubs :event
-
     in_sandbox do | sandbox |
       sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "class Invalid"
 
@@ -128,6 +130,54 @@ describe Installer, 'when reading a broken installer using Installer.read' do
 
   it 'should have a config' do
     @installer.config_file_content.should_not be_empty
+  end
+end
+
+
+# As a installer builder
+# I want to request a build of installer
+# so that I can build a installer
+
+describe Installer, 'when calling request_build' do
+  before( :each ) do
+    in_sandbox do | sandbox |
+      sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb'
+
+      installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
+      @installer = Installer.read( installer_path, true )
+    end
+
+    @installer.stubs( :builder_state_and_activity ).returns( 'builder_down', 'builder_up' )
+  end
+
+
+  it 'should try to start builder and wait until builder is up' do
+    @installer.stubs( :build_requested? ).returns( true )
+
+    # expects
+    BuilderStarter.expects( :begin_builder ).with( 'DUMMY_INSTALLER' )
+
+    # when
+    @installer.request_build
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should notify :build_requested and create a build_requested file if build_requested file does not exist' do
+    # given
+    @installer.stubs( :build_requested? ).returns( false )
+
+    # expects
+    @installer.expects( :notify ).with( :build_requested )
+    @installer.expects( :create_build_requested_flag_file )
+
+    # when
+    @installer.request_build
+
+    # then
+    verify_mocks
   end
 end
 
