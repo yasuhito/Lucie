@@ -15,6 +15,7 @@ class Installer
 
   def self.read dir, load_config = true
     @installer_in_the_works = Installer.new( File.basename( dir ) )
+    @installer_in_the_works.path = dir
     begin
       if load_config
         @installer_in_the_works.load_config
@@ -26,6 +27,7 @@ class Installer
   end
 
 
+  attr_accessor :path
   attr_accessor :scheduler
   attr_accessor :source_control
   attr_reader :build_command
@@ -33,7 +35,6 @@ class Installer
   attr_reader :config_tracker
   attr_reader :error_message
   attr_reader :name
-  attr_reader :path
   attr_reader :plugins
   attr_reader :rake_task
   attr_reader :settings

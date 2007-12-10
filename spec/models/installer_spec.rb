@@ -1,6 +1,137 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
+describe 'Installers read with Installer.read', :shared => true do
+  include FileSandbox
+
+
+  it 'should return an Installer' do
+    @installer.should be_kind_of( Installer )
+  end
+
+
+  it 'should have a name' do
+    @installer.name.should == 'DUMMY_INSTALLER'
+  end
+
+
+  it 'should have a path' do
+    @installer.path.should == @installer_path
+  end
+
+
+  it 'should have a installer config tracker' do
+    @installer.config_tracker.should be_instance_of( InstallerConfigTracker )
+  end
+
+
+  it 'should have a polling scheduler' do
+    @installer.scheduler.should be_instance_of( PollingScheduler )
+  end
+
+
+  it 'should have a subversion source control' do
+    @installer.source_control.should be_instance_of( Subversion )
+  end
+
+
+  it 'should have a nil build command' do
+    @installer.build_command.should be_nil
+  end
+
+
+  it 'should have a nil rake task' do
+    @installer.rake_task.should be_nil
+  end
+end
+
+
+# As a installer builder
+# I want to load a installer object from installers/ directory
+# So that I can build a installer.
+
+describe Installer, 'when reading a installer using Installer.read (load_config = false)' do
+  it_should_behave_like 'Installers read with Installer.read'
+
+
+  before( :each ) do
+    in_sandbox do | sandbox |
+      # Just create a DUMMY_INSTALLER/ directory.
+      sandbox.new :file => 'DUMMY_INSTALLER/foobar'
+
+      @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
+      @installer = Installer.read( @installer_path, false )
+    end
+  end
+
+
+  it 'should have an empty setting' do
+    @installer.settings.should be_empty
+  end
+
+
+  it 'should have an empty config' do
+    @installer.config_file_content.should be_empty
+  end
+end
+
+
+# As a installer builder
+# I want to load a installer object from installers/ directory
+# So that I can build a installer.
+
+describe Installer, 'when reading a installer using Installer.read (load_config = true)' do
+  it_should_behave_like 'Installers read with Installer.read'
+
+
+  before( :each ) do
+    in_sandbox do | sandbox |
+      sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "key = 'value'"
+
+      @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
+      @installer = Installer.read( @installer_path, true )
+    end
+  end
+
+
+  it 'should have a setting' do
+    @installer.settings.should_not be_empty
+  end
+
+
+  it 'should have a config' do
+    @installer.config_file_content.should_not be_empty
+  end
+end
+
+
+describe Installer, 'when reading a broken installer using Installer.read' do
+  it_should_behave_like 'Installers read with Installer.read'
+
+
+  before( :each ) do
+    Lucie::Log.stubs :event
+
+    in_sandbox do | sandbox |
+      sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "class Invalid"
+
+      @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
+      @installer = Installer.read( @installer_path, true )
+    end
+  end
+
+
+  it 'should have a empty setting' do
+    @installer.settings.should be_empty
+  end
+
+
+  it 'should have a config' do
+    @installer.config_file_content.should_not be_empty
+  end
+end
+
+
 describe 'All Installers', :shared => true do
   include FileSandbox
 
@@ -192,7 +323,6 @@ describe Installer, 'when loading configuration' do
 
   it 'should mark config invalid if config contains invalid ruby code' do
     in_sandbox do | sandbox |
-      Lucie::Log.stubs :event
       invalid_ruby_code = 'class Invalid'
       @installer.path = sandbox.root
       sandbox.new :file => 'work/lucie_config.rb', :with_contents => invalid_ruby_code
