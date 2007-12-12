@@ -182,6 +182,92 @@ describe Installer, 'when calling request_build' do
 end
 
 
+# As a builder plugin,
+# I want to be notified installer related events
+# So that I can log events and set builder status.
+
+describe Installer, 'when build requested' do
+  before( :each ) do
+    @installer = Installer.new( 'DUMMY_INSTALLER' )
+    @listener = Object.new
+    @installer.add_plugin @listener
+  end
+
+
+  it 'should generate a :no_new_revision_detected event if no new revisions' do
+    # given
+    @installer.stubs( :new_revisions ).returns( [] )
+
+    # expects
+    @listener.expects( :no_new_revisions_detected )
+
+    # when
+    @installer.build_if_necessary
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should generate :new_revisions_detected event if new revision found' do
+    @installer.stubs( :build )
+    revisions = [ Object.new ]
+
+    # given
+    @installer.stubs( :new_revisions ).returns( revisions )
+
+    # expects
+    @listener.expects( :new_revisions_detected ).with( revisions )
+
+    # when
+    @installer.build_if_necessary
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should generate :build_loop_failed event if build failed' do
+    revisions = [ Object.new ]
+    @installer.stubs( :new_revisions ).returns( revisions )
+
+    # given
+    build_error = StandardError.new
+    @installer.stubs( :build ).raises( build_error )
+
+    # expects
+    @listener.expects( :build_loop_failed ).with( build_error )
+
+    # when
+    begin
+      @installer.build_if_necessary
+    rescue
+      # do nothing
+    end
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should generate :sleeping event if build succeessfully finished' do
+    @installer.stubs( :new_revisions ).returns( [ Object.new ] )
+
+    # given
+    @installer.stubs( :build ).returns( 'SUCCESS' )
+
+    # expects
+    @listener.expects( :sleeping )
+
+    # when
+    @installer.build_if_necessary
+
+    # then
+    verify_mocks
+  end
+end
+
+
 describe 'All Installers', :shared => true do
   include FileSandbox
 
@@ -423,22 +509,6 @@ end
 
 describe Installer, 'when generating events' do
   it_should_behave_like 'All Installers'
-
-
-  it 'should generate :no_new_revisions_detected event when no revisions' do
-    in_sandbox do | sandbox |
-      @installer.path = sandbox.root
-
-      @installer.stubs( :new_revisions ).returns( [] )
-
-      # event expectations
-      listener = Object.new
-      listener.expects( :no_new_revisions_detected )
-      @installer.add_plugin listener
-
-      @installer.build_if_necessary
-    end
-  end
 
 
   it 'should generate events' do

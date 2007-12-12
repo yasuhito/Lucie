@@ -175,15 +175,17 @@ class Installer
         return nil
       else
         remove_build_requested_flag_file if build_requested?
-        notify(:new_revisions_detected, revisions)
-        return build(revisions)
+        notify :new_revisions_detected, revisions
+        return build( revisions )
       end
     rescue => e
-      notify(:build_loop_failed, e) rescue nil
+      notify :build_loop_failed, e
       @build_loop_failed = true
       raise
     ensure
-      notify(:sleeping) unless @build_loop_failed rescue nil
+      unless @build_loop_failed
+        notify :sleeping
+      end
     end
   end
 
@@ -519,7 +521,7 @@ def plugin_loader.load_all
 
 
   def remove_build_requested_flag_file
-    FileUtils.rm_f(Dir[build_requested_flag_file])
+    FileUtils.rm_f( Dir[ build_requested_flag_file ] )
   end
 end
 
