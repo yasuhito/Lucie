@@ -182,9 +182,38 @@ describe Installer, 'when calling request_build' do
 end
 
 
+# As a installer,
+# I want to remove build requested flag file when new revisions detected
+# So that I should not re-enter build process.
+
+describe Installer, 'when build requested with new revisions' do
+  before( :each ) do
+    @installer = Installer.new( 'DUMMY_INSTALLER' )
+  end
+
+
+  it 'should remove build requested flag file' do
+    @installer.stubs( :build )
+
+    # given
+    @installer.stubs( :build_requested? ).returns( true )
+    @installer.stubs( :new_revisions ).returns( [ 'DUMMY_NEW_REVISION' ] )
+
+    # expects
+    @installer.expects( :remove_build_requested_flag_file )
+
+    # when
+    @installer.build_if_necessary
+
+    # then
+    verify_mocks
+  end
+end
+
+
 # As a installer scheduler,
-# I want to request a build and be notified if it succeeded or not
-# So that I can start enter polling loop that checks build requested.
+# I want to request a build and to be notified succeeded or not
+# So that I can enter polling loop that checks if build requested.
 
 describe Installer, 'when :build_if_necessary called' do
   before( :each ) do
