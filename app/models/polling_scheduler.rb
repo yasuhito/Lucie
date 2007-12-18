@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 class PollingScheduler
   def initialize installer
     @installer = installer
@@ -18,7 +10,7 @@ class PollingScheduler
   def polling_interval= value
     begin
       value = value.to_i
-    rescue 
+    rescue
       raise "Polling interval value #{ value.inspect } could not be converted to a number of seconds"
     end
     if value < 5.seconds
@@ -41,7 +33,6 @@ class PollingScheduler
      begin
        @installer.build_if_necessary or check_build_request_until_next_polling
        clean_last_build_loop_error
-       # TODO looks like throwing isn't necessary anymore, can simply return :reload_installer 
        if @installer.config_modified?
          throw :reload_installer
        end
@@ -83,7 +74,7 @@ class PollingScheduler
   def log_error error
     begin
       Lucie::Log.error error
-    rescue 
+    rescue
       STDERR.puts error.message
       STDERR.puts( error.backtrace.map do |l| "  #{l}" end.join( "\n" ) )
     end
