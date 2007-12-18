@@ -69,8 +69,8 @@ EOF
 
   def restart_puppet
     Nodes.load_all.list.each do | each |
-      sh_exec "sudo puppetca --clean #{ each.name }.#{ Facter.value( 'domain' ) }"
+      sh_exec "puppetca --clean #{ each.name }.#{ Facter.value( 'domain' ) }"
     end
-    sh_exec 'sudo /etc/init.d/puppetmaster restart'
+    sh_exec '/etc/init.d/puppetmaster restart'
   end
 end

@@ -1,57 +1,92 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
 
 
-require 'English'
-require 'lucie'
-require 'socket'
+# [Copying]
+# The Daemonize extension module is copywrited free software by Travis Whitton
+# <whitton@atlantic.net>. You can redistribute it under the terms specified in
+# the COPYING file of the Ruby distribution.
+
+# [WARRANTY]
+# THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE.
+
+module Daemonize
+  VERSION = "0.1.2"
 
 
-include Lucie
+  # Try to fork if at all possible retrying every 5 sec if the
+  # maximum process limit for the system has been reached
+  def safefork
+    tryagain = true
 
-
-PORT = 58243
-
-
-def start_server
-  port = ( ARGV[ 0 ] || PORT ).to_i
-  server = TCPServer.new( port )
-  info "Lucie daemon started on port #{ port }."
-  return server
-end
-
-
-def peer_info socket
-  peer = socket.peeraddr
-  return "#{ peer[ 2 ] } (#{ peer[ 3 ] })"
-end
-
-
-def big_loop server
-  loop do
-    Thread.start( server.accept ) do | socket |
-      info "#{ peer_info( socket ) } is accepted."
-      while socket.gets
-        puts $LAST_READ_LINE
+    while tryagain
+      tryagain = false
+      begin
+        if pid = fork
+          return pid
+        end
+      rescue Errno::EWOULDBLOCK
+        sleep 5
+        tryagain = true
       end
-      info "#{ peer_info( socket ) } is gone."
-      socket.close
     end
   end
+  module_function :safefork
+
+
+  # This method causes the current running process to become a daemon
+  # If closefd is true, all existing file descriptors are closed
+  def daemonize(oldmode=0, closefd=false)
+    srand # Split rand streams between spawning and daemonized process
+    safefork and exit # Fork and exit from the parent
+
+    # Detach from the controlling terminal
+    unless sess_id = Process.setsid
+      raise 'Cannot detach from controlled terminal'
+    end
+
+    # Prevent the possibility of acquiring a controlling terminal
+    if oldmode.zero?
+      trap 'SIGHUP', 'IGNORE'
+      exit if pid = safefork
+    end
+
+    Dir.chdir "/"   # Release old working directory
+    File.umask 0000 # Insure sensible umask
+
+    if closefd
+      # Make sure all file descriptors are closed
+      ObjectSpace.each_object(IO) do |io|
+        unless [STDIN, STDOUT, STDERR].include?(io)
+          io.close rescue nil
+        end
+      end
+    end
+
+    STDIN.reopen "/dev/null"       # Free file descriptors and
+    STDOUT.reopen "/dev/null", "a" # point them somewhere sensible
+    STDERR.reopen STDOUT           # STDOUT/STDERR should go to a logfile
+    return oldmode ? sess_id : 0   # Return value is mostly irrelevant
+  end
+  module_function :daemonize
 end
 
 
-server = start_server
-big_loop server
+ENV[ 'RAILS_ENV' ] = 'lucied'
+
+require File.dirname( __FILE__ ) + '/../config/boot'
+require RAILS_ROOT + '/config/environment'
+
+
+# Daemonize.daemonize
+LucieDaemon.start
+sleep
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: euc-jp-unix
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

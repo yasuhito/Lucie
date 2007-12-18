@@ -101,7 +101,7 @@ end
 begin
   require RAILS_ROOT + '/config/environment'
   require 'lib/popen3/shell'
-
+  require 'drb/drb'
 
   ENV[ 'NODE_NAME' ] = node_name
   ENV[ 'INSTALLER_NAME' ] = installer_name
@@ -109,11 +109,13 @@ begin
   ENV[ 'IP_ADDRESS' ] = ip_address
   ENV[ 'GATEWAY_ADDRESS' ] = gateway_address
   ENV[ 'NETMASK_ADDRESS' ] = netmask_address
-  
+
   load './lib/tasks/add_node.rake'
   Rake::Task[ 'lucie:add_node' ].invoke
 
-  sh_exec %{sudo ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; Rake::Task[ 'lucie:enable_node' ].invoke"}
+  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon.sudo %{ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; Rake::Task[ 'lucie:enable_node' ].invoke"}
+
 rescue => e
   if trace
     raise
