@@ -182,11 +182,51 @@ describe Installer, 'when calling request_build' do
 end
 
 
+# As a installer scheduler,
+# I want to request a build and be notified if it succeeded or not
+# So that I can start enter polling loop that checks build requested.
+
+describe Installer, 'when :build_if_necessary called' do
+  before( :each ) do
+    @installer = Installer.new( 'DUMMY_INSTALLER' )
+  end
+
+
+  it 'should return nil if :now_new_revisions_detected' do
+    # given
+    @installer.stubs( :new_revisions ).returns( [] )
+
+    # when
+    result = @installer.build_if_necessary
+
+    # then
+    result.should be_nil
+    verify_mocks
+  end
+
+
+  it 'should return a build if :new_revisions_detected' do
+    # expects
+    @installer.expects( :build ).with( [ 'DUMMY_NEW_REVISION' ] ).returns( 'DUMMY_BUILD' )
+
+    # given
+    @installer.stubs( :new_revisions ).returns( [ 'DUMMY_NEW_REVISION' ] )
+
+    # when
+    result = @installer.build_if_necessary
+
+    # then
+    result.should == 'DUMMY_BUILD'
+    verify_mocks
+  end
+end
+
+
 # As a builder plugin,
-# I want to be notified installer related events
+# I want to be notified installer related events when Installer#build_if_necessary called
 # So that I can log events and set builder status.
 
-describe Installer, 'when build requested' do
+describe Installer, 'when :build_if_necessary called' do
   before( :each ) do
     @installer = Installer.new( 'DUMMY_INSTALLER' )
     @listener = Object.new
