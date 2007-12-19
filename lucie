@@ -9,6 +9,11 @@ def start
 end
 
 
+def stop
+  load './script/stop_server'
+end
+
+
 def version
   puts <<-EOL
 Lucie, version #{ Lucie::VERSION::STRING }
@@ -48,6 +53,8 @@ def method_for_command command
   case command
   when 'start'
     return :start
+  when 'stop'
+    return :stop
   when 'version', '-v', '--version'
     return :version
   when 'help', '-h', '--help', '/?', '-?' #'

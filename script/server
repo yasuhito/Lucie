@@ -2,6 +2,7 @@
 
 
 require File.dirname(__FILE__) + '/../config/boot'
+require 'lucie_daemon'
 require 'builder_starter'
 require 'optparse'
 
@@ -12,6 +13,15 @@ ARGV.clone.options do | opts |
   opts.on( '-p', '--port=port', Integer, 'Runs Rails on the specified port.', 'Default: 3000' ) {}
   opts.on( '-b', '--binding=ip', String, 'Binds Rails to the specified ip.', 'Default: 0.0.0.0' ) {}
   opts.on( '-d', '--daemon', 'Make server run as a Daemon.' ) {}
+  opts.on( '-l', '--lucied', 'Start lucie daemon.' ) {
+    unless Etc.getpwuid( Process.uid ).name == 'root'
+      STDERR.puts "ERROR: You must be root."
+      exit -1
+    end
+
+    LucieDaemon.start
+    exit 0
+  }
   opts.on( '-e', '--environment=name', String,
            'Specifies the environment to run this server under (test/development/production).',
            'Default: production' ) {}

@@ -5,6 +5,12 @@ require 'rbehave'
 require 'spec'
 
 
+ENV[ 'RAILS_ENV' ] = 'test'
+
+require File.dirname( __FILE__ ) + '/../config/boot'
+require RAILS_ROOT + '/config/environment'
+
+
 ################################################################################
 # helper methods
 ################################################################################
@@ -29,7 +35,27 @@ end
 
 
 def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
+  Popen3::Shell.open do | shell |
+    stdout = ''
+    stderr = ''
+
+    shell.on_stdout do | line |
+      stdout << line
+    end
+
+    shell.on_stderr do | line |
+      stderr << line
+    end
+
+    shell.exec( { 'LC_ALL' => 'C' }, command )
+
+    [ stdout, stderr ]
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

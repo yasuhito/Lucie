@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+
+require File.dirname(__FILE__) + '/../config/boot'
+require 'lucie_daemon'
+require 'optparse'
+
+
+ARGV.clone.options do | opts |
+  opts.on( '-l', '--lucied', 'Start lucie daemon.' ) {
+    unless Etc.getpwuid( Process.uid ).name == 'root'
+      STDERR.puts "ERROR: You must be root."
+      exit -1
+    end
+
+    LucieDaemon.stop
+    exit 0
+  }
+
+  opts.separator ''
+
+  opts.on( '-h', '--help', 'Show this help message.' ) { puts opts; exit }
+
+  opts.parse!
+end
