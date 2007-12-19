@@ -25,6 +25,10 @@ Story 'Start/Stop lucied daemon',
     Then 'lucied successfully stops' do
       @stderr.should == ''
     end
+
+    Then 'PID file is deleted' do
+      FileTest.exists?( './tmp/pids/lucied.pid' ).should_not == true
+    end
   end
 
 
