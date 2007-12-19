@@ -50,7 +50,7 @@ def method_for_command command
     return :start
   when 'version', '-v', '--version'
     return :version
-  when 'help', '-h', '--help', '/?', '-?'
+  when 'help', '-h', '--help', '/?', '-?' #'
     return :help
   else
     return nil
