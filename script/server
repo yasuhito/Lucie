@@ -2,6 +2,7 @@
 
 
 require File.dirname(__FILE__) + '/../config/boot'
+
 require 'builder_starter'
 require 'lucie_daemon'
 require 'lucied_blocker'
@@ -30,6 +31,7 @@ ARGV.clone.options do | opts |
       STDERR.puts "FAILED: #{ e.message }"
       exit -1
     end
+    puts "Lucie daemon (lucied) started on port #{ LucieDaemon::PORT }."
     exit 0
   }
   opts.on( '-e', '--environment=name', String,

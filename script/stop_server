@@ -8,7 +8,7 @@ require 'optparse'
 
 
 ARGV.clone.options do | opts |
-  opts.on( '-l', '--lucied', 'Start lucie daemon.' ) {
+  opts.on( '-l', '--lucied', 'Stop lucie daemon.' ) {
     unless Etc.getpwuid( Process.uid ).name == 'root'
       STDERR.puts "ERROR: You must be root."
       exit -1
@@ -24,6 +24,8 @@ ARGV.clone.options do | opts |
       STDERR.puts "FAILED: #{ e.message }"
       exit -1
     end
+
+    puts "Lucie daemon (lucied) stopped."
     exit 0
   }
 
