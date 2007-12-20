@@ -15,6 +15,11 @@ ARGV.clone.options do | opts |
     end
 
     begin
+      unless LuciedBlocker.blocked?
+        puts 'Lucie daemon (lucied) not running (no pid file).'
+        exit 0
+      end
+
       File.open( LuciedBlocker.pid_file, 'r' ) do | f |
         pid = f.read
         system "kill #{ pid }"
