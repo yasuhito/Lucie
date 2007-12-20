@@ -4,7 +4,7 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 describe 'All LuciedBlockers', :shared => true do
   before( :each ) do
     @lock_mock = mock( 'LOCK' )
-    @pid_file_path = "#{ RAILS_ROOT }/tmp/pids/lucied.pid"
+    @pid_file_path = File.expand_path( "#{ RAILS_ROOT }/tmp/pids/lucied.pid" )
     begin
       File.delete @pid_file_path
     rescue

@@ -15,7 +15,7 @@ class LuciedBlocker
       return false
     end
 
-    lock = File.open( pid_file, 'w' )
+    lock = File.open( pid_file, 'a' )
     begin
       return !lock.flock( File::LOCK_EX | File::LOCK_NB )
     ensure
@@ -36,7 +36,7 @@ class LuciedBlocker
 
 
   def self.pid_file
-    "#{ RAILS_ROOT }/tmp/pids/#{ pid_file_name }"
+    File.expand_path "#{ RAILS_ROOT }/tmp/pids/#{ pid_file_name }"
   end
 
 
