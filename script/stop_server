@@ -2,6 +2,7 @@
 
 
 require File.dirname(__FILE__) + '/../config/boot'
+require 'lucied_blocker'
 require 'lucie_daemon'
 require 'optparse'
 
@@ -13,7 +14,16 @@ ARGV.clone.options do | opts |
       exit -1
     end
 
-    LucieDaemon.stop
+    begin
+      File.open( LuciedBlocker.pid_file, 'r' ) do | f |
+        pid = f.read
+        system "kill #{ pid }"
+      end
+      LuciedBlocker.release
+    rescue => e
+      STDERR.puts "FAILED: #{ e.message }"
+      exit -1
+    end
     exit 0
   }
 

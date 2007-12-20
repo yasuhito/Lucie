@@ -2,8 +2,9 @@
 
 
 require File.dirname(__FILE__) + '/../config/boot'
-require 'lucie_daemon'
 require 'builder_starter'
+require 'lucie_daemon'
+require 'lucied_blocker'
 require 'optparse'
 
 
@@ -19,7 +20,16 @@ ARGV.clone.options do | opts |
       exit -1
     end
 
-    LucieDaemon.start
+    begin
+      LuciedBlocker.block
+      pid = LucieDaemon.start
+      File.open( LuciedBlocker.pid_file, 'w' ) do | f |
+        f.write pid
+      end
+    rescue => e
+      STDERR.puts "FAILED: #{ e.message }"
+      exit -1
+    end
     exit 0
   }
   opts.on( '-e', '--environment=name', String,
