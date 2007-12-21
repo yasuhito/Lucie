@@ -10,6 +10,10 @@ Story 'Start/Stop lucied daemon',
   Scenario "'start lucied' and 'stop lucied' succeeds if run with root privilege" do
     @sudo = "sudo -p 'password for %u [lucied]: '"
 
+    Given 'no other lucied is running' do
+      system( "#{ @sudo } ./lucie stop --lucied" )
+    end
+
     When 'I start lucied as root' do
       @result = system( "#{ @sudo } ./lucie start --lucied" )
     end

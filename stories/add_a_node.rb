@@ -7,10 +7,13 @@ Story "Add a node with 'node' command",
   So that I can add a node to the system) do
 
 
+  # o lucied is [up] / down
+  # o installer is [added] / not added
+  # o node is [not added] / added
+
   Scenario 'node add succeeds' do
     Given 'lucied is started' do
-      system 'sudo ./lucie stop  --lucied'
-      system 'sudo ./lucie start --lucied'
+      restart_lucied
     end
 
     Given 'No node is added' do
@@ -41,11 +44,9 @@ Story "Add a node with 'node' command",
       @nic.gateway = gateway_address
     end
 
-
     Given 'TEST_INSTALLER is added' do
       system "./installer add TEST_INSTALLER --url https://lucie.is.titech.ac.jp/svn/trunk/config/demo"
     end
-
 
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }" do | command |
       # system command
@@ -69,6 +70,85 @@ Story "Add a node with 'node' command",
     ) do | contents |
 
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'r' ).read.split.should == contents.strip.split( /\s+/ )
+    end
+  end
+
+
+  # o lucied is up / [down]
+  # o installer is [added] / not added
+  # o node is [not added] / added
+
+  Scenario 'node add fails if lucie daemon is down' do
+    Given 'lucied is stopped' do
+      stop_lucied
+    end
+
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+
+    Given 'TEST_INSTALLER is added'
+
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+
+    Then 'the error message should be:', 'FAILED: Lucie daemon (lucied) is down.' do | error_message |
+      @stderr.should == error_message
+    end
+  end
+
+
+  # o lucied is [up] / down
+  # o installer is added / [not added]
+  # o node is [not added] / added
+
+  Scenario 'node add fails if installer is not added' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+
+    Then 'the error message should be:', "FAILED: installer 'TEST_INSTALLER' is not added yet." do | error_message |
+      @stderr.should == error_message
+    end
+  end
+
+
+  # o lucied is [up] / down
+  # o installer [is added] / not added
+  # o node is not added / [added]
+
+  Scenario 'node add fails if a node of the same name is already added' do
+    Given 'lucied is started'
+
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+
+    Given 'TEST_INSTALLER is added'
+
+    # add twice
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+
+    Then 'the error message should be:', 'FAILED: node named "TEST_NODE" already exists.' do | error_message |
+      @stderr.should == error_message
     end
   end
 

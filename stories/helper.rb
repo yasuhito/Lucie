@@ -16,6 +16,29 @@ require RAILS_ROOT + '/config/environment'
 ################################################################################
 
 
+def sudo_lucied
+  "sudo -p 'password for %u [lucied]: '"
+end
+
+
+def restart_lucied
+  stop_lucied
+  start_lucied
+end
+
+
+def start_lucied
+  system( "#{ sudo_lucied } ./lucie start --lucied" )
+end
+
+
+def stop_lucied
+  if FileTest.exists?( LuciedBlocker.pid_file )
+    system( "#{ sudo_lucied } ./lucie stop --lucied" )
+  end
+end
+
+
 def add_fresh_node node_name
   node_dir = File.join( './nodes', node_name )
 

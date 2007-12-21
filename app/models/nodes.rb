@@ -101,7 +101,7 @@ class Nodes
 
   def << node
     if @list.include?( node )
-      raise "node named #{ node.name.inspect } already exists"
+      raise "node named #{ node.name.inspect } already exists."
     end
     begin
       @list << node
