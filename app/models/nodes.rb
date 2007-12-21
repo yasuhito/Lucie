@@ -28,8 +28,8 @@ class Nodes
   end
 
 
-  def self.load_all
-    return Nodes.new( Configuration.nodes_directory ).load_all
+  def self.load_all options = {}
+    return Nodes.new( Configuration.nodes_directory ).load_all( options )
   end
 
 
@@ -60,8 +60,8 @@ class Nodes
   end
 
 
-  def self.load_node dir
-    node = Node.read( dir )
+  def self.load_node dir, options = {}
+    node = Node.read( dir, options )
     return node
   end
 
@@ -89,11 +89,11 @@ class Nodes
   end
 
 
-  def load_all
+  def load_all options = {}
     @list = Dir[ "#{ @dir }/*" ].find_all do | child |
       File.directory? child
     end.collect do | child |
-      Nodes.load_node child
+      Nodes.load_node child, options
     end
     return self
   end

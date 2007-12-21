@@ -21,7 +21,7 @@ task 'lucie:add_node' do
   end
 
   node = Node.new( ENV[ 'NODE_NAME' ], { :mac_address => ENV[ 'MAC_ADDRESS' ], :gateway_address => ENV[ 'GATEWAY_ADDRESS' ], :ip_address => ENV[ 'IP_ADDRESS' ], :netmask_address => ENV[ 'NETMASK_ADDRESS' ] } )
-  nodes = Nodes.load_all
+  nodes = Nodes.load_all( :ignore_incomplete_node => true )
   nodes << node
 end
 

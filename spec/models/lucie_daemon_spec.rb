@@ -51,7 +51,7 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     DRb.expects( :start_service ).with( 'druby://localhost:58243', @lucie_daemon )
 
     # when
-    LucieDaemon.start
+    LucieDaemon.start_service
 
     # then
     verify_mocks
@@ -73,6 +73,53 @@ describe LucieDaemon, 'when calling restart_puppet' do
 
     # then
     verify_mocks
+  end
+end
+
+
+describe LucieDaemon, 'when calling sudo via druby' do
+  before( :each ) do
+    LucieDaemon.start_service
+    @remote_lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  end
+
+
+  after( :each ) do
+    DRb.stop_service
+  end
+
+
+  it 'should raise CommandLine::ExecutionError if invalid command is executed' do
+    # when
+    lambda do
+      @remote_lucie_daemon.sudo( 'hoge' )
+    end.should raise_error( CommandLine::ExecutionError )
+
+    # then
+    verify_mocks
+
+  end
+
+
+  it 'should execute pwd command' do
+    # when
+    lambda do
+      @remote_lucie_daemon.sudo( 'pwd' )
+    end.should_not raise_error
+  end
+
+
+  it 'should execute code block' do
+    # expects
+    io = Object.new
+    io.expects( :puts ).with( 'hello' )
+
+    # when
+    lambda do
+      @remote_lucie_daemon.sudo do
+        io.puts "hello"
+      end
+    end.should_not raise_error
   end
 end
 
@@ -106,7 +153,7 @@ describe LucieDaemon, 'when calling restart_puppet via druby' do
 
   it 'should restart Puppet daemon if Lucie daemon is started' do
     # given
-    LucieDaemon.start
+    LucieDaemon.start_service
 
     # expects
     Puppet.expects( :restart )

@@ -1,11 +1,24 @@
+require 'stories/helper'
+
+
 Story "Add a node with 'node' command",
 %(As a cluster administrator
   I want to add a node using 'node' command
   So that I can add a node to the system) do
 
+
   Scenario 'node add succeeds' do
+    Given 'lucied is started' do
+      system 'sudo ./lucie stop  --lucied'
+      system 'sudo ./lucie start --lucied'
+    end
+
     Given 'No node is added' do
       cleanup_nodes
+    end
+
+    Given 'No installer is added' do
+      cleanup_installers
     end
 
     Given 'TEST_NODE has a NIC' do
@@ -16,7 +29,7 @@ Story "Add a node with 'node' command",
       @nic.mac = mac_address
     end
 
-    Given 'IP address is', '192.168.0.1' do | ip_address |
+    Given 'IP address is', '192.168.2.1' do | ip_address |
       @nic.ip = ip_address
     end
 
@@ -24,12 +37,19 @@ Story "Add a node with 'node' command",
       @nic.netmask = netmask_address
     end
 
-    Given 'Gateway address is', '192.168.0.254' do | gateway_address |
+    Given 'Gateway address is', '192.168.2.254' do | gateway_address |
       @nic.gateway = gateway_address
     end
 
+
+    Given 'TEST_INSTALLER is added' do
+      system "./installer add TEST_INSTALLER --url https://lucie.is.titech.ac.jp/svn/trunk/config/demo"
+    end
+
+
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }" do | command |
-      @error_message = output_with( command )
+      # system command
+      @stdout, @stderr = output_with( command )
     end
 
     Then 'MAC address file should be created with path =', './nodes/TEST_NODE/00_00_00_00_00_00' do | path |
@@ -43,8 +63,8 @@ Story "Add a node with 'node' command",
     end
 
     Then 'the contents of MAC address file should look like', %(
-      gateway_address:192.168.0.254
-      ip_address:192.168.0.1
+      gateway_address:192.168.2.254
+      ip_address:192.168.2.1
       netmask_address:255.255.255.0
     ) do | contents |
 
@@ -64,7 +84,7 @@ Story "Add a node with 'node' command",
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
 
     Then 'the error message matches with', /IP, Netmask, Gateway, and MAC address are mandatory/ do | regexp |
-      @error_message.should match( regexp )
+      @stderr.should match( regexp )
     end
   end
 
@@ -123,11 +143,11 @@ Story 'Trace node add command',
     end
 
     When "I run 'node add' with --trace option" do
-      @error_message = output_with( './node add TEST_NODE --installer TEST_INSTALLER -a 192.168.0.1 -n 255.255.255.0 -g 192.168.0.254 -m 00:00:00:00:00:00 --trace' )
+      @stdout, @stderr = output_with( './node add TEST_NODE --installer TEST_INSTALLER -a 192.168.0.1 -n 255.255.255.0 -g 192.168.0.254 -m 00:00:00:00:00:00 --trace' )
     end
 
     Then 'I get an error and backtrace message' do
-      @error_message.should match( /^\s+from/ )
+      @stderr.should match( /from/ )
     end
   end
 end

@@ -8,8 +8,8 @@ class Node
   attr_reader :netmask_address
 
 
-  def self.read dir
-    @node_in_the_works = Node.new( File.basename( dir ) )
+  def self.read dir, options = {}
+    @node_in_the_works = Node.new( File.basename( dir ), options )
   end
 
 
@@ -25,17 +25,19 @@ class Node
       load_network_config
     end
 
-    if @mac_address.nil?
-      raise "MAC address for node '#{ @name }' not defined."
-    end
-    if @ip_address.nil?
-      raise "IP address for node '#{ @name }' not defined."
-    end
-    if @gateway_address.nil?
-      raise "Gateway address for node '#{ @name }' not defined."
-    end
-    if @netmask_address.nil?
-      raise "Netmask address for node '#{ @name }' not defined."
+    unless options[ :ignore_incomplete_node ]
+      if @mac_address.nil?
+        raise "MAC address for node '#{ @name }' not defined."
+      end
+      if @ip_address.nil?
+        raise "IP address for node '#{ @name }' not defined."
+      end
+      if @gateway_address.nil?
+        raise "Gateway address for node '#{ @name }' not defined."
+      end
+      if @netmask_address.nil?
+        raise "Netmask address for node '#{ @name }' not defined."
+      end
     end
   end
 

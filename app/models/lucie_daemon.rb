@@ -1,4 +1,3 @@
-require 'command_line'
 require 'drb/drb'
 
 
