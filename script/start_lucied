@@ -1,0 +1,24 @@
+require File.dirname(__FILE__) + '/../config/boot'
+
+require 'command_line'
+require 'etc'
+require 'lucie_daemon'
+require 'lucied_blocker'
+
+
+unless Etc.getpwuid( Process.uid ).name == 'root'
+  STDERR.puts "ERROR: You must be root."
+  exit -1
+end
+
+
+begin
+  LuciedBlocker.block
+  system( "#{ RAILS_ROOT }/script/lucied" )
+rescue => e
+  STDERR.puts "FAILED: #{ e.message }"
+  exit -1
+end
+
+
+puts "Lucie daemon (lucied) started on port #{ LucieDaemon::PORT }."

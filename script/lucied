@@ -1,14 +1,12 @@
 #!/usr/bin/env ruby
 
-
 ENV[ 'RAILS_ENV' ] = 'lucied'
 
 require File.dirname( __FILE__ ) + '/../config/boot'
 require RAILS_ROOT + '/config/environment'
 
 
-LucieDaemon.start_service
-sleep
+LucieDaemon.daemonize
 
 
 ### Local variables:

@@ -1,5 +1,6 @@
 require 'platform'
 require 'English'
+require 'lucie/log'
 
 
 # borrowed (with modifications) from the RSCM project

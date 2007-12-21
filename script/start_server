@@ -17,22 +17,7 @@ ARGV.clone.options do | opts |
   opts.on( '-b', '--binding=ip', String, 'Binds Rails to the specified ip.', 'Default: 0.0.0.0' ) {}
   opts.on( '-d', '--daemon', 'Make server run as a Daemon.' ) {}
   opts.on( '-l', '--lucied', 'Start lucie daemon.' ) {
-    unless Etc.getpwuid( Process.uid ).name == 'root'
-      STDERR.puts "ERROR: You must be root."
-      exit -1
-    end
-
-    begin
-      LuciedBlocker.block
-      pid = LucieDaemon.start
-      File.open( LuciedBlocker.pid_file, 'w' ) do | f |
-        f.write pid
-      end
-    rescue => e
-      STDERR.puts "FAILED: #{ e.message }"
-      exit -1
-    end
-    puts "Lucie daemon (lucied) started on port #{ LucieDaemon::PORT }."
+    load './script/start_lucied'
     exit 0
   }
   opts.on( '-e', '--environment=name', String,
@@ -48,6 +33,10 @@ ARGV.clone.options do | opts |
 
   opts.parse!
 end
+
+
+system %(sudo ruby -e "load './script/start_lucied'" )
+
 
 # Remove custom options so that they are not interpreted by 'commands/server'
 ARGV.delete( '-w' )
