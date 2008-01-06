@@ -9,9 +9,9 @@ module Popen3
     attr_reader :childerr
 
 
-    def initialize env, *command
-      @env = env
+    def initialize command, options = {}
       @command = command
+      @env = options[ :env ] ? options[ :env ] : { 'LC_ALL' => 'C' }
       @parent_pipe, @child_pipe = init_pipe
       @tochild, @fromchild, @childerr = @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ]
     end
@@ -37,7 +37,7 @@ module Popen3
           ENV[ key ]= value
         end
 
-        Kernel.exec( *@command )
+        Kernel.exec @command
       end
 
       # Parent process
@@ -48,7 +48,7 @@ module Popen3
       @env.each do | key, value |
         env_string << "'#{ key }' => '#{ value }'"
       end
-      Lucie::Log.debug "ENV{ #{ env_string.join( ', ' ) } } #{ @command.join( ' ' ) }"
+      Lucie::Log.debug "ENV{ #{ env_string.join( ', ' ) } } #{ @command }"
 
       if block_given?
         begin
@@ -85,8 +85,8 @@ end
 
 
 module Kernel
-  def popen3 env, *command, &block
-    return Popen3::Popen3.new( env, *command ).popen3( &block )
+  def popen3 command, options = {}, &block
+    return Popen3::Popen3.new( command, options ).popen3( &block )
   end
   module_function :popen3
 end
