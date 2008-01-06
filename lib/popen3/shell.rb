@@ -58,8 +58,8 @@ module Popen3
     end
 
 
-    def exec env, *command
-      process = Popen3.new( env, *command )
+    def exec command, options = {}
+      process = Popen3.new( command, options )
       process.popen3 do | tochild, fromchild, childerr |
         @tochild, @fromchild, @childerr = tochild, fromchild, childerr
         handle_child_output
@@ -139,19 +139,22 @@ end
 
 
 module Kernel
-  def sh_exec *command
+  def sh_exec command, options = {}
+    @stderr = []
+
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
-        Lucie::Log.debug line
+        Lucie::Log.info line
       end
       shell.on_stderr do | line |
-        Lucie::Log.debug line
+        @stderr << line
+        Lucie::Log.info line
       end
       shell.on_failure do
-        raise %{Command "#{ command.join( ' ' ) }" failed}
+        raise %{Command "#{ command }" failed.\n#{ @stderr.join( "\n" )}}
       end
 
-      shell.exec( { 'LC_ALL' => 'C' }, *command )
+      shell.exec( command, options )
 
       # Returns a instance of Popen3::Shell as a return value from
       # this block, in order to get child_status from the return value
@@ -165,6 +168,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
