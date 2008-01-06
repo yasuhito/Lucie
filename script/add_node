@@ -119,7 +119,7 @@ begin
 
   lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
 
-  lucie_daemon.sudo %{ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; Rake::Task[ 'lucie:enable_node' ].invoke"}
+  lucie_daemon.sudo %{ruby -e "require 'rake'; require '#{ File.expand_path( RAILS_ROOT + '/config/environment' ) }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; Rake::Task[ 'lucie:enable_node' ].invoke"}
 
 rescue DRb::DRbConnError
   Nodes.remove!( node_name )

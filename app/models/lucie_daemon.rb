@@ -1,5 +1,6 @@
 require 'drb/drb'
 require 'fileutils'
+require 'popen3/shell'
 
 
 module Daemon
@@ -52,10 +53,10 @@ module Daemon
         PidFile.store(daemon, Process.pid)
         Dir.chdir WorkingDirectory
         File.umask 0000
-        STDIN.reopen "/dev/null"
-        STDOUT.reopen "/dev/null", "a"
-        STDERR.reopen STDOUT
-        trap("TERM") {daemon.stop; exit}
+#         STDIN.reopen "/dev/null"
+#         STDOUT.reopen "/dev/null", "a"
+#         STDERR.reopen STDOUT
+        trap("TERM") { daemon.stop; exit }
         daemon.start
       end
     end
@@ -93,7 +94,12 @@ class LucieDaemon < Daemon::Base
 
   def self.start
     DRb.start_service( uri, self.new )
-    sleep
+    DRb.thread.join
+  end
+
+
+  def self.stop
+    DRb.stop_service
   end
 
 
@@ -104,11 +110,10 @@ class LucieDaemon < Daemon::Base
 
   def sudo command = nil
     if command
-      execute command
+      Lucie::Log.info '[lucied] ' + command
+      return execute( command )
     end
-    if block_given?
-      yield
-    end
+    yield
   end
 
 

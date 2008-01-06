@@ -105,7 +105,8 @@ class Nfsroot < Rake::TaskLib
             shell.on_stdout do | line |
               sh_exec 'rm', '-f', line
             end
-            shell.exec( { 'LC_ALL' => 'C' }, 'find', @target_directory, '-xdev', '-maxdepth', '1', '!', '-type', 'd' )
+            # shell.exec( { 'LC_ALL' => 'C' }, 'find', @target_directory, '-xdev', '-maxdepth', '1', '!', '-type', 'd' )
+            shell.exec( "find #{ @target_directory } -xdev -maxdepth 1 ! -type d'", { :env => { 'LC_ALL' => 'C' } } )
           end
         end
       end
