@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: RELEASE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>RELEASE</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>RELEASE
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Oct 08 13:01:26 +0900 2007</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>0.3.0</h1>
+<ul>
+<li>Rails plugin.
+
+</li>
+<li>Auto-verify for expectations on concrete classes.
+
+</li>
+<li>Include each expectation verification in the test result assertion count.
+
+</li>
+<li>Filter out noise from assertion backtraces.
+
+</li>
+<li>Point assertion backtrace to line where failing expectation was created.
+
+</li>
+<li>New yields method for expectations.
+
+</li>
+<li>Create stubs which stub all method calls.
+
+</li>
+<li>Mocks now respond_to? expected methods.
+
+</li>
+</ul>
+<h1>0.2.1</h1>
+<ul>
+<li>Rename MochaAcceptanceTest::Rover#move method to avoid conflict with Rake
+(in Ruby 1.8.4 only?)
+
+</li>
+</ul>
+<h1>0.2.0</h1>
+<ul>
+<li>Small change to SetupAndTeardown#teardown_stubs suggested by Luke Redpath
+(<a href="http://www.lukeredpath.co.uk">www.lukeredpath.co.uk</a>) to allow
+use of Stubba with RSpec (<a
+href="http://rspec.rubyforge.org">rspec.rubyforge.org</a>).
+
+</li>
+<li>Reorganized directory structure and extracted addition of setup and
+teardown methods into SmartTestCase mini-library.
+
+</li>
+<li>Addition of auto-verify for <a href="../classes/Mocha.html">Mocha</a> (but
+not Stubba). This means there is more significance in the choice of expects
+or stubs in that any expects on a mock will automatically get verified.
+
+</li>
+</ul>
+<p>
+So instead of&#8230;
+</p>
+<pre>
+  wotsit = Mocha.new
+  wotsit.expects(:thingummy).with(5).returns(10)
+  doobrey = Doobrey.new(wotsit)
+  doobrey.hoojamaflip
+  wotsit.verify
+</pre>
+<p>
+you need to do&#8230;
+</p>
+<pre>
+  wotsit = mock()
+  wotsit.expects(:thingummy).with(5).returns(10)
+  doobrey = Doobrey.new(wotsit)
+  doobrey.hoojamaflip
+  # no need to verify
+</pre>
+<p>
+There are also shortcuts as follows&#8230;
+</p>
+<p>
+instead of&#8230;
+</p>
+<pre>
+  wotsit = Mocha.new
+  wotsit.expects(:thingummy).returns(10)
+  wotsit.expects(:summat).returns(25)
+</pre>
+<p>
+you can have&#8230;
+</p>
+<pre>
+  wotsit = mock(:thingummy =&gt; 5, :summat =&gt; 25)
+</pre>
+<p>
+and instead of&#8230;
+</p>
+<pre>
+  wotsit = Mocha.new
+  wotsit.stubs(:thingummy).returns(10)
+  wotsit.stubs(:summat).returns(25)
+</pre>
+<p>
+you can have&#8230;
+</p>
+<pre>
+  wotsit = stub(:thingummy =&gt; 5, :summat =&gt; 25)
+</pre>
+<h1>0.1.2</h1>
+<ul>
+<li>Minor tweaks
+
+</li>
+</ul>
+<h1>0.1.1</h1>
+<ul>
+<li>Initial release.
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -25,7 +25,9 @@ namespace :spec do
     t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
     t.spec_files = FileList['spec/**/*_spec.rb']
     t.rcov = true
-    t.rcov_opts = ['--exclude', 'spec', '--rails']
+    t.rcov_opts = lambda do
+      IO.readlines("#{RAILS_ROOT}/spec/rcov.opts").map {|l| l.chomp.split " "}.flatten
+    end
   end
   
   desc "Print Specdoc for all specs (excluding plugin specs)"
@@ -56,7 +58,7 @@ namespace :spec do
   
   namespace :plugins do
     desc "Runs the examples for rspec_on_rails"
-    Spec::Rake::SpecTask.new(:rspec_on_rails => spec_prereq) do |t|
+    Spec::Rake::SpecTask.new(:rspec_on_rails) do |t|
       t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
       t.spec_files = FileList['vendor/plugins/rspec_on_rails/spec/**/*_spec.rb']
     end
@@ -75,7 +77,7 @@ namespace :spec do
     ::STATS_DIRECTORIES << %w(Model\ specs spec/models)
     ::STATS_DIRECTORIES << %w(View\ specs spec/views)
     ::STATS_DIRECTORIES << %w(Controller\ specs spec/controllers)
-    ::STATS_DIRECTORIES << %w(Helper\ specs spec/views)
+    ::STATS_DIRECTORIES << %w(Helper\ specs spec/helpers)
     ::CodeStatistics::TEST_TYPES << "Model specs"
     ::CodeStatistics::TEST_TYPES << "View specs"
     ::CodeStatistics::TEST_TYPES << "Controller specs"

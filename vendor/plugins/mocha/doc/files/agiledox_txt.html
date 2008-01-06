@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: agiledox.txt</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>agiledox.txt</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>agiledox.txt
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Sat Dec 22 16:51:17 +0900 2007</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+standalone_acceptance should:
+</p>
+<pre>
+ - fail mocha test due to unexpected invocation
+ - fail mocha test due to unfulfilled exception
+ - fail stubba test
+ - pass mocha test
+ - pass stubba test
+</pre>
+<p>
+stubba_test_result_integration should:
+</p>
+<pre>
+ - display backtrace indicating line number where expects was called
+ - display backtrace indicating line number where failing assertion was called
+ - include assertion failure in failure count
+ - include assertions in assertion count
+ - include expectation verification failure in failure count
+ - include expectation verification in assertion count
+ - not include stubbing expectation verification in assertion count
+</pre>
+<p>
+stubba_acceptance should:
+</p>
+<pre>
+ - allow object instance pointed to from constant to be unstubbed
+ - stub class method
+ - stub class method again
+ - stub instance method
+ - stub instance method on any instance of a class
+ - stub instance method on any instance of a class again
+ - stub module method
+ - stub module method again
+ - stub two different class methods
+ - stub two different class methods again
+</pre>
+<p>
+mocha_test_result_integration should:
+</p>
+<pre>
+ - display backtrace indicating line number where expects was called
+ - display backtrace indicating line number where failing assertion was called
+ - display backtrace indicating line number where unexpected method was called
+ - include assertion failure in failure count
+ - include assertions in assertion count
+ - include expectation verification failure in failure count
+ - include expectation verification in assertion count
+ - include unexpected verification failure in failure count
+ - not include stubbing expectation verification in assertion count
+</pre>
+<p>
+stubba_integration should:
+</p>
+<pre>
+ - leave stubbed class unchanged after test
+ - reset expectations after test
+ - stub class method within test
+</pre>
+<p>
+mocha_acceptance should:
+</p>
+<pre>
+ - step both tracks backward ten steps
+ - step both tracks forward ten steps
+ - step left track backwards five steps and right track forwards five steps
+ - step left track forwards five steps and right track backwards five steps
+</pre>
+<p>
+any_instance_method should:
+</p>
+<pre>
+ - call remove new method
+ - call reset mocha
+ - call restore original method
+ - define a new method
+ - hide original method
+ - not hide original method if it is not defined
+ - not restore original method if hidden method not defined
+ - restore original method
+ - return any instance mocha for stubbee
+</pre>
+<p>
+instance_method should: class_method should:
+</p>
+<pre>
+ - call define new method
+ - call hide original method
+ - call remove new method
+ - call reset mocha
+ - call restore original method
+ - define a new method which should call mocha method missing
+ - hide original method
+ - not hide original method if method not defined
+ - not restore original method if hidden method is not defined
+ - provide hidden version of method name ending with suffix
+ - provide hidden version of method name including original method name
+ - provide hidden version of method name starting with prefix
+ - provide hidden version of method name substituting brackets
+ - provide hidden version of method name substituting equals sign
+ - provide hidden version of method name substituting exclamation mark
+ - provide hidden version of method name substituting plus sign
+ - provide hidden version of method name substituting question mark
+ - remove new method
+ - respond to original method name after original method has been hidden
+ - restore original method
+ - return mock for stubbee
+</pre>
+<p>
+central should:
+</p>
+<pre>
+ - call verify on all unique mochas
+ - call verify on all unique mocks
+ - collect mock from all methods
+ - not stub method if already stubbed
+ - record method
+ - return unique mochas
+ - start with empty stubba methods
+ - stub method if not already stubbed
+ - unstub all methods
+</pre>
+<p>
+expectation should:
+</p>
+<pre>
+ - always verify successfully
+ - combine method name and pretty parameters
+ - default backtrace to caller
+ - determine path for mocha lib directory
+ - display expectation message in exception message
+ - exclude mocha locations from backtrace
+ - expect call not to be made
+ - find expectations to the same method
+ - ignore expectations to different methods
+ - match calls to same method with any parameters
+ - match calls to same method with exactly zero parameters
+ - match calls to same method with expected parameter values
+ - match calls to same method with parameters constrained as expected
+ - not include parameters in message
+ - not match calls to different methods with no parameters
+ - not match calls to same method with more than zero parameters
+ - not match calls to same method with parameters not constrained as expected
+ - not match calls to same method with too few parameters
+ - not match calls to same method with too many parameters
+ - not match calls to same method with unexpected parameter values
+ - not raise error on verify if expected call was made
+ - not raise error on verify if expected call was made at least once
+ - not raise error on verify if expected call was made expected number of times
+ - not report similar expectations
+ - not yield
+ - raise custom exception
+ - raise custom exception with message
+ - raise error on verify if expected call was made too few times
+ - raise error on verify if expected call was made too many times
+ - raise error on verify if expected call was not made at least once
+ - raise error with message indicating which method was expected to be called on which mock object
+ - raise runtime exception
+ - raise same instance of custom exception
+ - report similar expectations
+ - return evaluated proc
+ - return nil by default
+ - return nil if no value specified
+ - return same specified value multiple times
+ - return specified value
+ - return specified values on consecutive calls
+ - return specified values on consecutive calls even if values are modified
+ - set backtrace on assertion failed error to point where expectation was created
+ - store backtrace from point where expectation was created
+ - store provided backtrace
+ - use the default exception message
+ - yield no parameters
+ - yield self to block
+ - yield to block before raising exception
+ - yield with specified parameters
+</pre>
+<p>
+inspect should:
+</p>
+<pre>
+ - keep spacing between key value
+ - provide custom representation of object
+ - replace escaped quotes with single quote
+ - use include date in seconds
+ - use inspect
+ - use mocha inspect on each item
+ - use mocha inspect on each item
+ - use to s for date
+ - use to s for datetime
+</pre>
+<p>
+mock_methods should:
+</p>
+<pre>
+ - call method missing for parent
+ - create and add expectations
+ - create and add stubs
+ - find matching expectation
+ - find most recent matching expectation
+ - indicate unexpected method called
+ - invoke expectation and return result
+ - match call to expects with previous call to stubs
+ - match call to stubs with previous call to expects
+ - match most recent call to expects
+ - match most recent call to stubs
+ - not raise error if stubbing everything
+ - not respond to unexpected method
+ - pass backtrace into expectation
+ - pass backtrace into stub
+ - pass block through to expectations verify method
+ - raise assertion error for unexpected method call
+ - raise no method error
+ - report possible expectations
+ - respond to expected method
+ - set up multiple expectations with return values
+ - set up multiple stubs with return values
+ - verify that all expectations have been fulfilled
+ - yield supplied parameters to block
+</pre>
+<p>
+mock should:
+</p>
+<pre>
+ - be able to extend mock object with module
+ - be able to mock some standard object methods on blank mock
+ - be equal to avoid strange breakage of published review list test in revieworld
+ - build and store expectations
+ - give name in inspect message
+ - include mocha methods
+ - not stub everything by default
+ - set single expectation
+ - stub everything
+ - use default inspect message
+</pre>
+<p>
+infinite_range should:
+</p>
+<pre>
+ - be human readable description for at least
+ - be human readable description for at most
+ - include values at or above minimum
+ - include values at or below maximum
+ - not break original description
+ - not include values above maximum
+ - not include values below minimum
+</pre>
+<p>
+auto_verify should:
+</p>
+<pre>
+ - add expectation to mock
+ - add expectation to stub
+ - add expectations to greedy stub
+ - add greedy stub to mocks
+ - add greedy stub type expectations
+ - add mock to mocks
+ - add mock type expectations
+ - add stub to mocks
+ - add stub type expectations
+ - build greedy stub
+ - build mock
+ - build new mock each time
+ - build stub
+ - create greedy stub with name
+ - create mock with name
+ - create stub with name
+ - reset mocks on teardown
+ - store each new mock
+ - stub everything
+ - verify each mock
+ - yield to block for each assertion
+</pre>
+<p>
+pretty_parameters should:
+</p>
+<pre>
+ - display numeric arguments as is
+ - not remove curly braces if hash is not the only argument
+ - remove curly braces if hash is only argument
+ - remove outer array braces
+</pre>
+<p>
+setup_and_teardown should:
+</p>
+<pre>
+ - instantiate new stubba
+ - not raise exception if no stubba central available
+ - set stubba to nil
+ - unstub all stubbed methods
+ - verify all expectations
+ - yield to block for each assertion
+</pre>
+<p>
+object should:
+</p>
+<pre>
+ - build and store class method expectation
+ - build and store expectation
+ - build and store module method expectation
+ - build any instance object
+ - build mocha
+ - pass backtrace into expects
+ - pass backtrace into stubs
+ - reset mocha
+ - return same any instance object
+ - reuse existing mocha
+ - stub class method
+ - stub instance method
+ - stub module method
+ - stub relevant class for any instance
+ - stub self for class
+ - stub self for module
+ - stub self for object
+ - use stubba class method for any instance
+ - use stubba class method for class
+ - use stubba class method for module
+ - use stubba instance method for object
+ - verify expectations
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
