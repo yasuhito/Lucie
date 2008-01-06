@@ -1,36 +1,35 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-describe 'All Debootstrap', :shared => true do
-  def silent_shell
-    shell = Object.new
-    shell.stubs( :on_stdout )
-    shell.stubs( :on_stderr )
-    shell.stubs( :on_failure )
-    shell.stubs( :exec )
-    return shell
+describe Debootstrap, 'when calling Debootstrap::VERSION' do
+  before( :each ) do
+    @shell = Object.new
+    @shell.stubs( :exec )
+    Popen3::Shell.stubs( :open ).yields( @shell )
   end
-end
 
 
-describe Debootstrap, 'when debootstrap installed' do
-  it 'should determine debootstrap version' do
-    shell = Object.new
-    shell.stubs( :on_stdout ).yields( 'ii  debootstrap    0.2.45-0.2     Bootstrap a basic Debian system' )
-    shell.stubs( :exec )
-    Popen3::Shell.stubs( :open ).yields( shell )
+  it 'should return debootstrap version if debootstrap is installed' do
+    @shell.stubs( :on_stdout ).yields( 'ii  debootstrap    0.2.45-0.2     Bootstrap a basic Debian system' )
+    @shell.stubs( :on_failure )
 
     Debootstrap.VERSION.should == '0.2.45-0.2'
   end
-end
 
 
-describe Debootstrap, 'when debootstrap not installed' do
-  it 'should not be able to determine debootstrap version' do
-    shell = Object.new
-    shell.stubs( :on_stdout )
-    shell.stubs( :exec )
-    Popen3::Shell.stubs( :open ).yields( shell )
+  it 'should not return debootstrap version if debootstrap is not installed' do
+    @shell.stubs( :on_stdout )
+    @shell.stubs( :on_failure )
+
+    lambda do
+      Debootstrap.VERSION
+    end.should raise_error( RuntimeError, 'Cannot determine debootstrap version.' )
+  end
+
+
+  it 'should not return debootstrap version if dpkg -l failed' do
+    @shell.stubs( :on_stdout )
+    @shell.expects( :on_failure ).yields
 
     lambda do
       Debootstrap.VERSION
@@ -39,55 +38,30 @@ describe Debootstrap, 'when debootstrap not installed' do
 end
 
 
-describe Debootstrap, 'when executing debootstrap' do
-  it_should_behave_like 'All Debootstrap'
+describe Debootstrap, 'when calling Debootstrap.start' do
+  before( :each ) do | each |
+    @shell = Object.new
+    @shell.stubs( :on_stdout )
+    @shell.stubs( :on_stderr )
+    @shell.stubs( :on_failure )
+    @shell.stubs( :exec )
 
-
-  it 'should successfully run debootstrap' do
-    shell = silent_shell
-    shell.stubs( :child_status ).returns( 'CHILD_STATUS' )
-
-    Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
-
-    result = Debootstrap.start do | option |
-      option.suite = 'WOODY'
-      option.target = '/TMP'
-      option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
-    end
-
-    lambda do
-      result.child_status.should == 'CHILD_STATUS'
-    end.should_not raise_error
+    Popen3::Shell.stubs( :open ).yields( @shell ).returns( @shell )
   end
 
 
-  it 'should fail running debootstrap' do
-    shell = silent_shell
-    shell.stubs( :exec ).raises( RuntimeError, 'ERROR_MESSAGE' )
-
-    Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
-
+  it 'should successfully run debootstrap if all mandatory options are set' do
     lambda do
       Debootstrap.start do | option |
         option.suite = 'WOODY'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
       end
-    end.should raise_error( RuntimeError, 'ERROR_MESSAGE' )
-  end
-end
-
-
-describe Debootstrap, 'when missing mandatory debootstrap options' do
-  it_should_behave_like 'All Debootstrap'
-
-
-  before( :each ) do
-    Popen3::Shell.stubs( :open ).yields( silent_shell ).returns( silent_shell )
+    end.should_not raise_error
   end
 
 
-  it 'should fail if mandatory suite option not set' do
+  it 'should fail if mandatory suite option is not set' do
     lambda do
       Debootstrap.start do | option |
         option.target = '/TMP'
@@ -97,7 +71,7 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
   end
 
 
-  it 'should fail if mandatory target option not set' do
+  it 'should fail if mandatory target option is not set' do
     lambda do
       Debootstrap.start do | option |
         option.suite = 'etch'
@@ -107,7 +81,7 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
   end
 
 
-  it 'should fail if mandatory mirror option not set' do
+  it 'should fail if mandatory mirror option is not set' do
     lambda do
       Debootstrap.start do | option |
         option.suite = 'etch'
@@ -118,63 +92,65 @@ describe Debootstrap, 'when missing mandatory debootstrap options' do
 end
 
 
-describe Debootstrap, 'when logging debootstrap outputs' do
-  it 'should log stdout' do
-    shell = Object.new
-    shell.stubs( :on_stderr )
-    shell.stubs( :on_failure )
-    shell.stubs( :exec )
+describe 'All Debootstrap', :shared => true do
+  before( :each ) do
+    @shell = Object.new
+    Popen3::Shell.expects( :open ).yields( @shell ).returns( @shell )
 
-    shell.expects( :on_stdout ).yields( 'STDOUT' )
-    Lucie::Log.expects( :debug ).with( 'STDOUT' )
-
-    Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
-
-    Debootstrap.start do | option |
-      option.suite = 'WOODY'
-      option.target = '/TMP'
-      option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
-    end
-  end
-
-
-  it 'should log stderr' do
-    shell = Object.new
-    shell.stubs( :on_stdout )
-    shell.stubs( :on_failure )
-    shell.stubs( :exec )
-
-    shell.expects( :on_stderr ).yields( 'STDERR' )
-    Lucie::Log.expects( :error ).with( 'STDERR' )
-
-    Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
-
-    Debootstrap.start do | option |
-      option.suite = 'WOODY'
-      option.target = '/TMP'
-      option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
-    end
-  end
-
-
-  it 'should raise last error message on failure' do
-    shell = Object.new
-    shell.stubs( :on_stdout )
-    shell.stubs( :exec )
-
-    shell.expects( :on_stderr ).yields( 'STDERR' )
-    Lucie::Log.expects( :error ).with( 'STDERR' )
-
-    shell.expects( :on_failure ).yields
-
-    Popen3::Shell.expects( :open ).yields( shell ).returns( shell )
-
-    lambda do
+    @debootstrap = lambda do
       Debootstrap.start do | option |
         option.suite = 'WOODY'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
       end
-    end.should raise_error( RuntimeError, 'STDERR' )
+    end
+  end
+end
+
+
+describe Debootstrap, 'when logging outputs' do
+  it_should_behave_like 'All Debootstrap'
+
+
+  before( :each ) do
+    @shell.stubs( :exec )
+    @shell.stubs( :on_failure )
+  end
+
+
+  it 'should log stdout' do
+    @shell.stubs( :on_stderr )
+
+    @shell.expects( :on_stdout ).yields( 'STDOUT' )
+    Lucie::Log.expects( :debug ).with( 'STDOUT' )
+
+    @debootstrap.call
+  end
+
+
+  it 'should log stderr' do
+    @shell.stubs( :on_stdout )
+
+    @shell.expects( :on_stderr ).yields( 'STDERR' )
+    Lucie::Log.expects( :error ).with( 'STDERR' )
+
+    @debootstrap.call
+  end
+end
+
+
+describe Debootstrap, 'when failed to execute' do
+  it_should_behave_like 'All Debootstrap'
+
+
+  it 'should raise last error message on failure' do
+    @shell.stubs( :on_stdout )
+    @shell.stubs( :exec )
+    Lucie::Log.stubs( :error )
+
+    @shell.expects( :on_stderr ).yields( 'LAST_ERROR_MESSAGE' )
+    @shell.expects( :on_failure ).yields
+
+    @debootstrap.should raise_error( RuntimeError, 'LAST_ERROR_MESSAGE' )
   end
 end

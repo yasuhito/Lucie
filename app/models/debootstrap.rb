@@ -14,7 +14,7 @@ class Debootstrap
     def commandline
       exclude = @exclude ? "--exclude=#{ @exclude.join( ',' ) }" : nil
       include = @include ? "--include=#{ @include.join( ',' ) }" : nil
-      return [ '/usr/sbin/debootstrap', exclude, include, @suite, @target, @mirror ].compact
+      return [ '/usr/sbin/debootstrap', exclude, include, @suite, @target, @mirror ].compact.join( ' ' )
     end
 
 
@@ -36,17 +36,22 @@ class Debootstrap
 
   def self.VERSION
     version = nil
+    error_message = 'Cannot determine debootstrap version.'
+
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
         if /^ii\s+debootstrap\s+(\S+)/=~ line
           version = $1
         end
       end
-      shell.exec( { 'LC_ALL' => 'C' }, 'dpkg', '-l' )
+      shell.on_failure do
+        raise error_message
+      end
+      shell.exec( 'dpkg -l', { :env => { 'LC_ALL' => 'C' } } )
     end
 
     unless version
-      raise 'Cannot determine debootstrap version.'
+      raise error_message
     end
     return version
   end
@@ -105,7 +110,7 @@ class Debootstrap
         raise RuntimeError, error_message.last
       end
 
-      shell.exec @option.env, *@option.commandline
+      shell.exec @option.commandline, { :env => @option.env }
     end
   end
 end
