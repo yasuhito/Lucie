@@ -41,17 +41,17 @@ module Popen3
 
 
     def clean
-      exec_shell [ 'clean' ]
+      exec_shell 'clean'
     end
 
 
     def update
-      exec_shell [ 'update' ]
+      exec_shell 'update'
     end
 
 
     def check
-      exec_shell [ 'check' ]
+      exec_shell 'check'
     end
 
 
@@ -85,21 +85,21 @@ module Popen3
           raise "#{ command_line_string( command ) } failed!"
         end
 
-        shell.exec( @env, *command_line( command ) )
+        shell.exec( command_line( command ), { :env => @env } )
       end
     end
 
 
     def chroot_command
       if @root
-        return [ 'chroot', @root ]
+        return "chroot #{ @root }"
       end
-      return []
+      return nil
     end
 
 
     def command_line command
-      return chroot_command + [ 'apt-get' ] + command
+      return [ chroot_command, 'apt-get', command ].compact.join( ' ' )
     end
 
 
@@ -108,7 +108,7 @@ module Popen3
       @env.each do | key, value |
         env_string << "'#{ key }' => '#{ value }'"
       end
-      return "ENV{ #{ env_string.join( ', ' ) } }, '#{ command_line( command ).join( ' ' ) }'"
+      return "ENV{ #{ env_string.join( ', ' ) } }, '#{ command_line( command ) }'"
     end
   end
 end
