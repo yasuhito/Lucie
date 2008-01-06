@@ -94,6 +94,10 @@ class Debootstrap
       end
 
       shell.on_stdout do | line |
+        if /\AE: /=~ line
+          Lucie::Log.error line
+          error_message.push line
+        end
         Lucie::Log.debug line
       end
 

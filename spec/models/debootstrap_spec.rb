@@ -143,9 +143,20 @@ describe Debootstrap, 'when failed to execute' do
   it_should_behave_like 'All Debootstrap'
 
 
+  it "should Log.error a line starts with 'E:'" do
+    @shell.stubs( :on_stderr )
+    @shell.stubs( :on_failure )
+    @shell.stubs( :exec )
+
+    @shell.expects( :on_stdout ).yields( 'E: ERROR_MESSAGE' )
+    Lucie::Log.expects( :error ).with( 'E: ERROR_MESSAGE' )
+
+    @debootstrap.call
+  end
+
+
   it 'should raise last error message on failure' do
     @shell.stubs( :on_stdout )
-    @shell.stubs( :exec )
     Lucie::Log.stubs( :error )
 
     @shell.expects( :on_stderr ).yields( 'LAST_ERROR_MESSAGE' )
