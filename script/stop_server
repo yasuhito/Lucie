@@ -10,28 +10,7 @@ require 'optparse'
 
 ARGV.clone.options do | opts |
   opts.on( '-l', '--lucied', 'Stop lucie daemon.' ) {
-    unless Etc.getpwuid( Process.uid ).name == 'root'
-      STDERR.puts "ERROR: You must be root."
-      exit -1
-    end
-
-    begin
-      unless LuciedBlocker.blocked?
-        puts 'Lucie daemon (lucied) not running (no pid file).'
-        exit 0
-      end
-
-      File.open( LuciedBlocker.pid_file, 'r' ) do | f |
-        pid = f.read
-        system "kill #{ pid }"
-      end
-      LuciedBlocker.release
-    rescue => e
-      STDERR.puts "FAILED: #{ e.message }"
-      exit -1
-    end
-
-    puts "Lucie daemon (lucied) stopped."
+    load './script/stop_lucied'
     exit 0
   }
 
@@ -41,3 +20,13 @@ ARGV.clone.options do | opts |
 
   opts.parse!
 end
+
+
+system %(sudo -p '[lucied] password for %u: ' ruby -e "load './script/stop_lucied'" )
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

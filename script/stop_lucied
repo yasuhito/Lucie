@@ -13,15 +13,24 @@ end
 
 
 begin
-  LuciedBlocker.block
-  system( "#{ RAILS_ROOT }/script/lucied" )
+  unless LuciedBlocker.blocked?
+    puts 'Lucie daemon (lucied) not running (no pid file).'
+    exit 0
+  end
+
+  File.open( LuciedBlocker.pid_file, 'r' ) do | f |
+    pid = f.read
+    system "kill #{ pid }"
+  end
+  LuciedBlocker.release
 rescue => e
   STDERR.puts "FAILED: #{ e.message }"
   exit -1
 end
 
 
-puts "Lucie daemon (lucied) started on port #{ LucieDaemon::PORT }."
+puts "Lucie daemon (lucied) stopped."
+exit 0
 
 
 ### Local variables:

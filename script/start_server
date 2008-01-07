@@ -16,7 +16,7 @@ ARGV.clone.options do | opts |
   opts.on( '-p', '--port=port', Integer, 'Runs Rails on the specified port.', 'Default: 3000' ) {}
   opts.on( '-b', '--binding=ip', String, 'Binds Rails to the specified ip.', 'Default: 0.0.0.0' ) {}
   opts.on( '-d', '--daemon', 'Make server run as a Daemon.' ) {}
-  opts.on( '-l', '--lucied', 'Start lucie daemon.' ) {
+  opts.on( '-l', '--lucied', 'Start lucie daemon only.' ) {
     load './script/start_lucied'
     exit 0
   }
@@ -35,7 +35,7 @@ ARGV.clone.options do | opts |
 end
 
 
-system %(sudo ruby -e "load './script/start_lucied'" )
+system %(sudo -p '[lucied] password for %u: ' ruby -e "load './script/start_lucied'" )
 
 
 # Remove custom options so that they are not interpreted by 'commands/server'
