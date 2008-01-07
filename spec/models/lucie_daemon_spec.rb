@@ -8,6 +8,7 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 describe LucieDaemon, 'when starting Lucie daemon' do
   it 'should be daemonized and druby enabled' do
     @lucie_daemon = LucieDaemon.new
+    @drb_threads = Object.new
     LucieDaemon.stubs( :new ).returns( @lucie_daemon )
 
     # expects
@@ -22,7 +23,8 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     Daemon::Controller.expects( :trap )
 
     DRb.expects( :start_service ).with( 'druby://localhost:58243', @lucie_daemon )
-    LucieDaemon.expects( :sleep )
+    @drb_threads.expects( :join )
+    DRb.expects( :thread ).returns( @drb_threads )
 
     # when
     LucieDaemon.daemonize
@@ -37,6 +39,8 @@ end
 
 describe 'Lucie Daemon (daemon disabled)', :shared => true do
   before( :each ) do
+    @drb_threads = Object.new
+
     Daemon::Controller.stubs( :fork ).yields.returns( false )
     Process.stubs( :setsid )
     Daemon::PidFile.stubs( :store )
@@ -46,7 +50,8 @@ describe 'Lucie Daemon (daemon disabled)', :shared => true do
     STDERR.stubs( :reopen )
     Daemon::Controller.stubs( :trap )
 
-    LucieDaemon.stubs( :sleep )
+    @drb_threads.stubs( :join )
+    DRb.stubs( :thread ).returns( @drb_threads )
 
     LucieDaemon.daemonize
 
@@ -86,36 +91,6 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
       # then
     end.should_not raise_error
-  end
-
-
-  it 'should execute code block without errors' do
-    # expects
-    io_mock = Object.new
-    io_mock.expects( :puts ).with( 'HELLO LUCIE DAEMON' )
-
-    # when
-    lambda do
-      @remote_lucie_daemon.sudo do
-        io_mock.puts 'HELLO LUCIE DAEMON'
-      end
-
-      # then
-    end.should_not raise_error
-    
-    verify_mocks
-  end
-
-
-  it 'should raise if passed code block raises' do
-    # when
-    lambda do
-      @remote_lucie_daemon.sudo do
-        raise 'ERROR'
-      end
-
-      # then
-    end.should raise_error( RuntimeError, 'ERROR' )
   end
 end
 

@@ -1,6 +1,7 @@
 require 'drb/drb'
 require 'fileutils'
 require 'popen3/shell'
+require 'debootstrap'
 
 
 module Daemon
@@ -53,9 +54,9 @@ module Daemon
         PidFile.store(daemon, Process.pid)
         Dir.chdir WorkingDirectory
         File.umask 0000
-#         STDIN.reopen "/dev/null"
-#         STDOUT.reopen "/dev/null", "a"
-#         STDERR.reopen STDOUT
+        STDIN.reopen "/dev/null"
+        STDOUT.reopen "/dev/null", "a"
+        STDERR.reopen STDOUT
         trap("TERM") { daemon.stop; exit }
         daemon.start
       end
@@ -108,18 +109,20 @@ class LucieDaemon < Daemon::Base
   end
 
 
-  def sudo command = nil
-    if command
-      Lucie::Log.info '[lucied] ' + command
-      return execute( command )
-    end
-    yield
+  def sudo command
+    Lucie::Log.info '[lucied] ' + command
+    return execute( command )
   end
 
 
   ##############################################################################
   # Helper methods
   ##############################################################################
+
+
+  def debootstrap options
+    Debootstrap.start options
+  end
 
 
   def restart_puppet

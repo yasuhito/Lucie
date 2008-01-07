@@ -17,7 +17,7 @@ require RAILS_ROOT + '/config/environment'
 
 
 def sudo_lucied
-  "sudo -p 'password for %u [lucied]: '"
+  "sudo -p '[lucied] password for %u: '"
 end
 
 
@@ -73,6 +73,18 @@ def output_with command
     shell.exec( { 'LC_ALL' => 'C' }, command )
 
     [ stdout, stderr ]
+  end
+end
+
+
+# avoid an error caused by rspec 1.1.1
+# undefined method `run?' for Test::Unit:Module (NoMethodError)
+
+unless Test::Unit.respond_to?( :run? )
+  module Test
+    module Unit
+      def self.run?; end
+    end
   end
 end
 

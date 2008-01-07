@@ -57,14 +57,22 @@ class Debootstrap
   end
 
 
-  def self.start &block
-    self.new &block
+  def self.start options = nil, &block
+    if options
+      self.new options
+    else
+      self.new &block
+    end
   end
 
 
-  def initialize
-    @option = DebootstrapOption.new
-    yield self
+  def initialize options = nil
+    if options
+      @option = options
+    else
+      @option = DebootstrapOption.new
+      yield self
+    end
     @option.check_mandatory_options
     exec_shell
   end
@@ -115,6 +123,7 @@ class Debootstrap
       end
 
       shell.exec @option.commandline, { :env => @option.env }
+      shell
     end
   end
 end
