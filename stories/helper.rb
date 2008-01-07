@@ -70,7 +70,7 @@ def output_with command
       stderr << line
     end
 
-    shell.exec( { 'LC_ALL' => 'C' }, command )
+    shell.exec( command, { :env => { 'LC_ALL' => 'C' } } )
 
     [ stdout, stderr ]
   end
