@@ -43,22 +43,22 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_all_targets_should_be_defined
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
-
     in_sandbox do | sandbox |
       nfsroot = Nfsroot.configure do | task |
         task.target_directory = sandbox.root
       end
-      nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
-      assert Rake.application.lookup( ENV[ 'RAILS_ROOT' ] + '/installers/.base/debian_etch.tgz' )
-      assert Rake.application.lookup( sandbox.root )
-      assert Rake.application.lookup( 'installer:clobber_nfsroot' )
-      assert Rake.application.lookup( 'installer:clobber_nfsroot_base' )
-      assert Rake.application.lookup( 'installer:nfsroot' )
-      assert Rake.application.lookup( 'installer:nfsroot_base' )
-      assert Rake.application.lookup( 'installer:rebuild_nfsroot' )
-      assert Rake.application.lookup( 'installer:rebuild_nfsroot_base' )
+      # nfsroot_base tasks
+      assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch.tgz" ) )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:clobber_nfsroot_base' )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:nfsroot_base' )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:rebuild_nfsroot_base' )
+
+      # nfsroot tasks
+      assert_kind_of Rake::Task, Rake.application.lookup( sandbox.root )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:clobber_nfsroot' )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:nfsroot' )
+      assert_kind_of Rake::Task, Rake.application.lookup( 'installer:rebuild_nfsroot' )
     end
   end
 
