@@ -111,7 +111,7 @@ class LucieDaemon < Daemon::Base
 
   def sudo command
     Lucie::Log.info '[lucied] ' + command
-    return execute( command )
+    return sh_exec( command )
   end
 
 

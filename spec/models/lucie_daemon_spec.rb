@@ -73,11 +73,11 @@ describe LucieDaemon, 'when calling sudo via druby' do
   end
 
 
-  it 'should raise CommandLine::ExecutionError if invalid command is executed' do
+  it 'should raise RuntimeError if invalid command is executed' do
     # when
     lambda do
       @remote_lucie_daemon.sudo( 'INVALID_COMMAND' )
-    end.should raise_error( CommandLine::ExecutionError )
+    end.should raise_error( RuntimeError )
 
     # then
     verify_mocks
