@@ -95,6 +95,45 @@ describe LucieDaemon, 'when calling sudo via druby' do
 end
 
 
+describe LucieDaemon, 'when calling disable_node via druby' do
+  it_should_behave_like 'Lucie Daemon (daemon disabled)'
+
+
+  after( :each ) do
+    DRb.stop_service
+  end
+
+
+  it 'should disable a node if Lucie daemon is started' do
+    node = Object.new
+
+    # expects
+    Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
+    node.expects( :disable! )
+
+    # when
+    @remote_lucie_daemon.disable_node( 'NODE_NAME' )
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should raise if node is not added' do
+    # expects
+    Nodes.expects( :find ).with( 'NODE_NAME' )
+
+    # when
+    lambda do
+      @remote_lucie_daemon.disable_node( 'NODE_NAME' )
+
+      # then
+    end.should raise_error( RuntimeError, 'Node NODE_NAME not found!' )
+    verify_mocks
+  end
+end
+
+
 # As a 'node install' command,
 # I want to delegate restart process of Puppet daemon to root privileged Lucie daemon via druby protocol,
 # so that I can restart Puppet daemon without root privilege.

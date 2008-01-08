@@ -120,6 +120,16 @@ class LucieDaemon < Daemon::Base
   ##############################################################################
 
 
+  def disable_node node_name
+    node = Nodes.find( node_name )
+    if node
+      node.disable!
+    else
+      raise "Node #{ node_name } not found!"
+    end
+  end
+
+
   def debootstrap options
     Debootstrap.start options
   end
