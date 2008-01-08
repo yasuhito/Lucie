@@ -2,6 +2,7 @@
 
 
 ENV[ 'RAILS_ENV' ] = 'production'
+LUCIE_THIS_PROCESS_IS_BUILDER = true
 
 
 require File.dirname( __FILE__ ) + '/../config/boot'
