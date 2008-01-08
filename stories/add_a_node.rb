@@ -49,7 +49,6 @@ Story "Add a node with 'node' command",
     end
 
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }" do | command |
-      # system command
       @stdout, @stderr = output_with( command )
     end
 
