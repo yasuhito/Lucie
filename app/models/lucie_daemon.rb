@@ -1,7 +1,9 @@
+require 'debootstrap'
 require 'drb/drb'
 require 'fileutils'
+require 'node'
+require 'nodes'
 require 'popen3/shell'
-require 'debootstrap'
 
 
 module Daemon

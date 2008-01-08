@@ -39,12 +39,17 @@ end
 
 begin
   require RAILS_ROOT + '/config/environment'
+  require 'drb/drb'
 
-  node = Nodes.find( node_name )
-  if node
-    node.disable!
+  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon.disable_node( node_name )
+
+rescue DRb::DRbConnError
+  if trace
+    raise
   else
-    raise "Node #{ node_name } not found!"
+    STDERR.puts "FAILED: Lucie daemon (lucied) is down."
+    exit -1
   end
 rescue => e
   if trace
