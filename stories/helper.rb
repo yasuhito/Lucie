@@ -63,7 +63,7 @@ def output_with command
     stderr = ''
 
     shell.on_stdout do | line |
-      stdout << line
+      stdout << line << "\n"
     end
 
     shell.on_stderr do | line |
