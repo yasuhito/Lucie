@@ -77,13 +77,25 @@ end
 
 begin
   require RAILS_ROOT + '/config/environment'
-  require 'lib/popen3/shell'
+  require 'drb/drb'
 
   ENV[ 'NODE_NAME' ] = node_name
   ENV[ 'INSTALLER_NAME' ] = installer_name
 
-  # [TODO] sh_exec で失敗した場合の例外をちゃんと上げてほしい。
-  sh_exec %{sudo ruby -e "require 'rake'; require '#{ RAILS_ROOT + '/config/environment' }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; BuilderStarter.run_builders_at_startup = #{ start_builder }; Rake::Task[ 'lucie:enable_node' ].invoke"}
+  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon.sudo %{ruby -e "require 'rake'; require '#{ File.expand_path( RAILS_ROOT + '/config/environment' ) }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; BuilderStarter.run_builders_at_startup = #{ start_builder }; Rake::Task[ 'lucie:enable_node' ].invoke"}
+
+rescue DRb::DRbConnError
+  node = Nodes.find( node_name )
+  if node
+    node.disable!
+  end
+  if trace
+    raise
+  else
+    STDERR.puts "FAILED: Lucie daemon (lucied) is down."
+    exit -1
+  end
 rescue => e
   if trace
     raise

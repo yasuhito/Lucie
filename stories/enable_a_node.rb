@@ -1,12 +1,21 @@
+require 'stories/helper'
+
+
 Story "Enable a node with 'node' command",
 %(As a cluster administrator
   I want to enable a node using 'node' command
   So that I can enable a node) do
 
 
+  # o lucied is [up] / down
+  # o installer is [added] / not added
+  # o node is [added] / not added
+
   Scenario 'node enable success' do
-    # [TODO] インストーラが追加されていない場合、node enable に失敗する
-    # シナリオ
+    Given 'lucied is started' do
+      restart_lucied
+    end
+
     Given 'TEST_INSTALLER installer is added' do
       unless FileTest.directory?( './installers/TEST_INSTALLER' )
         FileUtils.mkdir './installers/TEST_INSTALLER'
@@ -25,11 +34,76 @@ netmask_address:255.255.255.0
     end
 
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder' do | command |
-      @error_message = output_with( command )
+      @stdout, @stderr = output_with( command )
     end
 
     Then 'It should succeeed with no error message' do
-      @error_message.should be_empty
+      @stderr.should be_empty
+    end
+  end
+
+
+  # o lucied is [up] / down
+  # o installer is added / [not added]
+  # o node is [added] / not added
+
+  Scenario 'node enable fail if installer is not added' do
+    Given 'lucied is started'
+
+    Given 'no installer is added' do
+      cleanup_installers
+    end
+
+    Given 'TEST_NODE is already added and is disabled'
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', "Installer 'TEST_INSTALLER' is not added yet. Please add installer with 'installer add <installer-name>' first." do | expected |
+      @stderr.should == expected
+    end
+  end
+
+
+  # o lucied is [up] / down
+  # o installer is [added] / not added
+  # o node is added / [not added]
+
+  Scenario 'node enable fail if installer is not added' do
+    Given 'lucied is started' do
+      restart_lucied
+    end
+
+    Given 'TEST_INSTALLER installer is added'
+
+    Given 'no node is added' do
+      cleanup_nodes
+    end
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', "Node 'TEST_NODE' is not added yet. Please add node with 'node add <node-name>' first." do | expected |
+      @stderr.should == expected
+    end
+  end
+
+
+  # o lucied is up / [down]
+  # o installer is [added] / not added
+  # o node is [added] / not added
+
+  Scenario 'node enable fail if installer is not added' do
+    Given 'lucied is stopped' do
+      stop_lucied
+    end
+
+    Given 'TEST_INSTALLER installer is added'
+
+    Given 'TEST_NODE is already added and is disabled'
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', 'FAILED: Lucie daemon (lucied) is down.' do | expected |
+      @stderr.should == expected
     end
   end
 end
@@ -50,11 +124,11 @@ Story 'Trace node enable command',
     end
 
     When 'I run a command that fails with --trace option' do
-      @error_message = output_with( './node enable TEST_NODE --installer TEST_INSTALLER --trace' )
+      @stdout, @stderr = output_with( './node enable TEST_NODE --installer TEST_INSTALLER --trace' )
     end
 
     Then 'I get backtrace' do
-      @error_message.should match( /^\s+from/ )
+      @stderr.should match( /from/ )
     end
   end
 end
