@@ -57,6 +57,8 @@ Type 'node --version' to see the version number.
 Available commands:
   add        - adds and enables a node
   remove     - removes a node
+  install    - installs a node
+
   enable     - enables installation of a node
   disable    - disables installation of a node
   list       - lists registered nodes
