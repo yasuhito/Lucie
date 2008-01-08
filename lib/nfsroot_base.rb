@@ -6,14 +6,11 @@ require 'rake/tasklib'
 
 # Defines 4 rake targets:
 #
-#  * ENV[ 'RAILS_ROOT' ] + '/installers/.base/DISTRIBUTION_SUITE.tgz': builds debootstrap tarball
-#  * installer:nfsroot_base: is an alias for tarball target.
+#  * RAILS_ROOT/installers/.base/DISTRIBUTION_SUITE.tgz': builds debootstrap tarball
+#  * installer:nfsroot_base: is an alias for the debootstrap tarball target.
 #  * installer:clobber_nfsroot_base: clobbers temporary nfsroot directory.
 #  * installer:rebuild_nfsroot_base: clobbers and rebuilds tarball
 #
-#--
-# [???] define clean target that removes temporary debootstrap directory and redefine clobber target that does clean and also removes tarball?
-#++
 class NfsrootBase < Rake::TaskLib
   attr_accessor :distribution
   attr_accessor :http_proxy
@@ -25,7 +22,7 @@ class NfsrootBase < Rake::TaskLib
 
   def initialize
     @name = :nfsroot_base
-    @target_directory = File.join( rails_root, 'installers/.base' )
+    @target_directory = File.join( RAILS_ROOT, 'installers/.base' )
     @distribution = 'debian'
     @suite = 'etch'
   end
@@ -52,7 +49,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def nfsroot_base_target
-    return target( target_fname( @distribution, @suite ) )
+    return File.expand_path( target( target_fname( @distribution, @suite ) ) )
   end
   alias :tgz :nfsroot_base_target
 
@@ -82,7 +79,7 @@ class NfsrootBase < Rake::TaskLib
     desc "Remove #{ temporary_nfsroot_directory }"
     namespace 'installer' do
       task paste( 'clobber_', @name ) do
-        sh_exec 'rm', '-rf', temporary_nfsroot_directory + "/*"
+        sh_exec "rm -rf #{ temporary_nfsroot_directory }/*"
       end
     end
   end
@@ -95,7 +92,6 @@ class NfsrootBase < Rake::TaskLib
 
       Debootstrap.start do | option |
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
-        # [???] Exclude option is hard-coded. This should be read only for most of users?
         option.exclude = [ 'dhcp-client', 'info' ]
         option.suite = @suite
         option.target = temporary_nfsroot_directory
@@ -105,7 +101,7 @@ class NfsrootBase < Rake::TaskLib
 
       AptGet.clean :root => temporary_nfsroot_directory
 
-      sh_exec 'rm', '-f', target( '/etc/resolv.conf' )
+      sh_exec "rm -f #{ target( '/etc/resolv.conf' ) }"
       build_nfsroot_base_tarball
     end
   end
@@ -116,7 +112,7 @@ class NfsrootBase < Rake::TaskLib
     unless File.exists?( @target_directory )
       sh_exec "mkdir #{ @target_directory }"
     end
-    sh_exec 'tar', '--one-file-system', '--directory', temporary_nfsroot_directory, '--exclude', target_fname( @distribution, @suite ), '-czvf', nfsroot_base_target, '.'
+    sh_exec "tar --one-file-system --directory #{ temporary_nfsroot_directory } --exclude #{ target_fname( @distribution, @suite ) } -czvf #{ nfsroot_base_target } ."
   end
 
 
@@ -126,21 +122,13 @@ class NfsrootBase < Rake::TaskLib
 
 
   def temporary_nfsroot_directory
-    return( rails_root + '/tmp/debootstrap' )
-  end
-
-
-  def rails_root
-    unless ENV[ 'RAILS_ROOT' ]
-      raise 'RAILS_ROOT is not set.'
-    end
-    ENV[ 'RAILS_ROOT' ]
+    return( RAILS_ROOT + '/tmp/debootstrap' )
   end
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
