@@ -1,3 +1,6 @@
+require 'stories/helper'
+
+
 Story 'Read the help message', %(
   As a cluster administrator
   I want to read help message of node command
@@ -5,11 +8,11 @@ Story 'Read the help message', %(
 
   Scenario 'node help' do
     When 'I run', './node help' do | command |
-      @help_message = output_with( command ).split
+      @help_message, @stderr = output_with( command )
     end
 
     Then 'the help message should look like', expected_help_message[ :node_help ] do | message |
-      @help_message.should == message.strip.split( /\s+/ )
+      @help_message.split.should == message.strip.split( /\s+/ )
     end
   end
 
@@ -151,8 +154,6 @@ For additional information, see http://lucie.is.titech.ac.jp/
   ),
 
     :node_add => %(
-Node name and Installer name are mandatory
-
 usage: node add <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway> --mac <MAC address>
 
     -i, --installer installer name   The installer name for the installation
