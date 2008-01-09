@@ -14,10 +14,12 @@ class Nfs
   def setup installer_name
     @installer_name = installer_name
 
-    File.copy config_file, config_file + '.orig'
+    File.copy config_file, config_file + '.old'
 
     File.open( config_file, 'w' ) do | file |
-      file.puts "#{ nfsroot } #{ nodes.join( ',' ) }(async,ro,no_root_squash,no_subtree_check)"
+      nodes.each do | each |
+        file.puts "#{ nfsroot } #{ each }(async,ro,no_root_squash,no_subtree_check)"
+      end
     end
 
     sh_exec '/etc/init.d/nfs-kernel-server restart'
