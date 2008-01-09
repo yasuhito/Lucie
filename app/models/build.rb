@@ -1,7 +1,7 @@
+require 'lucie_daemon'
+
+
 class Build
-  include CommandLine
-
-
   IGNORE_ARTIFACTS = /\A(\..*|build_status\..+|build.log|changeset.log|lucie_config.rb|plugin_errors.log)\Z/
 
 
@@ -90,7 +90,7 @@ class Build
     verbose_option = Lucie::Log.verbose? ? " << '--trace'" : ''
     rakefile = "#{ @installer.path }/work/installer_config.rb"
 
-    return %{ruby -I#{ File.expand_path( RAILS_ROOT ) }/lib -e "require '#{ File.expand_path( RAILS_ROOT ) + '/config/environment' }'; require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; Lucie::Log.verbose = #{ Lucie::Log.verbose?.to_s }; ARGV << '--trace'#{ verbose_option } << '--rakefile=#{ rakefile }' << 'installer:build'; Rake.application.run"}
+    return %{ruby -I#{ File.expand_path( RAILS_ROOT ) }/lib -e "require '#{ File.expand_path( RAILS_ROOT ) + '/config/environment' }'; require 'rubygems' rescue nil; require 'rake'; require 'nfsroot'; load '#{ File.expand_path( RAILS_ROOT ) }/tasks/installer_build.rake'; Lucie::Log.verbose = #{ Lucie::Log.verbose?.to_s }; ENV[ 'INSTALLER_NAME' ] = '#{ @installer.name }'; ARGV #{ verbose_option } << '--rakefile=#{ rakefile }' << 'installer:build'; Rake.application.run"}
   end
 
 
@@ -192,7 +192,9 @@ class Build
       time = Time.now
       @status.start!
       in_clean_environment_on_local_copy do
-        execute build_command, :stdout => build_log, :stderr => build_log, :escape_quotes => false
+        lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+        lucie_daemon.sudo( build_command )
+        # execute build_command, :stdout => build_log, :stderr => build_log, :escape_quotes => false
       end
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e

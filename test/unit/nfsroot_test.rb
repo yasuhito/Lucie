@@ -6,14 +6,20 @@ class NfsrootTest < Test::Unit::TestCase
   include FileSandbox
 
 
+  def setup
+    ENV[ 'INSTALLER_NAME' ] = 'INSTALLER_NAME'
+    Lucie::Log.stubs( :info )
+    Rake::Task.clear
+  end
+
+
   def teardown
+    ENV[ 'INSTALLER_NAME' ] = nil
     Rake::Task.clear
   end
 
 
   def test_accessor
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
-
     in_sandbox do | sandbox |
       nfsroot = Nfsroot.configure do | task |
         task.target_directory = sandbox.root
@@ -64,8 +70,6 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_nfsroot_task_execution___success___
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
-
     in_sandbox do | sandbox |
       nfsroot = Nfsroot.configure do | task |
         task.target_directory = sandbox.root
@@ -78,13 +82,11 @@ class NfsrootTest < Test::Unit::TestCase
       nfsroot.stubs( :upgrade_nfsroot )
       nfsroot.stubs( :add_packages_nfsroot )
       nfsroot.stubs( :copy_lucie_files )
-      nfsroot.stubs( :copy_lucie_files )
       nfsroot.stubs( :finish_nfsroot )
       nfsroot.stubs( :install_kernel_nfsroot )
       nfsroot.stubs( :setup_ssh )
       nfsroot.stubs( :setup_dhcp )
       nfsroot.stubs( :umount_dirs )
-      nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
       assert_nothing_raised do
         Rake::Task[ 'installer:nfsroot' ].execute
@@ -94,18 +96,15 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_clobber_nfsroot_task_execution___success___
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
+    shell = Object.new
 
     in_sandbox do | sandbox |
       nfsroot = Nfsroot.configure do | task |
         task.target_directory = sandbox.root
       end
 
-      Lucie::Log.stubs( :info )
       Dir.stubs( :glob ).returns( [ 'DUMMY_RETURN_VALUE' ] )
       nfsroot.stubs( :sh_exec )
-      nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
-      shell = Object.new
       shell.stubs( :on_stdout ).yields( 'DUMMY_LINE' )
       shell.stubs( :exec )
       Popen3::Shell.stubs( :open ).yields( shell )
@@ -116,8 +115,7 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_kernel_package_file
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
-    assert_equal '/RAILS_ROOT/kernels/linux-image-2.6.18-fai-kernels_1_i386.deb', Nfsroot.new.kernel_package_file
+    assert_equal "#{ RAILS_ROOT }/kernels/linux-image-2.6.18-fai-kernels_1_i386.deb", Nfsroot.new.kernel_package_file
   end
 
 
@@ -125,7 +123,6 @@ class NfsrootTest < Test::Unit::TestCase
     nfsroot = Nfsroot.new
     nfsroot.stubs( :sh_exec )
     nfsroot.stubs( :get_kernel_version )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
     file = Object.new
     file.stubs( :puts )
@@ -157,7 +154,6 @@ class NfsrootTest < Test::Unit::TestCase
   def test_umount_dirs
     nfsroot = Nfsroot.new
     nfsroot.stubs( :sh_exec )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
     FileTest.stubs( :directory? ).returns( true )
 
@@ -170,7 +166,6 @@ class NfsrootTest < Test::Unit::TestCase
   def test_add_packages_nfsroot
     nfsroot = Nfsroot.new
 
-    Lucie::Log.stubs( :info )
     AptGet.stubs( :update )
     AptGet.stubs( :apt )
     AptGet.stubs( :clean )
@@ -208,7 +203,6 @@ class NfsrootTest < Test::Unit::TestCase
     shell = Object.new
     shell.stubs( :on_stdout ).yields( ' Package: kernel-image-X.X.X' )
     shell.stubs( :exec )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
     Popen3::Shell.stubs( :open ).yields( shell ).returns( 'DUMMY_VERSION' )
 
     assert_nothing_raised do
@@ -223,7 +217,6 @@ class NfsrootTest < Test::Unit::TestCase
     Dir.stubs( :glob ).returns( [ 'BOOT-FILE' ] )
     nfsroot.stubs( :sh_exec )
     nfsroot.stubs( :get_kernel_version ).returns( 'X.X.X' )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
     assert_nothing_raised do
       nfsroot.install_kernel_nfsroot
@@ -234,13 +227,11 @@ class NfsrootTest < Test::Unit::TestCase
   def test_upgrade_nfsroot
     nfsroot = Nfsroot.new
 
-    Lucie::Log.stubs( :info )
     AptGet.stubs( :update )
     AptGet.stubs( :check )
     AptGet.stubs( :apt )
     nfsroot.stubs( :sh_exec )
     nfsroot.stubs( :dpkg_divert )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
     file = Object.new
     file.stubs( :puts )
@@ -268,10 +259,8 @@ class NfsrootTest < Test::Unit::TestCase
   def test_setup_dhcp
     nfsroot = Nfsroot.new
 
-    Lucie::Log.stubs( :info )
     nfsroot.stubs( :sh_exec )
     nfsroot.stubs( :get_kernel_version ).returns( 'X.X.X' )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
 
     assert_nothing_raised do
       nfsroot.setup_dhcp
@@ -280,17 +269,19 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_finish_nfsroot
-    nfsroot = Nfsroot.new
+    in_sandbox do | sandbox |
+      nfsroot = Nfsroot.configure do | task |
+        task.target_directory = sandbox.root
+      end
 
-    Lucie::Log.stubs( :info )
-    nfsroot.stubs( :sh_exec )
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
-    FileTest.stubs( :directory? ).with( '../nfsroot/var/lib/discover' ).returns( false )
-    FileTest.stubs( :directory? ).with( '../nfsroot/var/discover' ).returns( false )
-    FileTest.stubs( :directory? ).with( '../nfsroot/var/yp' ).returns( true )
+      nfsroot.stubs( :sh_exec )
+      FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/lib/discover" ).returns( false )
+      FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/discover" ).returns( false )
+      FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/yp" ).returns( true )
 
-    assert_nothing_raised do
-      nfsroot.finish_nfsroot
+      assert_nothing_raised do
+        nfsroot.finish_nfsroot
+      end
     end
   end
 
@@ -307,24 +298,10 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_check_prerequisites___succcess___
-    nfsroot = Nfsroot.new
-
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
     FileTest.stubs( :exists? ).returns( true )
 
     assert_nothing_raised do
-      nfsroot.check_prerequisites
-    end
-  end
-
-
-  def test_check_prerequisites___fail___
-    nfsroot = Nfsroot.new
-
-    nfsroot.stubs( :rails_root ).returns( '/RAILS_ROOT' )
-
-    assert_raises( RuntimeError ) do
-      nfsroot.check_prerequisites
+      Nfsroot.new.check_prerequisites
     end
   end
 
@@ -336,24 +313,6 @@ class NfsrootTest < Test::Unit::TestCase
 
     assert_nothing_raised do
       nfsroot.dpkg_divert [ 'DUMMY_FILE' ]
-    end
-  end
-
-
-  def test_rails_root___success___
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( '/RAILS_ROOT' )
-
-    assert_nothing_raised do
-      Nfsroot.new.rails_root
-    end
-  end
-
-
-  def test_rails_root___fail___
-    ENV.stubs( :[] ).with( 'RAILS_ROOT' ).returns( nil )
-
-    assert_raises( 'RAILS_ROOT is not set.' ) do
-      Nfsroot.new.rails_root
     end
   end
 

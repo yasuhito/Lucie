@@ -56,7 +56,7 @@ end
 
 def write_to_log_and_console message, severity = :info
   Lucie::Log.event( message, severity ) rescue nil
-  (puts message unless INSTALLER_OPTIONS[ :verbose ]) rescue nil 
+  (puts message unless INSTALLER_OPTIONS[ :verbose ]) rescue nil
 end
 
 
@@ -80,48 +80,45 @@ end
 
 installer = nil
 
-
 begin
-  begin
+  installer = load_installer( installer_path )
+
+  # this will create builder.pid file in installer's CC directory and grab an exclusive lock on it, or else
+  # blow up saying that something else is already locking it
+  InstallerBlocker.block installer
+
+  write_to_log_and_console "Builder for installer '#{installer.name}' started"
+  puts "Logging to: #{File.expand_path(INSTALLER_OPTIONS[:log_file_name])}"
+
+  loop do
+    catch( :reload_installer ) do
+      installer.scheduler.run
+    end
     installer = load_installer( installer_path )
-
-    # this will create builder.pid file in installer's CC directory and grab an exclusive lock on it, or else
-    # blow up saying that something else is already locking it
-    InstallerBlocker.block installer
-
-    write_to_log_and_console "Builder for installer '#{installer.name}' started"
-    puts "Logging to: #{File.expand_path(INSTALLER_OPTIONS[:log_file_name])}"
-
-    loop do
-      catch( :reload_installer ) do
-        installer.scheduler.run
-      end
-      installer = load_installer( installer_path )
-      # this will cause the next call to scheduler to run the build immediately
-      installer.request_build rescue nil
-    end
-  rescue Interrupt
-    # this is okay, we're just control-c'ing the app
-  rescue Exception => e
-    begin
-      Lucie::Log.fatal(e)
-
-      rescue => logging_error
-        STDERR.puts e.message
-        STDERR.puts e.backtrace
-        STDERR.puts "Attempt to log the above error failed with this:"
-        STDERR.puts logging_error.message
-        STDERR.puts logging_error.backtrace
-    end
-    INSTALLER_OPTIONS[:verbose] ? raise : exit(1)
-  ensure
-    cleanup(installer)
+    # this will cause the next call to scheduler to run the build immediately
+    installer.request_build rescue nil
   end
+rescue Interrupt
+  # this is okay, we're just control-c'ing the app
+rescue Exception => e
+  begin
+    Lucie::Log.fatal(e)
+
+  rescue => logging_error
+    STDERR.puts e.message
+    STDERR.puts e.backtrace
+    STDERR.puts "Attempt to log the above error failed with this:"
+    STDERR.puts logging_error.message
+    STDERR.puts logging_error.backtrace
+  end
+  INSTALLER_OPTIONS[:verbose] ? raise : exit(1)
+ensure
+  cleanup(installer)
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

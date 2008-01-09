@@ -1,3 +1,5 @@
+require RAILS_ROOT + '/config/environment'
+
 require 'debootstrap'
 require 'drb/drb'
 require 'fileutils'
@@ -79,9 +81,6 @@ end
 
 
 class LucieDaemon < Daemon::Base
-  include CommandLine
-
-
   PORT = 58243
 
 
