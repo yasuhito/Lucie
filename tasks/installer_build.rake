@@ -1,11 +1,3 @@
-#
-# $Id: build.rb 66 2007-05-18 00:52:27Z yasuhito $
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 66 $
-# License:: GPL2
-
-
 module Lucie
   def self.invoke_rake_task task_name
     puts "[Lucie] Invoking Rake task #{ task_name.inspect }"
@@ -46,9 +38,9 @@ namespace :installer do
       if File.exists?(Dir.pwd + "/config/database.yml")
         if Dir[Dir.pwd + "/db/migrate/*.rb"].empty?
           raise "No migration scripts found in db/migrate/ but database.yml exists, " +
-                "Lucie won't be able to build the latest test database. Build aborted." 
+                "Lucie won't be able to build the latest test database. Build aborted."
         end
-        
+
         # perform standard Rails database cleanup/preparation tasks if they are defined in project
         # this is necessary because there is no up-to-date development database on a continuous integration box
         if Rake.application.lookup( 'db:test:purge' )
@@ -59,7 +51,7 @@ namespace :installer do
           Lucie::invoke_rake_task 'db:migrate'
         end
       end
-      
+
       # invoke 'test' or 'default' task
       if Rake.application.lookup( 'installer:nfsroot' )
         Lucie::invoke_rake_task 'installer:nfsroot'
@@ -75,6 +67,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
