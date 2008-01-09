@@ -59,8 +59,13 @@ end
 Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
 puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
 
+
 begin
-  Puppet.restart
+  require 'drb/drb'
+
+  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon.restart_puppet
+
   FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
   Installer.install node
 rescue Exception => e
