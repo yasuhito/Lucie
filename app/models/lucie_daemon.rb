@@ -6,6 +6,7 @@ require 'fileutils'
 require 'node'
 require 'nodes'
 require 'popen3/shell'
+require 'puppet'
 
 
 module Daemon
