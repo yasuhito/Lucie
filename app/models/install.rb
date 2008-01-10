@@ -100,7 +100,6 @@ class Install
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e
       @install_log << e.message
-      Lucie::Log.fatal e.message
 
       time_escaped = ( Time.now - ( time || Time.now ) ).ceil
       if e.is_a?( ConfigError )
@@ -108,6 +107,9 @@ class Install
       else
         @status.fail! time_escaped
       end
+
+      # rescued by install_node
+      raise
     end
   end
 
@@ -129,7 +131,7 @@ class Install
       shell.on_stderr { | line | @install_log.puts line }
       shell.on_failure { raise %{Command "#{ command }" failed} }
 
-      @install_log << "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command
+      @install_log.puts "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] #{ command }"
       shell.exec( %{ssh root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
 
       # Returns a instance of Popen3::Shell as a return value from
@@ -163,7 +165,7 @@ class Install
     ssh_exec @node.name, "chroot /tmp/target apt-get #{ apt_option } update"
 
     sh_exec "scp #{ RAILS_ROOT }/config/files/etc/kernel-img.conf root@#{ @node.name }:/tmp/target/etc/"
-    ssh_exec @node.name, "install_packages --config-file=/etc/lucie/package.rb --http-proxy=#{ nfsroot_setting.http_proxy }"
+    ssh_exec @node.name, "install_packages --config-file=/etc/lucie/package.rb"
 
     Lucie::Log.info 'Setting up GRUB'
     ssh_exec @node.name, 'setup_grub'
