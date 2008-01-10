@@ -1,16 +1,8 @@
-#
-# $Id: kernel.rb 1126 2007-04-09 08:00:47Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1126 $
-# License::  GPL2
-
-
 require 'install-packages/app'
 
 
 #
-# ¥Ñ¥Ã¥±¡¼¥¸¥¤¥ó¥¹¥È¡¼¥ëÀßÄê DSL ÍÑ¤Î´Ø¿ôÄêµÁ
+# ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«è¨­å®š DSL ç”¨ã®é–¢æ•°å®šç¾©
 #
 module Kernel
   def aptget_install *packages
@@ -41,5 +33,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

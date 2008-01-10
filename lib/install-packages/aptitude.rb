@@ -1,11 +1,3 @@
-#
-# $Id: aptitude.rb 1111 2007-03-02 08:12:44Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1111 $
-# License::  GPL2
-
-
 require 'install-packages/apt-package-manager'
 require 'install-packages/package-manager'
 require 'popen3/shell'
@@ -23,15 +15,15 @@ module InstallPackages
     end
 
 
-    def install_without_recommends dryRun = false
-      execute( @shell, default_env, chroot_command + [ 'aptitude', '-R' ] + apt_option + [ 'install' ] + @package_list, dryRun )
-      execute( @shell, default_env, chroot_command + [ 'apt-get', 'clean' ], dryRun )
+    def install_without_recommends options
+      execute( @shell, "#{ chroot_command } aptitude -R #{ apt_option } install #{ @package_list.join( ' ' )}", options )
+      execute( @shell, "#{ chroot_command } apt-get clean", options )
     end
 
 
-    def install_with_recommends dryRun = false
-      execute( @shell, default_env, chroot_command + [ 'aptitude', '-r' ] + apt_option + [ 'install' ] + @package_list, dryRun )
-      execute( @shell, default_env, chroot_command + [ 'apt-get', 'clean' ], dryRun )
+    def install_with_recommends options
+      execute( @shell, "#{ chroot_command } aptitude -r #{ apt_option } install #{ @package_list.join( ' ' )}", options )
+      execute( @shell, "#{ chroot_command } apt-get clean", options )
     end
   end
 end
@@ -39,5 +31,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

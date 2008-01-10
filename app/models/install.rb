@@ -123,14 +123,14 @@ class Install
   private
 
 
-  def ssh_exec node_name, *command
+  def ssh_exec node_name, command
     Popen3::Shell.open do | shell |
       shell.on_stdout { | line | @install_log.puts line }
       shell.on_stderr { | line | @install_log.puts line }
-      shell.on_failure { raise %{Command "#{ command.join( ' ' ) }" failed} }
+      shell.on_failure { raise %{Command "#{ command }" failed} }
 
-      @install_log << "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command.join( ' ' )
-      shell.exec( { 'LC_ALL' => 'C' }, *( [ 'ssh', "root@#{ INSTALLER_OPTIONS[ :node_name ] }" ] + command ) )
+      @install_log << "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] " + command
+      shell.exec( %{ssh root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
 
       # Returns a instance of Popen3::Shell as a return value from
       # this block, in order to get child_status from the return value
@@ -150,7 +150,7 @@ class Install
     ssh_exec @node.name, 'mount2dir /tmp/target /tmp/fstab'
 
     Lucie::Log.info 'Extracting base system'
-    ssh_exec @node.name, 'zcat /var/tmp/*.tgz | tar -C /tmp/target -xpf -'
+    ssh_exec @node.name, "tar -C /tmp/target -xzpf /var/tmp/#{ nfsroot_setting.distribution }_#{ nfsroot_setting.suite }.tgz"
     ssh_exec @node.name, 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
     ssh_exec @node.name, 'cp -a /tmp/fstab /tmp/target/etc/fstab'
 
@@ -163,7 +163,7 @@ class Install
     ssh_exec @node.name, "chroot /tmp/target apt-get #{ apt_option } update"
 
     sh_exec "scp #{ RAILS_ROOT }/config/files/etc/kernel-img.conf root@#{ @node.name }:/tmp/target/etc/"
-    ssh_exec @node.name, 'install_packages --config-file=/etc/lucie/package.rb'
+    ssh_exec @node.name, "install_packages --config-file=/etc/lucie/package.rb --http-proxy=#{ nfsroot_setting.http_proxy }"
 
     Lucie::Log.info 'Setting up GRUB'
     ssh_exec @node.name, 'setup_grub'
@@ -175,5 +175,12 @@ class Install
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
 
     ssh_exec @node.name, 'swapoff -a'
+  end
+
+
+  # [HACK]
+  def nfsroot_setting
+    ENV[ 'INSTALLER_NAME' ] = @node.installer_name
+    eval File.open( "#{ Installers.find( @node.installer_name ).path }/work/installer_config.rb", 'r' ).read
   end
 end

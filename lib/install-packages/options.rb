@@ -1,19 +1,12 @@
-#
-# $Id: options.rb 1111 2007-03-02 08:12:44Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1111 $
-# License::  GPL2
-
-
 module InstallPackages
   class Options
     attr_reader :config_file
     attr_reader :dry_run
+    attr_reader :http_proxy
 
 
     PROGRAM_NAME = 'install_packages'.freeze
-    VERSION = '0.0.1'.freeze
+    VERSION = '0.1.0'.freeze
     VERSION_STRING = [ PROGRAM_NAME, VERSION ].join( ' ' )
     OPTIONS = { '--debug' => { :long_option => "--debug",
                                :short_option => "-D",
@@ -45,6 +38,12 @@ module InstallPackages
                                :description => 'specify a configuration file to use.',
                                :default => nil,
                                :proc => Proc.new do | argument | @config_file = argument end },
+           '--http-proxy' => { :long_option => '--http-proxy',
+                               :short_option => '-p',
+                               :argument => '[URL]',
+                               :description => 'specify a http proxy url.',
+                               :default => nil,
+                               :proc => Proc.new do | argument | @http_proxy = argument end }
     }
 
 
@@ -168,5 +167,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

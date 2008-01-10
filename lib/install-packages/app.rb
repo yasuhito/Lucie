@@ -1,11 +1,3 @@
-#
-# $Id: app.rb 1126 2007-04-09 08:00:47Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1126 $
-# License::  GPL2
-
-
 require 'install-packages/aptget'
 require 'install-packages/aptitude'
 require 'install-packages/command/aptitude'
@@ -97,7 +89,7 @@ module InstallPackages
       if @option.config_file
         return [ @option.config_file ]
       else
-        # [XXX] ¥Ç¥Õ¥©¥ë¥È¤ÎÀßÄê¥Õ¥¡¥¤¥ë¤ò¥í¡¼¥É¤µ¤»¤ë
+        # [XXX] ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰ã•ã›ã‚‹
         # return Dir.glob( '/etc/lucie/package/*' )
       end
     end
@@ -113,5 +105,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

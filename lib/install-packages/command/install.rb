@@ -1,11 +1,3 @@
-#
-# $Id: install.rb 1111 2007-03-02 08:12:44Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1111 $
-# License::  GPL2
-
-
 require 'install-packages/command'
 
 
@@ -16,8 +8,8 @@ module InstallPackages
     end
 
 
-    def execute dryRun = false
-      @aptget.install dryRun
+    def execute options
+      @aptget.install options
     end
   end
 end
@@ -25,5 +17,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

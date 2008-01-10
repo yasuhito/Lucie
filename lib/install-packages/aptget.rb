@@ -1,11 +1,3 @@
-#
-# $Id: aptget.rb 1111 2007-03-02 08:12:44Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1111 $
-# License::  GPL2
-
-
 require 'install-packages/apt-package-manager'
 require 'install-packages/package-manager'
 require 'popen3/shell'
@@ -23,19 +15,19 @@ module InstallPackages
     end
 
 
-    def clean dryRun = false
-      execute( @shell, default_env, chroot_command + [ 'apt-get', 'clean' ], dryRun )
+    def clean options
+      execute( @shell, "#{ chroot_command } apt-get clean", options )
     end
 
 
-    def install dryRun = false
-      execute( @shell, default_env, chroot_command + [ 'apt-get' ] + apt_option + [ '--fix-missing', 'install' ] + @package_list, dryRun )
-      clean dryRun
+    def install options
+      execute( @shell, "#{ chroot_command } apt-get #{ apt_option } --fix-missing install #{ @package_list.join( ' ' ) }", options )
+      clean options
     end
 
 
-    def remove dryRun = false
-      execute( @shell, default_env, chroot_command + [ 'apt-get' ] + apt_option + [ '--purge', 'remove' ] + @package_list, dryRun )
+    def remove options
+      execute( @shell, "#{ chroot_command } apt-get #{ apt_option } --purge remove #{ @package_list.join( ' ' ) }", options )
     end
   end
 end
@@ -43,5 +35,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
