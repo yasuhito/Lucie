@@ -93,6 +93,7 @@ class Install
   def run
     begin
       @install_log = File.open( artifact( 'install.log' ), 'a' )
+      @install_log.sync = true
 
       time = Time.now
       @status.start!

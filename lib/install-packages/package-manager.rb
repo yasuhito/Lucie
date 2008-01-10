@@ -9,10 +9,10 @@ module InstallPackages
         STDOUT.puts "ENV{ #{ env_string.join( ', ' ) } }, '#{ command }'"
       else
         shell.on_stdout do | line |
-          Lucie::Log.debug line
+          STDOUT.puts line
         end
         shell.on_stderr do | line |
-          Lucie::Log.debug line
+          STDERR.puts line
         end
         shell.exec command, apt_env( options.http_proxy )
       end
