@@ -68,6 +68,9 @@ begin
 
   FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
   Installer.install node
+rescue Interrupt
+  Lucie::Log.fatal 'Interrupted.'
+  exit 1
 rescue Exception => e
   begin
     Lucie::Log.fatal e.message
