@@ -414,12 +414,12 @@ class Installer
       raise "Installer `#{ node.installer_name }' is incomplete."
     end
 
-#     case last_complete_build_status
-#     when 'never_built'
-#       raise "Installer `#{ node.installer_name }' is never built."
-#     when 'failed'
-#       raise "Installer `#{ node.installer_name }' is broken."
-#     end
+    case last_complete_build_status
+    when 'never_built'
+      raise "Installer `#{ node.installer_name }' is never built."
+    when 'failed'
+      raise "Installer `#{ node.installer_name }' is broken."
+    end
 
     install = Install.new( node, :new )
     install.run
