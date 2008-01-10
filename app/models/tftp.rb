@@ -7,6 +7,11 @@ class Tftp
   end
 
 
+  def self.disable node
+    self.new.disable node
+  end
+
+
   attr_reader :node_name
   attr_reader :installer_name
 
@@ -16,6 +21,12 @@ class Tftp
     @installer_name = installer_name
 
     setup_pxe
+    setup_tftpd
+  end
+
+
+  def disable node
+    disable_pxe node
     setup_tftpd
   end
 
@@ -39,6 +50,21 @@ default lucie
 label lucie
 kernel vmlinuz-install
 append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ nfsroot },v2,rsize=32768,wsize=32768
+EOF
+    end
+  end
+
+
+  def disable_pxe node
+    unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
+      FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
+    end
+    File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
+      file.print <<-EOF
+default local
+
+label local
+localboot 0
 EOF
     end
   end

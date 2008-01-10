@@ -7,6 +7,7 @@ require 'node'
 require 'nodes'
 require 'popen3/shell'
 require 'puppet'
+require 'tftp'
 
 
 module Daemon
@@ -126,6 +127,7 @@ class LucieDaemon < Daemon::Base
     node = Nodes.find( node_name )
     if node
       node.disable!
+      Tftp.disable node
     else
       raise "Node #{ node_name } not found!"
     end

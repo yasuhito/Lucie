@@ -8,10 +8,22 @@ class TftpTest < Test::Unit::TestCase
   def test_setup___SUCCESS___
     tftp = Tftp.new
     Tftp.stubs( :new ).returns( tftp )
-    tftp.stubs( :setup_pxe )
-    tftp.stubs( :setup_tftpd )
+
+    tftp.expects( :setup_pxe )
+    tftp.expects( :setup_tftpd )
 
     Tftp.setup 'NODE_NAME', 'INSTALLER_NAME'
+  end
+
+
+  def test_disable___SUCCESS___
+    tftp = Tftp.new
+    Tftp.stubs( :new ).returns( tftp )
+
+    tftp.expects( :disable_pxe )
+    tftp.expects( :setup_tftpd )
+
+    Tftp.disable 'NODE_NAME'
   end
 
 
@@ -30,6 +42,24 @@ class TftpTest < Test::Unit::TestCase
 
       assert_nothing_raised do
         tftp.setup_pxe
+      end
+      assert File.file?( File.join( sandbox.root, '/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff' ) )
+    end
+  end
+
+
+  def test_disable_pxe___SUCCESS___
+    in_sandbox do | sandbox |
+      node = Object.new
+      node.stubs( :name ).returns( 'NODE_NAME' )
+      node.stubs( :mac_address ).returns( 'AA:BB:CC:DD:EE:FF' )
+
+      tftp = Tftp.new
+
+      Configuration.stubs( :tftp_root ).returns( sandbox.root )
+
+      assert_nothing_raised do
+        tftp.disable_pxe node
       end
       assert File.file?( File.join( sandbox.root, '/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff' ) )
     end
