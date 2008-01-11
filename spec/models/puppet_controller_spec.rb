@@ -1,10 +1,10 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-describe Puppet, 'when calling Puppet.restart' do
+describe PuppetController, 'when calling PuppetController.restart' do
   before :each do
-    @puppet = Puppet.new
-    Puppet.stubs( :new ).returns( @puppet )
+    @puppet = PuppetController.new
+    PuppetController.stubs( :new ).returns( @puppet )
 
     @node_list = Object.new
     Nodes.stubs( :load_all ).returns( @node_list )
@@ -21,7 +21,7 @@ describe Puppet, 'when calling Puppet.restart' do
     @puppet.expects( :sh_exec ).with( '/etc/init.d/puppetmaster restart' )
 
     # when
-    Puppet.restart
+    PuppetController.restart
 
     # then
     verify_mocks
@@ -38,7 +38,7 @@ describe Puppet, 'when calling Puppet.restart' do
     @puppet.expects( :sh_exec ).with( '/etc/init.d/puppetmaster restart' )
 
     # when
-    Puppet.restart
+    PuppetController.restart
 
     # then
     verify_mocks

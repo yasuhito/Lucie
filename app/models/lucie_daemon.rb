@@ -1,13 +1,6 @@
-require RAILS_ROOT + '/config/environment'
-
-require 'debootstrap'
 require 'drb/drb'
 require 'fileutils'
-require 'node'
-require 'nodes'
 require 'popen3/shell'
-require 'puppet'
-require 'tftp'
 
 
 module Daemon
@@ -82,6 +75,14 @@ module Daemon
 end
 
 
+# [???] auto_load does not work
+require 'debootstrap'
+require 'node'
+require 'nodes'
+require 'puppet_controller'
+require 'tftp'
+
+
 class LucieDaemon < Daemon::Base
   PORT = 58243
 
@@ -140,6 +141,6 @@ class LucieDaemon < Daemon::Base
 
 
   def restart_puppet
-    Puppet.restart
+    PuppetController.restart
   end
 end

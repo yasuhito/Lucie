@@ -13,7 +13,7 @@ task 'lucie:enable_node' do
   Tftp.setup node.name, node.installer_name
   Nfs.setup node.installer_name
   Dhcp.setup node.installer_name, node.ip_address, node.netmask_address, node.gateway_address
-  Puppet.setup Installers.find( node.installer_name ).local_checkout
+  PuppetController.setup Installers.find( node.installer_name ).local_checkout
 
   if ENV[ 'WOL' ]
     WakeOnLan.wake node.mac_address

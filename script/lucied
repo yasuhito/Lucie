@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
+
 ENV[ 'RAILS_ENV' ] = 'lucied'
 
-require File.dirname( __FILE__ ) + '/../config/boot'
+
+require File.dirname(__FILE__) + '/../config/boot'
 require RAILS_ROOT + '/config/environment'
 
 

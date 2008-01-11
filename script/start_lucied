@@ -1,9 +1,9 @@
-require File.dirname(__FILE__) + '/../config/boot'
+ENV[ 'RAILS_ENV' ] = 'lucied'
 
-require 'command_line'
+require File.dirname(__FILE__) + '/../config/boot'
+require RAILS_ROOT + '/config/environment'
+
 require 'etc'
-require 'lucie_daemon'
-require 'lucied_blocker'
 
 
 unless Etc.getpwuid( Process.uid ).name == 'root'

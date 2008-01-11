@@ -2,7 +2,7 @@ require 'facter'
 require 'popen3/shell'
 
 
-class Puppet
+class PuppetController
   def self.setup local_checkout_dir
     self.new.setup local_checkout_dir
   end
