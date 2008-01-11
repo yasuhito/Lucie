@@ -150,7 +150,7 @@ describe LucieDaemon, 'when calling restart_puppet via druby' do
 
   it 'should restart Puppet daemon if Lucie daemon is started' do
     # expects
-    Puppet.expects( :restart )
+    PuppetController.expects( :restart )
 
     # when
     @remote_lucie_daemon.restart_puppet
