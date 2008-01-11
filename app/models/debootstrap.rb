@@ -70,11 +70,6 @@ class Debootstrap
   end
 
 
-  def child_status
-    return @shell.child_status
-  end
-
-
   def method_missing message, *arg
     @option.__send__ message, *arg
   end
