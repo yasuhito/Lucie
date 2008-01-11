@@ -44,6 +44,7 @@ describe 'Lucie Daemon (daemon disabled)', :shared => true do
     Daemon::Controller.stubs( :fork ).yields.returns( false )
     Process.stubs( :setsid )
     Daemon::PidFile.stubs( :store )
+    Dir.expects( :chdir )
     File.stubs( :umask )
     STDIN.stubs( :reopen )
     STDOUT.stubs( :reopen )
