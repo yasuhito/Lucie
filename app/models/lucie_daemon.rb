@@ -76,7 +76,6 @@ end
 
 
 # [???] auto_load does not work
-require 'debootstrap'
 require 'node'
 require 'nodes'
 require 'puppet_controller'
@@ -132,11 +131,6 @@ class LucieDaemon < Daemon::Base
     else
       raise "Node #{ node_name } not found!"
     end
-  end
-
-
-  def debootstrap options
-    Debootstrap.start options
   end
 
 

@@ -57,22 +57,14 @@ class Debootstrap
   end
 
 
-  def self.start options = nil, &block
-    if options
-      self.new options
-    else
-      self.new &block
-    end
+  def self.start &block
+    self.new &block
   end
 
 
-  def initialize options = nil
-    if options
-      @option = options
-    else
-      @option = DebootstrapOption.new
-      yield self
-    end
+  def initialize
+    @option = DebootstrapOption.new
+    yield self
     @option.check_mandatory_options
     exec_shell
   end
