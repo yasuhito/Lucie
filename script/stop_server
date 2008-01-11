@@ -10,7 +10,7 @@ require 'optparse'
 
 ARGV.clone.options do | opts |
   opts.on( '-l', '--lucied', 'Stop lucie daemon.' ) {
-    load './script/stop_lucied'
+    system %(sudo -p '[lucied] password for %u: ' ruby -e "load './script/stop_lucied'" )
     exit 0
   }
 

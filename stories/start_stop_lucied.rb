@@ -8,14 +8,12 @@ Story 'Start/Stop lucied daemon',
 
 
   Scenario "'start lucied' and 'stop lucied' succeeds if run with root privilege" do
-    @sudo = "sudo -p 'password for %u [lucied]: '"
-
     Given 'no other lucied is running' do
-      system( "#{ @sudo } ./lucie stop --lucied" )
+      system( "./lucie stop --lucied" )
     end
 
     When 'I start lucied as root' do
-      @result = system( "#{ @sudo } ./lucie start --lucied" )
+      @result = system( "./lucie start --lucied" )
     end
 
     Then 'lucied successfully starts' do
@@ -23,7 +21,7 @@ Story 'Start/Stop lucied daemon',
     end
 
     When 'I stop lucied as root' do
-      @stdout, @stderr = output_with( "#{ @sudo } ./lucie stop --lucied" )
+      @stdout, @stderr = output_with( "./lucie stop --lucied" )
     end
 
     Then 'lucied successfully stops' do
@@ -32,28 +30,6 @@ Story 'Start/Stop lucied daemon',
 
     Then 'PID file is deleted' do
       FileTest.exists?( './tmp/pids/lucied.pid' ).should_not == true
-    end
-  end
-
-
-  Scenario "'start lucied' fails if no root privilege" do
-    When 'I start lucied as a common user' do
-      @stdout, @stderr = output_with( './lucie start --lucied' )
-    end
-
-    Then 'error message should be:', 'ERROR: You must be root.' do | message |
-      @stderr.should == message
-    end
-  end
-
-
-  Scenario "'stop lucied' fails if no root privilege" do
-    When 'I stop lucied as a common user' do
-      @stdout, @stderr = output_with( './lucie stop --lucied' )
-    end
-
-    Then 'error message should be:', 'ERROR: You must be root.' do | message |
-      @stderr.should == message
     end
   end
 end

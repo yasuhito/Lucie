@@ -17,7 +17,7 @@ ARGV.clone.options do | opts |
   opts.on( '-b', '--binding=ip', String, 'Binds Rails to the specified ip.', 'Default: 0.0.0.0' ) {}
   opts.on( '-d', '--daemon', 'Make server run as a Daemon.' ) {}
   opts.on( '-l', '--lucied', 'Start lucie daemon only.' ) {
-    load './script/start_lucied'
+    system %(sudo -p '[lucied] password for %u: ' ruby -e "load './script/start_lucied'" )
     exit 0
   }
   opts.on( '-e', '--environment=name', String,

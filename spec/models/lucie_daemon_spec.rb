@@ -110,6 +110,7 @@ describe LucieDaemon, 'when calling disable_node via druby' do
     # expects
     Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
     node.expects( :disable! )
+    Tftp.expects( :disable ).with( node )
 
     # when
     @remote_lucie_daemon.disable_node( 'NODE_NAME' )
