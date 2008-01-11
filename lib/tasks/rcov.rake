@@ -8,6 +8,6 @@ namespace :test do
 
   desc "Generage coverage files"
   task :coverage => "test:coverage:clean" do
-    sh "rcov -x __sandbox -x /usr/local -x /var/lib/gems --rails spec/**/*_spec.rb test/**/*_test.rb"
+    sh "rcov -x __sandbox -x /usr/local -x /var/lib/gems -x spec --rails spec/**/*_spec.rb test/**/*_test.rb"
   end
 end
