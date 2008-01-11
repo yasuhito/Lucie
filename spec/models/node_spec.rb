@@ -131,7 +131,7 @@ describe Node, 'when enabling installation for a node with custom rake task' do
       Tftp.expects( :setup ).with( 'TEST_NODE', 'TEST_INSTALLER' )
       Nfs.expects( :setup ).with( 'TEST_INSTALLER' )
       Dhcp.expects( :setup ).with( 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.254' )
-      Puppet.expects( :setup )
+      PuppetController.expects( :setup )
       installer = Object.new
       installer.stubs( :local_checkout )
       Installers.expects( :find ).with( 'TEST_INSTALLER' ).returns( installer )

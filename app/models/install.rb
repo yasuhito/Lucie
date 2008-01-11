@@ -184,6 +184,6 @@ class Install
   # [HACK]
   def nfsroot_setting
     ENV[ 'INSTALLER_NAME' ] = @node.installer_name
-    eval File.open( "#{ Installers.find( @node.installer_name ).path }/work/installer_config.rb", 'r' ).read
+    eval File.read( "#{ Installers.find( @node.installer_name ).path }/work/installer_config.rb" )
   end
 end

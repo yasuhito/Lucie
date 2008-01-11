@@ -119,8 +119,9 @@ describe Install do
 
     with_sandbox_node do | sandbox, node |
       install = Install.new( node, 123 )
+      install.stubs( :nfsroot_setting ).returns( nfsroot_setting )
 
-      File.stubs( :open ).returns( [] )
+      File.stubs( :open ).returns( install_log )
 
       InstallStatus.any_instance.stubs( :start! )
       Lucie::Log.stubs( :event )
@@ -150,7 +151,7 @@ describe Install do
     with_sandbox_node do | sandbox, node |
       install = Install.new( node, 123 )
 
-      File.stubs( :open ).returns( [] )
+      File.stubs( :open ).returns( install_log )
 
       Time.stubs( :now ).returns( Time.at( 1 ) )
       install.expects( :install ).raises
@@ -162,7 +163,7 @@ describe Install do
 
       lambda do
         install.run
-      end.should_not raise_error
+      end.should raise_error
     end
   end
 
@@ -171,7 +172,7 @@ describe Install do
     with_sandbox_node do | sandbox, node |
       install = Install.new( node, 123 )
 
-      File.stubs( :open ).returns( [] )
+      File.stubs( :open ).returns( install_log )
 
       Time.stubs( :now ).returns( Time.at( 1 ) )
       install.expects( :install ).raises( ConfigError )
@@ -183,7 +184,7 @@ describe Install do
 
       lambda do
         install.run
-      end.should_not raise_error
+      end.should raise_error
     end
   end
 
@@ -212,6 +213,19 @@ describe Install do
 
       Install.new( node, 123 ).elapsed_time.should == 'ELAPSED TIME'
     end
+  end
+
+
+  def install_log
+    StringIO.new
+  end
+
+
+  def nfsroot_setting
+    setting = Object.new
+    setting.stubs( :distribution ).returns( 'debian' )
+    setting.stubs( :suite ).returns( 'etch' )
+    setting
   end
 
 
