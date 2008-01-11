@@ -41,7 +41,7 @@ describe Node, 'when creating a new node with custom rake task' do
 
 
   it 'should add a new node' do
-    load './lib/tasks/add_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
 
@@ -61,7 +61,7 @@ describe Node, 'when creating a new node with custom rake task' do
 
 
   it 'should raise if MAC address is not set' do
-    load './lib/tasks/add_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     ENV[ 'MAC_ADDRESS' ] = nil
 
     lambda do
@@ -71,7 +71,7 @@ describe Node, 'when creating a new node with custom rake task' do
 
 
   it 'should raise if IP address is not set' do
-    load './lib/tasks/add_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     ENV[ 'IP_ADDRESS' ] = nil
 
     lambda do
@@ -81,7 +81,7 @@ describe Node, 'when creating a new node with custom rake task' do
 
 
   it 'should raise if gateway address is not set' do
-    load './lib/tasks/add_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     ENV[ 'GATEWAY_ADDRESS' ] = nil
 
     lambda do
@@ -91,7 +91,7 @@ describe Node, 'when creating a new node with custom rake task' do
 
 
   it 'should raise if netmask address is not set' do
-    load './lib/tasks/add_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     ENV[ 'NETMASK_ADDRESS' ] = nil
 
     lambda do
@@ -122,7 +122,7 @@ describe Node, 'when enabling installation for a node with custom rake task' do
 
 
   it 'should be able to enable installation for a node' do
-    load './lib/tasks/enable_node.rake'
+    load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
       sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => mac_address_file
