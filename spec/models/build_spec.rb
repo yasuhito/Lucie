@@ -237,6 +237,8 @@ describe Build, ' (success)' do
 
   it 'should run successful build' do
     with_sandbox_installer do | sandbox, installer |
+      lucie_daemon = Object.new
+
       expected_build_directory = File.join( sandbox.root, 'build-123' )
 
       build = Build.new( installer, 123 )
@@ -248,7 +250,8 @@ describe Build, ' (success)' do
         :escape_quotes => false
       }
       Time.expects( :now ).at_least( 2 ).returns( Time.at( 0 ), Time.at( 3.2 ) )
-      build.expects( :execute ).with( build.rake, expected_redirect_options )
+      lucie_daemon.expects( :sudo )
+      DRbObject.expects( :new_with_uri ).returns( lucie_daemon )
 
       BuildStatus.any_instance.expects( :start! )
       BuildStatus.any_instance.expects( :succeed! ).with( 4 )
@@ -289,7 +292,6 @@ describe Build, ' (fail)' do
         :escape_quotes => false
       }
 
-      build.expects( :execute ).with( build.rake, expected_redirect_options ).raises( CommandLine::ExecutionError )
       Time.stubs( :now ).returns( Time.at( 1 ) )
       BuildStatus.any_instance.expects( :start! )
       BuildStatus.any_instance.expects( :fail! ).with( 0 )
