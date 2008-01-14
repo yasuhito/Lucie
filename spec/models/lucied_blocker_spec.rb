@@ -108,6 +108,19 @@ describe LuciedBlocker, 'when calling blocked?' do
   end
 
 
+  it 'should return false if PID file does not exist' do
+    # given
+    FileTest.stubs( :exists? ).returns false
+
+    # when
+    @result = LuciedBlocker.blocked?
+
+    # then
+    @result.should be_false
+    verify_mocks
+  end
+
+
   it 'should return false if not flocked PID file exists' do
     # given
     FileTest.stubs( :exists? ).returns true
@@ -148,6 +161,34 @@ describe LuciedBlocker, 'when calling release' do
 
     # when
     LuciedBlocker.release
+
+    # then
+    verify_mocks
+  end
+end
+
+
+describe LuciedBlocker, 'when manipulating PID file' do
+  it 'should store store pid' do
+    file = StringIO.new( '' )
+
+    # expects
+    File.expects( :open ).yields( file )
+
+    # when
+    LuciedBlocker::PidFile.store( 'PID' )
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should recall pid' do
+    # expects
+    IO.expects( :read ).returns( '12345' )
+
+    # when
+    LuciedBlocker::PidFile.recall.should == 12345
 
     # then
     verify_mocks
