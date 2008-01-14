@@ -1,6 +1,24 @@
 class LuciedBlocker
+  # move to LuciedBlocker
+  module PidFile
+    def self.file_name
+      File.expand_path "#{ RAILS_ROOT }/tmp/pids/lucied.pid"
+    end
+
+    def self.store pid
+      File.open( file_name, 'w' ) do | f |
+        f << pid
+      end
+    end
+
+    def self.recall
+      IO.read( file_name ).to_i rescue nil
+    end
+  end
+
+
   def self.block
-    lock = File.open( pid_file, 'w' )
+    lock = File.open( PidFile.file_name, 'w' )
     locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
 
     unless locked
@@ -11,11 +29,11 @@ class LuciedBlocker
 
 
   def self.blocked?
-    unless FileTest.exists?( pid_file )
+    unless FileTest.exists?( PidFile.file_name )
       return false
     end
 
-    lock = File.open( pid_file, 'a' )
+    lock = File.open( PidFile.file_name, 'a' )
     begin
       return !lock.flock( File::LOCK_EX | File::LOCK_NB )
     ensure
@@ -26,7 +44,7 @@ class LuciedBlocker
 
 
   def self.release
-    lock = File.open( pid_file, 'w' )
+    lock = File.open( PidFile.file_name, 'w' )
     if lock
       lock.flock( File::LOCK_UN | File::LOCK_NB )
       lock.close
@@ -35,17 +53,7 @@ class LuciedBlocker
   end
 
 
-  def self.pid_file
-    File.expand_path "#{ RAILS_ROOT }/tmp/pids/#{ pid_file_name }"
-  end
-
-
   def self.cannot_lock_error_message
     "Another lucied is already running."
-  end
-
-
-  def self.pid_file_name
-    "lucied.pid"
   end
 end

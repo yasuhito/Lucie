@@ -14,7 +14,7 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     # expects
     Daemon::Controller.expects( :fork ).yields.times( 2 ).returns( false )
     Process.expects( :setsid )
-    Daemon::PidFile.expects( :store )
+    LuciedBlocker::PidFile.expects( :store )
     Dir.expects( :chdir )
     File.expects( :umask )
     STDIN.expects( :reopen )
@@ -43,7 +43,8 @@ describe 'Lucie Daemon (daemon disabled)', :shared => true do
 
     Daemon::Controller.stubs( :fork ).yields.returns( false )
     Process.stubs( :setsid )
-    Daemon::PidFile.stubs( :store )
+    LuciedBlocker.stubs( :block )
+    LuciedBlocker::PidFile.stubs( :store )
     Dir.expects( :chdir )
     File.stubs( :umask )
     STDIN.stubs( :reopen )

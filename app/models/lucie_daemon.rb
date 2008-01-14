@@ -4,72 +4,41 @@ require 'popen3/shell'
 
 
 module Daemon
-  WorkingDirectory = File.expand_path(File.dirname(__FILE__))
-
-
-  class Base
-    def self.pid_fn
-      File.join(WorkingDirectory, "#{name}.pid")
-    end
-
-    def self.daemonize
-      Controller.daemonize(self)
-    end
-  end
-
-
-  module PidFile
-    def self.store(daemon, pid)
-      File.open(daemon.pid_fn, 'w') {|f| f << pid}
-    end
-
-    def self.recall(daemon)
-      IO.read(daemon.pid_fn).to_i rescue nil
-    end
-  end
+  WorkingDirectory = File.expand_path( RAILS_ROOT )
 
 
   module Controller
-    def self.daemonize(daemon)
-      case !ARGV.empty? && ARGV[0]
-      when 'start'
-        start(daemon)
-      when 'stop'
-        stop(daemon)
-      when 'restart'
-        stop(daemon)
-        start(daemon)
-      else
-        puts "Invalid command. Please specify start, stop or restart."
-        exit
-      end
-    end
-
-
-    def self.start(daemon)
+    def self.start daemon
       fork do
         Process.setsid
         exit if fork
-        PidFile.store(daemon, Process.pid)
+        LuciedBlocker.block
+        LuciedBlocker::PidFile.store Process.pid
+        if ENV[ 'DEBUG' ]
+          STDERR.puts( "DEBUG: pwd = #{ WorkingDirectory }" )
+        end
         Dir.chdir WorkingDirectory
         File.umask 0000
-        STDIN.reopen "/dev/null"
-        STDOUT.reopen "/dev/null", "a"
+        STDIN.reopen '/dev/null'
+        STDOUT.reopen '/dev/null', 'a'
         STDERR.reopen STDOUT
-        trap("TERM") { daemon.stop; exit }
+        trap( 'TERM' ) do
+          daemon.stop
+          exit
+        end
         daemon.start
       end
     end
 
 
-    def self.stop(daemon)
-      if !File.file?(daemon.pid_fn)
-        puts "Pid file not found. Is the daemon started?"
+    def self.stop
+      unless File.file?( LuciedBlocker::PidFile.file_name )
+        puts 'Pid file not found. Is the daemon started?'
         exit
       end
-      pid = PidFile.recall(daemon)
-      FileUtils.rm(daemon.pid_fn)
-      pid && Process.kill("TERM", pid)
+      pid = LuciedBlocker::PidFile.recall
+      LuciedBlocker.release
+      pid && Process.kill( 'TERM', pid )
     end
   end
 end
@@ -82,22 +51,22 @@ require 'puppet_controller'
 require 'tftp'
 
 
-class LucieDaemon < Daemon::Base
+class LucieDaemon
   PORT = 58243
 
 
   def self.daemonize
-    Daemon::Controller.start( self )
+    Daemon::Controller.start self
   end
 
 
-  def self.pid_fn
-    LuciedBlocker.pid_file
+  def self.kill
+    Daemon::Controller.stop
   end
 
 
   def self.start
-    DRb.start_service( uri, self.new )
+    DRb.start_service uri, self.new
     DRb.thread.join
   end
 
@@ -112,6 +81,7 @@ class LucieDaemon < Daemon::Base
   end
 
 
+  # [XXX] We should make sure that only the lucie server can call sudo
   def sudo command
     Lucie::Log.info '[lucied] ' + command
     return sh_exec( command )

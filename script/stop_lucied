@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../config/boot'
+require File.dirname( __FILE__ ) + '/../config/boot'
 
 require 'command_line'
 require 'etc'
@@ -7,7 +7,7 @@ require 'lucied_blocker'
 
 
 unless Etc.getpwuid( Process.uid ).name == 'root'
-  STDERR.puts "ERROR: You must be root."
+  STDERR.puts 'ERROR: You must be root.'
   exit -1
 end
 
@@ -18,23 +18,19 @@ begin
     exit 0
   end
 
-  File.open( LuciedBlocker.pid_file, 'r' ) do | f |
-    pid = f.read
-    system "kill #{ pid }"
-  end
-  LuciedBlocker.release
+  LucieDaemon.kill
 rescue => e
   STDERR.puts "FAILED: #{ e.message }"
   exit -1
 end
 
 
-puts "Lucie daemon (lucied) stopped."
+puts 'Lucie daemon (lucied) stopped.'
 exit 0
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
