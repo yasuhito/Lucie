@@ -8,7 +8,7 @@ namespace :test do
 
   desc 'Generage coverage files'
   task :coverage => 'test:coverage:clean' do
-    sh 'rcov -x builder_plugins -x __sandbox -x /usr/local -x /var/lib/gems -x spec --rails spec/**/*_spec.rb test/**/*_test.rb'
+    sh 'rcov -x builder_plugins -x __sandbox -x /usr/local -x /var/lib/gems -x spec -x app/helpers/ --rails spec/**/*_spec.rb test/**/*_test.rb'
   end
 end
 
