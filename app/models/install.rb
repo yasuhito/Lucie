@@ -2,9 +2,6 @@ require 'facter'
 
 
 class Install
-  include CommandLine
-
-
   attr_reader :label
   attr_reader :node
 

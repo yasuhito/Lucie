@@ -1,6 +1,5 @@
 require File.dirname( __FILE__ ) + '/../config/boot'
 
-require 'command_line'
 require 'etc'
 require 'lucie_daemon'
 require 'lucied_blocker'

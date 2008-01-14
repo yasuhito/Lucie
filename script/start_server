@@ -4,7 +4,6 @@
 require File.dirname(__FILE__) + '/../config/boot'
 
 require 'builder_starter'
-require 'command_line'
 require 'lucie_daemon'
 require 'lucied_blocker'
 require 'optparse'
