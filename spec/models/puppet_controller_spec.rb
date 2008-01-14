@@ -1,6 +1,39 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
+describe PuppetController, 'when calling PuppetController.setup' do
+  it 'should setup puppet' do
+    file_stub = StringIO.new( '' )
+
+    # expects
+    File.expects( :exists? ).with( '/usr/sbin/puppetmasterd' ).returns( true )
+    File.expects( :open ).with( '/etc/puppet/puppetmasterd.conf', 'w' ).yields( file_stub )
+    File.expects( :open ).with( '/etc/puppet/fileserver.conf', 'w' ).yields( file_stub )
+
+    # when
+    PuppetController.setup 'LOCAL_CHECKOUT_DIR'
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should raise if puppet is not installed' do
+    file_stub = StringIO.new( '' )
+
+    # expects
+    File.expects( :exists? ).with( '/usr/sbin/puppetmasterd' ).returns( false )
+
+    # when
+    lambda do
+      PuppetController.setup 'LOCAL_CHECKOUT_DIR'
+      # then
+    end.should raise_error( RuntimeError, 'puppetmaster package is not installed. Please install first.' )
+    verify_mocks
+  end
+end
+
+
 describe PuppetController, 'when calling PuppetController.restart' do
   before :each do
     @puppet = PuppetController.new
