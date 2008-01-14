@@ -3,9 +3,19 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 # As a Lucie commandline script,
 # I want to start daemonized druby server (Lucie daemon),
-# so that I can always delegate jobs to Lucie daemon.
+# so that I can delegate jobs to Lucie daemon at any time.
 
 describe LucieDaemon, 'when starting Lucie daemon' do
+  before( :each ) do
+    ENV[ 'DEBUG' ] = '1'
+  end
+
+
+  after( :each ) do
+    ENV[ 'DEBUG' ] = nil
+  end
+
+
   it 'should be daemonized and druby enabled' do
     @lucie_daemon = LucieDaemon.new
     @drb_threads = Object.new
@@ -20,7 +30,11 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     STDIN.expects( :reopen )
     STDOUT.expects( :reopen )
     STDERR.expects( :reopen )
-    Daemon::Controller.expects( :trap )
+
+    # SIGTERM handler
+    Daemon::Controller.expects( :trap ).with( 'TERM' ).yields
+    DRb.expects( :stop_service )
+    Daemon::Controller.stubs( :exit )
 
     DRb.expects( :start_service ).with( 'druby://localhost:58243', @lucie_daemon )
     @drb_threads.expects( :join )
@@ -35,6 +49,41 @@ describe LucieDaemon, 'when starting Lucie daemon' do
 end
 
 
+# As a Lucie commandline script,
+# I want to stop Lucie daemon with LucieDaemon.kill
+# so that I dont have to know about Lucie daemon in detail.
+
+describe LucieDaemon, 'when calling LucieDaemon.kill' do
+  it 'should exit if pid file not found' do
+    File.stubs( :file? ).returns( false )
+
+    # when
+    lambda do
+      LucieDaemon.kill
+      # then
+    end.should raise_error( SystemExit )
+    verify_mocks
+  end
+
+
+  it 'should send TERM signal' do
+    File.stubs( :file? ).returns( true )
+
+    # expects
+    LuciedBlocker::PidFile.expects( :recall ).returns( 'DUMMY_PID' )
+    LuciedBlocker.expects( :release )
+    Process.expects( :kill ).with( 'TERM', 'DUMMY_PID' )
+
+    # when
+    LucieDaemon.kill
+
+    # then
+    verify_mocks
+  end
+end
+
+
+
 # Stubbing LucieDaemon.daemonize
 
 describe 'Lucie Daemon (daemon disabled)', :shared => true do
@@ -45,7 +94,7 @@ describe 'Lucie Daemon (daemon disabled)', :shared => true do
     Process.stubs( :setsid )
     LuciedBlocker.stubs( :block )
     LuciedBlocker::PidFile.stubs( :store )
-    Dir.expects( :chdir )
+    Dir.stubs( :chdir )
     File.stubs( :umask )
     STDIN.stubs( :reopen )
     STDOUT.stubs( :reopen )
