@@ -87,8 +87,8 @@ class NfsrootBase < Rake::TaskLib
 
   def define_task_tgz
     file nfsroot_base_target do
-      Lucie::Log.info "Creating base system using debootstrap version #{ Debootstrap.VERSION }"
-      Lucie::Log.info "Calling debootstrap #{ @suite } #{ temporary_nfsroot_directory } #{ @mirror }"
+      puts "Creating base system using debootstrap version #{ Debootstrap.VERSION }"
+      puts "Calling debootstrap #{ @suite } #{ temporary_nfsroot_directory } #{ @mirror }"
 
       Debootstrap.start do | option |
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
@@ -108,7 +108,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def build_nfsroot_base_tarball
-    Lucie::Log.info "Creating installer base tarball on #{ nfsroot_base_target }."
+    puts "Creating installer base tarball on #{ nfsroot_base_target }."
     unless File.exists?( @target_directory )
       sh_exec "mkdir #{ @target_directory }"
     end

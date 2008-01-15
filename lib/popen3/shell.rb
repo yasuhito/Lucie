@@ -144,11 +144,11 @@ module Kernel
 
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
-        Lucie::Log.info line
+        STDOUT.puts line
       end
       shell.on_stderr do | line |
         @stderr << line
-        Lucie::Log.info line
+        STDERR.puts line
       end
       shell.on_failure do
         raise %{Command "#{ command }" failed.\n#{ @stderr.join( "\n" )}}

@@ -87,11 +87,12 @@ class LucieDaemon
 
 
   # [XXX] We should make sure that only the lucie server can call sudo
-  def sudo command, log_fn
+  def sudo command, log_fn = nil
     Lucie::Log.info '[lucied] ' + command
 
     Popen3::Shell.open do | shell |
-      log = File.open( log_fn, 'w' )
+      log = log_fn ? File.open( log_fn, 'w' ) : STDOUT
+
       shell.on_stdout do | line |
         log.puts line
       end
@@ -104,7 +105,8 @@ class LucieDaemon
       end
 
       shell.exec( command, { :env => { 'LC_ALL' => 'C' } } )
-      log.close
+
+      log.close if log_fn
 
       shell
     end

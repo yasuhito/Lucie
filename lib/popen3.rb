@@ -1,6 +1,3 @@
-require 'lucie/log'
-
-
 module Popen3
   class Popen3
     attr_reader :pid
@@ -48,7 +45,7 @@ module Popen3
       @env.each do | key, value |
         env_string << "'#{ key }' => '#{ value }'"
       end
-      Lucie::Log.debug "ENV{ #{ env_string.join( ', ' ) } } #{ @command }"
+      puts "ENV{ #{ env_string.join( ', ' ) } } #{ @command }"
 
       if block_given?
         begin
