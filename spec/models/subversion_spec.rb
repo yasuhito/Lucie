@@ -35,7 +35,7 @@ describe Subversion do
 
   it 'should checkout with revision specified' do
     in_sandbox do | sandbox |
-      @subversion.expects( :execute ).with( "svn --non-interactive co http://www.my.com/ #{ sandbox.root } --username USERNAME --password PASSWORD --revision 1" ).yields( StringIO.new )
+      @subversion.expects( :sh_exec ).with( "svn --non-interactive co http://www.my.com/ #{ sandbox.root } --username USERNAME --password PASSWORD --revision 1" )
 
       lambda do
         @subversion.checkout sandbox.root, 1
@@ -45,10 +45,7 @@ describe Subversion do
 
 
   it 'should get latest revision' do
-    FileUtils.expects( :touch ).with( './svn.err' ).times( 2 )
-    File.expects( :open ).with( './svn.err' ).raises( RuntimeError ).times( 2 )
-    @subversion.expects( :execute ).with( 'svn --non-interactive info --xml', { :stderr => './svn.err' } ).yields( StringIO.new( info_entry ) )
-    @subversion.expects( :execute ).with( 'svn --non-interactive log --revision HEAD:10 --verbose --xml', { :stderr => './svn.err' } ).yields( StringIO.new( log_entry ) )
+    @subversion.expects( :execute_in_local_copy ).times( 2 ).returns( info_entry.split( "\n" ), log_entry.split( "\n" ) )
 
     revision = @subversion.latest_revision( dummy_project )
 

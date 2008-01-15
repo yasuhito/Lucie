@@ -1,7 +1,7 @@
+require 'popen3/shell'
+
+
 class Subversion
-  include CommandLine
-
-
   attr_accessor :url
   attr_accessor :username
   attr_accessor :password
@@ -33,10 +33,7 @@ class Subversion
       options << " --revision #{ revision_number( revision ) }"
     end
 
-    # need to read from command output, because otherwise tests break
-    execute( svn( :co, options ) ) do | io |
-      io.readlines
-    end
+    sh_exec svn( :co, options )
   end
 
 
@@ -94,10 +91,25 @@ class Subversion
       err_file_path = installer.path + '/svn.err'
       FileUtils.rm_f err_file_path
       FileUtils.touch err_file_path
-      execute( command, :stderr => err_file_path ) do | io |
-        result = io.readlines
+
+      Popen3::Shell.open do | shell |
+        result = []
+        err = File.open( err_file_path, 'w' )
+
+        shell.on_stderr do | line |
+          err << line
+        end
+        shell.on_stdout do | line |
+          result << line
+        end
+        shell.exec command
+
+        err.close
+
         begin
-          error_message = File.open( err_file_path ){ | f | f.read }.strip.split( "\n" )[ 1 ] || ""
+          error_message = File.open( err_file_path ) do | f |
+            f.read
+          end.strip.split( "\n" )[ 1 ] || ""
         rescue
           error_message = ""
         ensure
