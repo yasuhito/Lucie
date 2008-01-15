@@ -2,13 +2,22 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
 describe PuppetController, 'when calling PuppetController.setup' do
+  before( :each ) do
+
+  end
+
+
   it 'should setup puppet' do
     file_stub = StringIO.new( '' )
+    puppet = PuppetController.new
+    PuppetController.stubs( :new ).returns( puppet )
+
 
     # expects
     File.expects( :exists? ).with( '/usr/sbin/puppetmasterd' ).returns( true )
     File.expects( :open ).with( '/etc/puppet/puppetmasterd.conf', 'w' ).yields( file_stub )
     File.expects( :open ).with( '/etc/puppet/fileserver.conf', 'w' ).yields( file_stub )
+    puppet.expects( :restart_puppet )
 
     # when
     PuppetController.setup 'LOCAL_CHECKOUT_DIR'
@@ -19,8 +28,6 @@ describe PuppetController, 'when calling PuppetController.setup' do
 
 
   it 'should raise if puppet is not installed' do
-    file_stub = StringIO.new( '' )
-
     # expects
     File.expects( :exists? ).with( '/usr/sbin/puppetmasterd' ).returns( false )
 
