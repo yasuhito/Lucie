@@ -20,9 +20,6 @@ rescue => e
 end
 
 
-puts "Lucie daemon (lucied) started on port #{ LucieDaemon::PORT }."
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

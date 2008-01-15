@@ -10,23 +10,28 @@ module Daemon
   module Controller
     def self.start daemon
       fork do
-        Process.setsid
-        exit if fork
-        LuciedBlocker.block
-        LuciedBlocker::PidFile.store Process.pid
-        if ENV[ 'DEBUG' ]
-          STDERR.puts( "DEBUG: pwd = #{ WorkingDirectory }" )
+        begin
+          Process.setsid
+          exit if fork
+          LuciedBlocker.block
+          LuciedBlocker::PidFile.store Process.pid
+          if ENV[ 'DEBUG' ]
+            STDERR.puts( "DEBUG: pwd = #{ WorkingDirectory }" )
+          end
+          Dir.chdir WorkingDirectory
+          File.umask 0000
+          STDIN.reopen '/dev/null'
+          STDOUT.reopen '/dev/null', 'a'
+          STDERR.reopen STDOUT
+          trap( 'TERM' ) do
+            daemon.stop
+            exit
+          end
+          daemon.start
+        rescue => e
+          STDERR.puts "FAILED: #{ e.message }"
+          exit -1
         end
-        Dir.chdir WorkingDirectory
-        File.umask 0000
-        STDIN.reopen '/dev/null'
-        STDOUT.reopen '/dev/null', 'a'
-        STDERR.reopen STDOUT
-        trap( 'TERM' ) do
-          daemon.stop
-          exit
-        end
-        daemon.start
       end
     end
 

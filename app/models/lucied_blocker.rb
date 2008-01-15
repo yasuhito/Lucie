@@ -18,7 +18,7 @@ class LuciedBlocker
 
 
   def self.block
-    lock = File.open( PidFile.file_name, 'w' )
+    lock = File.open( PidFile.file_name, 'a+' )
     locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
 
     unless locked

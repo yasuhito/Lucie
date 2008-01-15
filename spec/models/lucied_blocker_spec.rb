@@ -23,7 +23,7 @@ describe LuciedBlocker, 'when calling block' do
 
   it 'should create PID file if there is no other lucied' do
     # expects
-    File.expects( :open ).with( @pid_file_path, 'w' ).returns( @lock_mock )
+    File.expects( :open ).with( @pid_file_path, 'a+' ).returns( @lock_mock )
     @lock_mock.expects( :flock ).with( File::LOCK_EX | File::LOCK_NB ).returns( 'LOCKED' )
 
     # when
