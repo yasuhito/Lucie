@@ -27,7 +27,7 @@ end
 
 File.open( '/tmp/target/etc/hosts', 'w' ) do | file |
   file.puts( <<-EOF )
-127.0.0.1\tlocalhost\t#{ $host_name }
+127.0.0.1\tlocalhost.localdomain\tlocalhost
 #{ Facter.value( 'ipaddress' ) }\t#{ $host_name }.#{ $domain_name }\t#{ $host_name }
 #{ $lucie_server_ipaddress }\t#{ $lucie_server }.#{ $domain_name }\t#{ $lucie_server }
 
