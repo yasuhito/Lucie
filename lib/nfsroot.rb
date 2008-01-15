@@ -95,6 +95,7 @@ class Nfsroot < Rake::TaskLib
 
           # ignore errors when /dev/pts is not mounted.
           sh_exec "umount #{ target( '/dev/pts' ) } 2>&1" rescue nil
+          sh_exec "umount #{ target( '/proc' ) }" rescue nil
 
           ( Dir.glob( target( '/dev/.??*' ) ) + Dir.glob( target( '/*' ) ) ).each do | each |
             sh_exec "rm -rf #{ each }"
@@ -227,7 +228,7 @@ class Nfsroot < Rake::TaskLib
 
   def upgrade_nfsroot
     # [TODO] generate target( 'etc/apt/apt.conf.d/10lucie' ) here.
-    Lucie::Log.info "Upgrading nfsroot. This may take a long time."
+    Lucie::Log.info 'Upgrading nfsroot. This may take a long time.'
     if FileTest.file?( '/etc/resolv.conf' )
       sh_exec "cp -p /etc/resolv.conf #{ target( 'etc/resolv.conf-lucieserver' ) }"
       sh_exec "cp -p /etc/resolv.conf #{ target( 'etc/resolv.conf' ) }"

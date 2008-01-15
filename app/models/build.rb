@@ -193,7 +193,7 @@ class Build
       @status.start!
       in_clean_environment_on_local_copy do
         lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
-        lucie_daemon.sudo build_command
+        lucie_daemon.sudo build_command, build_log
       end
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e

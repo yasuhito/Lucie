@@ -125,9 +125,11 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
 
   it 'should raise RuntimeError if invalid command is executed' do
+    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( StringIO.new( '' ) )
+
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'INVALID_COMMAND' )
+      @remote_lucie_daemon.sudo( 'INVALID_COMMAND', 'LOG_FILE' )
     end.should raise_error( RuntimeError )
 
     # then
@@ -136,9 +138,11 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
 
   it 'should execute pwd command without errors' do
+    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( StringIO.new( '' ) )
+
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'pwd 2>&1 >/dev/null' )
+      @remote_lucie_daemon.sudo( 'pwd 2>&1 >/dev/null', 'LOG_FILE' )
 
       # then
     end.should_not raise_error
