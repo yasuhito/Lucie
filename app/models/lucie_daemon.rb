@@ -1,6 +1,9 @@
 require 'drb/drb'
 require 'fileutils'
 require 'popen3/shell'
+require 'rake'
+
+load "#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake"
 
 
 module Daemon
@@ -94,10 +97,10 @@ class LucieDaemon
       log = log_fn ? File.open( log_fn, 'w' ) : STDOUT
 
       shell.on_stdout do | line |
-        log.puts line
+        Lucie::Log.info line
       end
       shell.on_stderr do | line |
-        log.puts line
+        Lucie::Log.info line
       end
 
       shell.on_failure do
@@ -116,6 +119,15 @@ class LucieDaemon
   ##############################################################################
   # Helper methods
   ##############################################################################
+
+
+  def enable_node node_name, installer_name, wol
+    ENV[ 'NODE_NAME' ] = node_name
+    ENV[ 'INSTALLER_NAME' ] = installer_name
+    ENV[ 'WOL' ] = wol ? '1' : nil
+
+    Rake::Task[ 'lucie:enable_node' ].execute
+  end
 
 
   def disable_node node_name

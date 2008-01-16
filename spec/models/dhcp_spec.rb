@@ -82,6 +82,25 @@ describe Dhcp, 'when setting up DHCP server' do
   end
 
 
+  it 'should raise error if /etc/init.d/dhcp3-server restart failed' do
+    File.stubs( :copy )
+    File.stubs( :open ).yields( dhcp_config_file )
+
+    dhcp = Dhcp.new
+    dhcp.stubs( :domain )
+    dhcp.stubs( :ipaddress )
+    dhcp.stubs( :node_ipaddress )
+    dhcp.stubs( :sh_exec ).raises( RuntimeError )
+    Dhcp.stubs( :new ).returns( dhcp )
+
+    Nodes.stubs( :load_enabled ).returns( [ dummy_node ] )
+
+    lambda do
+      Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.2'
+    end.should raise_error( RuntimeError, 'dhcpd server failed to start - check syslog for diagnostics.' )
+  end
+
+
   def dummy_node
     node = Object.new
     node.stubs( :name ).returns( 'DUMMY_NODE' )

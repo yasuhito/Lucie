@@ -33,7 +33,7 @@ end
 
 
 def stop_lucied
-  if FileTest.exists?( LuciedBlocker.pid_file )
+  if FileTest.exists?( LuciedBlocker::PidFile.file_name )
     system( "#{ sudo_lucied } ./lucie stop --lucied" )
   end
 end

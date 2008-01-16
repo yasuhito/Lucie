@@ -32,7 +32,12 @@ subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ ne
 }
 EOF
     end
-    sh_exec '/etc/init.d/dhcp3-server restart'
+
+    begin
+      sh_exec '/etc/init.d/dhcp3-server restart'
+    rescue
+      raise 'dhcpd server failed to start - check syslog for diagnostics.'
+    end
   end
 
 

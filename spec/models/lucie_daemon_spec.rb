@@ -150,6 +150,31 @@ describe LucieDaemon, 'when calling sudo via druby' do
 end
 
 
+describe LucieDaemon, 'when calling enable_node via druby' do
+  it_should_behave_like 'Lucie Daemon (daemon disabled)'
+
+
+  after( :each ) do
+    DRb.stop_service
+  end
+
+
+  it 'should disable a node if Lucie daemon is started' do
+    enable_node_task = Object.new
+
+    # expects
+    Rake::Task.expects( :[] ).with( 'lucie:enable_node' ).returns( enable_node_task )
+    enable_node_task.expects( :execute )
+
+    # when
+    @remote_lucie_daemon.enable_node( 'NODE_NAME', 'INSTALLER_NAME', true )
+
+    # then
+    verify_mocks
+  end
+end
+
+
 describe LucieDaemon, 'when calling disable_node via druby' do
   it_should_behave_like 'Lucie Daemon (daemon disabled)'
 

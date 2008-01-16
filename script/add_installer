@@ -11,6 +11,7 @@ require 'optparse'
 installer_name = ARGV.shift
 trace = false
 scm_options = { :interactive => true }
+start_builder = true
 
 
 ARGV.options do |opts|
@@ -23,6 +24,9 @@ ARGV.options do |opts|
   end
   opts.on("--username username", String, "Specify a username for source control") { |v| scm_options[:username] = v }
   opts.on("--password password", String, "Specify a password for source control") { |v| scm_options[:password] = v }
+  opts.on( '-n', '--no-builder', 'Disable installer builder' ) do
+    start_builder = false
+  end
   opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
     trace = true
   end
@@ -54,6 +58,9 @@ end
 puts "Adding installer '#{installer_name}' (this may take a while)..."
 
 begin
+  require 'builder_starter'
+  BuilderStarter.run_builders_at_startup = start_builder
+
   require RAILS_ROOT + '/config/environment'
 
   source_control = Subversion.new( scm_options )
