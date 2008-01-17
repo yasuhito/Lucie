@@ -59,7 +59,7 @@ netmask_address:255.255.255.0
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
 
     Then 'It should fail with', "Installer 'TEST_INSTALLER' is not added yet. Please add installer with 'installer add <installer-name>' first." do | expected |
-      @stderr.should == expected
+      @stderr.chomp.should == expected
     end
   end
 
@@ -82,7 +82,7 @@ netmask_address:255.255.255.0
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
 
     Then 'It should fail with', "Node 'TEST_NODE' is not added yet. Please add node with 'node add <node-name>' first." do | expected |
-      @stderr.should == expected
+      @stderr.chomp.should == expected
     end
   end
 
@@ -103,7 +103,7 @@ netmask_address:255.255.255.0
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
 
     Then 'It should fail with', 'FAILED: Lucie daemon (lucied) is down.' do | expected |
-      @stderr.should == expected
+      @stderr.chomp.should == expected
     end
   end
 end
