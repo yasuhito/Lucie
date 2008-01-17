@@ -57,7 +57,7 @@ netmask_address:255.255.255.0
     When 'I run', './node disable TEST_NODE'
 
     Then 'It should fail and the error message should be', 'FAILED: Node TEST_NODE not found!' do | expected |
-      @stderr.should == expected
+      @stderr.chomp.should == expected
     end
   end
 
@@ -75,7 +75,7 @@ netmask_address:255.255.255.0
     When 'I run', './node disable TEST_NODE'
 
     Then 'It should fail and the error message should be', 'FAILED: Lucie daemon (lucied) is down.' do | expected |
-      @stderr.should == expected
+      @stderr.chomp.should == expected
     end
   end
 end
