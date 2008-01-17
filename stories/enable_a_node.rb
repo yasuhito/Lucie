@@ -16,10 +16,18 @@ Story "Enable a node with 'node' command",
       restart_lucied
     end
 
+    Given 'No node is added' do
+      cleanup_nodes
+    end
+
+    Given 'No installer is added' do
+      cleanup_installers
+    end
+
     Given 'TEST_INSTALLER installer is added' do
-      unless FileTest.directory?( './installers/TEST_INSTALLER' )
-        FileUtils.mkdir './installers/TEST_INSTALLER'
-      end
+      system "./installer add TEST_INSTALLER --url https://lucie.is.titech.ac.jp/svn/trunk/config/demo --no-builder"
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.success.in10s' )
     end
 
     Given 'TEST_NODE is already added and is disabled' do
@@ -49,10 +57,8 @@ netmask_address:255.255.255.0
 
   Scenario 'node enable fail if installer is not added' do
     Given 'lucied is started'
-
-    Given 'no installer is added' do
-      cleanup_installers
-    end
+    Given 'No node is added'
+    Given 'No installer is added'
 
     Given 'TEST_NODE is already added and is disabled'
 
@@ -69,15 +75,11 @@ netmask_address:255.255.255.0
   # o node is added / [not added]
 
   Scenario 'node enable fail if installer is not added' do
-    Given 'lucied is started' do
-      restart_lucied
-    end
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
 
     Given 'TEST_INSTALLER installer is added'
-
-    Given 'no node is added' do
-      cleanup_nodes
-    end
 
     When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
 
@@ -96,6 +98,9 @@ netmask_address:255.255.255.0
       stop_lucied
     end
 
+    Given 'No node is added'
+    Given 'No installer is added'
+
     Given 'TEST_INSTALLER installer is added'
 
     Given 'TEST_NODE is already added and is disabled'
@@ -105,6 +110,61 @@ netmask_address:255.255.255.0
     Then 'It should fail with', 'FAILED: Lucie daemon (lucied) is down.' do | expected |
       @stderr.chomp.should == expected
     end
+  end
+
+
+  Scenario 'node enable fails if installer is not built' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE is already added and is disabled'
+
+    Given 'TEST_INSTALLER is added and is not built' do
+      add_fresh_installer 'TEST_INSTALLER'
+    end
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', "FAILED: installer 'TEST_INSTALLER' is not built yet."
+  end
+
+
+  Scenario 'node enable fails if installer is being built' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE is already added and is disabled'
+
+    Given 'TEST_INSTALLER is added and is being built' do
+      add_fresh_installer 'TEST_INSTALLER'
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.incomplete' )
+    end
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', "FAILED: installer 'TEST_INSTALLER' is being built now."
+  end
+
+
+  Scenario 'node enable fails if installer is broken' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+
+    Given 'TEST_NODE is already added and is disabled'
+
+    Given 'TEST_INSTALLER is added and is broken' do
+      add_fresh_installer 'TEST_INSTALLER'
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.failed.in10s' )
+    end
+
+    When 'I run', './node enable TEST_NODE --installer TEST_INSTALLER --no-builder'
+
+    Then 'It should fail with', "FAILED: installer 'TEST_INSTALLER' is broken."
   end
 end
 
