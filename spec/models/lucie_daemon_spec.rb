@@ -138,11 +138,43 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
 
   it 'should execute pwd command without errors' do
-    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( StringIO.new( '' ) )
+    log = Object.new
+    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( log )
+
+    # expects
+    Lucie::Log.expects( :info )
+    log.expects( :puts )
+    log.expects( :close )
 
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'pwd 2>&1 >/dev/null', 'LOG_FILE' )
+      @remote_lucie_daemon.sudo( 'pwd', 'LOG_FILE' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should log command output' do
+    shell = Object.new
+    Popen3::Shell.stubs( :open ).yields( shell )
+
+    shell.stubs( :on_stdout ).yields( 'STDOUT' )
+    shell.stubs( :on_stderr ).yields( 'STDOUT' )
+    shell.stubs( :on_failure )
+    shell.stubs( :exec )
+
+    log = Object.new
+    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( log )
+
+    # expects
+    Lucie::Log.expects( :info ).at_least_once
+    log.expects( :puts ).at_least_once
+    log.expects( :close ).at_least_once
+
+    # when
+    lambda do
+      @remote_lucie_daemon.sudo( 'COMMAND', 'LOG_FILE' )
 
       # then
     end.should_not raise_error

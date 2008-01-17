@@ -91,16 +91,19 @@ class LucieDaemon
 
   # [XXX] We should make sure that only the lucie server can call sudo
   def sudo command, log_fn = nil
+    log = log_fn ? File.open( log_fn, 'w' ) : STDOUT
+
     Lucie::Log.info '[lucied] ' + command
+    log.puts '[lucied] ' + command
 
     Popen3::Shell.open do | shell |
-      log = log_fn ? File.open( log_fn, 'w' ) : STDOUT
-
       shell.on_stdout do | line |
         Lucie::Log.info line
+        log.puts line
       end
       shell.on_stderr do | line |
         Lucie::Log.info line
+        log.puts line
       end
 
       shell.on_failure do
