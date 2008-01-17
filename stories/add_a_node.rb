@@ -46,6 +46,8 @@ Story "Add a node with 'node' command",
 
     Given 'TEST_INSTALLER is added' do
       system "./installer add TEST_INSTALLER --url https://lucie.is.titech.ac.jp/svn/trunk/config/demo --no-builder"
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.success.in10s' )
     end
 
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }" do | command |
@@ -85,7 +87,7 @@ Story "Add a node with 'node' command",
     Given 'TEST_INSTALLER is added'
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
-    Then 'the error message should be:', 'FAILED: node named "TEST_NODE" already exists.' do | error_message |
+    Then 'the error message should be:', "FAILED: node named \"TEST_NODE\" already exists." do | error_message |
       @stderr.chomp.should == error_message
     end
     Then 'node directory should not be removed' do
@@ -116,7 +118,7 @@ Story "Add a node with 'node' command",
 
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
 
-    Then 'the error message should be:', 'FAILED: Lucie daemon (lucied) is down.' do | error_message |
+    Then 'the error message should be:', "FAILED: Lucie daemon (lucied) is down." do | error_message |
       @stderr.chomp.should == error_message
     end
 
@@ -175,7 +177,7 @@ Story "Add a node with 'node' command",
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
 
-    Then 'the error message should be:', 'FAILED: node named "TEST_NODE" already exists.' do | error_message |
+    Then 'the error message should be:', "FAILED: node named \"TEST_NODE\" already exists." do | error_message |
       @stderr.chomp.should == error_message
     end
   end
@@ -236,6 +238,61 @@ Story "Add a node with 'node' command",
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway }"
 
     Then 'the error message matches with', /IP, Netmask, Gateway, and MAC address are mandatory/
+  end
+
+
+  Scenario 'node add fails if installer is not built' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+    Given 'TEST_INSTALLER is added and is not built' do
+      add_fresh_installer 'TEST_INSTALLER'
+    end
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+    Then 'the error message should be:', "FAILED: installer 'TEST_INSTALLER' is not built yet."
+  end
+
+
+  Scenario 'node add fails if installer is being built' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+    Given 'TEST_INSTALLER is added and is being built' do
+      add_fresh_installer 'TEST_INSTALLER'
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.incomplete' )
+    end
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+    Then 'the error message should be:', "FAILED: installer 'TEST_INSTALLER' is being built now."
+  end
+
+
+  Scenario 'node add fails if installer is broken' do
+    Given 'lucied is started'
+    Given 'No node is added'
+    Given 'No installer is added'
+    Given 'TEST_NODE has a NIC'
+    Given 'MAC address is', '00:00:00:00:00:00'
+    Given 'IP address is', '192.168.2.1'
+    Given 'Netmask address is', '255.255.255.0'
+    Given 'Gateway address is', '192.168.2.254'
+    Given 'TEST_INSTALLER is added and is being built' do
+      add_fresh_installer 'TEST_INSTALLER'
+      FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
+      FileUtils.touch( 'installers/TEST_INSTALLER/build-1.1/build_status.failed.in10s' )
+    end
+    When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
+    Then 'the error message should be:', "FAILED: installer 'TEST_INSTALLER' is broken."
   end
 end
 

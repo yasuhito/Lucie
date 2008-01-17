@@ -1,6 +1,3 @@
-require 'lucie_daemon'
-
-
 class Build
   IGNORE_ARTIFACTS = /\A(\..*|build_status\..+|build.log|changeset.log|lucie_config.rb|plugin_errors.log)\Z/
 

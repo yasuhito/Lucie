@@ -47,6 +47,14 @@ def add_fresh_node node_name
 end
 
 
+def add_fresh_installer installer_name
+  installer_dir = File.join( './installers', installer_name )
+
+  FileUtils.rm_rf installer_dir
+  FileUtils.mkdir installer_dir
+end
+
+
 def cleanup_installers
   FileUtils.rm_rf Dir.glob( './installers/*' )
 end
