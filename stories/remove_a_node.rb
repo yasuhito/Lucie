@@ -30,7 +30,7 @@ Story "Remove a node with 'node remove' command", %(
     end
 
     Then 'I get error look like:', "FAILED: Node 'NO_SUCH_NODE' not found." do | message |
-      @stderr.should == message
+      @stderr.chomp.should == message
     end
   end
 end
