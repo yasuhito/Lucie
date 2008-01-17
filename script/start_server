@@ -39,13 +39,12 @@ ARGV.clone.options do | opts |
     puts opts; exit
   end
   opts.on( '-D', '--debug', 'Enable debugging.' ) do
-    ENV[ 'DEBUG' ] = '1'
+    $debug = true
   end
   opts.parse!
 end
 
-
-system %(sudo -p '[lucied] password for %u: ' ruby -e "load './script/start_lucied'" )
+system %(sudo -p '[lucied] password for %u: ' ruby #{ $debug ? '-d' : '' } -e "load './script/start_lucied'" )
 if $start_lucie_daemon_only
   exit 0
 end

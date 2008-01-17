@@ -18,7 +18,7 @@ module Daemon
           exit if fork
           LuciedBlocker.block
           LuciedBlocker::PidFile.store Process.pid
-          if ENV[ 'DEBUG' ]
+          if $DEBUG
             STDERR.puts( "DEBUG: pwd = #{ WorkingDirectory }" )
           end
           Dir.chdir WorkingDirectory

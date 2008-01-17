@@ -54,6 +54,6 @@ class LuciedBlocker
 
 
   def self.cannot_lock_error_message
-    "Another lucied is already running."
+    "Another Lucie daemon is already running."
   end
 end

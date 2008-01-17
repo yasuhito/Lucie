@@ -13,7 +13,7 @@ end
 
 begin
   unless LuciedBlocker.blocked?
-    puts 'Lucie daemon (lucied) not running (no pid file).'
+    puts 'Lucie daemon not running (no pid file).'
     exit 0
   end
 
@@ -24,7 +24,7 @@ rescue => e
 end
 
 
-puts 'Lucie daemon (lucied) stopped.'
+puts 'Lucie daemon stopped.'
 exit 0
 
 

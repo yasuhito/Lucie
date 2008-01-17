@@ -43,7 +43,7 @@ describe LuciedBlocker, 'when calling block' do
       LuciedBlocker.block
 
       # then
-    end.should raise_error( RuntimeError, 'Another lucied is already running.' )
+    end.should raise_error( RuntimeError, 'Another Lucie daemon is already running.' )
   end
 
 
@@ -61,7 +61,7 @@ describe LuciedBlocker, 'when calling block' do
       LuciedBlocker.block
 
       # then
-    end.should raise_error( RuntimeError,  'Another lucied is already running.' )
+    end.should raise_error( RuntimeError,  'Another Lucie daemon is already running.' )
 
     # and
     verify_mocks
