@@ -1,3 +1,4 @@
+require 'facter'
 require 'stories/helper'
 
 
@@ -5,6 +6,23 @@ Story "Add a node with 'node' command",
 %(As a cluster administrator
   I want to add a node using 'node' command
   So that I can add a node to the system) do
+
+
+  def dummy_ip_address
+    my_address = Facter.value( 'ipaddress' )
+    /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ my_address
+    if $4.to_i < 253
+      return "#{ $1 }.#{ $2 }.#{ $3 }.#{ $4.to_i + 1 }"
+    else
+      return "#{ $1 }.#{ $2 }.#{ $3 }.252"
+    end
+  end
+
+
+  def dummy_gateway_address
+    /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ dummy_ip_address
+    return "#{ $1 }.#{ $2 }.#{ $3 }.254"
+  end
 
 
   # o lucied is [up] / down
@@ -32,7 +50,7 @@ Story "Add a node with 'node' command",
       @nic.mac = mac_address
     end
 
-    Given 'IP address is', '192.168.2.1' do | ip_address |
+    Given 'IP address is', dummy_ip_address do | ip_address |
       @nic.ip = ip_address
     end
 
@@ -40,7 +58,7 @@ Story "Add a node with 'node' command",
       @nic.netmask = netmask_address
     end
 
-    Given 'Gateway address is', '192.168.2.254' do | gateway_address |
+    Given 'Gateway address is', dummy_gateway_address do | gateway_address |
       @nic.gateway = gateway_address
     end
 
@@ -54,6 +72,12 @@ Story "Add a node with 'node' command",
       @stdout, @stderr = output_with( command )
     end
 
+
+    Then 'We get no error' do
+      @stderr.should == ''
+    end
+
+
     Then 'MAC address file should be created with path =', './nodes/TEST_NODE/00_00_00_00_00_00' do | path |
       FileTest.exists?( path ).should be_true
     end
@@ -65,8 +89,8 @@ Story "Add a node with 'node' command",
     end
 
     Then 'the contents of MAC address file should look like', %(
-      gateway_address:192.168.2.254
-      ip_address:192.168.2.1
+      gateway_address:#{ dummy_gateway_address }
+      ip_address:#{ dummy_ip_address }
       netmask_address:255.255.255.0
     ) do | contents |
 
@@ -81,9 +105,9 @@ Story "Add a node with 'node' command",
     Given 'No installer is added'
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
     Given 'TEST_INSTALLER is added'
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
@@ -110,9 +134,9 @@ Story "Add a node with 'node' command",
 
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
 
     Given 'TEST_INSTALLER is added'
 
@@ -139,9 +163,9 @@ Story "Add a node with 'node' command",
 
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
 
     When 'I add TEST_NODE with', "./node add TEST_NODE --installer TEST_INSTALLER -a #{ @nic.ip } -n #{ @nic.netmask } -g #{ @nic.gateway } -m #{ @nic.mac }"
 
@@ -167,9 +191,9 @@ Story "Add a node with 'node' command",
 
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
 
     Given 'TEST_INSTALLER is added'
 
@@ -247,9 +271,9 @@ Story "Add a node with 'node' command",
     Given 'No installer is added'
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
     Given 'TEST_INSTALLER is added and is not built' do
       add_fresh_installer 'TEST_INSTALLER'
     end
@@ -264,9 +288,9 @@ Story "Add a node with 'node' command",
     Given 'No installer is added'
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
     Given 'TEST_INSTALLER is added and is being built' do
       add_fresh_installer 'TEST_INSTALLER'
       FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )
@@ -283,9 +307,9 @@ Story "Add a node with 'node' command",
     Given 'No installer is added'
     Given 'TEST_NODE has a NIC'
     Given 'MAC address is', '00:00:00:00:00:00'
-    Given 'IP address is', '192.168.2.1'
+    Given 'IP address is', dummy_ip_address
     Given 'Netmask address is', '255.255.255.0'
-    Given 'Gateway address is', '192.168.2.254'
+    Given 'Gateway address is', dummy_gateway_address
     Given 'TEST_INSTALLER is added and is being built' do
       add_fresh_installer 'TEST_INSTALLER'
       FileUtils.mkdir( 'installers/TEST_INSTALLER/build-1.1/' )

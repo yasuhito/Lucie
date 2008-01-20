@@ -76,8 +76,9 @@ EOF
       file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
     end
 
-    # HACK: /etc/init.d/tftpd-hpa restart does not work correctly
+    # HACK: /etc/init.d/tftpd-hpa restart often fails.
     sh_exec '/etc/init.d/tftpd-hpa stop' rescue nil
+    sleep 2
     sh_exec '/etc/init.d/tftpd-hpa start'
   end
 
