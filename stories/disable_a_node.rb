@@ -38,7 +38,7 @@ netmask_address:255.255.255.0
     end
 
     Then 'It should succeeed with no error message' do
-      @stderr.should be_empty
+      @stderr.should == ''
     end
 
     Then 'Installer file should be removed' do

@@ -1,4 +1,3 @@
-require 'facter'
 require 'stories/helper'
 
 
@@ -6,23 +5,6 @@ Story "Add a node with 'node' command",
 %(As a cluster administrator
   I want to add a node using 'node' command
   So that I can add a node to the system) do
-
-
-  def dummy_ip_address
-    my_address = Facter.value( 'ipaddress' )
-    /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ my_address
-    if $4.to_i < 253
-      return "#{ $1 }.#{ $2 }.#{ $3 }.#{ $4.to_i + 1 }"
-    else
-      return "#{ $1 }.#{ $2 }.#{ $3 }.252"
-    end
-  end
-
-
-  def dummy_gateway_address
-    /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ dummy_ip_address
-    return "#{ $1 }.#{ $2 }.#{ $3 }.254"
-  end
 
 
   # o lucied is [up] / down

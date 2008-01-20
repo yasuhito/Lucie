@@ -34,8 +34,8 @@ Story "Enable a node with 'node' command",
       add_fresh_node 'TEST_NODE'
       File.open( './nodes/TEST_NODE/00_00_00_00_00_00', 'w' ) do | file |
         file.puts <<-EOF
-gateway_address:192.168.2.254
-ip_address:192.168.2.1
+gateway_address:#{ dummy_gateway_address }
+ip_address:#{ dummy_ip_address }
 netmask_address:255.255.255.0
         EOF
       end
@@ -46,7 +46,7 @@ netmask_address:255.255.255.0
     end
 
     Then 'It should succeeed with no error message' do
-      @stderr.should be_empty
+      @stderr.should == ''
     end
   end
 

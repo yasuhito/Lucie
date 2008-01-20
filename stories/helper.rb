@@ -1,5 +1,6 @@
 require 'rubygems'
 
+require 'facter'
 require 'open3'
 require 'rbehave'
 require 'spec'
@@ -82,6 +83,23 @@ def output_with command
 
     [ stdout, stderr ]
   end
+end
+
+
+def dummy_ip_address
+  my_address = Facter.value( 'ipaddress' )
+  /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ my_address
+  if $4.to_i < 253
+    return "#{ $1 }.#{ $2 }.#{ $3 }.#{ $4.to_i + 1 }"
+  else
+    return "#{ $1 }.#{ $2 }.#{ $3 }.252"
+  end
+end
+
+
+def dummy_gateway_address
+  /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ dummy_ip_address
+  return "#{ $1 }.#{ $2 }.#{ $3 }.254"
 end
 
 

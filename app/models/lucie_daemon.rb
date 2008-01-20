@@ -52,13 +52,6 @@ module Daemon
 end
 
 
-# [???] auto_load does not work
-require 'node'
-require 'nodes'
-require 'puppet_controller'
-require 'tftp'
-
-
 class LucieDaemon
   PORT = 58243
 
@@ -137,7 +130,7 @@ class LucieDaemon
     node = Nodes.find( node_name )
     if node
       node.disable!
-      Tftp.disable node
+      Tftp.disable node_name
     else
       raise "Node #{ node_name } not found!"
     end
