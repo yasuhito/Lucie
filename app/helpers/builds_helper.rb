@@ -19,10 +19,11 @@ module BuildsHelper
     select_tag "build", options, :onChange => "this.form.submit();"
   end
   
-  def format_build_log(log)
-    link_to_code(h(log).gsub(/(\d+ tests, \d+ assertions, \d+ failures, \d+ errors)/,
-                             '<div class="test-results">\1</div>'))
+
+  def format_build_log log
+    link_to_code( h( log ).gsub( /^(ENV{.+)/,'<font color=#999>\1</font>' ) )
   end
+
   
   def link_to_code(log)
     @work_path ||= File.expand_path(@installer.path + '/work')
