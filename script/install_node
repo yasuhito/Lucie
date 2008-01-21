@@ -44,11 +44,24 @@ ARGV.options do | opts |
     exit -1
   end
 
-  INSTALLER_OPTIONS[ :log_file_name ] = "log/#{ INSTALLER_OPTIONS[ :node_name ] }_installer.log"
+  labels = Dir[ "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }" + '/install-*' ].collect do | each |
+    /install-(\d+)\Z/=~ each
+    $1.to_i
+  end
+  if labels.empty?
+    label = 0
+    INSTALLER_OPTIONS[ :log_file_name ] = "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }/install-#{ label }/install.log"
+  else
+    label = labels.max + 1
+  end
+  install_log_dir = File.expand_path( "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }/install-#{ label }" )
+  FileUtils.mkdir_p install_log_dir
+  INSTALLER_OPTIONS[ :log_file_name ] = File.join( install_log_dir, 'install.log' )
 end
 
 
 require RAILS_ROOT + '/config/environment'
+
 
 unless node = Nodes.find( INSTALLER_OPTIONS[ :node_name ] )
   STDERR.puts "Node '#{ INSTALLER_OPTIONS[ :node_name ] }' is not added yet. Please add node with 'node add <node-name>' first."
@@ -57,7 +70,9 @@ end
 
 
 Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
-puts "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
+
+
+Lucie::Log.info "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
 
 
 begin

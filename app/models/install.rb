@@ -30,7 +30,6 @@ class Install
       @label = 0
     end
     @status = InstallStatus.new( artifacts_directory )
-    @install_log = STDERR
   end
 
 
@@ -89,16 +88,11 @@ class Install
 
   def run
     begin
-      @install_log = File.open( artifact( 'install.log' ), 'a' )
-      @install_log.sync = true
-
       time = Time.now
       @status.start!
       install
       @status.succeed!( ( Time.now - time ).ceil )
     rescue => e
-      @install_log << e.message
-
       time_escaped = ( Time.now - ( time || Time.now ) ).ceil
       if e.is_a?( ConfigError )
         @status.fail! time_escaped, e.message
@@ -125,11 +119,16 @@ class Install
 
   def ssh_exec node_name, command
     Popen3::Shell.open do | shell |
-      shell.on_stdout { | line | @install_log.puts line }
-      shell.on_stderr { | line | @install_log.puts line }
-      shell.on_failure { raise %{Command "#{ command }" failed} }
+      shell.on_stdout do | line |
+        Lucie::Log.debug line
+      end
+      shell.on_stderr do | line |
+        Lucie::Log.debug line
+      end
+      shell.on_failure do
+        raise %{Command "#{ command }" failed}
+      end
 
-      @install_log.puts "[root@#{ INSTALLER_OPTIONS[ :node_name ] }] #{ command }"
       shell.exec( %{ssh root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
 
       # Returns a instance of Popen3::Shell as a return value from

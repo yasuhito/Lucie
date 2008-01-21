@@ -421,7 +421,7 @@ class Installer
       raise "Installer `#{ node.installer_name }' is broken."
     end
 
-    install = Install.new( node, :new )
+    install = Install.new( node, :latest )
     install.run
     return install
   end
