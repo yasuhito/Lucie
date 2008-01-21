@@ -143,6 +143,7 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
     # expects
     Lucie::Log.expects( :info )
+    log.expects( :sync= ).with( true )
     log.expects( :puts )
     log.expects( :close )
 
@@ -169,6 +170,7 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
     # expects
     Lucie::Log.expects( :info ).at_least_once
+    log.expects( :sync= ).with( true )
     log.expects( :puts ).at_least_once
     log.expects( :close ).at_least_once
 

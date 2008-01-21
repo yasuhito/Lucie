@@ -1,6 +1,6 @@
 module Lucie
   def self.invoke_rake_task task_name
-    puts "[Lucie] Invoking Rake task #{ task_name.inspect }"
+    puts "Invoking Rake task #{ task_name.inspect }"
     Rake::Task[ task_name ].invoke
   end
 

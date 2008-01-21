@@ -112,7 +112,7 @@ class NfsrootBase < Rake::TaskLib
     unless File.exists?( @target_directory )
       sh_exec "mkdir #{ @target_directory }"
     end
-    sh_exec "tar --one-file-system --directory #{ temporary_nfsroot_directory } --exclude #{ target_fname( @distribution, @suite ) } -czvf #{ nfsroot_base_target } ."
+    sh_exec "tar --one-file-system --directory #{ temporary_nfsroot_directory } --exclude #{ target_fname( @distribution, @suite ) } -czf #{ nfsroot_base_target } ."
   end
 
 

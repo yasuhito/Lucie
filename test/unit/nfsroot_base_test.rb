@@ -69,7 +69,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
-    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czvf /TMP/DEBIAN_SARGE.tgz ." )
+    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czf /TMP/DEBIAN_SARGE.tgz ." )
     AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap" )
 
     assert_nothing_raised do
@@ -106,7 +106,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
-    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czvf /TMP/DEBIAN_SARGE.tgz ." )
+    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czf /TMP/DEBIAN_SARGE.tgz ." )
     AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap" )
 
     assert_nothing_raised do
