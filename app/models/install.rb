@@ -169,7 +169,7 @@ class Install
     ssh_exec @node.name, 'setup_grub'
 
     Lucie::Log.info 'Setting up network'
-    ssh_exec @node.name, "setup_network #{ @node.name } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
+    ssh_exec @node.name, "setup_network #{ @node.name } #{ @node.mac_address } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
 
     Lucie::Log.info 'Setting up puppet'
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"

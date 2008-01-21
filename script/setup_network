@@ -5,13 +5,21 @@ require 'facter'
 
 
 $host_name = ARGV[ 0 ]
-$domain_name = ARGV[ 1 ]
-$lucie_server = ARGV[ 2 ]
-$lucie_server_ipaddress = ARGV[ 3 ]
+$mac_address = ARGV[ 1 ].downcase
+$domain_name = ARGV[ 2 ]
+$lucie_server = ARGV[ 3 ]
+$lucie_server_ipaddress = ARGV[ 4 ]
 
 
 File.open( '/tmp/target/etc/hostname', 'w' ) do | file |
   file.puts $host_name
+end
+
+
+File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'w' ) do | file |
+  file.puts( <<-EOF )
+SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="eth0"
+EOF
 end
 
 
