@@ -145,6 +145,10 @@ class NfsrootTest < Test::Unit::TestCase
     shell.stubs( :exec )
     Popen3::Shell.stubs( :open ).yields( shell )
 
+    node_list = Object.new
+    node_list.stubs( :each )
+    Nodes.stubs( :load_all ).returns( node_list )
+
     assert_nothing_raised do
       nfsroot.generate_etc_hosts
     end
@@ -274,6 +278,7 @@ class NfsrootTest < Test::Unit::TestCase
         task.target_directory = sandbox.root
       end
 
+      File.stubs( :open ).with( "#{ sandbox.root }/etc/gmond.conf", 'w' ).yields( StringIO.new )
       nfsroot.stubs( :sh_exec )
       FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/lib/discover" ).returns( false )
       FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/discover" ).returns( false )

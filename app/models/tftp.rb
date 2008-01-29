@@ -37,7 +37,7 @@ default lucie
 
 label lucie
 kernel vmlinuz-install
-append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ nfsroot( installer_name ) },v2,rsize=32768,wsize=32768
+append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ nfsroot( installer_name ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name }
 EOF
     end
   end
