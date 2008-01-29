@@ -1,11 +1,12 @@
 # Partition configuration for Lucie
 
-
 require 'lucie/setup-harddisks/config'
 
 
+target = FileTest::exists?( '/dev/sda' ) ? '/dev/sda' : '/dev/hda'
+
 partition 'root' do | p |
-  p.slice = '/dev/hda'
+  p.slice = target
   p.kind = 'primary'
   p.fs = 'ext3'
   p.mount_point = '/'
@@ -16,7 +17,7 @@ partition 'root' do | p |
 end
 
 partition 'swap' do | p |
-  p.slice = 'hda'
+  p.slice = target
   p.kind = 'primary'
   p.fs = 'swap'
   p.mount_point = 'none'
@@ -24,7 +25,7 @@ partition 'swap' do | p |
 end
 
 partition 'var' do | p |
-  p.slice = 'hda'
+  p.slice = target
   p.kind = 'logical'
   p.fs = 'reiserfs'
   p.mount_point = '/var'
@@ -32,7 +33,7 @@ partition 'var' do | p |
 end
 
 partition 'usr' do | p |
-  p.slice = 'hda'
+  p.slice = target
   p.kind = 'logical'
   p.fs = 'reiserfs'
   p.mount_point = '/usr'
@@ -40,7 +41,7 @@ partition 'usr' do | p |
 end
 
 partition 'home' do | p |
-  p.slice = 'hda7'
+  p.slice = target
   p.kind = 'logical'
   p.fs = 'reiserfs'
   p.mount_point = '/home'
