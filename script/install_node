@@ -8,6 +8,7 @@ require File.dirname( __FILE__ ) + '/../config/boot'
 require RAILS_ROOT + '/lib/popen3/shell'
 require 'optparse'
 require 'fileutils'
+require 'timeout'
 
 
 INSTALLER_OPTIONS = { :verbose => false }
@@ -88,6 +89,20 @@ begin
   lucie_daemon.restart_puppet
 
   FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
+
+  Lucie::Log.info "Connecting to '#{ INSTALLER_OPTIONS[ :node_name ] }' ..."
+  catch( :node_is_up ) do
+    loop do
+      Popen3::Shell.open do | shell |
+        shell.on_success do
+          throw :node_is_up
+        end
+        shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ INSTALLER_OPTIONS[ :node_name ] } "grep -q nfsroot /proc/cmdline"}, { :env => { 'LC_ALL' => 'C' } } )
+      end
+      sleep 10
+    end
+  end
+
   Installer.install node
 
   lucie_daemon.disable_node( node.name )

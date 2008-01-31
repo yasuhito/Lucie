@@ -129,7 +129,7 @@ class Install
         raise %{Command "#{ command }" failed}
       end
 
-      shell.exec( %{ssh root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
+      shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
 
       # Returns a instance of Popen3::Shell as a return value from
       # this block, in order to get child_status from the return value
