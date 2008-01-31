@@ -7,6 +7,7 @@ RAILS_ENV = 'installer'
 require File.dirname( __FILE__ ) + '/../config/boot'
 require RAILS_ROOT + '/lib/popen3/shell'
 require 'optparse'
+require 'fileutils'
 
 
 INSTALLER_OPTIONS = { :verbose => false }
@@ -30,6 +31,11 @@ ARGV.options do | opts |
   end
 
   args = opts.parse!
+
+  if INSTALLER_OPTIONS[ :node_name ] == '--help' or INSTALLER_OPTIONS[ :node_name ] == '-h'
+    puts opts
+    exit 1
+  end
 
   unless INSTALLER_OPTIONS[ :node_name ]
     STDERR.puts 'Node name is mandatory'

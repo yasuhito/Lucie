@@ -133,6 +133,28 @@ Story "Read the 'node list' help message", %(
 end
 
 
+Story "Read the 'node install' help message", %(
+  As a cluster administrator
+  I want to read help message of 'node install'
+  So that I can understand how to install a node) do
+
+  Scenario 'node help list' do
+    When 'I run', './node help install'
+    Then 'the help message should look like', expected_help_message[ :node_install ]
+  end
+
+  Scenario 'node list --help' do
+    When 'I run', './node install --help'
+    Then 'the help message should look like', expected_help_message[ :node_install ]
+  end
+
+  Scenario 'node list -h' do
+    When 'I run', './node install -h'
+    Then 'the help message should look like', expected_help_message[ :node_install ]
+  end
+end
+
+
 def expected_help_message
   {
     :node_help => %(
@@ -199,6 +221,15 @@ usage: node disable <node-name>
 
     :node_list => %(
 usage: node list
+
+    -t, --trace                      Print out exception stack traces
+
+    -h, --help                       Show this help message.
+  ),
+
+
+    :node_install => %(
+usage: node install <node-name>
 
     -t, --trace                      Print out exception stack traces
 
