@@ -7,6 +7,7 @@ node default {
   # ソフトウェアごとの設定
   include sudo
   include timezone
+  include ssh
 
   $ganglia_cluster_name = "My Cluster"
   $ganglia_trusted_hosts = "192.168.0.1, 192.168.0.2"

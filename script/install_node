@@ -15,8 +15,17 @@ INSTALLER_OPTIONS = { :verbose => false }
 INSTALLER_OPTIONS[ :node_name ] = ARGV.shift
 
 
+scripts = []
+
+
 ARGV.options do | opts |
   opts.banner = 'usage: node install <node-name>'
+
+  opts.separator ''
+
+  opts.on( '-s', '--script script file', String, 'The (Re-)boot scripts executed before installation' ) do | v |
+    scripts = v.split( ',' )
+  end
 
   opts.separator ''
 
@@ -89,6 +98,10 @@ begin
   lucie_daemon.restart_puppet
 
   FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
+
+  scripts.each do | each |
+    lucie_daemon.sudo each
+  end
 
   Lucie::Log.info "Connecting to '#{ INSTALLER_OPTIONS[ :node_name ] }' ..."
   catch( :node_is_up ) do
