@@ -174,6 +174,8 @@ class Install
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
 
     ssh_exec @node.name, 'swapoff -a'
+
+    ssh_exec @node.name, 'shutdown -r now'
   end
 
 
