@@ -91,14 +91,6 @@ sh_exec 'mount -t devpts devpts /dev/pts'
 
 sh_exec 'mount -o remount,noatime,ro /dev/root /'
 
-if FileTest.executable?( '/etc/init.d/ganglia-monitor' )
-  sh_exec '/etc/init.d/ganglia-monitor start'
-end
-
-if FileTest.executable?( '/etc/init.d/cron' )
-  sh_exec '/etc/init.d/cron start'
-end
-
 
 ################################################################################
 # confdir
