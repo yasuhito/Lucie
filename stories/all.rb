@@ -1,3 +1,4 @@
-( Dir.glob( 'stories/*.rb' ) - [ 'stories/all.rb', 'stories/helper.rb' ] ).each do | each |
-  require each
+dir = File.dirname(__FILE__)
+Dir[File.expand_path("#{dir}/**/*.rb")].uniq.each do |file|
+  require file
 end
