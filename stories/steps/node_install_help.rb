@@ -1,11 +1,15 @@
 steps_for( :node_install_help ) do
-  When( "I run $command" ) do | command |
-    @hoge = command
-    # @help_message, @stderr = output_with( command )
+  When( 'I run $command' ) do | command |
+    @help_message = output_with( command )
   end
 
-  Then( "the help message should look like $message" ) do | message |
-    message.should == "hoge\nfuga"
-    # @help_message.split.should == message.strip.split( /\s+/ )
+
+  Then( 'the first line of the help message should be a usage example' ) do
+    @help_message.split( "\n" ).first.should match( /^usage:/ )
+  end
+
+
+  Then( 'the help message should include a description of $short_option and $long_option option' ) do | sopt, lopt |
+    extract_options( @help_message ).include?( [ sopt, lopt ] ).should be_true
   end
 end

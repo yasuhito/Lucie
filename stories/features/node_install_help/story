@@ -5,12 +5,7 @@ Story: read the 'node install' help message
 
   Scenario: node help list
     When I run ./node help install
-    Then the help message should look like hoge\nfuga
-
-usage: node install <node-name>
-
-    -s, --script script file         The (Re-)boot scripts executed before installation
-
-    -t, --trace                      Print out exception stack traces
-
-    -h, --help                       Show this help message.
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -s and --script option
+    And the help message should include a description of -t and --trace option
+    And the help message should include a description of -h and --help option
