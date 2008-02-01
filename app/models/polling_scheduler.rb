@@ -41,7 +41,7 @@ class PollingScheduler
        unless ( same_error_as_before( e ) and last_logged_less_than_an_hour_ago )
          log_error e
        end
-       sleep Configuration.sleep_after_build_loop_error
+       sleep Configuration.sleep_after_build_loop_error.to_i
      end
     end
   end
@@ -62,7 +62,7 @@ class PollingScheduler
 
 
   def build_request_checking_interval
-    return Configuration.build_request_checking_interval
+    return Configuration.build_request_checking_interval.to_i
   end
 
 

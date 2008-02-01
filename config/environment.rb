@@ -6,39 +6,13 @@
 # ENV['RAILS_ENV'] ||= 'production'
 
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.0.2' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join( File.dirname( __FILE__ ), 'boot' )
 
 Rails::Initializer.run do | config |
   # Settings in config/environments/* take precedence over those specified here
-
-
-  module ActiveRecord
-    class ActiveRecordError
-    end
-    # just so that WhinyNil doesn't complain about const missing
-    class Base
-      # and just so that ActiveRecordStore can load (even though we dont use it either)
-      def self.before_save(*args) end
-      # and just so controller generator can do its stuff
-      def self.pluralize_table_names() true; end
-      # and just so that Dispatcher#reset_application works
-      def self.reset_subclasses() end
-      # and just so that Dispatcher#prepare_application works
-      def self.verify_active_connections!() end
-      # and just so that Dispatcher#reset_application! works so Webrick (unlike Mongrel) stops bombing out
-      def self.clear_reloadable_connections!() end
-      # and just so that benchmarking's render() works
-      def self.connected?() false; end
-      # and just so that Initializer#load_observers works
-      def self.instantiate_observers; end
-      # and just so that unit tests work
-      def self.configurations; end
-    end
-  end
-
 
   # Skip frameworks you're not going to use (only works if using vendor/rails)
   config.frameworks -= [ :active_record, :action_web_service ]
