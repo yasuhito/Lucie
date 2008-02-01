@@ -69,6 +69,11 @@ ARGV.options do |opts|
 
   args = opts.parse!
 
+  if node_name == '--help' or node_name == '-h'
+    puts opts
+    exit 1
+  end
+
   unless node_name and installer_name
     STDERR.puts 'Node name and Installer name are mandatory'
     STDERR.puts
