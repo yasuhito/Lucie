@@ -3,8 +3,22 @@ Story: read the 'node install' help message
   I want to read help message of 'node install'
   So that I can understand how to install a node
 
-  Scenario: node help list
+  Scenario: node help install
     When I run ./node help install
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -s and --script option
+    And the help message should include a description of -t and --trace option
+    And the help message should include a description of -h and --help option
+
+  Scenario: node install --help
+    When I run ./node install --help
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -s and --script option
+    And the help message should include a description of -t and --trace option
+    And the help message should include a description of -h and --help option
+
+  Scenario: node install -h
+    When I run ./node install -h
     Then the first line of the help message should be a usage example
     And the help message should include a description of -s and --script option
     And the help message should include a description of -t and --trace option
