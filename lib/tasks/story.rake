@@ -1,6 +1,17 @@
 require File.join( RAILS_ROOT, 'stories', 'helper' )
 
 
+# [HACK] a monkeypatch to stop Runtime error.
+# See http://www.nabble.com/Problems-with-rspec-1.1-required-inside-rake-tasks-td14693126.html
+module Spec
+  class << self
+    def run
+      false
+    end
+  end
+end
+
+
 namespace :spec do
   desc 'run all rspec stories'
   task :stories do

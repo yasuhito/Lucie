@@ -2,8 +2,6 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 
-require 'rake/clean'
-
 require( File.join( File.dirname( __FILE__ ), 'config', 'boot' ) )
 
 require 'rake'
@@ -20,6 +18,6 @@ CLEAN.exclude 'tmp/debootstrap/*'
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
