@@ -10,6 +10,7 @@ namespace :spec do
 
     Dir.glob( File.join( RAILS_ROOT, 'stories', 'steps', '*.rb' ) ).each do | each |
       require each
+
       step = File.basename( each, '.rb' )
       with_steps_for step.to_sym do
         Dir.glob( File.join( RAILS_ROOT, 'stories', 'features', step, '*[^~]' ) ).each do | story |

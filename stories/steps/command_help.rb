@@ -1,4 +1,4 @@
-steps_for( :node_install_help ) do
+steps_for( :command_help ) do
   When( 'I run $command' ) do | command |
     @help_message = output_with( command )
   end
