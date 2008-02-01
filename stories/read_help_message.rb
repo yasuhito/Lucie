@@ -231,9 +231,18 @@ usage: node list
     :node_install => %(
 usage: node install <node-name>
 
+    -s, --script script file         The (Re-)boot scripts executed before installation
+
     -t, --trace                      Print out exception stack traces
 
     -h, --help                       Show this help message.
   )
  }
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
