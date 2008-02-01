@@ -6,7 +6,7 @@ require File.join( RAILS_ROOT, 'stories', 'helper' )
 module Spec
   class << self
     def run
-      false
+      true
     end
   end
 end
