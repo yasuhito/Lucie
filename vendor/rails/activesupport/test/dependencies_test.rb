@@ -9,6 +9,10 @@ module ModuleWithMissing
   end
 end
 
+module ModuleWithConstant
+  InheritedConstant = "Hello"
+end
+
 class DependenciesTest < Test::Unit::TestCase
   def teardown
     Dependencies.clear
@@ -142,42 +146,42 @@ class DependenciesTest < Test::Unit::TestCase
   def test_directories_manifest_as_modules_unless_const_defined
     with_loading 'autoloading_fixtures' do
       assert_kind_of Module, ModuleFolder
-      Object.send :remove_const, :ModuleFolder
+      Object.send! :remove_const, :ModuleFolder
     end
   end
 
   def test_module_with_nested_class
     with_loading 'autoloading_fixtures' do
       assert_kind_of Class, ModuleFolder::NestedClass
-      Object.send :remove_const, :ModuleFolder
+      Object.send! :remove_const, :ModuleFolder
     end
   end
 
   def test_module_with_nested_inline_class
     with_loading 'autoloading_fixtures' do
       assert_kind_of Class, ModuleFolder::InlineClass
-      Object.send :remove_const, :ModuleFolder
+      Object.send! :remove_const, :ModuleFolder
     end
   end
 
   def test_directories_may_manifest_as_nested_classes
     with_loading 'autoloading_fixtures' do
       assert_kind_of Class, ClassFolder
-      Object.send :remove_const, :ClassFolder
+      Object.send! :remove_const, :ClassFolder
     end
   end
 
   def test_class_with_nested_class
     with_loading 'autoloading_fixtures' do
       assert_kind_of Class, ClassFolder::NestedClass
-      Object.send :remove_const, :ClassFolder
+      Object.send! :remove_const, :ClassFolder
     end
   end
 
   def test_class_with_nested_inline_class
     with_loading 'autoloading_fixtures' do
       assert_kind_of Class, ClassFolder::InlineClass
-      Object.send :remove_const, :ClassFolder
+      Object.send! :remove_const, :ClassFolder
     end
   end
 
@@ -186,7 +190,7 @@ class DependenciesTest < Test::Unit::TestCase
       assert_kind_of Class, ClassFolder::ClassFolderSubclass
       assert_kind_of Class, ClassFolder
       assert_equal 'indeed', ClassFolder::ClassFolderSubclass::ConstantInClassFolder
-      Object.send :remove_const, :ClassFolder
+      Object.send! :remove_const, :ClassFolder
     end
   end
 
@@ -195,7 +199,7 @@ class DependenciesTest < Test::Unit::TestCase
       sibling = ModuleFolder::NestedClass.class_eval "NestedSibling"
       assert defined?(ModuleFolder::NestedSibling)
       assert_equal ModuleFolder::NestedSibling, sibling
-      Object.send :remove_const, :ModuleFolder
+      Object.send! :remove_const, :ModuleFolder
     end
   end
 
@@ -204,7 +208,7 @@ class DependenciesTest < Test::Unit::TestCase
       assert ! defined?(ModuleFolder)
       assert_raises(NameError) { ModuleFolder::Object }
       assert_raises(NameError) { ModuleFolder::NestedClass::Object }
-      Object.send :remove_const, :ModuleFolder
+      Object.send! :remove_const, :ModuleFolder
     end
   end
 
@@ -312,7 +316,7 @@ class DependenciesTest < Test::Unit::TestCase
       def nil_name.name() nil end
       assert !Dependencies.autoloaded?(nil_name)
 
-      Object.send :remove_const, :ModuleFolder
+      Object.class_eval { remove_const :ModuleFolder }
     end
   end
 
@@ -436,7 +440,7 @@ class DependenciesTest < Test::Unit::TestCase
       assert ! Dependencies.autoloaded?(ModuleFolder::NestedClass)
     end
   ensure
-    Object.send(:remove_const, :ModuleFolder) if defined?(ModuleFolder)
+    Object.class_eval { remove_const :ModuleFolder }
     Dependencies.load_once_paths = []
   end
 
@@ -471,7 +475,7 @@ class DependenciesTest < Test::Unit::TestCase
     end
 
   ensure
-    Object.send :remove_const, :E if Object.const_defined?(:E)
+    Object.class_eval { remove_const :E }
   end
 
   def test_unloadable
@@ -509,31 +513,30 @@ class DependenciesTest < Test::Unit::TestCase
   end
 
   def test_new_constants_in_with_a_single_constant
-    assert_equal(["Hello"], (Dependencies.new_constants_in(Object) do
-      Object.const_set :Hello, 10
-    end))
+    assert_equal ["Hello"], Dependencies.new_constants_in(Object) {
+                              Object.const_set :Hello, 10
+                            }.map(&:to_s)
     assert Dependencies.constant_watch_stack.empty?
   ensure
-    Object.send :remove_const, :Hello rescue nil
+    Object.class_eval { remove_const :Hello }
   end
 
   def test_new_constants_in_with_nesting
     outer = Dependencies.new_constants_in(Object) do
       Object.const_set :OuterBefore, 10
 
-      inner = Dependencies.new_constants_in(Object) do
-        Object.const_set :Inner, 20
-      end
-      assert_equal ["Inner"], inner
+      assert_equal ["Inner"], Dependencies.new_constants_in(Object) {
+                                Object.const_set :Inner, 20
+                              }.map(&:to_s)
 
       Object.const_set :OuterAfter, 30
     end
 
-    assert_equal ["OuterAfter", "OuterBefore"], outer.sort
+    assert_equal ["OuterAfter", "OuterBefore"], outer.sort.map(&:to_s)
     assert Dependencies.constant_watch_stack.empty?
   ensure
     %w(OuterBefore Inner OuterAfter).each do |name|
-      Object.send :remove_const, name rescue nil
+      Object.class_eval { remove_const name if const_defined?(name) }
     end
   end
 
@@ -553,7 +556,7 @@ class DependenciesTest < Test::Unit::TestCase
     assert_equal ["M::OuterAfter", "M::OuterBefore"], outer.sort
     assert Dependencies.constant_watch_stack.empty?
   ensure
-    Object.send :remove_const, :M rescue nil
+    Object.class_eval { remove_const :M }
   end
 
   def test_new_constants_in_module_using_name
@@ -571,7 +574,14 @@ class DependenciesTest < Test::Unit::TestCase
     assert_equal ["M::OuterAfter", "M::OuterBefore"], outer.sort
     assert Dependencies.constant_watch_stack.empty?
   ensure
-    Object.send :remove_const, :M rescue nil
+    Object.class_eval { remove_const :M }
+  end
+
+  def test_new_constants_in_with_inherited_constants
+    m = Dependencies.new_constants_in(:Object) do
+      Object.class_eval { include ModuleWithConstant }
+    end
+    assert_equal [], m
   end
 
   def test_file_with_multiple_constants_and_require_dependency
@@ -659,7 +669,7 @@ class DependenciesTest < Test::Unit::TestCase
     end
   
   ensure
-    Object.send(:remove_const, :RaisesNoMethodError) if defined?(::RaisesNoMethodError)
+    Object.class_eval { remove_const :RaisesNoMethodError if const_defined?(:RaisesNoMethodError) }
   end
 
   def test_autoload_doesnt_shadow_no_method_error_with_absolute_constant
@@ -672,7 +682,7 @@ class DependenciesTest < Test::Unit::TestCase
     end
   
   ensure
-    Object.send(:remove_const, :RaisesNoMethodError) if defined?(::RaisesNoMethodError)
+    Object.class_eval { remove_const :RaisesNoMethodError if const_defined?(:RaisesNoMethodError) }
   end
 
   def test_autoload_doesnt_shadow_name_error
@@ -696,16 +706,16 @@ class DependenciesTest < Test::Unit::TestCase
     end
 
   ensure
-    Object.send(:remove_const, :RaisesNameError) if defined?(::RaisesNameError)
+    Object.class_eval { remove_const :RaisesNoMethodError if const_defined?(:RaisesNoMethodError) }
   end
   
   def test_remove_constant_handles_double_colon_at_start
     Object.const_set 'DeleteMe', Module.new
     DeleteMe.const_set 'OrMe', Module.new
-    Dependencies.send :remove_constant, "::DeleteMe::OrMe"
+    Dependencies.remove_constant "::DeleteMe::OrMe"
     assert ! defined?(DeleteMe::OrMe)
     assert defined?(DeleteMe)
-    Dependencies.send :remove_constant, "::DeleteMe"
+    Dependencies.remove_constant "::DeleteMe"
     assert ! defined?(DeleteMe)
   end
   
@@ -719,7 +729,7 @@ class DependenciesTest < Test::Unit::TestCase
     end
   ensure
     Dependencies.load_once_paths = []
-    Object.send :remove_const, :A rescue nil
+    Object.class_eval { remove_const :A if const_defined?(:A) }
   end
   
   def test_load_once_paths_should_behave_when_recursively_loading
