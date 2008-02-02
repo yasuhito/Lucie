@@ -50,8 +50,11 @@ begin
     puts 'No node is added yet.'
   else
     nodes.list.each do | each |
-      installer_name = ( each.installer_name ? each.installer_name : 'DISABLED' )
-      printf "%10s (installer = %s)\n", each.name, installer_name
+      if each.installer_name
+        printf "%10s (installer = %s)\n", each.name, each.installer_name
+      else
+        printf "%10s (DISABLED)\n", each.name
+      end
     end
   end
 rescue => e

@@ -1,0 +1,21 @@
+Story: list nodes with 'node' command
+  As a cluster administrator
+  I want to get a node list using 'node' command
+  So that I can get a node list
+
+  Scenario: node list success (1 node, enabled)
+    Given no node is added yet
+    Given TEST_NODE is already added and is enabled with TEST_INSTALLER installer
+    When I run ./node list
+    Then the output should look like 'TEST_NODE (installer = TEST_INSTALLER)'
+
+  Scenario: node list success (1 node, disabled)
+    Given no node is added yet
+    Given TEST_NODE is already added and is disabled
+    When I run ./node list
+    Then the output should look like 'TEST_NODE (DISABLED)'
+
+  Scenario: node list success (0 node)
+    Given no node is added yet
+    When I run ./node list
+    Then the output should look like 'No node is added yet.'
