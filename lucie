@@ -28,7 +28,7 @@ def help
   ARGV.clear << '--help'
   if command.nil?
     puts <<-EOL
-Usage: lucie <command> [options] [args]
+usage: lucie <command> [options] [args]
 
 Lucie server, version #{ Lucie::VERSION::STRING }
 Type 'lucie help <command>' for help on a specific command.
