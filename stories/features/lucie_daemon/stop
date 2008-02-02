@@ -1,0 +1,17 @@
+Story: stop lucie daemon
+  As a cluster administrator
+  I want to stop lucied process
+  So that I can restart lucied process
+
+  Scenario: stop lucied succeeds
+    Given no other lucied is running
+    And I start lucied
+    When I stop lucied
+    Then lucied successfully stops
+    And I get message 'Lucie daemon stopped.'
+    And PID file is deleted
+
+  Scenario: stop lucied fails if no lucied is running
+    Given no other lucied is running
+    When I stop lucied
+    Then I get error message 'Lucie daemon not running (no pid file).'

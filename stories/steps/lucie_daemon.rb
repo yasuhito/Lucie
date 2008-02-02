@@ -4,6 +4,11 @@ steps_for( :lucie_daemon ) do
   end
 
 
+  Given 'I start lucied' do
+    system './lucie start --lucied'
+  end
+
+
   When 'I start lucied' do
     @output = output_with( './lucie start --lucied --debug' )
   end

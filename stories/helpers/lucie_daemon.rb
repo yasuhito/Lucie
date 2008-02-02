@@ -2,14 +2,15 @@ def kill_lucied
   if lucied_pid
     system "sudo kill #{ lucied_pid }"
   end
+  system "rm -f #{ lucied_pid_fn }"
 end
 
 
 def lucied_pid
   `ps ax`.split( "\n" ).each do | each |
-    /(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)$/=~ each
+    /(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)$/=~ each
     pid, tty, stat, time, command = $1.to_i, $2, $3, $4, $5
-    if command == "ruby -d -e load './script/start_lucied'"
+    if command.match( /load '\.\/script\/start_lucied'/ )
       return pid
     end
   end
