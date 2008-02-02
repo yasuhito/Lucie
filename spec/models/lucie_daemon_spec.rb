@@ -36,7 +36,7 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     DRb.expects( :stop_service )
     Daemon::Controller.stubs( :exit )
 
-    DRb.expects( :start_service ).with( 'druby://localhost:58243', @lucie_daemon )
+    DRb.expects( :start_service ).with( 'druby://127.0.0.1:58243', @lucie_daemon )
     @drb_threads.expects( :join )
     DRb.expects( :thread ).returns( @drb_threads )
 

@@ -1,0 +1,27 @@
+Story: start/stop lucie daemon
+  As a cluster administrator
+  I want to start/stop lucied process
+  So that I can run 'node' and 'installer' commands without root privilege
+
+  Scenario: start lucied succeeds
+    Given no other lucied is running
+    When I start lucied
+    Then PID file is created
+    And pwd is RAILS_ROOT
+
+  Scenario: stop lucied succeeds
+    When I stop lucied
+    Then lucied successfully stops
+    And I get message 'Lucie daemon stopped.'
+    And PID file is deleted
+
+  Scenario: start lucied fails if another lucied is running
+    Given no other lucied is running
+    When I start lucied
+    When I start another lucied
+    Then I get error message 'FAILED: Another Lucie daemon is already running.'
+
+  Scenario: stop lucied fails if no lucied is running
+    Given no other lucied is running
+    When I stop lucied
+    Then I get error message 'Lucie daemon not running (no pid file).'

@@ -18,6 +18,7 @@ begin
   end
 
   LucieDaemon.kill
+  sleep 1
 rescue => e
   STDERR.puts "FAILED: #{ e.message }"
   exit -1

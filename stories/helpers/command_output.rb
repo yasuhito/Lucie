@@ -4,7 +4,7 @@ require 'open3'
 def extract_options help_message
   options = []
   help_message.split( "\n" ).each do | each |
-    if /(\-\w), (\-\-\S+)/=~ each
+    if /(\-\w), (\-\-[\w\-]+)/=~ each
       options.push [ $1, $2 ]
     end
   end

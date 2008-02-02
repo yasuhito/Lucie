@@ -1,0 +1,40 @@
+Story: read the 'lucie start' help message
+  As a cluster administrator
+  I want to read help message of 'lucie start'
+  So that I can understand how to start lucie
+
+  Scenario: lucie help start
+    When I run ./lucie help start
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -p and --port option
+    And the help message should include a description of -b and --binding option
+    And the help message should include a description of -d and --daemon option
+    And the help message should include a description of -l and --lucied option
+    And the help message should include a description of -e and --environment option
+    And the help message should include a description of -w and --without-builders option
+    And the help message should include a description of -h and --help option
+    And the help message should include a description of -D and --debug option
+
+  Scenario: lucie start --help
+    When I run ./lucie start --help
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -p and --port option
+    And the help message should include a description of -b and --binding option
+    And the help message should include a description of -d and --daemon option
+    And the help message should include a description of -l and --lucied option
+    And the help message should include a description of -e and --environment option
+    And the help message should include a description of -w and --without-builders option
+    And the help message should include a description of -h and --help option
+    And the help message should include a description of -D and --debug option
+
+  Scenario: lucie start -h
+    When I run ./lucie start -h
+    Then the first line of the help message should be a usage example
+    And the help message should include a description of -p and --port option
+    And the help message should include a description of -b and --binding option
+    And the help message should include a description of -d and --daemon option
+    And the help message should include a description of -l and --lucied option
+    And the help message should include a description of -e and --environment option
+    And the help message should include a description of -w and --without-builders option
+    And the help message should include a description of -h and --help option
+    And the help message should include a description of -D and --debug option

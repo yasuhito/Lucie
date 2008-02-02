@@ -18,11 +18,15 @@ module Daemon
           exit if fork
           LuciedBlocker.block
           LuciedBlocker::PidFile.store Process.pid
-          if $DEBUG
-            STDERR.puts( "DEBUG: pwd = #{ WorkingDirectory }" )
-          end
+          Lucie::Log.debug "pwd = #{ WorkingDirectory }"
           Dir.chdir WorkingDirectory
           File.umask 0000
+        rescue => e
+          STDERR.puts "FAILED: #{ e.message }"
+          exit 1
+        end
+
+        begin
           STDIN.reopen '/dev/null'
           STDOUT.reopen '/dev/null', 'a'
           STDERR.reopen STDOUT
@@ -32,7 +36,10 @@ module Daemon
           end
           daemon.start
         rescue => e
-          STDERR.puts "FAILED: #{ e.message }"
+          Lucie::Log.error "FAILED: #{ e.message }"
+          e.backtrace.each do | each |
+            Lucie::Log.error each
+          end
           exit -1
         end
       end
@@ -78,7 +85,7 @@ class LucieDaemon
 
 
   def self.uri
-    "druby://localhost:#{ PORT }"
+    "druby://127.0.0.1:#{ PORT }"
   end
 
 
