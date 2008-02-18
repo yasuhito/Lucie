@@ -16,12 +16,14 @@ class PuppetController
   attr_reader :manifest_dir
   attr_reader :template_dir
   attr_reader :files_dir
+  attr_reader :facts_dir
 
 
   def setup local_checkout_dir
     @manifest_dir = File.join( local_checkout_dir, 'puppet/manifests' )
     @template_dir = File.join( local_checkout_dir, 'puppet/templates' )
     @files_dir = File.join( local_checkout_dir, 'puppet/files' )
+    @facts_dir = File.join( local_checkout_dir, 'puppet/facts' )
 
     check_puppet_installed
     write_config
@@ -62,6 +64,9 @@ EOF
 [files]
   path #{ files_dir }
   allow *
+
+[facts]
+  path #{ facts_dir }
 EOF
     end
   end
