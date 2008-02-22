@@ -24,6 +24,7 @@ option domain-name "#{ domain }";
 subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ netmask_address } {
   option routers #{ gateway_address };
   option broadcast-address #{ Network.broadcast_address( ip_address, netmask_address ) };
+  deny unknown-clients;
 
   next-server #{ ipaddress };
   filename "pxelinux.0";
