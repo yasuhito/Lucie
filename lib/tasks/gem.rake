@@ -18,3 +18,10 @@ Rake::GemPackageTask.new( gem_spec ) do | package |
   package.need_zip = true
   package.need_tar = true
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

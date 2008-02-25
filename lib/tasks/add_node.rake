@@ -2,6 +2,10 @@ require 'rake'
 
 
 task 'lucie:add_node' do
+  if ENV[ 'NODE_NAME' ].nil?
+    raise "node name not defined."
+  end
+
   STDOUT.puts "Adding node '#{ ENV[ 'NODE_NAME' ] }' (this may take a while)..."
 
   if ENV[ 'MAC_ADDRESS' ].nil?
@@ -21,13 +25,13 @@ task 'lucie:add_node' do
   end
 
   node = Node.new( ENV[ 'NODE_NAME' ], { :mac_address => ENV[ 'MAC_ADDRESS' ], :gateway_address => ENV[ 'GATEWAY_ADDRESS' ], :ip_address => ENV[ 'IP_ADDRESS' ], :netmask_address => ENV[ 'NETMASK_ADDRESS' ] } )
-  nodes = Nodes.load_all( :ignore_incomplete_node => true )
+  nodes = Nodes.load_all
   nodes << node
 end
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

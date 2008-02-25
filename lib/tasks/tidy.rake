@@ -5,7 +5,7 @@ task :tidy do
   stories = FileList[ File.join( RAILS_ROOT, 'stories', '**', '*.rb' ) ]
   specs = FileList[ File.join( RAILS_ROOT, 'spec', '**', '*.rb' ) ]
   builder_plugins = FileList[ File.join( RAILS_ROOT, 'builder_plugins', '**', '*.rb' ) ]
-  libs = FileList[ File.join( RAILS_ROOT, 'lib', '**', '*.rb' ) ]
+  libs = FileList[ File.join( RAILS_ROOT, 'lib', '**', '*.rb' ) ] + FileList[ File.join( RAILS_ROOT, 'lib', '**', '*.rake' ) ]
 
   ( mvc + specs + stories + builder_plugins + libs ).each do | each |
     if IO.read( each ).grep( /utf-8-unix/ ).empty?
