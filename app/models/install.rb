@@ -185,3 +185,10 @@ class Install
     eval File.read( "#{ Installers.find( @node.installer_name ).path }/work/installer_config.rb" )
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

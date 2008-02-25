@@ -111,3 +111,10 @@ EOF
     return File.join( Configuration.installers_directory, installer_name, 'nfsroot' )
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

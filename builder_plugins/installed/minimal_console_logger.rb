@@ -32,3 +32,10 @@ class MinimalConsoleLogger
 end
 
 Installer.plugin :minimal_console_logger
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

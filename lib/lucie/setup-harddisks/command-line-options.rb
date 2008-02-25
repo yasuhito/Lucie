@@ -1,11 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
-
 require 'English'
 require 'getoptlong'
 require 'singleton'
@@ -101,7 +93,10 @@ module Lucie
   end
 end
 
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
+

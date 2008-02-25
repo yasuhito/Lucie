@@ -11,3 +11,10 @@ describe ChangesetEntry do
     @changeset_entry.to_s.should == "  OPERATION FILE"
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

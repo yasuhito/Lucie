@@ -22,3 +22,9 @@ def lucied_pid_fn
   File.expand_path File.join( RAILS_ROOT, 'tmp', 'pids', 'lucied.pid' )
 end
 
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

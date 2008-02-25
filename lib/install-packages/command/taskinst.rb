@@ -1,10 +1,3 @@
-#
-# $Id: taskinst.rb 1111 2007-03-02 08:12:44Z takamiya $
-#
-# Author::   Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision: 1111 $
-# License::  GPL2
-
 module InstallPackages
   module Command
     class Taskinst < AbstractCommand
@@ -18,13 +11,15 @@ module InstallPackages
   end
 end
 
-# taskinst ¥³¥Þ¥ó¥É
+# taskinst ¥³¥Þ¥
 def taskinst( packageList )
   taskinst_command = InstallPackages::Command::Taskinst.new( packageList )
   InstallPackages::App.register taskinst_command
 end
 
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

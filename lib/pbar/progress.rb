@@ -1,18 +1,10 @@
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 # A Progress is the abstract base class used to derive a ProgressBar
 # which provides a visual text-based representation of the progress of
 # a long running operation.
 #
-# Progress ¤Ï¡¢ProgressBar ¤ØÇÉÀ¸¤¹¤ë¥¢¥Ö¥¹¥È¥é¥¯¥È¥Ù¡¼¥¹¥¯¥é¥¹¤Ç¤¹¡£
-# ProgressBar ¤Ï¡¢Ä¹»ş´Ö¤Ë¤ï¤¿¤ëÁàºî¤Î¿Ê¹Ô¾õ¶·¤ò¡¢»ë³ĞÅª¤Ë¥Æ¥­¥¹¥ÈÉ½¼¨
-# ¤·¤Ş¤¹¡£
+# Progress ã¯ã€ProgressBar ã¸æ´¾ç”Ÿã™ã‚‹ã‚¢ãƒ–ã‚¹ãƒˆãƒ©ã‚¯ãƒˆãƒ™ãƒ¼ã‚¹ã‚¯ãƒ©ã‚¹ã§ã™ã€‚
+# ProgressBar ã¯ã€é•·æ™‚é–“ã«ã‚ãŸã‚‹æ“ä½œã®é€²è¡ŒçŠ¶æ³ã‚’ã€è¦–è¦šçš„ã«ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤º
+# ã—ã¾ã™ã€‚
 #
 class Progress
   VERSION = '0.6.3'.freeze
@@ -20,7 +12,7 @@ class Progress
 
   # Returns a new Progress object.
   #
-  # ¿·¤·¤¤ Progress object ¤òÊÖ¤·¤Ş¤¹¡£
+  # æ–°ã—ã„ Progress object ã‚’è¿”ã—ã¾ã™ã€‚
   # 
   def initialize
     @activity_mode = false
@@ -32,9 +24,9 @@ class Progress
   #
   # * _Returns_ : true if activity mode is enabled.
   #
-  # ¥¢¥¯¥Æ¥£¥Ó¥Æ¥£¥â¡¼¥É¤¬Í­¸ú¤«¤É¤¦¤«¤òÊÖ¤·¤Ş¤¹¡£
+  # ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ãƒ¢ãƒ¼ãƒ‰ãŒæœ‰åŠ¹ã‹ã©ã†ã‹ã‚’è¿”ã—ã¾ã™ã€‚
   #
-  # * ÊÖ¤êÃÍ : ¥¢¥¯¥Æ¥£¥Ó¥Æ¥£¥â¡¼¥É¤¬Í­¸ú¤Ç¤¢¤ì¤Ğ true¡£
+  # * è¿”ã‚Šå€¤ : ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ãƒ¢ãƒ¼ãƒ‰ãŒæœ‰åŠ¹ã§ã‚ã‚Œã° trueã€‚
   # 
   def activity_mode?
     @activity_mode
@@ -46,10 +38,10 @@ class Progress
   # * _enable_ : true if activity mode is enabled.
   # * _Returns_ : enable
   #
-  # ¥¢¥¯¥Æ¥£¥Ó¥Æ¥£¥â¡¼¥É¤¬Í­¸ú¤«Ìµ¸ú¤«¤ò¥»¥Ã¥È¤·¤Ş¤¹¡£
+  # ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ãƒ¢ãƒ¼ãƒ‰ãŒæœ‰åŠ¹ã‹ç„¡åŠ¹ã‹ã‚’ã‚»ãƒƒãƒˆã—ã¾ã™ã€‚
   #
-  # * _enable_ : ¥¢¥¯¥Æ¥£¥Ó¥Æ¥£¥â¡¼¥É¤òÍ­¸ú¤Ë¤¹¤ë¤Î¤Ç¤¢¤ì¤Ğ true¡£
-  # * ÊÖ¤êÃÍ : enable 
+  # * _enable_ : ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ãƒ¢ãƒ¼ãƒ‰ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã®ã§ã‚ã‚Œã° trueã€‚
+  # * è¿”ã‚Šå€¤ : enable 
   #
   def activity_mode=( enable )
     raise TypeError unless is_bool?( enable )
@@ -62,10 +54,10 @@ class Progress
   # * _enable_ : true if activity mode is enabled.
   # * _Returns_ : self
   #
-  # activity_mode= ¤ÈÆ±¤¸¤Ç¤¹¡£
+  # activity_mode= ã¨åŒã˜ã§ã™ã€‚
   #
-  # * _enable_ : ¥¢¥¯¥Æ¥£¥Ó¥Æ¥£¥â¡¼¥É¤òÍ­¸ú¤Ë¤¹¤ë¤Î¤Ç¤¢¤ì¤Ğ true¡£
-  # * ÊÖ¤êÃÍ : self
+  # * _enable_ : ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ãƒ¢ãƒ¼ãƒ‰ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã®ã§ã‚ã‚Œã° trueã€‚
+  # * è¿”ã‚Šå€¤ : self
   #
   def set_activity_mode( enable )
     raise TypeError unless is_bool?( enable )
@@ -78,9 +70,9 @@ class Progress
   #
   # * _Returns_ : true if the progress is shown as text.
   #
-  # ¿Ê¹Ô¾õ¶·¤ò¥Æ¥­¥¹¥È¤ÇÉ½¼¨¤¹¤ë¤«¤É¤¦¤«¤òÊÖ¤·¤Ş¤¹¡£
+  # é€²è¡ŒçŠ¶æ³ã‚’ãƒ†ã‚­ã‚¹ãƒˆã§è¡¨ç¤ºã™ã‚‹ã‹ã©ã†ã‹ã‚’è¿”ã—ã¾ã™ã€‚
   #
-  # * ÊÖ¤êÃÍ : ¿Ê¹Ô¾õ¶·¤ò¥Æ¥­¥¹¥È¤ÇÉ½¼¨¤¹¤ë¤Î¤Ç¤¢¤ì¤Ğ true¡£
+  # * è¿”ã‚Šå€¤ : é€²è¡ŒçŠ¶æ³ã‚’ãƒ†ã‚­ã‚¹ãƒˆã§è¡¨ç¤ºã™ã‚‹ã®ã§ã‚ã‚Œã° trueã€‚
   #
   def show_text?
     @show_text
@@ -92,10 +84,10 @@ class Progress
   # * _shown_ : true if the progress is shown as text.
   # * _Returns_ : shown
   #
-  # ¿Ê¹Ô¾õ¶·¤ò¥Æ¥­¥¹¥È¤ÇÉ½¼¨¤¹¤ë¤«¤É¤¦¤«¤ò¥»¥Ã¥È¤·¤Ş¤¹¡£
+  # é€²è¡ŒçŠ¶æ³ã‚’ãƒ†ã‚­ã‚¹ãƒˆã§è¡¨ç¤ºã™ã‚‹ã‹ã©ã†ã‹ã‚’ã‚»ãƒƒãƒˆã—ã¾ã™ã€‚
   #
-  # * _shown_ : ¿Ê¹Ô¾õ¶·¤ò¥Æ¥­¥¹¥È¤ÇÉ½¼¨¤¹¤ë¤Î¤Ç¤¢¤ì¤Ğ true¡£
-  # * ÊÖ¤êÃÍ : shown
+  # * _shown_ : é€²è¡ŒçŠ¶æ³ã‚’ãƒ†ã‚­ã‚¹ãƒˆã§è¡¨ç¤ºã™ã‚‹ã®ã§ã‚ã‚Œã° trueã€‚
+  # * è¿”ã‚Šå€¤ : shown
   #
   def show_text=( shown )
     raise TypeError unless is_bool?( shown )
@@ -108,10 +100,10 @@ class Progress
   # * _shown_ : true if the progress is shown as text.
   # * _Returns_ : shown
   #
-  # show_text= ¤ÈÆ±¤¸¡£
+  # show_text= ã¨åŒã˜ã€‚
   #
-  # * _shown_ : ¿Ê¹Ô¾õ¶·¤ò¥Æ¥­¥¹¥È¤ÇÉ½¼¨¤¹¤ë¤Î¤Ç¤¢¤ì¤Ğ true¡£
-  # * ÊÖ¤êÃÍ : shown
+  # * _shown_ : é€²è¡ŒçŠ¶æ³ã‚’ãƒ†ã‚­ã‚¹ãƒˆã§è¡¨ç¤ºã™ã‚‹ã®ã§ã‚ã‚Œã° trueã€‚
+  # * è¿”ã‚Šå€¤ : shown
   #
   def set_show_text( shown )
     raise TypeError unless is_bool?( shown )
@@ -130,6 +122,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: euc-jp-unix
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

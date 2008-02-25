@@ -286,3 +286,10 @@ describe LucieDaemon, 'when calling restart_puppet via druby' do
     end.should raise_error
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

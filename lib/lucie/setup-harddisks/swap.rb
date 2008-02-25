@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 require 'lucie/setup-harddisks/filesystem'
 
 module Lucie
@@ -23,20 +16,23 @@ module Lucie
       
       private
       def check_format_options(op)
-        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚¢
+        # TODO: ÂŒÂ˜Â˜SÂÂ«Â‚œô¥ÂÂ½Â‚œô²¢œô£ÎÃ€Â‘Â•Â‚ÂµÂ‚œô ¢Ã Â—œô¢¢Â¢
         true
       end
 
       private
       def check_mount_options(op)
-        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚¢
+        # TODO: ÂŒÂ˜Â˜SÂÂ«Â‚œô¥ÂÂ½Â‚œô²¢œô£ÎÃ€Â‘Â•Â‚ÂµÂ‚œô ¢Ã Â—œô¢¢Â¢
         true
       end
 
     end
   end
 end
+
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

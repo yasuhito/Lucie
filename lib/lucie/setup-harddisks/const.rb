@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 module Lucie
   module SetupHarddisks
     MEGABYTE = 1024 * 1024
@@ -30,7 +23,9 @@ module Lucie
   end
 end
 
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

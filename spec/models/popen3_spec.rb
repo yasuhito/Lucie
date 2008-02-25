@@ -53,3 +53,10 @@ describe Popen3, 'when executing popen3' do
     pipe
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

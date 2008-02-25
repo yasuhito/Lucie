@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 require 'English'
 require 'lucie/setup-harddisks/const'
 
@@ -13,33 +6,33 @@ module Lucie
     class OldPartition < Lucie::Config::Resource
       #TODO: 大部分が Partition と共通。スーパークラスとしてくくりだすべきだが、
       #@@list などのクラス変数も共有されてしまうため、整理が必要。
-    
+
       # 登録されている Partition のリスト
       @@list = {}
-      
+
       # アトリビュート名のリスト: [:name, :version, ...]
       @@required_attributes = []
-      
+
       # _すべての_ アトリビュート名とデフォルト値のリスト: [[:name, nil], [:version, '0.0.1'], ...]
       @@attributes = [[:bootable, false], [:not_aligned, false]]
-      
+
       # アトリビュート名からデフォルト値へのマッピング
       @@default_value = {}
-      
+
       # Same as :attribute, but ensures that values assigned to the
       # attribute are array values by applying :to_a to the value.
       def self.array_attribute(name)
         @@attributes << [name, []]
         module_eval %{
           def #{name}
-  	      @#{name} ||= []
-  	    end
+              @#{name} ||= []
+            end
           def #{name}=(value)
-  	      @#{name} = value.to_a
-  	    end
+              @#{name} = value.to_a
+            end
         }
       end
-      
+
       required_attribute :name          # partition name. e.g. usr, home, ...
       required_attribute :slice         # slice name, e.g. hda1, sdb2
       required_attribute :kind          # primary | logical
@@ -61,7 +54,9 @@ module Lucie
   end
 end
 
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

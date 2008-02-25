@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 require 'English'
 require 'lucie/setup-harddisks/command-line-options'
 require 'lucie/setup-harddisks/disk'
@@ -125,7 +118,9 @@ if __FILE__ == $PROGRAM_NAME
   Lucie::Setup.instance.main
 end
 
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

@@ -1,13 +1,3 @@
-# = Ruby/ProgressBar - a text progress bar library
-# = Ruby/ProgressBar - �ƥ����ȤΥץ����쥹�С��饤�֥��
-#
-# $Id$
-#
-# Author:: Yasuhito Takamiya (mailto:yasuhito@gmail.com)
-# Revision:: $LastChangedRevision$
-# License:: GPL2
-
-
 require 'pbar/progress'
 
 
@@ -16,10 +6,10 @@ require 'pbar/progress'
 # underway. The ProgressBar can be used in two different modes:
 # percentage mode and activity mode.
 #
-# ProgressBar �ϡ��¹Ի��֤�Ĺ�����ڥ졼�����οʹԾ�����ɽ������Τ�
-# �褯�Ѥ����ޤ����ץ��������ʹ���Ǥ�����Ū�ʼ꤬�����Ϳ���ޤ���
-# ProgressBar �� 2 �Ĥΰۤʤ�⡼�ɤǻ��ѤǤ��ޤ����ѡ�����ơ����⡼
-# �ɤȥ����ƥ��ӥƥ��⡼�ɤǤ���
+# ProgressBar は、実行時間の長いオペレーションの進行状況を表示するのに
+# よく用いられます。プロセスが進行中である視覚的な手がかりを与えます。
+# ProgressBar は 2 つの異なるモードで使用できます。パーセンテージモー
+# ドとアクティビティモードです。
 #
 # When an application can determine how much work needs to take place
 # (e.g. read a fixed number of bytes from a file) and can monitor its
@@ -28,12 +18,12 @@ require 'pbar/progress'
 # been completed. In this mode, the application is required to call
 # ProgressBar#fraction= periodically to update the progress bar.
 #
-# ���ץꥱ������󤬤ɤ�ۤɤλŻ���ɬ�פȤ��Ƥ��뤫������Ǥ� (���Ȥ�
-# �С���ޤä��Х��ȿ��򤢤�ե����뤫���ɤߤ�����ʤ�)�����οʹԾ�
-# �����˥��Ǥ����硢�ѡ�����ơ����⡼�ɤ���Ѥ��뤳�Ȥˤ�äơ��桼
-# ���ϻŻ��δ�λ�ٹ�Υѡ�����ơ����򡢥С��ο��Ӷ����Τ뤳�Ȥ��Ǥ�
-# �ޤ������Υ⡼�ɤǤϡ����ץꥱ�������ϥץ����쥹�С��򹹿����뤿��
-# �ˡ�����Ū�� ProgressBar#fraction= ��Ƥ�ɬ�פ�����ޤ���
+# アプリケーションがどれほどの仕事を必要としているかが決定でき (たとえ
+# ば、決まったバイト数をあるファイルから読みこむ場合など)、その進行状
+# 況をモニタできる場合、パーセンテージモードを使用することによって、ユー
+# ザは仕事の完了度合のパーセンテージを、バーの伸び具合で知ることができ
+# ます。このモードでは、アプリケーションはプログレスバーを更新するため
+# に、周期的に ProgressBar#fraction= を呼ぶ必要があります。
 #
 # When an application has no accurate way of knowing the amount of
 # work to do, it can use the ProgressBar in activity mode, which shows
@@ -41,21 +31,21 @@ require 'pbar/progress'
 # area. In this mode, the application is required to call
 # ProgressBar#pulse perodically to update the progress bar.
 #
-# ���ץꥱ����������Τ����Ż��̤����Ǥ��ʤ���硢ProgressBar ��
-# ���ƥ��ӥƥ��⡼�ɤǻ��ѤǤ��ޤ������Υ⡼�ɤǤϡ������ƥ��ӥƥ����
-# �����쥹���ꥢ����ǹԤ��褹��֥��å���ɽ�����ޤ������Υ⡼�ɤǤϡ�
-# ���ץꥱ�������ϥץ����쥹�С��򹹿����뤿��ˡ�����Ū�� 
-# ProgressBar#pulse ��Ƥ�ɬ�פ�����ޤ���
+# アプリケーションが正確な総仕事量を決定できない場合、ProgressBar をア
+# クティビティモードで使用できます。このモードでは、アクティビティをプ
+# ログレスエリアの中で行き来するブロックで表示します。このモードでは、
+# アプリケーションはプログレスバーを更新するために、周期的に 
+# ProgressBar#pulse を呼ぶ必要があります。
 #
 # There is quite a bit of flexibility provided to control the
 # appearance of the ProgressBar. Methods are provided to control the
 # orientation of the bar, optional text can be displayed along with
 # the bar, and the step size used in activity mode can be set.
 #
-# ProgressBar �γ��Ѥ򥳥�ȥ����뤹�뤿��ν��������ۤ�Τ���äȤ���
-# �Ѱդ���Ƥ��ޤ����С��������򥳥�ȥ����뤹��᥽�åɤ䡢ɬ�פˤ��
-# �ƥС��ȤȤ�˥ƥ����Ȥ�ɽ�����뵡ǽ�������ƥ��ӥƥ��⡼�ɤǤΥ��ƥ�
-# �ץ����������꤬����ޤ���
+# ProgressBar の外観をコントロールするための柔軟性がほんのちょっとだけ
+# 用意されています。バーの方向をコントロールするメソッドや、必要によっ
+# てバーとともにテキストを表示する機能、アクティビティモードでのステッ
+# プサイズの設定があります。
 # 
 class ProgressBar < Progress
   LEFT_TO_RIGHT = 0
@@ -66,9 +56,9 @@ class ProgressBar < Progress
   #
   # _Returns_ : a ProgressBar.
   #
-  # ������ ProgressBar ���֥������Ȥ���ޤ���
+  # 新たな ProgressBar オブジェクトを作ります。
   #
-  # �֤��� : ProgressBar ���֥������ȡ�
+  # 返り値 : ProgressBar オブジェクト。
   #
   def initialize
     super
@@ -90,14 +80,14 @@ class ProgressBar < Progress
   #
   # * _Returns_ : self
   #
-  # ���Υ᥽�åɤǤϡ��ʤ�餫�ο�Ľ�����ä������ɤ����٤��Ϥ狼��ʤ���
-  # �Ȥ������Ȥ�ɽ���Τ��Ѥ��ޤ������Υ᥽�åɤϡ��ץ����쥹�С��� "��
-  # ���ƥ��ӥƥ��⡼��" �����ꤷ�ޤ������Υ⡼�ɤǤϡ��֥��å����Ԥä�
-  # ���褿�ꤹ��褦�ˤʤ�ޤ���ProgressBar#pulse ��Ƥ֤��Ӥˡ��֥���
-  # ���Ϥۤ�Τ���äȰ�ư���ޤ� (pulse �ƽФ���ΰ�ư�̤� 
-  # ProgressBar#pulse_step= �ˤ�äƷ��ꤵ��ޤ�)��
+  # このメソッドでは、なんらかの進捗があったが、どの程度かはわからない、
+  # ということを表すのに用います。このメソッドは、プログレスバーを "ア
+  # クティビティモード" に設定します。このモードでは、ブロックが行った
+  # り来たりするようになります。ProgressBar#pulse を呼ぶたびに、ブロッ
+  # クはほんのちょっと移動します (pulse 呼出し毎の移動量は 
+  # ProgressBar#pulse_step= によって決定されます)。
   # 
-  # * �֤��� : self
+  # * 返り値 : self
   #
   def pulse
     @activity_mode = true
@@ -111,10 +101,10 @@ class ProgressBar < Progress
   #
   # * _Returns_ : a fraction from 0.0 to 1.0
   #
-  # ProgressBar#pulse_step= �ˤ�ä����ꤵ�줿 pulse �Υ��ƥåץ�����
-  # ��������ޤ���
+  # ProgressBar#pulse_step= によって設定された pulse のステップサイズ
+  # を取得します。
   #
-  # * �֤��� : 0.0 ���� 1.0 �δ֤ο�
+  # * 返り値 : 0.0 から 1.0 の間の数
   #
   def pulse_step
     @pulse_step
@@ -127,11 +117,11 @@ class ProgressBar < Progress
   # * _fraction_ : fraction between 0.0 and 1.0
   # * _Returns_ : fraction
   #
-  # ProgressBar#pulse �θƽФ���Υ֥��å��ΰ�ư�̤򡢥ץ����쥹�С���
-  # �Τ�Ĺ���ؤ���ǻ��ꤷ�ޤ���
+  # ProgressBar#pulse の呼出し毎のブロックの移動量を、プログレスバー全
+  # 体の長さへの比で指定します。
   #
-  # * _fraction_ : 0.0 ���� 1.0 �δ֤ο�
-  # * �֤��� : fraction
+  # * _fraction_ : 0.0 から 1.0 の間の数
+  # * 返り値 : fraction
   #
   def pulse_step=( fraction )
     @pulse_step = fraction
@@ -143,10 +133,10 @@ class ProgressBar < Progress
   # * _fraction_ : fraction between 0.0 and 1.0
   # * _Returns_ : self
   #
-  # pulse_step= ��Ʊ���Ǥ���
+  # pulse_step= と同じです。
   #
-  # * _fraction_ : 0.0 ���� 1.0 �δ֤ο�
-  # * �֤��� : self
+  # * _fraction_ : 0.0 から 1.0 の間の数
+  # * 返り値 : self
   #
   def set_pulse_step( fraction )
     @pulse_step = fraction
@@ -158,9 +148,9 @@ class ProgressBar < Progress
   #
   # * _Returns_ : text
   #
-  # ���ߥץ����쥹�С����Ƥ�ɽ������Ƥ���ƥ����Ȥ��֤��ޤ���
+  # 現在プログレスバーの脇に表示されているテキストを返します。
   #
-  # * �֤��� : text
+  # * 返り値 : text
   #
   def text
     @text
@@ -172,10 +162,10 @@ class ProgressBar < Progress
   # * _text_ : a String
   # * _Returns_ : text
   #
-  # text ��ץ����쥹�С����Ƥ�ɽ�����ޤ���
+  # text をプログレスバーの脇に表示します。
   #
-  # * _text_ : String ���֥�������
-  # * �֤��� : text
+  # * _text_ : String オブジェクト
+  # * 返り値 : text
   #
   def text=( text )
     @text = text
@@ -187,10 +177,10 @@ class ProgressBar < Progress
   # * _text_ : a String
   # * _Returns_ : self
   #
-  # text= ��Ʊ����
+  # text= と同じ。
   #
-  # * _text_ : String ���֥������ȡ�
-  # * �֤��� : self
+  # * _text_ : String オブジェクト。
+  # * 返り値 : self
   #
   def set_text( text )
     @text = text
@@ -202,9 +192,9 @@ class ProgressBar < Progress
   #
   # * _Returns_ : a fraction from 0.0 to 1.0
   #
-  # ���ߴ�λ���Ƥ���Ż��γ����֤��ޤ���
+  # 現在完了している仕事の割合を返します。
   #
-  # * �֤��� : 0.0 ���� 1.0 �δ֤ο�
+  # * 返り値 : 0.0 から 1.0 の間の数
   #
   def fraction
     @fraction
@@ -217,11 +207,11 @@ class ProgressBar < Progress
   # * _fraction_ : fraction of the task that's been completed
   # * _Returns_ : fraction
   #
-  # �ץ����쥹�С���Ϳ����줿����Ĺ���ˤ��ޤ���fraction �� 0.0 �ʾ� 
-  # 1.0 �ʲ��Ǥ���
+  # プログレスバーを与えられた割合の長さにします。fraction は 0.0 以上 
+  # 1.0 以下です。
   #
-  # * _fraction_ : �������δ�λ�ٹ硣
-  # * �֤��� : fraction
+  # * _fraction_ : タスクの完了度合。
+  # * 返り値 : fraction
   #
   def fraction=( fraction )
     @fraction = fraction
@@ -235,10 +225,10 @@ class ProgressBar < Progress
   # * _fraction_ : fraction of the task that's been completed
   # * _Returns_ : self
   #
-  # fraction= ��Ʊ���Ǥ���
+  # fraction= と同じです。
   #
-  # * _fraction_ : �������δ�λ�ٹ硣
-  # * �֤��� : self
+  # * _fraction_ : タスクの完了度合。
+  # * 返り値 : self
   #
   def set_fraction( fraction )
     @fraction = fraction
@@ -251,9 +241,9 @@ class ProgressBar < Progress
   #
   # * _Returns_ : orientation of the progress bar
   # 
-  # ���ߤΥץ����쥹�С��ο��Ӥ��������֤��ޤ���
+  # 現在のプログレスバーの伸びる方向を返します。
   #
-  # * �֤��� : �ץ����쥹�С��ο��Ӥ�������
+  # * 返り値 : プログレスバーの伸びる方向。
   # 
   def orientation
     @orientation
@@ -266,11 +256,11 @@ class ProgressBar < Progress
   # * _orientation_ : orientation of the progress bar.
   # * _Returns_ : orientation
   #
-  # �ץ����쥹�С��ο��Ӥ��������ѹ����ޤ���
-  # (�����鱦 �⤷���� �����麸).
+  # プログレスバーの伸びる方向を変更します。
+  # (左から右 もしくは 右から左).
   #
-  # * _orientation_ : �ץ����쥹�С��ο��Ӥ�������
-  # * �֤��� : orientation
+  # * _orientation_ : プログレスバーの伸びる方向。
+  # * 返り値 : orientation
   #
   def orientation=( orientation )
     @orientation = orientation
@@ -282,10 +272,10 @@ class ProgressBar < Progress
   # * _orientation_ : orientation of the progress bar.
   # * _Returns_ : orientation
   #
-  # orientation= ��Ʊ���Ǥ���
+  # orientation= と同じです。
   #
-  # * _orientation_ : �ץ����쥹�С��ο��Ӥ�������
-  # * �֤��� : orientation
+  # * _orientation_ : プログレスバーの伸びる方向。
+  # * 返り値 : orientation
   #
   def set_orientation( orientation )
     @orientation = orientation
@@ -295,7 +285,7 @@ class ProgressBar < Progress
   # Returns a String containing a human-readable representation of
   # ProgressBar.
   # 
-  # ProgressBar �ξ��֤�ʹ֤��ɤ������� String ���֤��ޤ���
+  # ProgressBar の状態を人間に読める形式の String で返します。
   #
   def inspect
     "(ProgressBar: #{percentage}%)"
@@ -439,6 +429,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: euc-jp-unix
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

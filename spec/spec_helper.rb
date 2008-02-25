@@ -54,3 +54,9 @@ def in_total_sandbox &block
   end
 end
 
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

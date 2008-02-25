@@ -15,3 +15,10 @@ describe WakeOnLan, 'when calling WakeOnLan.wake' do
     WakeOnLan.wake '00:00:00:00:00:00'
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 require 'lucie/setup-harddisks/filesystem'
 
 module Lucie
@@ -40,7 +33,10 @@ module Lucie
     end
   end
 end
+
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

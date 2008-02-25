@@ -81,3 +81,10 @@ class BuilderStatus
 end
 
 Installer.plugin :builder_status
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

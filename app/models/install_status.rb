@@ -108,3 +108,10 @@ class InstallStatus
     FileUtils.rm_f Dir[ "#{ @artifacts_directory }/install_status.*" ]
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

@@ -54,3 +54,10 @@ steps_for( :lucie_daemon ) do
     @output.chomp.should == msg
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

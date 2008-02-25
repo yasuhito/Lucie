@@ -13,3 +13,10 @@ steps_for( :command_help ) do
     extract_options( @help_message ).include?( [ sopt, lopt ] ).should be_true
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

@@ -166,3 +166,10 @@ describe SSH do
     File.join( root, '/root/.ssh/authorized_keys' )
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

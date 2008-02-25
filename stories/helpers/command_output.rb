@@ -17,3 +17,10 @@ def output_with command
     return stdout.read
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

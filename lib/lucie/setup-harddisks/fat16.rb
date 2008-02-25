@@ -1,10 +1,3 @@
-#
-# $Id$
-#
-# Author::   Yoshiaki Sakae (mailto:sakae@is.titech.ac.jp)
-# Revision:: $LastChangedRevision$
-# License::  GPL2
-
 require 'lucie/setup-harddisks/filesystem'
 
 module Lucie
@@ -19,19 +12,19 @@ module Lucie
         @fsck_enabled = false
         @format_options = []
         @mount_options = []
-        @fstab_options = ["defaults"]   # TODO: —vŒŸØ
+        @fstab_options = ["defaults"]   # TODO: —v
         super
       end
-      
+
       private
       def check_format_options(op)
-        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚¢
+        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚
         true
       end
 
       private
       def check_mount_options(op)
-        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚¢
+        # TODO: Œ˜˜S«‚Ì‚½‚ß‚ÉÀ‘•‚µ‚Ä‚à—Ç‚
         true
       end
 
@@ -46,7 +39,10 @@ module Lucie
     end
   end
 end
+
+
 ### Local variables:
 ### mode: Ruby
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

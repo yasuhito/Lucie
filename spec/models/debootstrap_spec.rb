@@ -165,3 +165,10 @@ describe Debootstrap, 'when failed to execute' do
     @debootstrap.should raise_error( RuntimeError, 'LAST_ERROR_MESSAGE' )
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

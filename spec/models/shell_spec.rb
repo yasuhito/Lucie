@@ -178,3 +178,10 @@ describe Popen3::Shell, 'when doing IOs with subprocess' do
     verify_mocks
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

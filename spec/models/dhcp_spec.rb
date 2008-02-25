@@ -115,3 +115,10 @@ describe Dhcp, 'when setting up DHCP server' do
     dhcp_config_file
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

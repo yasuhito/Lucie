@@ -148,3 +148,10 @@ describe Tftp, 'when calling Tftp.setup_tftpd' do
     end.should_not raise_error
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
