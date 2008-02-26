@@ -6,7 +6,16 @@ describe 'Common Node', :shared => true do
   include FileSandbox
 
 
-  def mac_address_file
+  def network_option options = { }
+    default = { :mac_address => '11:22:33:44:55:66', :gateway_address => '192.168.1.254', :ip_address => '192.168.1.1', :netmask_address => '255.255.255.0' }
+    options.each_pair do | key, value |
+      default[ key ] = value
+    end
+    default
+  end
+
+
+  def network_config
     <<-EOF
 gateway_address:192.168.1.254
 ip_address:192.168.1.1
@@ -16,13 +25,182 @@ EOF
 end
 
 
-describe Node, 'when creating a new node with custom rake task' do
+describe Node, 'when creating a new node' do
+  it_should_behave_like 'Common Node'
+
+
+  it 'should be successfully created' do
+    # when
+    node = Node.new( 'TEST_NODE', network_option )
+
+    # then
+    node.name.should == 'TEST_NODE'
+    node.mac_address.should == '11:22:33:44:55:66'
+    node.gateway_address.should == '192.168.1.254'
+    node.ip_address == '192.168.1.1'
+    node.netmask_address == '255.255.255.0'
+  end
+
+
+  it 'should be created from existing node directory' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # then
+      node.installer_name.should == 'TEST_INSTALLER'
+      node.name.should == 'TEST_NODE'
+      node.mac_address.should == '11:22:33:44:55:66'
+      node.gateway_address.should == '192.168.1.254'
+      node.ip_address == '192.168.1.1'
+      node.netmask_address == '255.255.255.0'
+    end
+  end
+
+
+  it 'should fail if MAC file does not contain network config' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+
+      lambda do
+        # when
+        Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+        # then
+      end.should raise_error( "MAC address for node 'TEST_NODE' not defined." )
+    end
+  end
+end
+
+
+describe Node, 'when creating a new node (mandatory network option is not set)' do
+  it_should_behave_like 'Common Node'
+
+
+  it 'should raise if name is not set' do
+    lambda do
+      # when
+      Node.new( nil, network_option )
+
+      # then
+    end.should raise_error( "name is mandatory." )
+  end
+
+
+  it 'should raise if MAC address is not set' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( { :mac_address => nil } ) )
+
+      # then
+    end.should raise_error( "MAC address is mandatory." )
+  end
+
+
+  it 'should raise if gateway address is not set' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( { :gateway_address => nil } ) )
+
+      # then
+    end.should raise_error( "Gateway address is mandatory." )
+  end
+
+
+  it 'should raise if IP address is not set' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( { :ip_address => nil } ) )
+
+      # then
+    end.should raise_error( "IP address is mandatory." )
+  end
+
+
+  it 'should raise if netmask address is not set' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( { :netmask_address => nil } ) )
+
+      # then
+    end.should raise_error( "Netmask address is mandatory." )
+  end
+end
+
+
+describe Node, 'when creating a new node (invalid network option)' do
+  it_should_behave_like 'Common Node'
+
+
+  it 'should raise if invalid name' do
+    invalid_chars = %q(~!@#$%^&*()+{};'\[]=:"|<>?) #'
+
+    invalid_chars.split( // ).each do | each |
+      lambda do
+        # when
+        Node.new( each, network_option )
+
+        # then
+      end.should raise_error( "'#{ each }' is not a valid node name." )
+    end
+  end
+
+
+  it 'should raise if invalid MAC address' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( :mac_address => 'INVALID_MAC_ADDRESS' ) )
+
+      # then
+    end.should raise_error( "'INVALID_MAC_ADDRESS' is not a valid MAC address." )
+  end
+
+
+  it 'should raise if invalid gateway address' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( :gateway_address => 'INVALID_GATEWAY_ADDRESS' ) )
+
+      # then
+    end.should raise_error( "'INVALID_GATEWAY_ADDRESS' is not a valid gateway address." )
+  end
+
+
+  it 'should raise if invalid IP address' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( :ip_address => 'INVALID_IP_ADDRESS' ) )
+
+      # then
+    end.should raise_error( "'INVALID_IP_ADDRESS' is not a valid IP address." )
+  end
+
+
+  it 'should raise if invalid netmask address' do
+    lambda do
+      # when
+      Node.new( 'NODE_NAME', network_option( :netmask_address => 'INVALID_NETMASK_ADDRESS' ) )
+
+      # then
+    end.should raise_error( "'INVALID_NETMASK_ADDRESS' is not a valid netmask address." )
+  end
+end
+
+
+describe 'lucie:add_node task', :shared => true do
   include FileSandbox
 
 
   before( :each ) do
     Rake::Task.clear
+
     STDOUT.stubs( :puts )
+
     ENV[ 'NODE_NAME' ] = 'TEST_NODE'
     ENV[ 'MAC_ADDRESS' ] = '11:22:33:44:55:66'
     ENV[ 'IP_ADDRESS' ] = '192.168.1.1'
@@ -38,17 +216,22 @@ describe Node, 'when creating a new node with custom rake task' do
     ENV[ 'GATEWAY_ADDRESS' ] = nil
     ENV[ 'NETMASK_ADDRESS' ] = nil
   end
+end
+
+
+describe Node, 'when adding a new node with lucie:add_node rake task' do
+  it_should_behave_like 'lucie:add_node task'
 
 
   it 'should add a new node' do
-    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
 
-      lambda do
-        Rake::Task[ 'lucie:add_node' ].invoke
-      end.should_not raise_error
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      Rake::Task[ 'lucie:add_node' ].execute
 
+      # then
       Nodes.load_all.list.size.should == 1
       node = Nodes.load_all.list[ 0 ]
       node.name.should == 'TEST_NODE'
@@ -58,56 +241,106 @@ describe Node, 'when creating a new node with custom rake task' do
       node.netmask_address == '255.255.255.0'
     end
   end
+end
+
+
+describe Node, 'when adding a same node twice with lucie:add_node rake task' do
+  it_should_behave_like 'lucie:add_node task'
+
+
+  it 'should raise when adding the same node' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+
+      # given
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # when
+      lambda do
+        Rake::Task[ 'lucie:add_node' ].execute
+
+        # then
+      end.should raise_error( 'node named "TEST_NODE" already exists.' )
+    end
+  end
+end
+
+
+describe Node, 'when creating a new node with lucie:add_node rake task (mandatory ENVs are not set)' do
+  it_should_behave_like 'lucie:add_node task'
+
+
+  it 'should raise if name is not set' do
+    lambda do
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      ENV[ 'NODE_NAME' ] = nil
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # then
+    end.should raise_error( RuntimeError, "node name not defined." )
+  end
 
 
   it 'should raise if MAC address is not set' do
-    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
-    ENV[ 'MAC_ADDRESS' ] = nil
-
     lambda do
-      Rake::Task[ 'lucie:add_node' ].invoke
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      ENV[ 'MAC_ADDRESS' ] = nil
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # then
     end.should raise_error( RuntimeError, "MAC address for node 'TEST_NODE' not defined." )
   end
 
 
   it 'should raise if IP address is not set' do
-    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
-    ENV[ 'IP_ADDRESS' ] = nil
-
     lambda do
-      Rake::Task[ 'lucie:add_node' ].invoke
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      ENV[ 'IP_ADDRESS' ] = nil
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # then
     end.should raise_error( RuntimeError, "IP address for node 'TEST_NODE' not defined." )
   end
 
 
   it 'should raise if gateway address is not set' do
-    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
-    ENV[ 'GATEWAY_ADDRESS' ] = nil
-
     lambda do
-      Rake::Task[ 'lucie:add_node' ].invoke
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      ENV[ 'GATEWAY_ADDRESS' ] = nil
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # then
     end.should raise_error( RuntimeError, "Gateway address for node 'TEST_NODE' not defined." )
   end
 
 
   it 'should raise if netmask address is not set' do
-    load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
-    ENV[ 'NETMASK_ADDRESS' ] = nil
-
     lambda do
-      Rake::Task[ 'lucie:add_node' ].invoke
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+      ENV[ 'NETMASK_ADDRESS' ] = nil
+      Rake::Task[ 'lucie:add_node' ].execute
+
+      # then
     end.should raise_error( RuntimeError, "Netmask address for node 'TEST_NODE' not defined." )
   end
 end
 
 
-describe Node, 'when enabling installation for a node with custom rake task' do
+describe Node, 'when enabling a node with lucie:enable_node rake task' do
   it_should_behave_like 'Common Node'
 
 
   before( :each ) do
     Rake::Task.clear
+
     STDOUT.stubs( :puts )
+
     ENV[ 'NODE_NAME' ] = 'TEST_NODE'
     ENV[ 'INSTALLER_NAME' ] = 'TEST_INSTALLER'
     ENV[ 'WOL' ] = 'WOL'
@@ -121,88 +354,304 @@ describe Node, 'when enabling installation for a node with custom rake task' do
   end
 
 
-  it 'should be able to enable installation for a node' do
-    load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
-    in_sandbox do | sandbox |
-      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
-      sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => mac_address_file
+  it 'should enable installation for a node' do
+    installer = Object.new
 
-      # Ensure that all daemons and services are setup and restarted.
+    in_sandbox do | sandbox |
+      load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+       sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => network_config
+
+      # expects
       Tftp.expects( :setup ).with( 'TEST_NODE', 'TEST_INSTALLER' )
       Nfs.expects( :setup ).with( 'TEST_INSTALLER' )
       Dhcp.expects( :setup ).with( 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.254' )
-      PuppetController.expects( :setup )
-      installer = Object.new
-      installer.stubs( :local_checkout )
+      PuppetController.expects( :setup ).with( installer )
+      installer.stubs( :local_checkout ).returns( installer )
       Installers.expects( :find ).with( 'TEST_INSTALLER' ).returns( installer )
       WakeOnLan.expects( :wake ).with( '00:00:00:00:00:00' )
 
       lambda do
-        Rake::Task[ 'lucie:enable_node' ].invoke
-      end.should_not raise_error
+        # when
+        Rake::Task[ 'lucie:enable_node' ].execute
 
+        # then
+      end.should_not raise_error
       File.exists?( File.join( sandbox.root, 'TEST_NODE/TEST_INSTALLER' ) ).should == true
     end
   end
 end
 
 
-describe Node, 'when creating a new node' do
-  it 'should raise if MAC address is not set' do
+describe Node, 'when enabling a node with lucie:enable_node rake task (mandatory ENVs are not set)' do
+  it 'should raise if NODE_NAME is not set' do
     lambda do
-      Node.new( 'TEST_NODE', :gateway_address => '192.168.1.254', :ip_address => '192.168.1.1', :netmask_address => '255.255.255.0' )
-    end.should raise_error( RuntimeError, "MAC address for node 'TEST_NODE' not defined." )
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
+      ENV[ 'NODE_NAME' ] = nil
+      Rake::Task[ 'lucie:enable_node' ].execute
+
+      # then
+    end.should raise_error( "Node name not defined." )
   end
 
 
-  it 'should raise if IP address is not set' do
+  it 'should raise if INSTALLER_NAME is not set' do
     lambda do
-      Node.new( 'TEST_NODE', :mac_address => '11:22:33:44:55:66', :gateway_address => '192.168.1.254', :netmask_address => '255.255.255.0' )
-    end.should raise_error( RuntimeError, "IP address for node 'TEST_NODE' not defined." )
-  end
+      # when
+      load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
+      ENV[ 'NODE_NAME' ] = 'TEST_NODE'
+      ENV[ 'INSTALLER_NAME' ] = nil
+      Rake::Task[ 'lucie:enable_node' ].execute
 
-
-  it 'should raise if gateway address is not set' do
-    lambda do
-      Node.new( 'TEST_NODE', :mac_address => '11:22:33:44:55:66', :ip_address => '192.168.1.1', :netmask_address => '255.255.255.0' )
-    end.should raise_error( RuntimeError, "Gateway address for node 'TEST_NODE' not defined." )
-  end
-
-
-  it 'should raise if netmask address is not set' do
-    lambda do
-      Node.new( 'TEST_NODE', :mac_address => '11:22:33:44:55:66', :gateway_address => '192.168.1.254', :ip_address => '192.168.1.1' )
-    end.should raise_error( RuntimeError, "Netmask address for node 'TEST_NODE' not defined." )
+      # then
+    end.should raise_error( "Installer name for node 'TEST_NODE' not defined." )
   end
 end
 
 
-describe Node do
+describe Node, 'when detecting node is enabled or not' do
   it_should_behave_like 'Common Node'
 
 
-  it 'should have network settings' do
-    node = Node.new( 'TEST_NODE', :mac_address => '11:22:33:44:55:66', :gateway_address => '192.168.1.254', :ip_address => '192.168.1.1', :netmask_address => '255.255.255.0' )
+  it 'should be enable if `installer_name` file exist' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
 
-    node.name.should == 'TEST_NODE'
-    node.mac_address.should == '11:22:33:44:55:66'
-    node.gateway_address.should == '192.168.1.254'
-    node.ip_address == '192.168.1.1'
-    node.netmask_address == '255.255.255.0'
+      # given
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when, then
+      node.should be_enable
+    end
   end
 
 
-  it 'should be able to load network settings' do
+  it 'should not be enable if `installer_name.DISABLE` file exist' do
     in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
-      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => mac_address_file
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER.DISABLE'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
 
+      # given
       node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
-      node.name.should == 'TEST_NODE'
-      node.mac_address.should == '11:22:33:44:55:66'
-      node.gateway_address.should == '192.168.1.254'
-      node.ip_address == '192.168.1.1'
-      node.netmask_address == '255.255.255.0'
+
+      # when, then
+      node.should_not be_enable
+    end
+  end
+
+
+  it 'should not be enable if `installer_name` file does not exist' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # given
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when, then
+      node.should_not be_enable
+    end
+  end
+end
+
+
+describe Node, 'when enabling / disabling a node' do
+  it_should_behave_like 'Common Node'
+
+
+  it 'should create a empty `installer_name` file when calling Node#enable!' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+      node.enable!( 'TEST_INSTALLER' )
+
+      # then
+      Dir[ File.join( sandbox.root, 'TEST_NODE', '*' ) ].size.should == 2
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/11_22_33_44_55_66' ) ).should == true
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/TEST_INSTALLER' ) ).should == true
+    end
+  end
+
+
+  it 'should rename `old_installer_name` to `new_installer_name` file when calling Node#enable!' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/OLD_TEST_INSTALLER'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+      node.enable!( 'NEW_TEST_INSTALLER' )
+
+      # then
+      Dir[ File.join( sandbox.root, 'TEST_NODE', '*' ) ].size.should == 2
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/11_22_33_44_55_66' ) ).should == true
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/NEW_TEST_INSTALLER' ) ).should == true
+    end
+  end
+
+
+  it 'should rename `old_installer_name.DISABLE` to `installer_name` file when calling Node#enable!' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/OLD_TEST_INSTALLER.DISABLE'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+      node.enable!( 'NEW_TEST_INSTALLER' )
+
+      # then
+      Dir[ File.join( sandbox.root, 'TEST_NODE', '*' ) ].size.should == 2
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/11_22_33_44_55_66' ) ).should == true
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/NEW_TEST_INSTALLER' ) ).should == true
+    end
+  end
+
+
+  it 'should rename `installer_name` file to `installer_name.DISABLE` when calling Node#disable!' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+      node.disable!
+
+      # then
+      File.exists?( File.join( sandbox.root, 'TEST_NODE/TEST_INSTALLER.DISABLE' ) ).should == true
+    end
+  end
+end
+
+
+describe Node, 'when accessing installer_name of disabled node' do
+  it_should_behave_like 'Common Node'
+
+
+  it 'should be created from existing node directory' do
+    in_sandbox do | sandbox |
+      # given
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER.DISABLE'
+
+      # when
+      node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # then
+      node.installer_name.should == 'TEST_INSTALLER'
+    end
+  end
+end
+
+
+describe Node, 'when accessing install history' do
+  it_should_behave_like 'Common Node'
+
+
+  in_sandbox do | sandbox |
+    before( :each ) do
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+    end
+
+
+    after( :each ) do
+      FileUtils.rm_rf File.join( sandbox.root, 'TEST_NODE' )
+    end
+
+
+    def setup_installs sandbox
+      sandbox.new :file => 'TEST_NODE/install-0/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-1/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-2/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-3/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-4/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-5/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-6/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-7/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-8/install_status.success'
+      sandbox.new :file => 'TEST_NODE/install-9/install_status.success'
+    end
+
+
+    it 'should have installation history' do
+      # given
+      setup_installs sandbox
+      @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when
+      installs = @node.installs
+
+      # then
+      installs.size.should == 10
+      installs[ 0 ].label.should == 0
+      installs[ 1 ].label.should == 1
+      installs[ 2 ].label.should == 2
+      installs[ 3 ].label.should == 3
+      installs[ 4 ].label.should == 4
+      installs[ 5 ].label.should == 5
+      installs[ 6 ].label.should == 6
+      installs[ 7 ].label.should == 7
+      installs[ 8 ].label.should == 8
+      installs[ 9 ].label.should == 9
+    end
+
+
+    it 'should have last five installation history' do
+      # given
+      setup_installs sandbox
+      @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when
+      last_five_installs = @node.last_five_installs
+
+      # then
+      last_five_installs.size.should == 5
+      last_five_installs[ 0 ].label.should == 9
+      last_five_installs[ 1 ].label.should == 8
+      last_five_installs[ 2 ].label.should == 7
+      last_five_installs[ 3 ].label.should == 6
+      last_five_installs[ 4 ].label.should == 5
+    end
+
+
+    it 'should have the latest install' do
+      # given
+      setup_installs sandbox
+      @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when, then
+      @node.last_complete_install_status.should == 'success'
+    end
+
+
+    it 'should have the last complete install status' do
+      # given
+      setup_installs sandbox
+      @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when, then
+      @node.latest_install.label.should == 9
+    end
+
+
+    it 'should not have the last complete install status if there are no install' do
+      # given
+      @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
+
+      # when, then
+      @node.last_complete_install.should be_nil
     end
   end
 end

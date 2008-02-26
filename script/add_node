@@ -117,38 +117,17 @@ begin
 
   lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
 
-  installer = Installers.find( installer_name )
-  unless installer
+  unless Installers.find( installer_name )
     raise "installer '#{ installer_name }' is not added yet."
   end
 
-  if installer.last_build.nil?
-    raise "installer '#{ installer_name }' is not built yet."
-  end
-
-  case installer.last_build.status
-  when 'incomplete'
-    raise "installer '#{ installer_name }' is being built now."
-  when 'failed'
-    raise "installer '#{ installer_name }' is broken."
-  end
-
-  begin
-    load './lib/tasks/add_node.rake'
-    Rake::Task[ 'lucie:add_node' ].invoke
-  rescue => e
-    if trace
-      raise
-    else
-      STDERR.puts "FAILED: #{ e.message }"
-      exit -1
-    end
-  end
+  load './lib/tasks/add_node.rake'
+  Rake::Task[ 'lucie:add_node' ].execute
 
   lucie_daemon.enable_node node_name, installer_name, wol
 
 rescue DRb::DRbConnError
-  Nodes.remove!( node_name ) rescue nil
+  # Nodes.remove!( node_name ) rescue nil
   if trace
     raise
   else
@@ -156,7 +135,7 @@ rescue DRb::DRbConnError
     exit -1
   end
 rescue => e
-  Nodes.remove!( node_name ) rescue nil
+  # Nodes.remove!( node_name ) rescue nil
   if trace
     raise
   else
@@ -171,6 +150,6 @@ puts "Node '#{ node_name }' added."
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

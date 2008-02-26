@@ -28,8 +28,8 @@ class Nodes
   end
 
 
-  def self.load_all options = {}
-    return Nodes.new( Configuration.nodes_directory ).load_all( options )
+  def self.load_all installer_name = nil
+    return Nodes.new( Configuration.nodes_directory ).load_all( installer_name )
   end
 
 
@@ -60,8 +60,8 @@ class Nodes
   end
 
 
-  def self.load_node dir, options = {}
-    node = Node.read( dir, options )
+  def self.load_node dir
+    node = Node.read( dir )
     return node
   end
 
@@ -89,12 +89,17 @@ class Nodes
   end
 
 
-  def load_all options = {}
+  def load_all installer_name
     @list = Dir[ "#{ @dir }/*" ].find_all do | child |
       File.directory? child
     end.collect do | child |
-      Nodes.load_node child, options
-    end
+      node = Nodes.load_node( child )
+      if installer_name and ( node.installer_name != installer_name )
+        nil
+      else
+        node
+      end
+    end.compact
     return self
   end
 
@@ -103,15 +108,10 @@ class Nodes
     if @list.include?( node )
       raise "node named #{ node.name.inspect } already exists."
     end
-    begin
-      @list << node
-      save_node node
-      write_config node
-      self
-    rescue
-      FileUtils.rm_rf "#{ @dir }/#{ node.name }"
-      raise
-    end
+    @list << node
+    save_node node
+    write_config node
+    self
   end
 
 
@@ -124,9 +124,8 @@ class Nodes
   def write_config node
     mac_address_config = File.join( node.path, node.mac_address.gsub( ':', '_' ) )
 
-    # FileUtils.touch mac_address_config
-    File.open( mac_address_config, 'w' ) do | file |
-      file.puts <<-EOF
+    File.open( mac_address_config, 'w' ) do | f |
+      f.puts <<-EOF
 gateway_address:#{ node.gateway_address }
 ip_address:#{ node.ip_address }
 netmask_address:#{ node.netmask_address }

@@ -74,7 +74,7 @@ EOF
 
   def host_entries
     entries = ''
-    Nodes.load_enabled( installer_name ).each do | each |
+    Nodes.load_all( installer_name ).each do | each |
       entries += <<-EOF
   host #{ each.name } {
     hardware ethernet #{ each.mac_address };

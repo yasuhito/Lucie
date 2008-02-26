@@ -74,7 +74,7 @@ describe Dhcp, 'when setting up DHCP server' do
     dhcp.stubs( :sh_exec )
     Dhcp.stubs( :new ).returns( dhcp )
 
-    Nodes.stubs( :load_enabled ).returns( [ dummy_node ] )
+    Nodes.stubs( :load_all ).with( 'TEST_INSTALLER' ).returns( [ dummy_node ] )
 
     lambda do
       Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.2'
@@ -93,7 +93,7 @@ describe Dhcp, 'when setting up DHCP server' do
     dhcp.stubs( :sh_exec ).raises( RuntimeError )
     Dhcp.stubs( :new ).returns( dhcp )
 
-    Nodes.stubs( :load_enabled ).returns( [ dummy_node ] )
+    Nodes.stubs( :load_all ).with( 'TEST_INSTALLER' ).returns( [ dummy_node ] )
 
     lambda do
       Dhcp.setup 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.2'
