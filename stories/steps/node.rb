@@ -67,13 +67,33 @@ steps_for :node do
   end
 
 
-  Given '$node_name is already added and is enabled with $installer installer' do | node, installer |
-    add_fresh_node node, :installer => installer
+  Given '$node_name is added' do | node |
+    add_fresh_node node
   end
 
 
-  Given '$node_name is already added and is disabled' do | node |
-    add_fresh_node node
+  Given '$node_name is succeeded to install' do | node |
+    add_success_log node
+  end
+
+
+  Given '$node_name is failed to install' do | node |
+    add_failure_log node
+  end
+
+
+  Given '$node_name is incomplete' do | node |
+    add_incomplete_log node
+  end
+
+
+  Given '$node_name is enabled with $installer installer' do | node, installer |
+    enable_node node, installer
+  end
+
+
+  Given '$node_name is disabled' do | node |
+    disable_node node
   end
 
 
@@ -83,14 +103,14 @@ steps_for :node do
 
 
   When 'I run $command' do | command |
-    @output, = output_with( command )
+    @output, @error = output_with( command )
   end
 
 
   Then "the output should look like '$message'" do | message |
     @output.split( "\n" ).collect do | each |
       each.strip
-    end.include?( message ).should be_true
+    end.include?( message.strip ).should be_true
   end
 end
 

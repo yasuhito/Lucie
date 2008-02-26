@@ -1,0 +1,29 @@
+Story: Add a node with 'node' command
+  As a cluster administrator
+  I want to add a node using 'node' command
+  So that I can add a node to the system
+
+  Scenario: node add success (lucied is UP, installer is added)
+    Given lucied is started
+    And no node is added yet
+    And no installer is added
+    And TEST_INSTALLER installer is added
+    When I add TEST_NODE
+    Then we get no error
+    And MAC address file should be created at ./nodes/TEST_NODE/00_00_00_00_00_00
+    And installer file should be created at ./nodes/TEST_NODE/TEST_INSTALLER
+    And the MAC address file should include gateway definition
+    And the MAC address file should include ip_address definition
+    And the MAC address file should include netmask_address definition
+
+  Scenario: node add fails if same node already exists
+    Given lucied is started
+    And no node is added yet
+    And no installer is added
+    And TEST_INSTALLER installer is added
+    When I add TEST_NODE
+    And I add TEST_NODE
+    Then the error message should be: 'FAILED: node named "TEST_NODE" already exists.'
+    And node directory should not be removed
+
+  Scenario: node add fails if lucie daemon is down

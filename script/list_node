@@ -40,7 +40,7 @@ ARGV.options do |opts|
 end
 
 
-begin 
+begin
   require RAILS_ROOT + '/config/environment'
 
   nodes = Nodes.load_all
@@ -50,10 +50,16 @@ begin
     puts 'No node is added yet.'
   else
     nodes.list.each do | each |
-      if each.installer_name
-        printf "%10s (installer = %s)\n", each.name, each.installer_name
+      if each.latest_install and each.latest_install.incomplete?
+        printf "incomplete %s (installer = %s)\n", each.name, each.installer_name
+      elsif each.latest_install and each.latest_install.failed?
+        printf "      fail %s (installer = %s)\n", each.name, each.installer_name
+      elsif each.enable?
+        printf "     ready %s (installer = %s)\n", each.name, each.installer_name
+      elsif each.latest_install
+        printf "%10s %s (installer = %s)\n", each.latest_install.status, each.name, each.installer_name
       else
-        printf "%10s (DISABLED)\n", each.name
+        printf "           %s (installer = %s)\n", each.name, each.installer_name
       end
     end
   end
@@ -69,6 +75,6 @@ end
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:
