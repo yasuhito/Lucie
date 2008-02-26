@@ -1,3 +1,23 @@
+require 'facter'
+
+
+def dummy_ip_address
+  my_address = Facter.value( 'ipaddress' )
+  /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ my_address
+  if $4.to_i < 253
+    return "#{ $1 }.#{ $2 }.#{ $3 }.#{ $4.to_i + 1 }"
+  else
+    return "#{ $1 }.#{ $2 }.#{ $3 }.252"
+  end
+end
+
+
+def dummy_gateway_address
+  /([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ =~ dummy_ip_address
+  return "#{ $1 }.#{ $2 }.#{ $3 }.254"
+end
+
+
 def add_fresh_node node_name, options = {}
   node_dir = File.join( Configuration.nodes_directory, node_name )
   unless FileTest.exists?( node_dir )

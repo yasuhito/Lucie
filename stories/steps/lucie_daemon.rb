@@ -10,17 +10,17 @@ steps_for( :lucie_daemon ) do
 
 
   When 'I start lucied' do
-    @output = output_with( './lucie start --lucied --debug' )
+    @stdout, @stderr = output_with( './lucie start --lucied --debug' )
   end
 
 
   When 'I start another lucied' do
-    @output = output_with( './lucie start --lucied' )
+    @stdout, @stderr = output_with( './lucie start --lucied' )
   end
 
 
   When 'I stop lucied' do
-    @output = output_with( './lucie stop --lucied' ).chomp
+    @stdout, @stderr = output_with( './lucie stop --lucied' )
   end
 
 
@@ -31,7 +31,7 @@ steps_for( :lucie_daemon ) do
 
 
   Then 'pwd is RAILS_ROOT' do
-    @output.chomp.split( "\n" ).include?( "[debug] pwd = #{ File.expand_path( RAILS_ROOT ) }" ).should be_true
+    @stdout.chomp.split( "\n" ).include?( "[debug] pwd = #{ File.expand_path( RAILS_ROOT ) }" ).should be_true
   end
 
 
@@ -41,7 +41,7 @@ steps_for( :lucie_daemon ) do
 
 
   Then "I get message 'Lucie daemon stopped.'" do
-    @output.should == 'Lucie daemon stopped.'
+    @stdout.chomp.should == 'Lucie daemon stopped.'
   end
 
 
@@ -51,7 +51,7 @@ steps_for( :lucie_daemon ) do
 
 
   Then "I get error message '$error_message'" do | msg |
-    @output.chomp.should == msg
+    @stderr.chomp.should == msg
   end
 end
 

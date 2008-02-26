@@ -13,7 +13,7 @@ end
 
 begin
   unless LuciedBlocker.blocked?
-    puts 'Lucie daemon not running (no pid file).'
+    STDERR.puts 'Lucie daemon not running (no pid file).'
     exit 0
   end
 

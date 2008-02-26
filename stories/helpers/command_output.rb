@@ -13,8 +13,8 @@ end
 
 
 def output_with command
-  Open3.popen3( command + ' 2>&1' ) do | stdin, stdout, stderr |
-    return stdout.read
+  Open3.popen3( command ) do | stdin, stdout, stderr |
+    return [ stdout.read, stderr.read ]
   end
 end
 

@@ -1,6 +1,6 @@
 steps_for( :command_help ) do
   When( 'I run $command' ) do | command |
-    @help_message = output_with( command )
+    @help_message, = output_with( command )
   end
 
 
