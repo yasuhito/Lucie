@@ -45,7 +45,6 @@ module Popen3
       @env.each do | key, value |
         env_string << "'#{ key }' => '#{ value }'"
       end
-      puts "ENV{ #{ env_string.join( ', ' ) } } #{ @command }"
 
       if block_given?
         begin

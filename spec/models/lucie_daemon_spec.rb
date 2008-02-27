@@ -6,20 +6,11 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 # so that I can delegate jobs to Lucie daemon at any time.
 
 describe LucieDaemon, 'when starting Lucie daemon' do
-  before( :each ) do
-    ENV[ 'DEBUG' ] = '1'
-  end
-
-
-  after( :each ) do
-    ENV[ 'DEBUG' ] = nil
-  end
-
-
   it 'should be daemonized and druby enabled' do
     @lucie_daemon = LucieDaemon.new
     @drb_threads = Object.new
     LucieDaemon.stubs( :new ).returns( @lucie_daemon )
+    STDOUT.stubs( :puts )
 
     # expects
     Daemon::Controller.expects( :fork ).yields.times( 2 ).returns( false )
@@ -55,6 +46,7 @@ end
 
 describe LucieDaemon, 'when calling LucieDaemon.kill' do
   it 'should exit if pid file not found' do
+    STDERR.stubs( :puts )
     File.stubs( :file? ).returns( false )
 
     # when
@@ -83,53 +75,22 @@ describe LucieDaemon, 'when calling LucieDaemon.kill' do
 end
 
 
-
-# Stubbing LucieDaemon.daemonize
-
-describe 'Lucie Daemon (daemon disabled)', :shared => true do
-  before( :each ) do
-    @drb_threads = Object.new
-
-    Daemon::Controller.stubs( :fork ).yields.returns( false )
-    Process.stubs( :setsid )
-    LuciedBlocker.stubs( :block )
-    LuciedBlocker::PidFile.stubs( :store )
-    Dir.stubs( :chdir )
-    File.stubs( :umask )
-    STDIN.stubs( :reopen )
-    STDOUT.stubs( :reopen )
-    STDERR.stubs( :reopen )
-    Daemon::Controller.stubs( :trap )
-
-    @drb_threads.stubs( :join )
-    DRb.stubs( :thread ).returns( @drb_threads )
-
-    LucieDaemon.daemonize
-
-    @remote_lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
-  end
-end
-
-
 # As a Lucie commandline script,
 # I want to delegate jobs to root privileged Lucie daemon via druby protocol,
 # so that I can be executed without root privilege.
 
-describe LucieDaemon, 'when calling sudo via druby' do
-  it_should_behave_like 'Lucie Daemon (daemon disabled)'
-
-
-  after( :each ) do
-    DRb.stop_service
+describe LucieDaemon, 'when calling sudo' do
+  before( :each ) do
+    @lucie_daemon = LucieDaemon.new
   end
 
 
   it 'should raise RuntimeError if invalid command is executed' do
-    File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( StringIO.new( '' ) )
+    File.stubs( :open ).with( 'LOGFILE', 'w' ).returns( StringIO.new( '' ) )
 
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'INVALID_COMMAND', 'LOG_FILE' )
+      @lucie_daemon.sudo( 'INVALID_COMMAND', 'LOGFILE' )
     end.should raise_error( RuntimeError )
 
     # then
@@ -142,14 +103,14 @@ describe LucieDaemon, 'when calling sudo via druby' do
     File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( log )
 
     # expects
-    Lucie::Log.expects( :info )
+    Lucie::Log.expects( :info ).at_least_once
     log.expects( :sync= ).with( true )
-    log.expects( :puts )
+    log.expects( :puts ).at_least_once
     log.expects( :close )
 
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'pwd', 'LOG_FILE' )
+      @lucie_daemon.sudo( 'pwd', 'LOG_FILE' )
 
       # then
     end.should_not raise_error
@@ -176,7 +137,7 @@ describe LucieDaemon, 'when calling sudo via druby' do
 
     # when
     lambda do
-      @remote_lucie_daemon.sudo( 'COMMAND', 'LOG_FILE' )
+      @lucie_daemon.sudo( 'COMMAND', 'LOG_FILE' )
 
       # then
     end.should_not raise_error
@@ -184,12 +145,9 @@ describe LucieDaemon, 'when calling sudo via druby' do
 end
 
 
-describe LucieDaemon, 'when calling enable_node via druby' do
-  it_should_behave_like 'Lucie Daemon (daemon disabled)'
-
-
-  after( :each ) do
-    DRb.stop_service
+describe LucieDaemon, 'when calling enable_node' do
+  before( :each ) do
+    @lucie_daemon = LucieDaemon.new
   end
 
 
@@ -201,7 +159,7 @@ describe LucieDaemon, 'when calling enable_node via druby' do
     enable_node_task.expects( :execute )
 
     # when
-    @remote_lucie_daemon.enable_node( 'NODE_NAME', 'INSTALLER_NAME', true )
+    @lucie_daemon.enable_node( 'NODE_NAME', 'INSTALLER_NAME', true )
 
     # then
     verify_mocks
@@ -209,12 +167,9 @@ describe LucieDaemon, 'when calling enable_node via druby' do
 end
 
 
-describe LucieDaemon, 'when calling disable_node via druby' do
-  it_should_behave_like 'Lucie Daemon (daemon disabled)'
-
-
-  after( :each ) do
-    DRb.stop_service
+describe LucieDaemon, 'when calling disable_node' do
+  before( :each ) do
+    @lucie_daemon = LucieDaemon.new
   end
 
 
@@ -227,7 +182,7 @@ describe LucieDaemon, 'when calling disable_node via druby' do
     Tftp.expects( :disable ).with( 'NODE_NAME' )
 
     # when
-    @remote_lucie_daemon.disable_node( 'NODE_NAME' )
+    @lucie_daemon.disable_node( 'NODE_NAME' )
 
     # then
     verify_mocks
@@ -240,7 +195,7 @@ describe LucieDaemon, 'when calling disable_node via druby' do
 
     # when
     lambda do
-      @remote_lucie_daemon.disable_node( 'NODE_NAME' )
+      @lucie_daemon.disable_node( 'NODE_NAME' )
 
       # then
     end.should raise_error( RuntimeError, 'Node NODE_NAME not found!' )
@@ -253,12 +208,9 @@ end
 # I want to delegate restart process of Puppet daemon to root privileged Lucie daemon via druby protocol,
 # so that I can restart Puppet daemon without root privilege.
 
-describe LucieDaemon, 'when calling restart_puppet via druby' do
-  it_should_behave_like 'Lucie Daemon (daemon disabled)'
-
-
-  after( :each ) do
-    DRb.stop_service
+describe LucieDaemon, 'when calling restart_puppet' do
+  before( :each ) do
+    @lucie_daemon = LucieDaemon.new
   end
 
 
@@ -267,23 +219,10 @@ describe LucieDaemon, 'when calling restart_puppet via druby' do
     PuppetController.expects( :restart )
 
     # when
-    @remote_lucie_daemon.restart_puppet
+    @lucie_daemon.restart_puppet
 
     # then
     verify_mocks
-  end
-
-
-  it 'should fail to restart Puppet daemon if Lucie daemon is not started yet' do
-    # given
-    DRb.stop_service
-
-    lambda do
-      # when
-      @remote_lucie_daemon.restart_puppet
-
-      # then
-    end.should raise_error
   end
 end
 

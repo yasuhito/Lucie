@@ -27,7 +27,8 @@ module Daemon
         end
 
         begin
-          puts 'Lucie daemon started.'
+          STDOUT.puts 'Lucie daemon started.'
+
           STDIN.reopen '/dev/null'
           STDOUT.reopen '/dev/null', 'a'
           STDERR.reopen STDOUT
@@ -49,7 +50,7 @@ module Daemon
 
     def self.stop
       unless File.file?( LuciedBlocker::PidFile.file_name )
-        puts 'Pid file not found. Is the daemon started?'
+        STDERR.puts 'Pid file not found. Is the daemon started?'
         exit
       end
       pid = LuciedBlocker::PidFile.recall
