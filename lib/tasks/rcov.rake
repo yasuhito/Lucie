@@ -1,14 +1,13 @@
 namespace :test do
-  namespace :coverage do
-    desc 'Delete coverage files'
-    task :clean do
-      rm_rf 'coverage'
-    end
+  desc 'Delete coverage files'
+  task 'coverage:clean' do
+    rm_rf 'coverage'
   end
 
-  desc 'Generage coverage files'
+
+  desc 'Generate coverage files'
   task :coverage => 'test:coverage:clean' do
-    sh 'rcov -x builder_plugins -x __sandbox -x /usr/local -x /var/lib/gems -x spec -x app/helpers/ --rails spec/**/*_spec.rb test/**/*_test.rb'
+    sh 'rcov --rails spec/**/*_spec.rb test/**/*_test.rb'
   end
 end
 
