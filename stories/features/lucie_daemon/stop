@@ -9,7 +9,7 @@ Story: stop lucie daemon
     When I stop lucied
     Then lucied successfully stops
     And I get message 'Lucie daemon stopped.'
-    And PID file is deleted
+    And PID file ./tmp/pids/lucied.pid is deleted
 
   Scenario: stop lucied fails if no lucied is running
     Given no other lucied is running

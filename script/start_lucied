@@ -5,10 +5,9 @@ require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'etc'
 
 
-if $DEBUG
+if ARGV[ 0 ] == 'verbose'
   Lucie::Log.verbose = true
 end
-
 
 unless Etc.getpwuid( Process.uid ).name == 'root'
   Lucie::Log.error 'You must be root.'

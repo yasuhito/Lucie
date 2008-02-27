@@ -1,4 +1,11 @@
 steps_for( :lucie_daemon ) do
+
+
+  ################################################################################
+  # Givens
+  ################################################################################
+
+
   Given 'no other lucied is running' do
     kill_lucied
   end
@@ -9,8 +16,18 @@ steps_for( :lucie_daemon ) do
   end
 
 
+  ################################################################################
+  # Whens
+  ################################################################################
+
+
   When 'I start lucied' do
-    @stdout, @stderr = output_with( './lucie start --lucied --debug' )
+    @stdout, @stderr = output_with( './lucie start --lucied' )
+  end
+
+
+  When 'I start lucied with verbose option' do
+    @stdout, @stderr = output_with( './lucie start --lucied --verbose' )
   end
 
 
@@ -24,9 +41,18 @@ steps_for( :lucie_daemon ) do
   end
 
 
-  Then 'PID file is created' do
-    FileTest.exists?( lucied_pid_fn ).should == true
-    IO.read( lucied_pid_fn ).to_i.should == lucied_pid
+  ################################################################################
+  # Thens
+  ################################################################################
+
+
+  Then 'PID file is created at $path' do | path |
+    FileTest.exists?( File.expand_path( path ) ).should == true
+  end
+
+
+  Then 'PID is saved at $path' do | path |
+    IO.read( File.expand_path( path ) ).to_i.should == lucied_pid
   end
 
 
@@ -40,13 +66,13 @@ steps_for( :lucie_daemon ) do
   end
 
 
-  Then "I get message 'Lucie daemon stopped.'" do
-    @stdout.chomp.should == 'Lucie daemon stopped.'
+  Then "I get message '$message'" do | message |
+    @stdout.chomp.split( "\n" ).include?( message ).should be_true
   end
 
 
-  Then 'PID file is deleted' do
-    FileTest.exists?( lucied_pid_fn ).should_not == true
+  Then 'PID file $path is deleted' do | path |
+    FileTest.exists?( File.expand_path( path ) ).should_not == true
   end
 
 

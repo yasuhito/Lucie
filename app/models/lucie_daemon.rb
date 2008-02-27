@@ -27,6 +27,7 @@ module Daemon
         end
 
         begin
+          puts 'Lucie daemon started.'
           STDIN.reopen '/dev/null'
           STDOUT.reopen '/dev/null', 'a'
           STDERR.reopen STDOUT

@@ -13,7 +13,7 @@ Story: read the 'lucie start' help message
     And the help message should include a description of -e and --environment option
     And the help message should include a description of -w and --without-builders option
     And the help message should include a description of -h and --help option
-    And the help message should include a description of -D and --debug option
+    And the help message should include a description of -V and --verbose option
 
   Scenario: lucie start --help
     When I run ./lucie start --help
@@ -25,7 +25,7 @@ Story: read the 'lucie start' help message
     And the help message should include a description of -e and --environment option
     And the help message should include a description of -w and --without-builders option
     And the help message should include a description of -h and --help option
-    And the help message should include a description of -D and --debug option
+    And the help message should include a description of -V and --verbose option
 
   Scenario: lucie start -h
     When I run ./lucie start -h
@@ -37,4 +37,4 @@ Story: read the 'lucie start' help message
     And the help message should include a description of -e and --environment option
     And the help message should include a description of -w and --without-builders option
     And the help message should include a description of -h and --help option
-    And the help message should include a description of -D and --debug option
+    And the help message should include a description of -V and --verbose option
