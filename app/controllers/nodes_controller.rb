@@ -2,8 +2,8 @@ class NodesController < ApplicationController
   layout 'default'
 
 
-  def index
-    @nodes = Nodes.load_all
+  def show
+    @nodes = Nodes.load_all( params[ :id ] )
   end
 end
 

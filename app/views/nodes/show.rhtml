@@ -2,7 +2,7 @@
   <% @nodes.each do | each | -%>
     <%= render :partial => 'node', :locals => {:node => each }%>
   <% end -%>
-   
+
   <%= render :partial => 'no_nodes' if @nodes.empty? %>
 </div>
 

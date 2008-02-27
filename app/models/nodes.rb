@@ -1,33 +1,4 @@
 class Nodes
-  def self.summary installer_name
-    nodes = load_node_list( installer_name )
-    if nodes.size == 0
-      return 'Never installed'
-    else nodes.size > 0
-      status = Hash.new( 0 )
-      nodes.each do | each |
-        status[ each.latest_install.status ] += 1
-      end
-      summary = []
-      if status[ 'failed' ] > 0
-        summary << "#{ status[ 'failed' ] } FAIL"
-      end
-      if status[ 'incomplete' ] > 0
-        summary << "#{ status[ 'incomplete' ] } incomplete"
-      end
-      return 'OK' if summary == []
-      return summary.join( ', ' )
-    end
-  end
-
-
-  def self.load_node_list installer_name
-    load_all.list.select do | each |
-      each.installer_name == installer_name
-    end
-  end
-
-
   def self.load_all installer_name = nil
     return Nodes.new( Configuration.nodes_directory ).load_all( installer_name )
   end
