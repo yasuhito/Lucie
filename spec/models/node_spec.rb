@@ -558,34 +558,26 @@ describe Node, 'when accessing install history' do
   it_should_behave_like 'Common Node'
 
 
-  in_sandbox do | sandbox |
-    before( :each ) do
+  def setup_installs sandbox
+    sandbox.new :file => 'TEST_NODE/install-0/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-1/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-2/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-3/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-4/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-5/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-6/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-7/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-8/install_status.success'
+    sandbox.new :file => 'TEST_NODE/install-9/install_status.success'
+  end
+
+
+  it 'should have installation history' do
+    in_sandbox do | sandbox |
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
       sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
       sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
-    end
 
-
-    after( :each ) do
-      FileUtils.rm_rf File.join( sandbox.root, 'TEST_NODE' )
-    end
-
-
-    def setup_installs sandbox
-      sandbox.new :file => 'TEST_NODE/install-0/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-1/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-2/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-3/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-4/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-5/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-6/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-7/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-8/install_status.success'
-      sandbox.new :file => 'TEST_NODE/install-9/install_status.success'
-    end
-
-
-    it 'should have installation history' do
       # given
       setup_installs sandbox
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
@@ -606,9 +598,15 @@ describe Node, 'when accessing install history' do
       installs[ 8 ].label.should == 8
       installs[ 9 ].label.should == 9
     end
+  end
 
 
-    it 'should have last five installation history' do
+  it 'should have last five installation history' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+
       # given
       setup_installs sandbox
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
@@ -624,9 +622,15 @@ describe Node, 'when accessing install history' do
       last_five_installs[ 3 ].label.should == 6
       last_five_installs[ 4 ].label.should == 5
     end
+  end
 
 
-    it 'should have the latest install' do
+  it 'should have the latest install' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+
       # given
       setup_installs sandbox
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
@@ -634,9 +638,15 @@ describe Node, 'when accessing install history' do
       # when, then
       @node.last_complete_install_status.should == 'success'
     end
+  end
 
 
-    it 'should have the last complete install status' do
+  it 'should have the last complete install status' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+
       # given
       setup_installs sandbox
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
@@ -644,9 +654,15 @@ describe Node, 'when accessing install history' do
       # when, then
       @node.latest_install.label.should == 9
     end
+  end
 
 
-    it 'should not have the last complete install status if there are no install' do
+  it 'should not have the last complete install status if there are no install' do
+    in_sandbox do | sandbox |
+      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
+      sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
+      sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
+      
       # given
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
 
