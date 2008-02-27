@@ -8,23 +8,7 @@
       <span class="installer_name">
         <%= link_to installer.name, :action => 'show', :id => installer.name %>
       </span>
-      <span>
-        <%= link_to "(#{ Nodes.load_node_list( installer.name ).size } nodes)", { :controller => 'nodes' }, :class => 'install_status' %>
-      </span>
     </div>
-
-    <div class="recent_installs">
-      <span class="lead">
-        install
-      </span>
-
-      <div>
-        <span>
-          <%= link_to Nodes.summary( installer.name ), { :controller => 'nodes' }, :class => 'install_status' %>
-        </span>
-      </div>
-    </div>
-
 
     <div class="recent_builds">
 
