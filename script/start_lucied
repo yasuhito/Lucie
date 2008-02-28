@@ -11,7 +11,7 @@ end
 
 unless Etc.getpwuid( Process.uid ).name == 'root'
   Lucie::Log.error 'You must be root.'
-  exit 1
+  exit -1
 end
 
 

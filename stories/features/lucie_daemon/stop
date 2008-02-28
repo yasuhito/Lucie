@@ -8,10 +8,10 @@ Story: stop lucie daemon
     And I start lucied
     When I stop lucied
     Then lucied successfully stops
-    And I get message 'Lucie daemon stopped.'
+    And I get message '[info]  Lucie daemon stopped.'
     And PID file ./tmp/pids/lucied.pid is deleted
 
   Scenario: stop lucied fails if no lucied is running
     Given no other lucied is running
     When I stop lucied
-    Then I get error message 'Lucie daemon not running (no pid file).'
+    Then I get error message '[error] Lucie daemon not running (no pid file).'

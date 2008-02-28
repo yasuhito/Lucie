@@ -1,9 +1,6 @@
 require 'drb/drb'
-require 'fileutils'
 require 'popen3/shell'
 require 'rake'
-
-load "#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake"
 
 
 module Daemon
@@ -21,13 +18,9 @@ module Daemon
           Lucie::Log.debug "pwd = #{ WorkingDirectory }"
           Dir.chdir WorkingDirectory
           File.umask 0000
-        rescue => e
-          STDERR.puts "FAILED: #{ e.message }"
-          exit 1
-        end
 
-        begin
-          STDOUT.puts 'Lucie daemon started.'
+          Lucie::Log.verbose = true
+          Lucie::Log.info 'Lucie daemon started.'
 
           STDIN.reopen '/dev/null'
           STDOUT.reopen '/dev/null', 'a'
@@ -38,11 +31,8 @@ module Daemon
           end
           daemon.start
         rescue => e
-          Lucie::Log.error "FAILED: #{ e.message }"
-          e.backtrace.each do | each |
-            Lucie::Log.error each
-          end
-          exit -1
+          Lucie::Log.error e.message
+          exit 1
         end
       end
     end
@@ -50,7 +40,7 @@ module Daemon
 
     def self.stop
       unless File.file?( LuciedBlocker::PidFile.file_name )
-        STDERR.puts 'Pid file not found. Is the daemon started?'
+        Lucie::Log.error 'Pid file not found. Is the daemon started?'
         exit
       end
       pid = LuciedBlocker::PidFile.recall
@@ -65,6 +55,16 @@ class LucieDaemon
   PORT = 58243
 
 
+  ################################################################################
+  # Daemon management
+  ################################################################################
+
+
+  def self.server
+    DRbObject.new_with_uri( uri )
+  end
+
+
   def self.daemonize
     Daemon::Controller.start self
   end
@@ -75,20 +75,9 @@ class LucieDaemon
   end
 
 
-  def self.start
-    DRb.start_service uri, self.new
-    DRb.thread.join
-  end
-
-
-  def self.stop
-    DRb.stop_service
-  end
-
-
-  def self.uri
-    "druby://127.0.0.1:#{ PORT }"
-  end
+  ################################################################################
+  # Helpers
+  ################################################################################
 
 
   # [XXX] We should make sure that only the lucie server can call sudo
@@ -122,12 +111,9 @@ class LucieDaemon
   end
 
 
-  ##############################################################################
-  # Helper methods
-  ##############################################################################
-
-
   def enable_node node_name, installer_name, wol
+    load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
+
     ENV[ 'NODE_NAME' ] = node_name
     ENV[ 'INSTALLER_NAME' ] = installer_name
     ENV[ 'WOL' ] = wol ? '1' : nil
@@ -149,6 +135,27 @@ class LucieDaemon
 
   def restart_puppet
     PuppetController.restart
+  end
+
+
+  ################################################################################
+  # Misc (used internally)
+  ################################################################################
+
+
+  def self.uri
+    "druby://127.0.0.1:#{ PORT }"
+  end
+
+
+  def self.start
+    DRb.start_service uri, self.new
+    DRb.thread.join
+  end
+
+
+  def self.stop
+    DRb.stop_service
   end
 end
 

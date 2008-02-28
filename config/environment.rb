@@ -22,7 +22,7 @@ Rails::Initializer.run do | config |
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  config.load_paths << "#{RAILS_ROOT}/builder_plugins/installed"
+  config.load_paths << "#{ RAILS_ROOT }/builder_plugins/installed"
 
   # See Rails::Configuration for more options
 end
@@ -35,6 +35,6 @@ Mime::Type.register "application/cctray", :cctray
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

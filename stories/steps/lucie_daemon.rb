@@ -67,7 +67,8 @@ steps_for( :lucie_daemon ) do
 
 
   Then "I get message '$message'" do | message |
-    @stdout.chomp.split( "\n" ).include?( message ).should be_true
+    @stdout.split( "\n" ).last.gsub( /\s+/, ' ' ).should == message
+    # @stdout.chomp.split( "\n" ).include?( message ).should be_true
   end
 
 
@@ -76,8 +77,8 @@ steps_for( :lucie_daemon ) do
   end
 
 
-  Then "I get error message '$error_message'" do | msg |
-    @stderr.chomp.should == msg
+  Then "I get error message '$error_message'" do | message |
+    @stderr.chomp.should == message
   end
 end
 

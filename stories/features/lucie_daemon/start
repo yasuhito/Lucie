@@ -6,7 +6,7 @@ Story: starting lucie daemon
   Scenario: start lucied succeeds
     Given no other lucied is running
     When I start lucied with verbose option
-    Then I get message 'Lucie daemon started.'
+    Then I get message '[info]  Lucie daemon started.'
     And PID file is created at ./tmp/pids/lucied.pid
     And PID is saved at ./tmp/pids/lucied.pid
     And pwd is RAILS_ROOT
@@ -15,4 +15,4 @@ Story: starting lucie daemon
     Given no other lucied is running
     When I start lucied
     When I start another lucied
-    Then I get error message 'FAILED: Another Lucie daemon is already running.'
+    Then I get error message '[error] Another Lucie daemon is already running.'

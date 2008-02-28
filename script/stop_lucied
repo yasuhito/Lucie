@@ -1,31 +1,33 @@
-require File.dirname( __FILE__ ) + '/../config/boot'
+ENV[ 'RAILS_ENV' ] = 'lucied'
 
+
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'etc'
-require 'lucie_daemon'
-require 'lucied_blocker'
 
 
 unless Etc.getpwuid( Process.uid ).name == 'root'
-  STDERR.puts 'ERROR: You must be root.'
+  Lucie::Log.error 'You must be root.'
   exit -1
 end
 
 
 begin
   unless LuciedBlocker.blocked?
-    STDERR.puts 'Lucie daemon not running (no pid file).'
+    Lucie::Log.error 'Lucie daemon not running (no pid file).'
     exit 0
   end
 
   LucieDaemon.kill
   sleep 1
+
 rescue => e
-  STDERR.puts "FAILED: #{ e.message }"
+  Lucie::Log.error e.message
   exit -1
 end
 
 
-puts 'Lucie daemon stopped.'
+Lucie::Log.verbose = true
+Lucie::Log.info 'Lucie daemon stopped.'
 exit 0
 
 

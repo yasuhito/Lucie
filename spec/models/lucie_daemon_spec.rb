@@ -6,18 +6,41 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 # so that I can delegate jobs to Lucie daemon at any time.
 
 describe LucieDaemon, 'when starting Lucie daemon' do
+  it 'should return a DRbObject with LucieDaemon.server' do
+    # expects
+    DRbObject.expects( :new_with_uri ).with( "druby://127.0.0.1:58243" ).returns( 'LUCIE_SERVER' )
+
+    # when, then
+    LucieDaemon.server.should == 'LUCIE_SERVER'
+  end
+
+
+  it 'should log errors when failed to start lucied' do
+    Daemon::Controller.stubs( :fork ).yields.returns( false )
+    Process.stubs( :setsid ).raises
+
+    # expects
+    Lucie::Log.expects( :error )
+    Daemon::Controller.expects( :exit ).with( 1 )
+
+    # when, then
+    LucieDaemon.daemonize
+  end
+
+
   it 'should be daemonized and druby enabled' do
     @lucie_daemon = LucieDaemon.new
     @drb_threads = Object.new
     LucieDaemon.stubs( :new ).returns( @lucie_daemon )
-    STDOUT.stubs( :puts )
+    Lucie::Log.stubs( :info )
 
     # expects
     Daemon::Controller.expects( :fork ).yields.times( 2 ).returns( false )
     Process.expects( :setsid )
+    LuciedBlocker.expects( :block )
     LuciedBlocker::PidFile.expects( :store )
     Dir.expects( :chdir )
-    File.expects( :umask )
+    File.expects( :umask ).with( 0000 )
     STDIN.expects( :reopen )
     STDOUT.expects( :reopen )
     STDERR.expects( :reopen )
@@ -31,11 +54,10 @@ describe LucieDaemon, 'when starting Lucie daemon' do
     @drb_threads.expects( :join )
     DRb.expects( :thread ).returns( @drb_threads )
 
-    # when
-    LucieDaemon.daemonize
-
-    # then
-    verify_mocks
+    # when, then
+    lambda do
+      LucieDaemon.daemonize
+    end.should_not raise_error
   end
 end
 
@@ -86,6 +108,7 @@ describe LucieDaemon, 'when calling sudo' do
 
 
   it 'should raise RuntimeError if invalid command is executed' do
+    Lucie::Log.stubs( :info )
     File.stubs( :open ).with( 'LOGFILE', 'w' ).returns( StringIO.new( '' ) )
 
     # when

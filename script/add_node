@@ -115,7 +115,7 @@ begin
   ENV[ 'GATEWAY_ADDRESS' ] = gateway_address
   ENV[ 'NETMASK_ADDRESS' ] = netmask_address
 
-  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon = LucieDaemon.server
 
   unless Installers.find( installer_name )
     raise "installer '#{ installer_name }' is not added yet."

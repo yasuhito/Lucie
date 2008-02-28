@@ -94,7 +94,7 @@ Lucie::Log.info "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may tak
 begin
   require 'drb/drb'
 
-  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon = LucieDaemon.server
   lucie_daemon.restart_puppet
 
   FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil

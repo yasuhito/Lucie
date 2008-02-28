@@ -82,7 +82,7 @@ begin
   ENV[ 'NODE_NAME' ] = node_name
   ENV[ 'INSTALLER_NAME' ] = installer_name
 
-  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon = LucieDaemon.server
 
   installer = Installers.find( installer_name )
   unless installer

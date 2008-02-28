@@ -42,7 +42,7 @@ begin
   require RAILS_ROOT + '/config/environment'
   require 'drb/drb'
 
-  lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+  lucie_daemon = LucieDaemon.server
   lucie_daemon.disable_node( node_name )
 
 rescue DRb::DRbConnError
