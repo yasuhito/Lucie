@@ -4,6 +4,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :installers, :nodes, :node
 
+  map.node 'installs/:node/:id', :controller => 'installs', :action => 'show'
+
   map.installer_without_builds 'builds/:installer', :controller => 'builds', :action => 'show'
   map.build 'builds/:installer/:build', :controller => 'builds', :action => 'show', :build => /[^\/]+/
 

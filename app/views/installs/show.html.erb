@@ -1,0 +1,17 @@
+<div id="install_details">
+  <h1>
+    <%= h @node.name %> install <%= h @install.label %>
+    <% if @install.failed? %><span class="error">FAILED</span><% end %>
+  </h1>
+  <div class="install_time">
+     <%= display_install_time %>
+  </div
+>
+  <br/>
+
+  <div class="section_closed">
+    <div class="section_header" onclick="toggle_section( this.parentNode )">Install Log</div>
+    <div class="section_content"><div class="logfile"><%= format_install_log( @install.output ) %></div></div>
+  </div>
+
+</div>

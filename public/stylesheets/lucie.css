@@ -439,6 +439,33 @@ a.never_built, a.never_built:visited {
 
 #build_details .section_closed .section_content { display: none; }
 
+#install_details {
+  margin-left: 14em;
+  padding-right: 1.5em;
+}
+
+#install_details .section_content {
+  padding-left: 2em;
+  font-family: courier, monospace;
+  word-wrap: break-word;
+  white-space: pre;
+}
+
+/* section stuff */
+#install_details .section_header {
+  cursor: pointer;
+  font-size: 1.3em;
+  padding-left: 1.3em;
+  background: no-repeat center left;
+  margin: .4em 0;
+}
+
+#install_details .section_closed .section_header { background-image: url(/images/arrow_closed.png); }
+#install_details .section_open .section_header   { background-image: url(/images/arrow_open.png); }
+
+#install_details .section_closed .section_content { display: none; }
+
+
 #builds_list {
   width: 14em;
   float: left;

@@ -22,12 +22,12 @@ module ApplicationHelper
   end
 
 
-  def link_to_install install
+  def link_to_install node, install
     text = install_label( install )
     if install.failed?
       text += " <span class='error'>FAILED</span>"
     end
-    return text
+    install_link text, node, install
   end
 
 
@@ -54,6 +54,20 @@ module ApplicationHelper
   end
 
 
+  def text_to_install(install, with_elapsed_time = true)
+    text = install_label(install)
+    if install.failed?
+      text += ' FAILED'
+    elsif install.incomplete?
+      text += ' incomplete'
+    else
+      elapsed_time_text = install_elapsed_time(install)
+      text += " took #{elapsed_time_text}" if (with_elapsed_time and !elapsed_time_text.empty?)
+    end
+    return text
+  end
+
+
   def text_to_build(build, with_elapsed_time = true)
     text = build_label(build)
     if build.failed?
@@ -66,6 +80,12 @@ module ApplicationHelper
     end
     return text
   end
+
+
+  def link_to_install_with_elapsed_time node, install
+    install_link text_to_install( install ), node, install
+  end
+
 
   def link_to_build_with_elapsed_time(installer, build)
     build_link(text_to_build(build), installer, build)
@@ -96,12 +116,31 @@ module ApplicationHelper
   end
 
 
+  def install_elapsed_time install, format = :general
+    begin
+      "<span>#{ format_seconds( install.elapsed_time, format ) }</span>"
+    rescue
+      '' # The install time is not present.
+    end
+  end
+
+
   def build_elapsed_time build, format = :general
     begin
       "<span>#{ format_seconds( build.elapsed_time, format ) }</span>"
     rescue
       '' # The build time is not present.
     end
+  end
+
+
+  def node_link node, install
+    link_to node.name, { :controller => 'installs', :action => 'show', :node => node.name, :id => install.label }
+  end
+
+
+  def install_link text, node, install
+    link_to text, { :controller => 'installs', :action => 'show', :node => node.name, :id => install.label }, :class => install.status
   end
 
 

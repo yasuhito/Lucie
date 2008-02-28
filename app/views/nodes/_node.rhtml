@@ -4,16 +4,21 @@
 
   <td class="node_summary">
 
+    <% recent_installs = node.last_five_installs %>
+
+
     <div>
       <span class="node_name">
-	<%= node.name %>
+        <% unless recent_installs.empty? %>
+          <%= node_link( node, recent_installs.first ) %>
+        <% else %>
+          <%= node.name %>
+        <% end %>
       </span>
     </div>
 
 
     <div class="recent_installs">
-
-      <% recent_installs = node.last_five_installs %>
 
       <span class="lead">
         <%= recent_installs.first ? 'install ' : '<span class="install_status">Never installed</span>' %>
@@ -23,9 +28,9 @@
         <div class="installs_list">
           <% recent_installs.each do | install | %>
             <% if install == recent_installs.first %>
-                <div class="install_summary"><%= text_to_install( install ) %></div>
+                <div class="install_summary"><%= link_to_install_with_elapsed_time( node, install ) %></div>
             <% else %>
-                <div class="install_summary"><%= link_to_install( install ) %></div>
+                <div class="install_summary"><%= link_to_install( node, install ) %></div>
             <% end %>
           <% end %>
         </div>
