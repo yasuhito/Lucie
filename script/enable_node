@@ -89,17 +89,6 @@ begin
     raise "installer '#{ installer_name }' is not added yet."
   end
 
-  if installer.last_build.nil?
-    raise "installer '#{ installer_name }' is not built yet."
-  end
-
-  case installer.last_build.status
-  when 'incomplete'
-    raise "installer '#{ installer_name }' is being built now."
-  when 'failed'
-    raise "installer '#{ installer_name }' is broken."
-  end
-
   lucie_daemon.sudo %{ruby -e "require 'rake'; require '#{ File.expand_path( RAILS_ROOT + '/config/environment' ) }'; load '#{ File.expand_path( RAILS_ROOT ) }/lib/tasks/enable_node.rake'; ENV[ 'NODE_NAME' ] = '#{ node_name }'; ENV[ 'INSTALLER_NAME' ] = '#{ installer_name }'; ENV[ 'WOL' ] = '#{ wol }'; BuilderStarter.run_builders_at_startup = #{ start_builder }; Rake::Task[ 'lucie:enable_node' ].invoke"}
 
 rescue DRb::DRbConnError
