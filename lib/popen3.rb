@@ -41,11 +41,6 @@ module Popen3
       close_end_of @child_pipe
       @parent_pipe[ :tochild ].sync = true
 
-      env_string = []
-      @env.each do | key, value |
-        env_string << "'#{ key }' => '#{ value }'"
-      end
-
       if block_given?
         begin
           return yield( @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ] )

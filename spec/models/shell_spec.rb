@@ -8,7 +8,7 @@ describe Popen3::Shell, 'when executing command using Kernel.sh_exec' do
     shell_mock.expects( :on_stdout ).yields( 'STDOUT' )
     shell_mock.expects( :on_stderr ).yields( 'STDERR' )
     shell_mock.expects( :on_failure )
-    shell_mock.expects( :exec ).times( 1 ).with( 'TEST_COMMAND TEST_ARG1 TEST_ARG2', {} )
+    shell_mock.expects( :exec ).times( 1 ).with( 'TEST_COMMAND TEST_ARG1 TEST_ARG2', { :env => { 'LC_ALL' => 'C' } } )
     Popen3::Shell.expects( :open ).times( 1 ).yields( shell_mock ).returns( 'SUCCESS' )
 
     # when

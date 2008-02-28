@@ -139,7 +139,7 @@ end
 
 
 module Kernel
-  def sh_exec command, options = {}
+  def sh_exec command, options = { :env => { 'LC_ALL' => 'C' } }
     @stderr = []
 
     Popen3::Shell.open do | shell |
@@ -154,6 +154,11 @@ module Kernel
         raise %{Command "#{ command }" failed.\n#{ @stderr.join( "\n" )}}
       end
 
+      env_string = []
+      options[ :env ].each do | key, value |
+        env_string << "'#{ key }' => '#{ value }'"
+      end
+      STDOUT.puts "ENV{ #{ env_string.join( ', ' ) } } #{ command }"
       shell.exec( command, options )
 
       # Returns a instance of Popen3::Shell as a return value from
