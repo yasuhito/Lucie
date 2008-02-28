@@ -2,7 +2,7 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
 describe NodesController do
-  it '/nodes/show/[INSTALLER_NAME] should route to /nodes/[INSTALLER_NAME]' do
+  it 'should route /nodes/show/[INSTALLER_NAME] to /nodes/[INSTALLER_NAME]' do
     route_for( :controller => 'nodes', :action => 'show', :id => 'TEST_INSTALLER' ).should == '/nodes/TEST_INSTALLER'
   end
 
