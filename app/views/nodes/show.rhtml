@@ -6,5 +6,4 @@
   <%= render :partial => 'no_nodes' if @nodes.empty? %>
 </div>
 
-<%= periodically_call_remote :url => { :action => 'index', :format => 'js'}, :method => 'get',
-                                       :frequency => Configuration.dashboard_refresh_interval %>
+<%= periodically_call_remote :url => { :action => 'show', :format => 'js'}, :method => 'get', :frequency => Configuration.dashboard_refresh_interval %>
