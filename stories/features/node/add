@@ -23,7 +23,12 @@ Story: Add a node with 'node' command
     And TEST_INSTALLER installer is added
     When I add TEST_NODE
     And I add TEST_NODE
-    Then the error message should be: 'FAILED: node named "TEST_NODE" already exists.'
+    Then the error message should be: '[error] Node 'TEST_NODE' already exists.'
     And node directory should not be removed
 
   Scenario: node add fails if lucie daemon is down
+    Given lucied is stopped
+    And no node is added yet
+    And TEST_INSTALLER installer is added
+    When I add TEST_NODE
+    Then the error message should be: '[error] Lucie daemon (lucied) is down.'

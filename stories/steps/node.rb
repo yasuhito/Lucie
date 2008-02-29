@@ -5,6 +5,11 @@ steps_for :node do
   end
 
 
+  Given 'lucied is stopped' do
+    system './lucie stop --lucied'
+  end
+
+
   Given 'no installer is added' do
     installers = Dir.glob( File.join( Configuration.installers_directory, '*' ) ).join( ' ' )
     system "sudo rm -rf #{ installers }"

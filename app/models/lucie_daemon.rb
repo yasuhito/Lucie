@@ -111,14 +111,35 @@ class LucieDaemon
   end
 
 
-  def enable_node node_name, installer_name, wol
-    load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
+  def enable_node node_name, installer_name
+    Nodes.find( node_name ).enable! installer_name
+  end
 
-    ENV[ 'NODE_NAME' ] = node_name
-    ENV[ 'INSTALLER_NAME' ] = installer_name
-    ENV[ 'WOL' ] = wol ? '1' : nil
 
-    Rake::Task[ 'lucie:enable_node' ].execute
+  def setup_tftp node_name, installer_name
+    Tftp.setup node_name, installer_name
+  end
+
+
+  def setup_nfs installer_name
+    Nfs.setup installer_name
+  end
+
+
+  def setup_dhcp node_name
+    node = Nodes.find( node_name )
+    Dhcp.setup node.installer_name, node.ip_address, node.netmask_address, node.gateway_address
+  end
+
+
+  def setup_puppet installer_name
+    PuppetController.setup Installers.find( installer_name ).local_checkout
+  end
+
+
+  def wol node_name
+    node = Nodes.find( node_name )
+    WakeOnLan.wake node.mac_address
   end
 
 

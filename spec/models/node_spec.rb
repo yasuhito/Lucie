@@ -261,7 +261,7 @@ describe Node, 'when adding a same node twice with lucie:add_node rake task' do
         Rake::Task[ 'lucie:add_node' ].execute
 
         # then
-      end.should raise_error( 'node named "TEST_NODE" already exists.' )
+      end.should raise_error( "Node 'TEST_NODE' already exists." )
     end
   end
 end
@@ -279,7 +279,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       Rake::Task[ 'lucie:add_node' ].execute
 
       # then
-    end.should raise_error( RuntimeError, "node name not defined." )
+    end.should raise_error( MandatoryOptionError, "Node name not defined." )
   end
 
 
@@ -291,7 +291,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       Rake::Task[ 'lucie:add_node' ].execute
 
       # then
-    end.should raise_error( RuntimeError, "MAC address for node 'TEST_NODE' not defined." )
+    end.should raise_error( MandatoryOptionError, "MAC address for node 'TEST_NODE' not defined." )
   end
 
 
@@ -303,7 +303,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       Rake::Task[ 'lucie:add_node' ].execute
 
       # then
-    end.should raise_error( RuntimeError, "IP address for node 'TEST_NODE' not defined." )
+    end.should raise_error( MandatoryOptionError, "IP address for node 'TEST_NODE' not defined." )
   end
 
 
@@ -315,7 +315,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       Rake::Task[ 'lucie:add_node' ].execute
 
       # then
-    end.should raise_error( RuntimeError, "Gateway address for node 'TEST_NODE' not defined." )
+    end.should raise_error( MandatoryOptionError, "Gateway address for node 'TEST_NODE' not defined." )
   end
 
 
@@ -327,19 +327,14 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       Rake::Task[ 'lucie:add_node' ].execute
 
       # then
-    end.should raise_error( RuntimeError, "Netmask address for node 'TEST_NODE' not defined." )
+    end.should raise_error( MandatoryOptionError, "Netmask address for node 'TEST_NODE' not defined." )
   end
 end
 
 
 describe Node, 'when enabling a node with lucie:enable_node rake task' do
-  it_should_behave_like 'Common Node'
-
-
   before( :each ) do
     Rake::Task.clear
-
-    STDOUT.stubs( :puts )
 
     ENV[ 'NODE_NAME' ] = 'TEST_NODE'
     ENV[ 'INSTALLER_NAME' ] = 'TEST_INSTALLER'
@@ -348,6 +343,8 @@ describe Node, 'when enabling a node with lucie:enable_node rake task' do
 
 
   after( :each ) do
+    Rake::Task.clear
+
     ENV[ 'NODE_NAME' ] = nil
     ENV[ 'INSTALLER_NAME' ] = nil
     ENV[ 'WOL' ] = nil
@@ -355,30 +352,24 @@ describe Node, 'when enabling a node with lucie:enable_node rake task' do
 
 
   it 'should enable installation for a node' do
-    installer = Object.new
+    lucie_daemon = Object.new
 
-    in_sandbox do | sandbox |
+    # expects
+    LucieDaemon.expects( :server ).returns( lucie_daemon )
+    lucie_daemon.expects( :enable_node ).with( 'TEST_NODE', 'TEST_INSTALLER' )
+    lucie_daemon.expects( :setup_tftp ).with( 'TEST_NODE', 'TEST_INSTALLER' )
+    lucie_daemon.expects( :setup_nfs ).with( 'TEST_INSTALLER' )
+    lucie_daemon.expects( :setup_dhcp ).with( 'TEST_NODE' )
+    lucie_daemon.expects( :setup_puppet ).with( 'TEST_INSTALLER' )
+    lucie_daemon.expects( :wol ).with( 'TEST_NODE' )
+
+    # when
+    lambda do
       load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
-      Configuration.stubs( :nodes_directory ).returns( sandbox.root )
-       sandbox.new :file => 'TEST_NODE/00_00_00_00_00_00', :with_contents => network_config
+      Rake::Task[ 'lucie:enable_node' ].execute
 
-      # expects
-      Tftp.expects( :setup ).with( 'TEST_NODE', 'TEST_INSTALLER' )
-      Nfs.expects( :setup ).with( 'TEST_INSTALLER' )
-      Dhcp.expects( :setup ).with( 'TEST_INSTALLER', '192.168.1.1', '255.255.255.0', '192.168.1.254' )
-      PuppetController.expects( :setup ).with( installer )
-      installer.stubs( :local_checkout ).returns( installer )
-      Installers.expects( :find ).with( 'TEST_INSTALLER' ).returns( installer )
-      WakeOnLan.expects( :wake ).with( '00:00:00:00:00:00' )
-
-      lambda do
-        # when
-        Rake::Task[ 'lucie:enable_node' ].execute
-
-        # then
-      end.should_not raise_error
-      File.exists?( File.join( sandbox.root, 'TEST_NODE/TEST_INSTALLER' ) ).should == true
-    end
+      # then
+    end.should_not raise_error
   end
 end
 

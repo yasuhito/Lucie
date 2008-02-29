@@ -6,25 +6,32 @@ task 'lucie:enable_node' do
   installer_name = ENV[ 'INSTALLER_NAME' ]
 
   if node_name.nil?
-    raise "Node name not defined."
+    raise MandatoryOptionError, 'Node name not defined.'
   end
-
   if installer_name.nil?
-    raise "Installer name for node '#{ node_name }' not defined."
+    raise MandatoryOptionError, "Installer name for node '#{ node_name }' not defined."
   end
 
-  STDOUT.puts "Setting up installer '#{ installer_name }' for node '#{ node_name }' (this may take a while)..."
+  lucie_daemon = LucieDaemon.server
 
-  node = Nodes.find( node_name )
-  node.enable! installer_name
+  Lucie::Log.debug "Enabling node #{ node_name }"
+  lucie_daemon.enable_node node_name, installer_name
 
-  Tftp.setup node.name, node.installer_name
-  Nfs.setup node.installer_name
-  Dhcp.setup node.installer_name, node.ip_address, node.netmask_address, node.gateway_address
-  PuppetController.setup Installers.find( node.installer_name ).local_checkout
+  Lucie::Log.debug "Setting up TFTP daemon"
+  lucie_daemon.setup_tftp node_name, installer_name
+
+  Lucie::Log.debug "Setting up NFS daemon"
+  lucie_daemon.setup_nfs installer_name
+
+  Lucie::Log.debug "Setting up DHCP daemon"
+  lucie_daemon.setup_dhcp node_name
+
+  Lucie::Log.debug "Setting up Puppet daemon"
+  lucie_daemon.setup_puppet installer_name
 
   if ENV[ 'WOL' ]
-    WakeOnLan.wake node.mac_address
+    Lucie::Log.debug "Sending Wake on Lan magick packets"
+    lucie_daemon.wol node_name
   end
 end
 

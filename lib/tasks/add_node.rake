@@ -3,25 +3,23 @@ require 'rake'
 
 task 'lucie:add_node' do
   if ENV[ 'NODE_NAME' ].nil?
-    raise "node name not defined."
+    raise MandatoryOptionError, 'Node name not defined.'
   end
 
-  STDOUT.puts "Adding node '#{ ENV[ 'NODE_NAME' ] }' (this may take a while)..."
-
   if ENV[ 'MAC_ADDRESS' ].nil?
-    raise "MAC address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
+    raise MandatoryOptionError, "MAC address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
   end
 
   if ENV[ 'IP_ADDRESS' ].nil?
-    raise "IP address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
+    raise MandatoryOptionError, "IP address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
   end
 
   if ENV[ 'GATEWAY_ADDRESS' ].nil?
-    raise "Gateway address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
+    raise MandatoryOptionError, "Gateway address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
   end
 
   if ENV[ 'NETMASK_ADDRESS' ].nil?
-    raise "Netmask address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
+    raise MandatoryOptionError, "Netmask address for node '#{ ENV[ 'NODE_NAME' ] }' not defined."
   end
 
   node = Node.new( ENV[ 'NODE_NAME' ], { :mac_address => ENV[ 'MAC_ADDRESS' ], :gateway_address => ENV[ 'GATEWAY_ADDRESS' ], :ip_address => ENV[ 'IP_ADDRESS' ], :netmask_address => ENV[ 'NETMASK_ADDRESS' ] } )

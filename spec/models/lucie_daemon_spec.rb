@@ -98,30 +98,16 @@ end
 
 
 # As a Lucie commandline script,
-# I want to delegate jobs to root privileged Lucie daemon via druby protocol,
+# I want to delegate jobs to root privileged Lucie daemon with helper methods ,
 # so that I can be executed without root privilege.
 
-describe LucieDaemon, 'when calling sudo' do
+describe LucieDaemon, 'when calling helper methods' do
   before( :each ) do
     @lucie_daemon = LucieDaemon.new
   end
 
 
-  it 'should raise RuntimeError if invalid command is executed' do
-    Lucie::Log.stubs( :info )
-    File.stubs( :open ).with( 'LOGFILE', 'w' ).returns( StringIO.new( '' ) )
-
-    # when
-    lambda do
-      @lucie_daemon.sudo( 'INVALID_COMMAND', 'LOGFILE' )
-    end.should raise_error( RuntimeError )
-
-    # then
-    verify_mocks
-  end
-
-
-  it 'should execute pwd command without errors' do
+  it "should sudo('pwd') without errors" do
     log = Object.new
     File.stubs( :open ).with( 'LOG_FILE', 'w' ).returns( log )
 
@@ -140,7 +126,21 @@ describe LucieDaemon, 'when calling sudo' do
   end
 
 
-  it 'should log command output' do
+  it "should raise if sudo('invalid command')" do
+    Lucie::Log.stubs( :info )
+    File.stubs( :open ).with( 'LOGFILE', 'w' ).returns( StringIO.new( '' ) )
+
+    # when
+    lambda do
+      @lucie_daemon.sudo( 'INVALID_COMMAND', 'LOGFILE' )
+    end.should raise_error( RuntimeError )
+
+    # then
+    verify_mocks
+  end
+
+
+  it 'should log sudo output' do
     shell = Object.new
     Popen3::Shell.stubs( :open ).yields( shell )
 
@@ -165,38 +165,105 @@ describe LucieDaemon, 'when calling sudo' do
       # then
     end.should_not raise_error
   end
-end
 
 
-describe LucieDaemon, 'when calling enable_node' do
-  before( :each ) do
-    @lucie_daemon = LucieDaemon.new
-  end
-
-
-  it 'should disable a node if Lucie daemon is started' do
-    enable_node_task = Object.new
+  it 'should enable a node' do
+    node = Object.new
 
     # expects
-    Rake::Task.expects( :[] ).with( 'lucie:enable_node' ).returns( enable_node_task )
-    enable_node_task.expects( :execute )
+    Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
+    node.expects( :enable! ).with( 'INSTALLER_NAME' )
 
     # when
-    @lucie_daemon.enable_node( 'NODE_NAME', 'INSTALLER_NAME', true )
+    lambda do
+      @lucie_daemon.enable_node( 'NODE_NAME', 'INSTALLER_NAME' )
 
-    # then
-    verify_mocks
-  end
-end
-
-
-describe LucieDaemon, 'when calling disable_node' do
-  before( :each ) do
-    @lucie_daemon = LucieDaemon.new
+      # then
+    end.should_not raise_error
   end
 
 
-  it 'should disable a node if Lucie daemon is started' do
+  it 'should setup TFTP' do
+    # expects
+    Tftp.expects( :setup ).with( 'NODE_NAME', 'INSTALLER_NAME' )
+
+    # when
+    lambda do
+      @lucie_daemon.setup_tftp( 'NODE_NAME', 'INSTALLER_NAME' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should setup NFS' do
+    # expects
+    Nfs.expects( :setup ).with( 'INSTALLER_NAME' )
+
+    # when
+    lambda do
+      @lucie_daemon.setup_nfs( 'INSTALLER_NAME' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should setup DHCP' do
+    node = Object.new
+
+    # expects
+    Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
+    node.expects( :installer_name ).returns( 'INSTALLER_NAME' )
+    node.expects( :ip_address ).returns( 'IP_ADDRESS' )
+    node.expects( :netmask_address ).returns( 'NETMASK_ADDRESS' )
+    node.expects( :gateway_address ).returns( 'GATEWAY_ADDRESS' )
+    Dhcp.expects( :setup ).with( 'INSTALLER_NAME', 'IP_ADDRESS', 'NETMASK_ADDRESS', 'GATEWAY_ADDRESS' )
+
+    # when
+    lambda do
+      @lucie_daemon.setup_dhcp( 'NODE_NAME' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should setup Puppet' do
+    installer = Object.new
+
+    # expects
+    Installers.expects( :find ).with( 'INSTALLER_NAME' ).returns( installer )
+    installer.expects( :local_checkout ).returns( installer )
+    PuppetController.expects( :setup ).with( installer )
+
+    # when
+    lambda do
+      @lucie_daemon.setup_puppet( 'INSTALLER_NAME' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should send Wake on Lan magick packets' do
+    node = Object.new
+
+    # expects
+    Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
+    node.expects( :mac_address ).returns( 'MAC_ADDRESS' )
+    WakeOnLan.expects( :wake ).with( 'MAC_ADDRESS' )
+
+    # when
+    lambda do
+      @lucie_daemon.wol( 'NODE_NAME' )
+
+      # then
+    end.should_not raise_error
+  end
+
+
+  it 'should disable a node' do
     node = Object.new
 
     # expects
@@ -212,40 +279,29 @@ describe LucieDaemon, 'when calling disable_node' do
   end
 
 
-  it 'should raise if node is not added' do
+  it "should raise if disable_node('UNKNOWN_NODE')" do
     # expects
-    Nodes.expects( :find ).with( 'NODE_NAME' )
+    Nodes.expects( :find ).with( 'UNKNOWN_NODE' )
 
     # when
     lambda do
-      @lucie_daemon.disable_node( 'NODE_NAME' )
+      @lucie_daemon.disable_node( 'UNKNOWN_NODE' )
 
       # then
-    end.should raise_error( RuntimeError, 'Node NODE_NAME not found!' )
-    verify_mocks
-  end
-end
-
-
-# As a 'node install' command,
-# I want to delegate restart process of Puppet daemon to root privileged Lucie daemon via druby protocol,
-# so that I can restart Puppet daemon without root privilege.
-
-describe LucieDaemon, 'when calling restart_puppet' do
-  before( :each ) do
-    @lucie_daemon = LucieDaemon.new
+    end.should raise_error( RuntimeError, 'Node UNKNOWN_NODE not found!' )
   end
 
 
-  it 'should restart Puppet daemon if Lucie daemon is started' do
+  it 'should restart Puppet daemon' do
     # expects
     PuppetController.expects( :restart )
 
     # when
-    @lucie_daemon.restart_puppet
+    lambda do
+      @lucie_daemon.restart_puppet
 
-    # then
-    verify_mocks
+      # then
+    end.should_not raise_error
   end
 end
 

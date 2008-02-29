@@ -1,14 +1,15 @@
 #!/usr/bin/env ruby
 
 
-# ENV[ 'RAILS_ENV' ] = 'production'
+RAILS_ENV = 'add_node'
 
 
-require File.dirname( __FILE__ ) + '/../config/boot'
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'optparse'
 
 
-node_name = ARGV.shift
+Lucie::Log.event "#{ __FILE__ } started."
+
 
 gateway_address = nil
 installer_name = nil
@@ -16,97 +17,79 @@ ip_address = nil
 mac_address = nil
 netmask_address = nil
 wol = false
-
 trace = false
 
 
-ARGV.options do |opts|
-  opts.banner = 'usage: node add <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway> --mac <MAC address>'
+opts = OptionParser.new
 
-  opts.separator ''
+opts.banner = 'usage: node add <node-name> --installer <installer-name> -a <IP address> -n <netmask> -g <gateway> --mac <MAC address>'
 
-  opts.on( '-i', '--installer installer name', String, 'The installer name for the installation' ) do | v |
-    installer_name = v
-  end
+opts.separator ''
 
-  opts.on( '-a', '--address address', String, 'IP address' ) do | v |
-    ip_address = v
-  end
-
-  opts.on( '-n', '--netmask address', String, 'Netmask address' ) do | v |
-    netmask_address = v
-  end
-
-  opts.on( '-g', '--gateway address', String, 'Gateway address' ) do | v |
-    gateway_address = v
-  end
-
-  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    trace = true
-  end
-
-  opts.on( '-m', '--mac MAC address', String,
-           "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
-    mac_address = v
-  end
-
-  opts.separator ''
-
-  opts.on( '-w', '--wol', 'Remote power-on using wake on LAN' ) do
-    wol = true
-  end
-
-  opts.separator ''
-
-  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    trace = true
-  end
-
-  opts.on( '-h', '--help', 'Show this help message.' ) do
-    puts opts
-    exit 1
-  end
-
-  args = opts.parse!
-
-  if node_name == '--help' or node_name == '-h'
-    puts opts
-    exit 1
-  end
-
-  unless node_name and installer_name
-    STDERR.puts 'Node name and Installer name are mandatory'
-    STDERR.puts
-    puts opts
-    exit -1
-  end
-
-  unless( ip_address and netmask_address and gateway_address and mac_address )
-    STDERR.puts 'IP, Netmask, Gateway, and MAC address are mandatory'
-    STDERR.puts
-    puts opts
-    exit -1
-  end
-
-
-  # Node Name can only contain alphanumeric characters and numbers
-  if node_name.match /[^-_a-zA-Z0-9]/
-    STDERR.puts "'#{node_name}' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
-    exit -1
-  end
-
-  hex = /[a-fA-F0-9][a-fA-F0-9]/
-  unless mac_address.match /\A#{hex}:#{hex}:#{hex}:#{hex}:#{hex}:#{hex}\Z/
-    STDERR.puts "'#{mac_address}' is not a valid MAC address."
-    exit -1
-  end
+opts.on( '-i', '--installer installer name', String, 'The installer name for the installation' ) do | v |
+  installer_name = v
 end
+
+opts.on( '-a', '--address address', String, 'IP address' ) do | v |
+  ip_address = v
+end
+
+opts.on( '-n', '--netmask address', String, 'Netmask address' ) do | v |
+  netmask_address = v
+end
+
+opts.on( '-g', '--gateway address', String, 'Gateway address' ) do | v |
+  gateway_address = v
+end
+
+opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+  trace = true
+end
+
+opts.on( '-m', '--mac MAC address', String,
+         "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
+  mac_address = v
+end
+
+opts.separator ''
+
+opts.on( '-w', '--wol', 'Remote power-on using wake on LAN' ) do
+  wol = true
+end
+
+opts.separator ''
+
+opts.on( '-v', '--verbose', 'Be verbose.' ) do
+  Lucie::Log.verbose = true
+end
+
+opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+  Lucie::Log.verbose = true
+  trace = true
+end
+
+opts.on( '-h', '--help', 'Show this help message.' ) do
+  puts opts
+  exit 1
+end
+
+opts.parse!( ARGV )
 
 
 begin
-  require RAILS_ROOT + '/config/environment'
-  require 'lib/popen3/shell'
-  require 'drb/drb'
+  node_name = ARGV.shift
+
+  unless node_name
+    raise MandatoryOptionError, 'Node name not defined.'
+  end
+  overwrite_node = Nodes.find( node_name ) ? true : false
+
+  unless installer_name
+    raise MandatoryOptionError, 'Installer name not defined.'
+  end
+  unless Installers.find( installer_name )
+    raise "Installer '#{ installer_name }' is not added yet."
+  end
 
   ENV[ 'NODE_NAME' ] = node_name
   ENV[ 'INSTALLER_NAME' ] = installer_name
@@ -114,38 +97,38 @@ begin
   ENV[ 'IP_ADDRESS' ] = ip_address
   ENV[ 'GATEWAY_ADDRESS' ] = gateway_address
   ENV[ 'NETMASK_ADDRESS' ] = netmask_address
+  ENV[ 'WOL' ] = wol ? 1 : nil
 
-  lucie_daemon = LucieDaemon.server
+  load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
+  load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
 
-  unless Installers.find( installer_name )
-    raise "installer '#{ installer_name }' is not added yet."
-  end
-
-  load './lib/tasks/add_node.rake'
   Rake::Task[ 'lucie:add_node' ].execute
-
-  lucie_daemon.enable_node node_name, installer_name, wol
+  Rake::Task[ 'lucie:enable_node' ].execute
 
 rescue DRb::DRbConnError
-  # Nodes.remove!( node_name ) rescue nil
-  if trace
-    raise
-  else
-    STDERR.puts "FAILED: Lucie daemon (lucied) is down."
-    exit -1
-  end
+  Lucie::Log.error "Lucie daemon (lucied) is down."
+  exit -1
+rescue MandatoryOptionError => e
+  Lucie::Log.error e.message
+  STDERR.puts
+  STDERR.puts opts
+  exit -1
 rescue => e
-  # Nodes.remove!( node_name ) rescue nil
-  if trace
-    raise
-  else
-    STDERR.puts "FAILED: #{ e.message }"
-    exit -1
+  Lucie::Log.error e.message
+  unless overwrite_node
+    Nodes.remove!( node_name ) rescue nil
   end
+  if trace
+    e.backtrace.each do | each |
+      Lucie::Log.error each
+    end
+  end
+  exit -1
 end
 
 
-puts "Node '#{ node_name }' added."
+Lucie::Log.verbose = true
+Lucie::Log.info "Node '#{ node_name }' added."
 
 
 ### Local variables:

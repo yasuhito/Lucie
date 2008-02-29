@@ -29,6 +29,9 @@ class Installers
 
   def self.find installer_name
     # TODO: sanitize installer_name to prevent a query injection attack here
+    unless installer_name
+      raise 'installer_name not defined.'
+    end
     path = File.join( Configuration.installers_directory, installer_name )
     unless File.directory?( path )
       return nil

@@ -13,6 +13,7 @@ Story: read the 'node add' help message
     And the help message should include a description of -m and --mac option
     And the help message should include a description of -w and --wol option
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node add --help
@@ -25,6 +26,7 @@ Story: read the 'node add' help message
     And the help message should include a description of -m and --mac option
     And the help message should include a description of -w and --wol option
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node add -h
@@ -37,4 +39,5 @@ Story: read the 'node add' help message
     And the help message should include a description of -m and --mac option
     And the help message should include a description of -w and --wol option
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option

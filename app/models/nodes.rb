@@ -76,8 +76,10 @@ class Nodes
 
 
   def << node
+    Lucie::Log.debug "Adding node #{ node.name }"
+
     if @list.include?( node )
-      raise "node named #{ node.name.inspect } already exists."
+      raise "Node '#{ node.name }' already exists."
     end
     @list << node
     save_node node
