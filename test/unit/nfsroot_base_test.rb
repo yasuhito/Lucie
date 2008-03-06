@@ -59,6 +59,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     Lucie::Log.stubs( :info )
 
     nfsroot_base = NfsrootBase.configure do | task |
+      task.arch = 'i386'
       task.target_directory = '/TMP'
       task.distribution = 'DEBIAN'
       task.suite = 'SARGE'
@@ -95,6 +96,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     Lucie::Log.stubs( :info )
 
     nfsroot_base = NfsrootBase.configure do | task |
+      task.arch = 'i386'
       task.target_directory = '/TMP'
       task.distribution = 'DEBIAN'
       task.suite = 'SARGE'
@@ -120,6 +122,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
 
   def debootstrap_option
     option = Object.new
+    option.expects( :arch= ).with( 'i386' )
     option.expects( :env= ).with( { 'LC_ALL' => 'C', 'http_proxy' => 'http://PROXY/' } )
     option.expects( :exclude= )
     option.expects( :suite= )

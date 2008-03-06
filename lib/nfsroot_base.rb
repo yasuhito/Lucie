@@ -93,6 +93,7 @@ class NfsrootBase < Rake::TaskLib
 
       Debootstrap.start do | option |
         option.env = { 'LC_ALL' => 'C' }.merge( 'http_proxy' => @http_proxy )
+        option.arch = @arch
         option.exclude = [ 'dhcp-client', 'info' ]
         option.suite = @suite
         option.target = temporary_nfsroot_directory
