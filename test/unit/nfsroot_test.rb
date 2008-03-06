@@ -55,7 +55,7 @@ class NfsrootTest < Test::Unit::TestCase
       end
 
       # nfsroot_base tasks
-      assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch.tgz" ) )
+      assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz" ) )
       assert_kind_of Rake::Task, Rake.application.lookup( 'installer:clobber_nfsroot_base' )
       assert_kind_of Rake::Task, Rake.application.lookup( 'installer:nfsroot_base' )
       assert_kind_of Rake::Task, Rake.application.lookup( 'installer:rebuild_nfsroot_base' )

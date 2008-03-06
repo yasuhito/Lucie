@@ -24,6 +24,7 @@ class NfsrootBase < Rake::TaskLib
   def initialize
     @name = :nfsroot_base
     @target_directory = File.join( RAILS_ROOT, 'installers/.base' )
+    @arch = 'i386'
     @distribution = 'debian'
     @suite = 'etch'
   end
@@ -50,7 +51,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def nfsroot_base_target
-    return File.expand_path( target( target_fname( @distribution, @suite ) ) )
+    return File.expand_path( target( target_fname( @distribution, @suite, @arch ) ) )
   end
   alias :tgz :nfsroot_base_target
 
@@ -114,17 +115,17 @@ class NfsrootBase < Rake::TaskLib
     unless File.exists?( @target_directory )
       sh_exec "mkdir #{ @target_directory }"
     end
-    sh_exec "tar --one-file-system --directory #{ temporary_nfsroot_directory } --exclude #{ target_fname( @distribution, @suite ) } -czf #{ nfsroot_base_target } ."
+    sh_exec "tar --one-file-system --directory #{ temporary_nfsroot_directory } --exclude #{ target_fname( @distribution, @suite, @arch ) } -czf #{ nfsroot_base_target } ."
   end
 
 
-  def target_fname distribution, suite
-    return distribution + '_' + suite + '.tgz'
+  def target_fname distribution, suite, arch
+    return distribution + '_' + suite + '_' + arch + '.tgz'
   end
 
 
   def temporary_nfsroot_directory
-    return( RAILS_ROOT + '/tmp/debootstrap' )
+    return File.join( RAILS_ROOT, 'tmp', "debootstrap.#{ @arch }" )
   end
 end
 

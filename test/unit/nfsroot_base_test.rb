@@ -36,7 +36,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     NfsrootBase.new.define_tasks
 
     assert_equal 4, Rake::Task.tasks.size
-    assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch.tgz" ) )
+    assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz" ) )
     assert_kind_of Rake::Task, Rake.application.lookup( 'installer:clobber_nfsroot_base' )
     assert_kind_of Rake::Task, Rake.application.lookup( 'installer:nfsroot_base' )
     assert_kind_of Rake::Task, Rake.application.lookup( 'installer:rebuild_nfsroot_base' )
@@ -44,7 +44,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
 
 
   def test_prerequisites_defined
-    base_tgz_path = File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch.tgz" )
+    base_tgz_path = File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz" )
 
     NfsrootBase.new.define_tasks
 
@@ -70,8 +70,8 @@ class NfsrootBaseTest < Test::Unit::TestCase
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
-    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czf /TMP/DEBIAN_SARGE.tgz ." )
-    AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap" )
+    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap.i386 --exclude DEBIAN_SARGE_i386.tgz -czf /TMP/DEBIAN_SARGE_i386.tgz ." )
+    AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap.i386" )
 
     assert_nothing_raised do
       Rake::Task[ 'installer:nfsroot_base' ].invoke
@@ -86,7 +86,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.suite = 'SARGE'
     end
 
-    nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap/*" ).times( 1 )
+    nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap.i386/*" ).times( 1 )
 
     Rake::Task[ 'installer:clobber_nfsroot_base' ].invoke
   end
@@ -104,12 +104,12 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.http_proxy = 'http://PROXY/'
     end
 
-    nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap/*" )
+    nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap.i386/*" )
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
-    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap --exclude DEBIAN_SARGE.tgz -czf /TMP/DEBIAN_SARGE.tgz ." )
-    AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap" )
+    nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap.i386 --exclude DEBIAN_SARGE_i386.tgz -czf /TMP/DEBIAN_SARGE_i386.tgz ." )
+    AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap.i386" )
 
     assert_nothing_raised do
       Rake::Task[ 'installer:rebuild_nfsroot_base' ].invoke
