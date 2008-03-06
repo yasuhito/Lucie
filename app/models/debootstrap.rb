@@ -3,6 +3,7 @@ require 'popen3/shell'
 
 class Debootstrap
   class DebootstrapOption # :nodoc:
+    attr_accessor :arch
     attr_accessor :env
     attr_accessor :exclude
     attr_accessor :include
@@ -12,9 +13,10 @@ class Debootstrap
 
 
     def commandline
+      arch = "--arch #{ @arch }"
       exclude = @exclude ? "--exclude=#{ @exclude.join( ',' ) }" : nil
       include = @include ? "--include=#{ @include.join( ',' ) }" : nil
-      return [ '/usr/sbin/debootstrap', exclude, include, @suite, @target, @mirror ].compact.join( ' ' )
+      return [ '/usr/sbin/debootstrap', arch, exclude, include, @suite, @target, @mirror ].compact.join( ' ' )
     end
 
 

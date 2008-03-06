@@ -56,6 +56,7 @@ describe Debootstrap, 'when calling Debootstrap.start' do
         option.suite = 'WOODY'
         option.target = '/TMP'
         option.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
+        option.arch = 'i386'
       end
     end.should_not raise_error
   end
