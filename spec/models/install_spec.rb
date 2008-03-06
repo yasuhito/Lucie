@@ -223,6 +223,7 @@ describe Install do
 
   def nfsroot_setting
     setting = Object.new
+    setting.stubs( :arch ).returns( 'i386' )
     setting.stubs( :distribution ).returns( 'debian' )
     setting.stubs( :suite ).returns( 'etch' )
     setting

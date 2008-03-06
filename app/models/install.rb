@@ -149,7 +149,7 @@ class Install
     ssh_exec @node.name, 'mount2dir /tmp/target /tmp/fstab'
 
     Lucie::Log.info 'Extracting base system'
-    ssh_exec @node.name, "tar -C /tmp/target -xzpf /var/tmp/#{ nfsroot_setting.distribution }_#{ nfsroot_setting.suite }.tgz"
+    ssh_exec @node.name, "tar -C /tmp/target -xzpf /var/tmp/#{ nfsroot_setting.distribution }_#{ nfsroot_setting.suite }_#{ nfsroot_setting.arch }.tgz"
     ssh_exec @node.name, 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
     ssh_exec @node.name, 'cp -a /tmp/fstab /tmp/target/etc/fstab'
 
