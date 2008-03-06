@@ -52,6 +52,7 @@ class Nfsroot < Rake::TaskLib
 
   def define_tasks
     @nfsroot_base = NfsrootBase.configure do | task |
+      task.arch = @arch
       task.mirror = @mirror
       task.distribution = @distribution
       task.suite = @suite

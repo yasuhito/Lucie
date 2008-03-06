@@ -12,6 +12,7 @@ require 'rake/tasklib'
 #  * installer:rebuild_nfsroot_base: clobbers and rebuilds tarball
 #
 class NfsrootBase < Rake::TaskLib
+  attr_accessor :arch
   attr_accessor :distribution
   attr_accessor :http_proxy
   attr_accessor :include
