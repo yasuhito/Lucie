@@ -67,6 +67,7 @@ EOF
 
 [facts]
   path #{ facts_dir }
+  allow *
 EOF
     end
   end
