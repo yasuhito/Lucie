@@ -114,6 +114,8 @@ describe Installer, 'when reading a broken installer using Installer.read' do
 
 
   before( :each ) do
+    Lucie::Log.stubs( :event )
+
     in_sandbox do | sandbox |
       sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "class Invalid"
 
@@ -342,6 +344,8 @@ describe 'All Installers', :shared => true do
 
 
   before( :each ) do
+    Lucie::Log.stubs( :event )
+    
     @svn = Object.new
     @installer = Installer.new( 'DUMMY_INSTALLER' )
     @installer.source_control = @svn
@@ -510,6 +514,8 @@ describe Installer, 'when loading configuration' do
 
   it 'should load configuration from work directory and then root directory' do
     in_sandbox do | sandbox |
+      Lucie::Log.stubs :event
+
       @installer.path = sandbox.root
       begin
         sandbox.new :file => 'work/lucie_config.rb', :with_contents => '$foobar=42; $barfoo = 12345'
