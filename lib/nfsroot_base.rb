@@ -1,6 +1,13 @@
 #
 # Rake task definitions for creating a base nfsroot tarball.
 #
+# NfsrootBase.configure defines following rake targets:
+#
+#  * Configuration.installers_directory/.base/DISTRIBUTION_SUITE_ARCH.tgz': builds debootstrap tarball
+#  * installer:nfsroot_base: is an alias for the debootstrap tarball target.
+#  * installer:clobber_nfsroot_base: clobbers temporary nfsroot directory.
+#  * installer:rebuild_nfsroot_base: clobbers and rebuilds tarball
+#
 
 
 require 'popen3/apt'
@@ -9,13 +16,6 @@ require 'rake'
 require 'rake/tasklib'
 
 
-# Defines 4 rake targets:
-#
-#  * RAILS_ROOT/installers/.base/DISTRIBUTION_SUITE_ARCH.tgz': builds debootstrap tarball
-#  * installer:nfsroot_base: is an alias for the debootstrap tarball target.
-#  * installer:clobber_nfsroot_base: clobbers temporary nfsroot directory.
-#  * installer:rebuild_nfsroot_base: clobbers and rebuilds tarball
-#
 class NfsrootBase < Rake::TaskLib
   attr_accessor :arch
   attr_accessor :distribution
@@ -31,7 +31,7 @@ class NfsrootBase < Rake::TaskLib
     @distribution = 'debian'
     @name = :nfsroot_base
     @suite = 'etch'
-    @target_directory = File.join( RAILS_ROOT, 'installers', '.base' )
+    @target_directory = File.join( Configuration.installers_directory, '.base' )
   end
 
 
