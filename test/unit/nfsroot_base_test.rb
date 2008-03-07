@@ -4,6 +4,7 @@ require 'lib/nfsroot_base'
 
 class NfsrootBaseTest < Test::Unit::TestCase
   def setup
+    STDOUT.stubs( :puts )
     Rake::Task.clear
   end
 
@@ -15,6 +16,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
 
   def test_accessor_methods
     installer_base_task = NfsrootBase.configure do | task |
+      task.arch = 'AMD64'
       task.distribution = 'DEBIAN'
       task.http_proxy = 'HTTP://PROXY:3128'
       task.include = [ 'INCLUDE' ]
@@ -23,6 +25,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.target_directory = '/TARGET_DIRECTORY'
     end
 
+    assert_equal 'AMD64', installer_base_task.arch
     assert_equal 'DEBIAN', installer_base_task.distribution
     assert_equal 'HTTP://PROXY:3128', installer_base_task.http_proxy
     assert_equal [ 'INCLUDE' ], installer_base_task.include
@@ -81,6 +84,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
 
   def test_clobber_target_should___success___
     nfsroot_base = NfsrootBase.configure do | task |
+      task.arch = 'i386'
       task.target_directory = '/TMP'
       task.distribution = 'DEBIAN'
       task.suite = 'SARGE'
@@ -117,7 +121,9 @@ class NfsrootBaseTest < Test::Unit::TestCase
   end
 
 
+  ################################################################################
   private
+  ################################################################################
 
 
   def debootstrap_option
