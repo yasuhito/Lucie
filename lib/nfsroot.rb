@@ -277,7 +277,7 @@ class Nfsroot < Rake::TaskLib
   def setup_dhcp
     pxebin = '/usr/lib/syslinux/pxelinux.0'
     pxecfg_dir = '/srv/tftp/lucie/pxelinux.cfg'
-    tftp_kernel_target = '/srv/tftp/lucie/vmlinuz-install'
+    tftp_kernel_target = "/srv/tftp/lucie/#{ ENV[ 'INSTALLER_NAME' ] }"
 
     puts 'Setting up DHCP and PXE environment.'
     unless FileTest.directory?( pxecfg_dir )
@@ -379,7 +379,7 @@ class Nfsroot < Rake::TaskLib
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # A copy of the GNU General Public License is available as
 # `/usr/share/common-licences/GPL' in the Debian GNU/Linux distribution
 # or on the World Wide Web at http://www.gnu.org/copyleft/gpl.html.  You
