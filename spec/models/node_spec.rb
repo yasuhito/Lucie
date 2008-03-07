@@ -353,6 +353,7 @@ describe Node, 'when enabling a node with lucie:enable_node rake task' do
 
   it 'should enable installation for a node' do
     lucie_daemon = Object.new
+    Lucie::Log.stubs( :debug )
 
     # expects
     LucieDaemon.expects( :server ).returns( lucie_daemon )
@@ -653,7 +654,7 @@ describe Node, 'when accessing install history' do
       Configuration.stubs( :nodes_directory ).returns( sandbox.root )
       sandbox.new :file => 'TEST_NODE/11_22_33_44_55_66', :with_contents => network_config
       sandbox.new :file => 'TEST_NODE/TEST_INSTALLER'
-      
+
       # given
       @node = Node.read( File.join( sandbox.root, 'TEST_NODE' ) )
 
