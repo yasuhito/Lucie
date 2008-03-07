@@ -3,6 +3,9 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 describe Popen3::Shell, 'when executing command using Kernel.sh_exec' do
   it 'should call all the hooks when command succeeds' do
+    STDOUT.stubs( :puts )
+    STDERR.stubs( :puts )
+
     # expects
     shell_mock = mock( 'SHELL' )
     shell_mock.expects( :on_stdout ).yields( 'STDOUT' )
@@ -20,6 +23,9 @@ describe Popen3::Shell, 'when executing command using Kernel.sh_exec' do
 
 
   it 'should call all the hooks when command fails' do
+    STDOUT.stubs( :puts )
+    STDERR.stubs( :puts )
+    
     # expects
     shell_mock = mock( 'SHELL' )
     shell_mock.expects( :on_stdout ).yields( 'STDOUT' )
