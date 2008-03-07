@@ -2,11 +2,6 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
 describe PuppetController, 'when calling PuppetController.setup' do
-  before( :each ) do
-
-  end
-
-
   it 'should setup puppet' do
     file_stub = StringIO.new( '' )
     puppet = PuppetController.new
