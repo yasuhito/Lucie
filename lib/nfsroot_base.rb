@@ -1,5 +1,5 @@
 #
-# Definitions for creating base nfsroot tarball.
+# Rake task definitions for creating a base nfsroot tarball.
 #
 
 
