@@ -7,8 +7,9 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def setup
+    STDOUT.stubs :puts
+
     ENV[ 'INSTALLER_NAME' ] = 'INSTALLER_NAME'
-    Lucie::Log.stubs( :info )
     Rake::Task.clear
   end
 
@@ -115,7 +116,7 @@ class NfsrootTest < Test::Unit::TestCase
 
 
   def test_kernel_package_file
-    assert_equal "#{ RAILS_ROOT }/kernels/linux-image-2.6.18-fai-kernels_1_i386.deb", Nfsroot.new.kernel_package_file
+    assert_equal "#{ RAILS_ROOT }/kernels/linux-image-2.6.18-fai-kernels_1_i386.deb", Nfsroot.new.__send__( :kernel_package_file )
   end
 
 
@@ -129,7 +130,7 @@ class NfsrootTest < Test::Unit::TestCase
     File.stubs( :open ).yields( file )
 
     assert_nothing_raised do
-      nfsroot.hoaks_packages
+      nfsroot.__send__ :hoaks_packages
     end
   end
 
@@ -150,7 +151,7 @@ class NfsrootTest < Test::Unit::TestCase
     Nodes.stubs( :load_all ).returns( node_list )
 
     assert_nothing_raised do
-      nfsroot.generate_etc_hosts
+      nfsroot.__send__ :generate_etc_hosts
     end
   end
 
@@ -162,7 +163,7 @@ class NfsrootTest < Test::Unit::TestCase
     FileTest.stubs( :directory? ).returns( true )
 
     assert_nothing_raised do
-      nfsroot.umount_dirs
+      nfsroot.__send__ :umount_dirs
     end
   end
 
@@ -175,7 +176,7 @@ class NfsrootTest < Test::Unit::TestCase
     AptGet.stubs( :clean )
 
     assert_nothing_raised do
-      nfsroot.add_packages_nfsroot
+      nfsroot.__send__ :add_packages_nfsroot
     end
   end
 
@@ -185,7 +186,7 @@ class NfsrootTest < Test::Unit::TestCase
 
     nfsroot.stubs( :kernel_package ).returns( nil )
     assert_raises( "Option ``kernel_package'' is not set." ) do
-      nfsroot.get_kernel_version
+      nfsroot.__send__ :get_kernel_version
     end
   end
 
@@ -196,7 +197,7 @@ class NfsrootTest < Test::Unit::TestCase
     Popen3::Shell.stubs( :open ).returns( nil )
 
     assert_raises( "Cannot determine kernel version." ) do
-      nfsroot.get_kernel_version
+      nfsroot.__send__ :get_kernel_version
     end
   end
 
@@ -210,7 +211,7 @@ class NfsrootTest < Test::Unit::TestCase
     Popen3::Shell.stubs( :open ).yields( shell ).returns( 'DUMMY_VERSION' )
 
     assert_nothing_raised do
-      nfsroot.get_kernel_version
+      nfsroot.__send__ :get_kernel_version
     end
   end
 
@@ -223,7 +224,7 @@ class NfsrootTest < Test::Unit::TestCase
     nfsroot.stubs( :get_kernel_version ).returns( 'X.X.X' )
 
     assert_nothing_raised do
-      nfsroot.install_kernel_nfsroot
+      nfsroot.__send__ :install_kernel_nfsroot
     end
   end
 
@@ -242,7 +243,7 @@ class NfsrootTest < Test::Unit::TestCase
     File.stubs( :open ).yields( file )
 
     assert_nothing_raised do
-      nfsroot.upgrade_nfsroot
+      nfsroot.__send__ :upgrade_nfsroot
     end
   end
 
@@ -255,7 +256,7 @@ class NfsrootTest < Test::Unit::TestCase
     SSH.stubs( :setup ).yields( ssh )
 
     assert_nothing_raised do
-      nfsroot.setup_ssh
+      nfsroot.__send__ :setup_ssh
     end
   end
 
@@ -267,7 +268,7 @@ class NfsrootTest < Test::Unit::TestCase
     nfsroot.stubs( :get_kernel_version ).returns( 'X.X.X' )
 
     assert_nothing_raised do
-      nfsroot.setup_dhcp
+      nfsroot.__send__ :setup_dhcp
     end
   end
 
@@ -285,7 +286,7 @@ class NfsrootTest < Test::Unit::TestCase
       FileTest.stubs( :directory? ).with( "#{ sandbox.root }/var/yp" ).returns( true )
 
       assert_nothing_raised do
-        nfsroot.finish_nfsroot
+        nfsroot.__send__ :finish_nfsroot
       end
     end
   end
@@ -297,7 +298,7 @@ class NfsrootTest < Test::Unit::TestCase
     nfsroot.stubs( :sh_exec )
 
     assert_nothing_raised do
-      nfsroot.copy_lucie_files
+      nfsroot.__send__ :copy_lucie_files
     end
   end
 
@@ -306,7 +307,7 @@ class NfsrootTest < Test::Unit::TestCase
     FileTest.stubs( :exists? ).returns( true )
 
     assert_nothing_raised do
-      Nfsroot.new.check_prerequisites
+      Nfsroot.new.__send__ :check_prerequisites
     end
   end
 
@@ -317,7 +318,7 @@ class NfsrootTest < Test::Unit::TestCase
     nfsroot.stubs( :sh_exec )
 
     assert_nothing_raised do
-      nfsroot.dpkg_divert [ 'DUMMY_FILE' ]
+      nfsroot.__send__ :dpkg_divert, [ 'DUMMY_FILE' ]
     end
   end
 
