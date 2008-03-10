@@ -4,15 +4,17 @@ Story: list nodes with 'node' command
   So that I can get a node list
 
   Scenario: node list success (1 node, enabled)
-    Given no node is added yet
-    And TEST_NODE is added
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
+    And TEST_NODE node is added
     And TEST_NODE is enabled with TEST_INSTALLER installer
     When I run ./node list
     Then the output should look like '     ready TEST_NODE (installer = TEST_INSTALLER)'
 
   Scenario: node list success (1 node, enabled)
-    Given no node is added yet
-    And TEST_NODE is added
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
+    And TEST_NODE node is added
     And TEST_NODE is enabled with TEST_INSTALLER installer
     And TEST_NODE is succeeded to install
     And TEST_NODE is disabled
@@ -20,30 +22,34 @@ Story: list nodes with 'node' command
     Then the output should look like '   success TEST_NODE (installer = TEST_INSTALLER)'
 
   Scenario: node list success (1 node, enabled)
-    Given no node is added yet
-    And TEST_NODE is added
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
+    And TEST_NODE node is added
     And TEST_NODE is enabled with TEST_INSTALLER installer
     And TEST_NODE is failed to install
     When I run ./node list
     Then the output should look like '      fail TEST_NODE (installer = TEST_INSTALLER)'
 
   Scenario: node list success (1 node, enabled)
-    Given no node is added yet
-    And TEST_NODE is added
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
+    And TEST_NODE node is added
     And TEST_NODE is enabled with TEST_INSTALLER installer
     And TEST_NODE is incomplete
     When I run ./node list
     Then the output should look like 'incomplete TEST_NODE (installer = TEST_INSTALLER)'
 
   Scenario: node list success (1 node, disabled)
-    Given no node is added yet
-    And TEST_NODE is added
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
+    And TEST_NODE node is added
     And TEST_NODE is enabled with TEST_INSTALLER installer
     And TEST_NODE is disabled
     When I run ./node list
     Then the output should look like '           TEST_NODE (installer = TEST_INSTALLER)'
 
   Scenario: node list success (0 node)
-    Given no node is added yet
+    Given nodes directory is '/tmp/nodes'
+    And no node is added yet
     When I run ./node list
     Then the output should look like 'No node is added yet.'

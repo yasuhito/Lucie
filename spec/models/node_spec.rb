@@ -354,13 +354,18 @@ describe Node, 'when enabling a node with lucie:enable_node rake task' do
   it 'should enable installation for a node' do
     lucie_daemon = Object.new
     Lucie::Log.stubs( :debug )
+    Nodes.stubs( :find ).returns( true )
+    Installers.stubs( :find ).returns( true )
 
     # expects
+    Nodes.stubs( :find ).with( 'TEST_NODE').returns( true )
+    Installers.stubs( :find ).with( 'TEST_INSTALLER' ).returns( true )
+
     LucieDaemon.expects( :server ).returns( lucie_daemon )
     lucie_daemon.expects( :enable_node ).with( 'TEST_NODE', 'TEST_INSTALLER' )
     lucie_daemon.expects( :setup_tftp ).with( 'TEST_NODE', 'TEST_INSTALLER' )
-    lucie_daemon.expects( :setup_nfs ).with( 'TEST_INSTALLER' )
-    lucie_daemon.expects( :setup_dhcp ).with( 'TEST_NODE' )
+    lucie_daemon.expects( :setup_nfs )
+    lucie_daemon.expects( :setup_dhcp )
     lucie_daemon.expects( :setup_puppet ).with( 'TEST_INSTALLER' )
     lucie_daemon.expects( :wol ).with( 'TEST_NODE' )
 

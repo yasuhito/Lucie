@@ -1,0 +1,25 @@
+Story: Remove a node with 'node' command
+  As a cluster administrator
+  I want to remove a node using 'node' command
+  So that I can remove a node from the system
+
+  Scenario: node remove success
+    Given nodes directory is '/tmp/nodes'
+    And lucied is started
+    And no node is added yet
+    And no installer is added
+    And TEST_INSTALLER installer is added
+    And TEST_NODE node is added
+    When I remove TEST_NODE
+    Then we get no error
+    And MAC address file /tmp/nodes/TEST_NODE/00_00_00_00_00_00 should be removed
+    And TFTP file /srv/tftp/lucie/pxelinux.cfg/01-00-00-00-00-00-00 should be removed
+    And installer file /tmp/nodes/TEST_NODE/TEST_INSTALLER should be removed
+
+  Scenario: node remove fail
+    Given nodes directory is '/tmp/nodes'
+    And lucied is started
+    And no node is added yet
+    And no installer is added
+    When I remove TEST_NODE
+    Then the error message should be: '[error] Node 'TEST_NODE' not found.'

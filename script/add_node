@@ -9,6 +9,9 @@ require 'optparse'
 
 
 Lucie::Log.event "#{ __FILE__ } started."
+at_exit do
+  Lucie::Log.event "#{ __FILE__ } finished."
+end
 
 
 gateway_address = nil
@@ -42,10 +45,6 @@ opts.on( '-g', '--gateway address', String, 'Gateway address' ) do | v |
   gateway_address = v
 end
 
-opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-  trace = true
-end
-
 opts.on( '-m', '--mac MAC address', String,
          "The MAC address of the NIC (eg. 00:E0:81:05:D3:8B)" ) do | v|
   mac_address = v
@@ -73,7 +72,7 @@ opts.on( '-h', '--help', 'Show this help message.' ) do
   exit 1
 end
 
-opts.parse!( ARGV )
+opts.parse! ARGV
 
 
 begin
@@ -106,7 +105,10 @@ begin
   Rake::Task[ 'lucie:enable_node' ].execute
 
 rescue DRb::DRbConnError
-  Lucie::Log.error "Lucie daemon (lucied) is down."
+  Lucie::Log.error 'Lucie daemon (lucied) is down.'
+  unless overwrite_node
+    Nodes.remove!( node_name ) rescue nil
+  end
   exit -1
 rescue MandatoryOptionError => e
   Lucie::Log.error e.message
@@ -127,8 +129,10 @@ rescue => e
 end
 
 
+verbosity = Lucie::Log.verbose?
 Lucie::Log.verbose = true
 Lucie::Log.info "Node '#{ node_name }' added."
+Lucie::Log.verbose = verbosity
 
 
 ### Local variables:

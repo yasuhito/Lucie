@@ -7,16 +7,19 @@ Story: read the 'node disable' help message
     When I run ./node help disable
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node disable --help
     When I run ./node disable --help
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node disable -h
     When I run ./node disable -h
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option

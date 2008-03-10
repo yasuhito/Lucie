@@ -1,4 +1,7 @@
-ENV[ 'RAILS_ENV' ] = 'lucied'
+#!/usr/bin/env ruby
+
+
+RAILS_ENV = 'lucied'
 
 
 require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )

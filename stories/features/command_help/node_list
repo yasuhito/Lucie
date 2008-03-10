@@ -7,16 +7,19 @@ Story: read the 'node list' help message
     When I run ./node help list
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node list --help
     When I run ./node list --help
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node list -h
     When I run ./node list -h
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option

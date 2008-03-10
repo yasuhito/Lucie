@@ -13,6 +13,11 @@ class Tftp
   end
 
 
+  def self.remove! node_name
+    self.new.remove! node_name
+  end
+
+
   def setup node_name, installer_name
     setup_pxe node_name, installer_name
     setup_tftpd
@@ -22,6 +27,28 @@ class Tftp
   def disable node_name
     disable_pxe node_name
     setup_tftpd
+  end
+
+
+  def remove! node_name
+    remove_pxe node_name
+  end
+
+
+  def setup_tftpd
+    File.open( '/etc/default/tftpd-hpa', 'w' ) do | file |
+      file.puts 'RUN_DAEMON=yes'
+      file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
+    end
+
+    if tftpd_is_down
+      sh_exec '/etc/init.d/tftpd-hpa start'
+    else
+      # [HACK] /etc/init.d/tftpd-hpa restart often fails.
+      sh_exec '/etc/init.d/tftpd-hpa stop'
+      sleep 2
+      sh_exec '/etc/init.d/tftpd-hpa start'
+    end
   end
 
 
@@ -60,24 +87,14 @@ EOF
   end
 
 
-  def setup_tftpd
-    File.open( '/etc/default/tftpd-hpa', 'w' ) do | file |
-      file.puts 'RUN_DAEMON=yes'
-      file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
-    end
-
-    if tftpd_is_down
-      sh_exec '/etc/init.d/tftpd-hpa start'
-    else
-      # [HACK] /etc/init.d/tftpd-hpa restart often fails.
-      sh_exec '/etc/init.d/tftpd-hpa stop'
-      sleep 2
-      sh_exec '/etc/init.d/tftpd-hpa start'
-    end
+  def remove_pxe node_name
+    FileUtils.rm pxe_config_file( node_named( node_name ).mac_address ), :force => true
   end
 
 
+  ################################################################################
   private
+  ################################################################################
 
 
   def node_named node_name
@@ -85,7 +102,7 @@ EOF
     unless node
       raise "Node '#{ node_name }' is not added or enabled yet."
     end
-    return node
+    node
   end
 
 

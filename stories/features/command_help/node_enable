@@ -7,7 +7,7 @@ Story: read the 'node enable' help message
     When I run ./node help enable
     Then the first line of the help message should be a usage example
     And the help message should include a description of -i and --installer option
-    And the help message should include a description of -n and --no-builder option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -t and --trace option
     And the help message should include a description of -h and --help option
 
@@ -15,7 +15,7 @@ Story: read the 'node enable' help message
     When I run ./node enable --help
     Then the first line of the help message should be a usage example
     And the help message should include a description of -i and --installer option
-    And the help message should include a description of -n and --no-builder option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -t and --trace option
     And the help message should include a description of -h and --help option
 
@@ -23,6 +23,6 @@ Story: read the 'node enable' help message
     When I run ./node enable -h
     Then the first line of the help message should be a usage example
     And the help message should include a description of -i and --installer option
-    And the help message should include a description of -n and --no-builder option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -t and --trace option
     And the help message should include a description of -h and --help option

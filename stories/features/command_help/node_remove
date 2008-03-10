@@ -7,16 +7,19 @@ Story: read the 'node remove' help message
     When I run ./node help remove
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node remove --help
     When I run ./node remove --help
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option
 
   Scenario: node remove -h
     When I run ./node remove -h
     Then the first line of the help message should be a usage example
     And the help message should include a description of -t and --trace option
+    And the help message should include a description of -v and --verbose option
     And the help message should include a description of -h and --help option

@@ -1,51 +1,51 @@
 #!/usr/bin/env ruby
 
 
-ENV[ 'RAILS_ENV' ] = 'production'
-
-LUCIE_THIS_PROCESS_IS_BUILDER = true
+RAILS_ENV = 'list_node'
 
 
-require File.dirname( __FILE__ ) + '/../config/boot'
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'optparse'
 
 
-node_name = ARGV.shift
-mac_address = nil
-trace = false
-
-
-ARGV.options do |opts|
-  opts.banner = 'usage: node list'
-
-  opts.separator ''
-
-  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    trace = true
-  end
-
-  opts.separator ''
-
-  opts.on( '-h', '--help', 'Show this help message.' ) do
-    puts opts
-    exit 1
-  end
-
-  args = opts.parse!
-
-  if node_name == '--help' or node_name == '-h'
-    puts opts
-    exit 1
-  end
+Lucie::Log.event "#{ __FILE__ } started."
+at_exit do
+  Lucie::Log.event "#{ __FILE__ } finished."
 end
 
 
-begin
-  require RAILS_ROOT + '/config/environment'
+trace = false
 
+
+opts = OptionParser.new
+opts.banner = 'usage: node list'
+
+opts.separator ''
+
+opts.on( '-v', '--verbose', 'Be verbose.' ) do
+  Lucie::Log.verbose = true
+end
+
+opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+  Lucie::Log.verbose = true
+  trace = true
+end
+
+opts.separator ''
+
+opts.on( '-h', '--help', 'Show this help message.' ) do
+  puts opts
+  exit 1
+end
+
+opts.parse! ARGV
+
+
+begin
   nodes = Nodes.load_all
 
-  puts "Nodes directory = '#{ nodes.dir }'"
+  puts "Nodes directory = '#{ Configuration.nodes_directory }'"
+  
   if nodes.size == 0
     puts 'No node is added yet.'
   else
@@ -64,12 +64,13 @@ begin
     end
   end
 rescue => e
+  Lucie::Log.error e.message  
   if trace
-    raise
-  else
-    STDERR.puts "FAILED: #{ e.message }"
-    exit -1
+    e.backtrace.each do | each |
+      Lucie::Log.error each
+    end
   end
+  exit -1
 end
 
 

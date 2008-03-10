@@ -121,14 +121,18 @@ class LucieDaemon
   end
 
 
-  def setup_nfs installer_name
-    Nfs.setup installer_name
+  def remove_tftp node_name
+    Tftp.remove! node_name
   end
 
 
-  def setup_dhcp node_name
-    node = Nodes.find( node_name )
-    Dhcp.setup node.installer_name, node.ip_address, node.netmask_address, node.gateway_address
+  def setup_nfs
+    Nfs.setup
+  end
+
+
+  def setup_dhcp
+    Dhcp.setup
   end
 
 

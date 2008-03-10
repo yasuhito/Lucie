@@ -39,10 +39,14 @@ def enable_node node_name, installer_name
 end
 
 
-def disable_node node_name
-  Dir.glob( File.join( Configuration.nodes_directory, node_name, '*' ) ).each do | each |
-    if File.file?( each ) and File.basename( each ) != '00_00_00_00_00_00'
-      FileUtils.mv each, each + '.DISABLE'
+def disable_node node_name, installer_name = nil
+  if installer_name
+    FileUtils.touch File.join( Configuration.nodes_directory, node_name, installer_name + '.DISABLE' )
+  else
+    Dir.glob( File.join( Configuration.nodes_directory, node_name, '*' ) ).each do | each |
+      if File.file?( each ) and File.basename( each ) != '00_00_00_00_00_00'
+        FileUtils.mv each, each + '.DISABLE'
+      end
     end
   end
 end

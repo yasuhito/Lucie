@@ -1,0 +1,13 @@
+Story: disable a node with 'node' command
+  As a cluster administrator
+  I want to disable a node using 'node' command
+  So that I can disable installation
+
+  Scenario: node disable success
+    Given nodes directory is '/tmp/nodes'
+    And lucied is started
+    And no node is added yet
+    And TEST_NODE node is added
+    And TEST_NODE is enabled with TEST_INSTALLER installer
+    When I run ./node disable TEST_NODE
+    Then the output should look like '[info]  Node 'TEST_NODE' disabled.'

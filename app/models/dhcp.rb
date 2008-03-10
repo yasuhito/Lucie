@@ -5,33 +5,36 @@ require 'resolv'
 
 
 class Dhcp
-  def self.setup installer_name, ip_address, netmask_address, gateway_address
-    self.new.setup installer_name, ip_address, netmask_address, gateway_address
+  def self.setup
+    self.new.setup
   end
 
 
-  attr_reader :installer_name
-
-
-  def setup installer_name, ip_address, netmask_address, gateway_address
-    @installer_name = installer_name
+  def setup
+    if subnet == {}
+      return
+    end
 
     File.copy config_file, config_file + '.orig'
+
     File.open( config_file, 'w' ) do | file |
-      file.puts <<-EOF
+      subnet.each_key do | each |
+        first = subnet[ each ].first
+        file.puts <<-EOF
 option domain-name "#{ domain }";
 
-subnet #{ Network.network_address( ip_address, netmask_address ) } netmask #{ netmask_address } {
-  option routers #{ gateway_address };
-  option broadcast-address #{ Network.broadcast_address( ip_address, netmask_address ) };
+subnet #{ each[ :naddress ] } netmask #{ each[ :netmask ] } {
+  option routers #{ first.gateway_address };
+  option broadcast-address #{ Network.broadcast_address( first.ip_address, first.netmask_address ) };
   deny unknown-clients;
 
   next-server #{ ipaddress };
   filename "pxelinux.0";
 
-#{ host_entries }
+#{ host_entries( subnet[ each ] ) }
 }
 EOF
+      end
     end
 
     begin
@@ -42,12 +45,29 @@ EOF
   end
 
 
+  ################################################################################
+  private
+  ################################################################################
+
+
+  def subnet
+    subnet = Hash.new( [] )
+    Nodes.load_all.select do | each |
+      each.enable?
+    end.each do | each |
+      key = { :naddress => Network.network_address( each.ip_address, each.netmask_address ), :netmask => each.netmask_address }
+      subnet[ key ] = subnet[ key ].push( each )
+    end
+    subnet
+  end
+
+
   def domain
     my_domain = Facter.value( 'domain' )
     unless my_domain
       raise "Cannnot resolve Lucie server's domain name."
     end
-    return my_domain
+    my_domain
   end
 
 
@@ -56,33 +76,21 @@ EOF
     unless my_ipaddress
       raise "Cannnot resolve Lucie server's IP address."
     end
-    return my_ipaddress
+    my_ipaddress
   end
 
 
-  def node_ipaddress name
-    address = Nodes.find( name ).ip_address
-    unless address
-      raise "Cannnot resolve host '#{ name }' IP address."
-    end
-    return address
-  end
-
-
-  private
-
-
-  def host_entries
+  def host_entries nodes
     entries = ''
-    Nodes.load_all( installer_name ).each do | each |
+    nodes.each do | each |
       entries += <<-EOF
   host #{ each.name } {
     hardware ethernet #{ each.mac_address };
-    fixed-address #{ node_ipaddress( each.name ) };
+    fixed-address #{ each.ip_address };
   }
 EOF
     end
-    return entries
+    entries
   end
 
 

@@ -18,6 +18,7 @@ class Nodes
     unless File.directory?( path( node_name ) )
       raise "Node '#{ node_name }' not found."
     end
+    Lucie::Log.debug "Removing node #{ node_name }"
     FileUtils.rm_rf path( node_name )
   end
 
@@ -33,7 +34,7 @@ class Nodes
 
   def self.load_node dir
     node = Node.read( dir )
-    return node
+    node
   end
 
 

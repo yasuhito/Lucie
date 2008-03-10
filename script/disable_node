@@ -1,69 +1,80 @@
 #!/usr/bin/env ruby
 
 
-ENV[ 'RAILS_ENV' ] = 'production'
+RAILS_ENV = 'disable_node'
 
-LUCIE_THIS_PROCESS_IS_BUILDER = true
 
-require File.dirname( __FILE__ ) + '/../config/boot'
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'optparse'
 
 
-node_name = ARGV.shift
+Lucie::Log.event "#{ __FILE__ } started."
+at_exit do
+  Lucie::Log.event "#{ __FILE__ } finished."
+end
+
+
 trace = false
 
 
-ARGV.options do |opts|
-  opts.banner = 'usage: node disable <node-name>'
+opts = OptionParser.new
 
-  opts.separator ''
+opts.banner = 'usage: node disable <node-name>'
 
-  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    trace = true
-  end
+opts.separator ''
 
-  opts.separator ''
-
-  opts.on( '-h', '--help', 'Show this help message.' ) do
-    puts opts
-    exit 1
-  end
-
-  args = opts.parse!
-
-  if node_name == '--help' or node_name == '-h'
-    puts opts
-    exit 1
-  end
+opts.on( '-v', '--verbose', 'Be verbose.' ) do
+  Lucie::Log.verbose = true
 end
+
+opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+  Lucie::Log.verbose = true
+  trace = true
+end
+
+opts.separator ''
+
+opts.on( '-h', '--help', 'Show this help message.' ) do
+  puts opts
+  exit 1
+end
+
+opts.parse! ARGV
 
 
 begin
-  require RAILS_ROOT + '/config/environment'
-  require 'drb/drb'
+  node_name = ARGV.shift
 
-  lucie_daemon = LucieDaemon.server
-  lucie_daemon.disable_node( node_name )
-
+  ENV[ 'NODE_NAME' ] = node_name
+  load "#{ RAILS_ROOT }/lib/tasks/disable_node.rake"
+  Rake::Task[ 'lucie:disable_node' ].execute
 rescue DRb::DRbConnError
-  if trace
-    raise
-  else
-    STDERR.puts "FAILED: Lucie daemon (lucied) is down."
-    exit -1
-  end
+  Lucie::Log.error 'Lucie daemon (lucied) is down.'
+  exit -1
+rescue MandatoryOptionError => e
+  Lucie::Log.error e.message
+  STDERR.puts
+  STDERR.puts opts
+  exit -1
 rescue => e
+  Lucie::Log.error e.message
   if trace
-    raise
-  else
-    STDERR.puts "FAILED: #{ e.message }"
-    exit -1
+    e.backtrace.each do | each |
+      Lucie::Log.error each
+    end
   end
+  exit -1
 end
+
+
+verbosity = Lucie::Log.verbose?
+Lucie::Log.verbose = true
+Lucie::Log.info "Node '#{ node_name }' disabled."
+Lucie::Log.verbose = verbosity
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

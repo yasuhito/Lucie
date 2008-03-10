@@ -1,4 +1,13 @@
 steps_for :node do
+  Given "nodes directory is '$path'" do | path |
+    sites_config = File.join( RAILS_ROOT, 'config', 'site_config.rb' )
+    File.open( sites_config, 'w' ) do | file |
+      file.puts "Configuration.nodes_directory = '#{ path }'"
+    end
+    load sites_config
+  end
+
+
   Given 'lucied is started' do
     system './lucie stop --lucied'
     system './lucie start --lucied'
@@ -22,9 +31,48 @@ steps_for :node do
   end
 
 
-  When 'I add $node' do | node |
+  When "I add '$node' node" do | node |
     @node = node
     @stdout, @stderr = output_with( "./node add #{ node } --installer #{ @installer } -a #{ dummy_ip_address } -n 255.255.255.0 -g #{ dummy_gateway_address } -m 00:00:00:00:00:00" )
+  end
+
+
+  When 'I add a node with no name' do
+    @stdout, @stderr = output_with( "./node add --installer #{ @installer } -a #{ dummy_ip_address } -n 255.255.255.0 -g #{ dummy_gateway_address } -m 00:00:00:00:00:00" )
+  end
+
+
+  When 'I add a node with no installer name' do
+    @stdout, @stderr = output_with( "./node add TEST_NODE -a #{ dummy_ip_address } -n 255.255.255.0 -g #{ dummy_gateway_address } -m 00:00:00:00:00:00" )
+  end
+
+
+  When "I add '$node' node with no IP address" do | node |
+    @node = node
+    @stdout, @stderr = output_with( "./node add TEST_NODE --installer #{ @installer } -n 255.255.255.0 -g #{ dummy_gateway_address } -m 00:00:00:00:00:00" )
+  end
+
+
+  When "I add '$node' node with no netmask" do | node |
+    @node = node
+    @stdout, @stderr = output_with( "./node add TEST_NODE -a #{ dummy_ip_address } --installer #{ @installer } -g #{ dummy_gateway_address } -m 00:00:00:00:00:00" )
+  end
+
+
+  When "I add '$node' node with no gateway" do | node |
+    @node = node
+    @stdout, @stderr = output_with( "./node add TEST_NODE -a #{ dummy_ip_address } --installer #{ @installer } -n 255.255.255.0 -m 00:00:00:00:00:00" )
+  end
+
+
+  When "I add '$node' node with no MAC address" do | node |
+    @node = node
+    @stdout, @stderr = output_with( "./node add TEST_NODE -a #{ dummy_ip_address } --installer #{ @installer } -n 255.255.255.0 -g #{ dummy_gateway_address }" )
+  end
+
+
+  When 'I remove $node' do | node |
+    @stdout, @stderr = output_with( './node remove TEST_NODE' )
   end
 
 
@@ -34,7 +82,7 @@ steps_for :node do
 
 
   Then "the error message should be: '$error'" do | error |
-    @stderr.chomp.should == error
+    @stderr.split( "\n" ).first.chomp.should == error
   end
 
 
@@ -44,8 +92,23 @@ steps_for :node do
   end
 
 
+  Then 'MAC address file $mac_file should be removed' do | mac_file |
+    FileTest.exists?( mac_file ).should_not be_true
+  end
+
+
   Then 'installer file should be created at $installer_file' do | installer_file |
     FileTest.exists?( installer_file ).should be_true
+  end
+
+
+  Then 'installer file $installer_file should be removed' do | installer_file |
+    FileTest.exists?( installer_file ).should_not be_true
+  end
+
+
+  Then 'TFTP file $tftp_file should be removed' do | tftp_file |
+    FileTest.exists?( tftp_file ).should_not be_true
   end
 
 
@@ -72,7 +135,7 @@ steps_for :node do
   end
 
 
-  Given '$node_name is added' do | node |
+  Given '$node_name node is added' do | node |
     add_fresh_node node
   end
 
@@ -97,8 +160,13 @@ steps_for :node do
   end
 
 
-  Given '$node_name is disabled' do | node |
+  Given '$node is disabled' do | node |
     disable_node node
+  end
+
+
+  Given '$node is disabled with $installer' do | node, installer |
+    disable_node node, installer
   end
 
 
@@ -108,13 +176,20 @@ steps_for :node do
 
 
   When 'I run $command' do | command |
-    @output, @error = output_with( command )
+    @output, @stderr = output_with( command )
+
+    @output and @output.split( "\n" ).each do | each |
+      puts "stdout: #{ each }"
+    end
+    @stderr and @stderr.split( "\n" ).each do | each |
+      puts "stderr: #{ each }"
+    end
   end
 
 
   Then "the output should look like '$message'" do | message |
     @output.split( "\n" ).collect do | each |
-      each.strip
+      each.strip.gsub( /\s+/, ' ' )
     end.include?( message.strip ).should be_true
   end
 end

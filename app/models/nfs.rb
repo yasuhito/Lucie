@@ -1,24 +1,23 @@
+#
+# NFS daemon controller class
+#
+
 require 'ftools'
 require 'popen3/shell'
 
 
 class Nfs
-  def self.setup installer_name
-    self.new.setup installer_name
+  def self.setup
+    self.new.setup
   end
 
 
-  attr_reader :installer_name
-
-
-  def setup installer_name
-    @installer_name = installer_name
-
+  def setup
     File.copy config_file, config_file + '.old'
 
     File.open( config_file, 'w' ) do | file |
       nodes.each do | each |
-        file.puts "#{ nfsroot } #{ each }(async,ro,no_root_squash,no_subtree_check)"
+        file.puts "#{ nfsroot( each.installer_name ) } #{ each.name }(async,ro,no_root_squash,no_subtree_check)"
       end
     end
 
@@ -26,15 +25,20 @@ class Nfs
   end
 
 
-  # [???] get nfsroot path from other class (Nfsroot or Installers)?
-  def nfsroot
-    File.expand_path( "#{ RAILS_ROOT }/installers/#{ installer_name }/nfsroot" )
+  ################################################################################
+  private
+  ################################################################################
+
+
+  # [FIXME] Get nfsroot path from Nfsroot class
+  def nfsroot installer_name
+    File.join( Configuration.installers_directory, installer_name, 'nfsroot' )
   end
 
 
   def nodes
-    Nodes.load_enabled( installer_name ).collect do | each |
-      each.name
+    Nodes.load_all.select do | each |
+      each.enable?
     end
   end
 

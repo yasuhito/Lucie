@@ -1,151 +1,121 @@
 #!/usr/bin/env ruby
 
 
-RAILS_ENV = 'installer'
+RAILS_ENV = 'install_node'
 
 
-require File.dirname( __FILE__ ) + '/../config/boot'
-require RAILS_ROOT + '/lib/popen3/shell'
-require 'optparse'
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'fileutils'
-require 'timeout'
+require 'optparse'
+require 'popen3/shell'
 
 
-INSTALLER_OPTIONS = { :verbose => false }
-INSTALLER_OPTIONS[ :node_name ] = ARGV.shift
+pre_scripts = []
+trace = false
 
 
-scripts = []
+opts = OptionParser.new
 
+opts.banner = 'usage: node install <node-name>'
 
-ARGV.options do | opts |
-  opts.banner = 'usage: node install <node-name>'
+opts.separator ''
 
-  opts.separator ''
-
-  opts.on( '-s', '--script script file', String, 'The (Re-)boot scripts executed before installation' ) do | v |
-    scripts = v.split( ',' )
-  end
-
-  opts.separator ''
-
-  opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
-    INSTALLER_OPTIONS[ :verbose ] = true
-  end
-
-  opts.separator ''
-
-  opts.on( '-h', '--help', 'Show this help message.' ) do
-    puts opts
-    exit 1
-  end
-
-  args = opts.parse!
-
-  if INSTALLER_OPTIONS[ :node_name ] == '--help' or INSTALLER_OPTIONS[ :node_name ] == '-h'
-    puts opts
-    exit 1
-  end
-
-  unless INSTALLER_OPTIONS[ :node_name ]
-    STDERR.puts 'Node name is mandatory'
-    STDERR.puts
-    puts opts
-    exit -1
-  end
-
-  # Node Name can only contain alphanumeric characters and numbers
-  if INSTALLER_OPTIONS[ :node_name ].match /[^-_a-zA-Z0-9]/
-    STDERR.puts "'#{ INSTALLER_OPTIONS[ :node_name ] }' is not a valid node name. Node name should only contain alphanumeric characters and numbers, dashes and underscores, and no whitespace."
-    exit -1
-  end
-
-  labels = Dir[ "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }" + '/install-*' ].collect do | each |
-    /install-(\d+)\Z/=~ each
-    $1.to_i
-  end
-  if labels.empty?
-    label = 0
-    INSTALLER_OPTIONS[ :log_file_name ] = "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }/install-#{ label }/install.log"
-  else
-    label = labels.max + 1
-  end
-  install_log_dir = File.expand_path( "#{ RAILS_ROOT }/nodes/#{ INSTALLER_OPTIONS[ :node_name ] }/install-#{ label }" )
-  FileUtils.mkdir_p install_log_dir
-  INSTALLER_OPTIONS[ :log_file_name ] = File.join( install_log_dir, 'install.log' )
+opts.on( '-s', '--script script file', String, 'The (Re-)boot scripts executed before installation' ) do | v |
+  pre_scripts = v.split( ',' )
 end
 
+opts.separator ''
 
-require RAILS_ROOT + '/config/environment'
+opts.on( '-v', '--verbose', 'Be verbose.' ) do
+  Lucie::Log.verbose = true
+end
 
+opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+  Lucie::Log.verbose = true
+  trace = true
+end
 
-unless node = Nodes.find( INSTALLER_OPTIONS[ :node_name ] )
-  STDERR.puts "Node '#{ INSTALLER_OPTIONS[ :node_name ] }' is not added yet. Please add node with 'node add <node-name>' first."
+opts.on( '-h', '--help', 'Show this help message.' ) do
+  puts opts
   exit 1
 end
 
-
-Lucie::Log.verbose = INSTALLER_OPTIONS[ :verbose ]
-
-
-Lucie::Log.info "Installing '#{ INSTALLER_OPTIONS[ :node_name ] }' (this may take a while)..."
+opts.parse! ARGV
 
 
 begin
-  require 'drb/drb'
+  node_name = ARGV.shift
+
+  unless node_name
+    raise MandatoryOptionError, 'Node name not defined.'
+  end
+  node = Nodes.find( node_name )
+  unless node
+    raise "Node '#{ node_name }' is not added yet."
+  end
+
+  label = node.latest_install ? node.latest_install.label + 1 : 0
+  install_log_dir = File.expand_path( "#{ Configuration.nodes_directory }/#{ node_name }/install-#{ label }" )
+  FileUtils.mkdir_p install_log_dir
+  install_log_path = File.join( install_log_dir, 'install.log' )
+  Lucie::Log.info "Starting lucie installer."
+  Lucie::Log.info "Install log will be redirected to #{ install_log_path }."
+  RAILS_DEFAULT_LOGGER.instance_variable_set :@log, File.open( install_log_path, 'w' )
 
   lucie_daemon = LucieDaemon.server
   lucie_daemon.restart_puppet
 
-  FileUtils.rm File.expand_path( '~/.ssh/known_hosts' ) rescue nil
+  begin
+    FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
+  rescue
+    # ignore
+  end
 
-  scripts.each do | each |
+  pre_scripts.each do | each |
     lucie_daemon.sudo each
   end
 
-  Lucie::Log.info "Connecting to '#{ INSTALLER_OPTIONS[ :node_name ] }' ..."
-  catch( :node_is_up ) do
+  Lucie::Log.info "Connecting to #{ node_name } ..."
+  catch( :node_up ) do
     loop do
       Popen3::Shell.open do | shell |
         shell.on_success do
-          throw :node_is_up
+          throw :node_up
         end
-        shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ INSTALLER_OPTIONS[ :node_name ] } "grep -q nfsroot /proc/cmdline"}, { :env => { 'LC_ALL' => 'C' } } )
+        shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ node_name } "grep -q nfsroot /proc/cmdline"}, { :env => { 'LC_ALL' => 'C' } } )
       end
       sleep 10
     end
   end
 
   Installer.install node
+  lucie_daemon.disable_node node_name
 
-  lucie_daemon.disable_node( node.name )
 rescue Interrupt
-  Lucie::Log.fatal 'Interrupted.'
-  exit 1
-rescue Exception => e
-  begin
-    Lucie::Log.fatal e.message
-  rescue => logging_error
-    STDERR.puts e.message
-    STDERR.puts e.backtrace
-    STDERR.puts "Attempt to log the above error failed with this:"
-    STDERR.puts logging_error.message
-    STDERR.puts logging_error.backtrace
+  Lucie::Log.error 'Interrupted.'
+  exit -1
+rescue MandatoryOptionError => e
+  Lucie::Log.error e.message
+  STDERR.puts
+  STDERR.puts opts
+  exit -1
+rescue => e
+  Lucie::Log.error e.message
+  if trace
+    e.backtrace.each do | each |
+      Lucie::Log.error each
+    end
   end
-
-  if INSTALLER_OPTIONS[ :verbose ]
-    raise
-  else
-    exit 1
-  end
+  exit -1
 end
 
 
-Lucie::Log.event "Installation for '#{ INSTALLER_OPTIONS[ :node_name ] }' finished."
+Lucie::Log.verbose = true
+Lucie::Log.info "Node '#{ node_name }' installed."
 
 
 ### Local variables:
 ### mode: Ruby
-### coding: utf-8
+### coding: utf-8-unix
 ### indent-tabs-mode: nil
 ### End:

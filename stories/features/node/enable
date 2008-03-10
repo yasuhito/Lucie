@@ -1,0 +1,29 @@
+Story: enable a node with 'node' command
+  As a cluster administrator
+  I want to enable a node using 'node' command
+  So that I can enable installation
+
+  Scenario: node enable success
+    Given nodes directory is '/tmp/nodes'
+    And lucied is started
+    And no node is added yet
+    And TEST_NODE node is added
+    And TEST_NODE is disabled with TEST_INSTALLER installer
+    When I run ./node enable TEST_NODE --installer TEST_INSTALLER
+    Then the output should look like '[info]  Node 'TEST_NODE' enabled.'
+
+  Scenario: node enable fails if lucied is down
+    Given nodes directory is '/tmp/nodes'
+    And lucied is stopped
+    And no node is added yet
+    And TEST_NODE node is added
+    And TEST_NODE is disabled with TEST_INSTALLER installer
+    When I run ./node enable TEST_NODE --installer TEST_INSTALLER
+    Then the error message should be: '[error] Lucie daemon (lucied) is down.'
+
+  Scenario: node enable fails if node does not exist
+    Given nodes directory is '/tmp/nodes'
+    And lucied is started
+    And no node is added yet
+    When I run ./node enable TEST_NODE --installer TEST_INSTALLER
+    Then the error message should be: '[error] Node 'TEST_NODE' is not added yet.'

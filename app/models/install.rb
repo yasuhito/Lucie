@@ -129,7 +129,7 @@ class Install
         raise %{Command "#{ command }" failed}
       end
 
-      shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ INSTALLER_OPTIONS[ :node_name ] } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
+      shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ node_name } "#{ command }"}, { :env => { 'LC_ALL' => 'C' } } )
 
       # Returns a instance of Popen3::Shell as a return value from
       # this block, in order to get child_status from the return value
@@ -140,7 +140,7 @@ class Install
 
 
   def install
-    Lucie::Log.event "Installation for '#{ INSTALLER_OPTIONS[ :node_name ] }' started."
+    Lucie::Log.event "Installation for '#{ @node.name }' started."
 
     Lucie::Log.info 'Partitioning local harddisks'
     ssh_exec @node.name, 'setup_harddisks -d -X -l /tmp'

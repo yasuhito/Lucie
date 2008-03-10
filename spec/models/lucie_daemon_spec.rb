@@ -198,11 +198,11 @@ describe LucieDaemon, 'when calling helper methods' do
 
   it 'should setup NFS' do
     # expects
-    Nfs.expects( :setup ).with( 'INSTALLER_NAME' )
+    Nfs.expects( :setup )
 
     # when
     lambda do
-      @lucie_daemon.setup_nfs( 'INSTALLER_NAME' )
+      @lucie_daemon.setup_nfs
 
       # then
     end.should_not raise_error
@@ -213,16 +213,11 @@ describe LucieDaemon, 'when calling helper methods' do
     node = Object.new
 
     # expects
-    Nodes.expects( :find ).with( 'NODE_NAME' ).returns( node )
-    node.expects( :installer_name ).returns( 'INSTALLER_NAME' )
-    node.expects( :ip_address ).returns( 'IP_ADDRESS' )
-    node.expects( :netmask_address ).returns( 'NETMASK_ADDRESS' )
-    node.expects( :gateway_address ).returns( 'GATEWAY_ADDRESS' )
-    Dhcp.expects( :setup ).with( 'INSTALLER_NAME', 'IP_ADDRESS', 'NETMASK_ADDRESS', 'GATEWAY_ADDRESS' )
+    Dhcp.expects( :setup )
 
     # when
     lambda do
-      @lucie_daemon.setup_dhcp( 'NODE_NAME' )
+      @lucie_daemon.setup_dhcp
 
       # then
     end.should_not raise_error
