@@ -5,6 +5,23 @@ require 'resolv'
 
 
 class Dhcp
+  class Subnet < Hash
+    attr_reader :naddress
+    attr_reader :netmask
+
+
+    def initialize naddress, netmask
+      @naddress = naddress
+      @netmask = netmask
+    end
+
+
+    def == other
+      @naddress == other.naddress and @netmask == other.netmask
+    end
+  end
+
+
   def self.setup
     self.new.setup
   end
@@ -52,10 +69,11 @@ EOF
 
   def subnet
     subnet = Hash.new( [] )
+
     Nodes.load_all.select do | each |
       each.enable?
     end.each do | each |
-      key = { :naddress => Network.network_address( each.ip_address, each.netmask_address ), :netmask => each.netmask_address }
+      key = Subnet.new( Network.network_address( each.ip_address, each.netmask_address ), each.netmask_address )
       subnet[ key ] = subnet[ key ].push( each )
     end
     subnet
@@ -95,7 +113,7 @@ EOF
 
 
   def config_file
-    return '/etc/dhcp3/dhcpd.conf'
+    '/etc/dhcp3/dhcpd.conf'
   end
 end
 
