@@ -5,23 +5,6 @@ require 'resolv'
 
 
 class Dhcp
-  class Subnet < Hash
-    attr_reader :naddress
-    attr_reader :netmask
-
-
-    def initialize naddress, netmask
-      @naddress = naddress
-      @netmask = netmask
-    end
-
-
-    def == other
-      @naddress == other.naddress and @netmask == other.netmask
-    end
-  end
-
-
   def self.setup
     self.new.setup
   end
@@ -40,7 +23,7 @@ class Dhcp
         file.puts <<-EOF
 option domain-name "#{ domain }";
 
-subnet #{ each[ :naddress ] } netmask #{ each[ :netmask ] } {
+subnet #{ each[ 0 ] } netmask #{ each[ 1 ] } {
   option routers #{ first.gateway_address };
   option broadcast-address #{ Network.broadcast_address( first.ip_address, first.netmask_address ) };
   deny unknown-clients;
@@ -73,8 +56,8 @@ EOF
     Nodes.load_all.select do | each |
       each.enable?
     end.each do | each |
-      key = Subnet.new( Network.network_address( each.ip_address, each.netmask_address ), each.netmask_address )
-      subnet[ key ] = subnet[ key ].push( each )
+      key = [ Network.network_address( each.ip_address, each.netmask_address ), each.netmask_address ]
+      subnet[ key ] << each
     end
     subnet
   end
