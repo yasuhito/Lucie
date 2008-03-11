@@ -51,15 +51,15 @@ EOF
 
 
   def subnet
-    subnet = Hash.new( [] )
+    sn = Hash.new( [] )
 
     Nodes.load_all.select do | each |
       each.enable?
     end.each do | each |
       key = [ Network.network_address( each.ip_address, each.netmask_address ), each.netmask_address ]
-      subnet[ key ] << each
+      sn[ key ] = sn[ key ].push( each )
     end
-    subnet
+    sn
   end
 
 
