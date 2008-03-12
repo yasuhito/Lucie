@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# add --factsync option.
+system %{sed -i -e 's/^DAEMON_OPTS=.*/DAEMON_OPTS="-w 0 --factsync"/g' /tmp/target/etc/init.d/puppet}
 
 File.open( '/tmp/target/etc/puppet/puppetd.conf', 'w' ) do | file |
   file.puts( <<-EOF )
