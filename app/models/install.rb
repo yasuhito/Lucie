@@ -173,6 +173,9 @@ class Install
     Lucie::Log.info 'Setting up puppet'
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
 
+    Lucie::Log.info 'Setting up default password'
+    ssh_exec @node.name, "setup_password"
+    
     ssh_exec @node.name, 'swapoff -a'
 
     ssh_exec @node.name, 'shutdown -r now'

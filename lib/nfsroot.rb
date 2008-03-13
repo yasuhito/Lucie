@@ -323,6 +323,8 @@ class Nfsroot < Rake::TaskLib
     sh_exec "cp #{ RAILS_ROOT }/script/rcS_lucie #{ target( '/etc/init.d/rcS' ) }"
     sh_exec "chmod +x #{ target( '/etc/init.d/rcS' ) }"
 
+    sh_exec "cp #{ RAILS_ROOT }/script/setup_password #{ target( '/usr/sbin/setup_password' ) }"
+    sh_exec "chmod +x #{ target( '/usr/sbin/setup_password' ) }"
     sh_exec "cp #{ RAILS_ROOT }/script/setup_harddisks #{ target( '/usr/sbin/setup_harddisks' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_harddisks' ) }"
     sh_exec "cp #{ RAILS_ROOT }/script/setup_grub #{ target( '/usr/sbin/setup_grub' ) }"
