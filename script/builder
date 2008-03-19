@@ -94,9 +94,12 @@ begin
     catch( :reload_installer ) do
       installer.scheduler.run
     end
-    installer = load_installer( installer_path )
+
     # this will cause the next call to scheduler to run the build immediately
-    installer.request_build rescue nil
+    installer = load_installer( installer_path )
+    unless installer.in_use?
+      installer.request_build rescue nil
+    end
   end
 rescue Interrupt
   # this is okay, we're just control-c'ing the app

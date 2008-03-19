@@ -61,6 +61,15 @@ class Installer
   end
 
 
+  def in_use?
+    Nodes.load_all( @name ).each do | each |
+      latest = each.latest_install
+      latest and latest.incomplete? and return true
+    end
+    false
+  end
+
+
   def upgrade
     @source_control.update self
     request_build
