@@ -40,17 +40,16 @@ begin
   trace_option = trace ? '--trace' : ''
   nodes = ARGV.shift.split( ',' )
 
-  Array.new( nodes.size ) do | i |
-    Thread.new( i ) do | j |
-      Thread.stop
-      FileUtils.cd( File.dirname( __FILE__ ) ) do
+  FileUtils.cd( File.dirname( __FILE__ ) ) do
+    Array.new( nodes.size ) do | i |
+      Thread.new( i ) do | j |
+        Thread.stop
         system "../node install #{ nodes[ j ] } #{ trace_option }"
       end
+    end.each do | t |
+      t.wakeup
     end
-  end.each do | t |
-    t.wakeup
   end
-
 rescue Interrupt
   Lucie::Log.error 'Interrupted.'
   exit -1
