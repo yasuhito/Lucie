@@ -8,11 +8,13 @@ describe Nfs do
 
     @node1 = Object.new
     @node1.stubs( :name ).returns( 'NODE1' )
+    @node1.stubs( :ip_address ).returns( 'NODE1_IP_ADDRESS' )
     @node1.stubs( :enable? ).returns( true )
     @node1.stubs( :installer_name ).returns( 'TEST_INSTALLER' )
 
     @node2 = Object.new
     @node2.stubs( :name ).returns( 'NODE2' )
+    @node2.stubs( :ip_address ).returns( 'NODE2_IP_ADDRESS' )
     @node2.stubs( :enable? ).returns( true )
     @node2.stubs( :installer_name ).returns( 'TEST_INSTALLER' )
 
@@ -45,7 +47,8 @@ describe Nfs do
     # expects
     File.expects( :copy ).with( '/etc/exports', '/etc/exports.old' )
     File.expects( :open ).with( '/etc/exports', 'w' ).yields( @file )
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1(async,ro,no_root_squash,no_subtree_check)" ) )
+    @file.expects( :puts ).with( "# NODE1")
+    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
     @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server restart' )
 
     # when
@@ -64,8 +67,10 @@ describe Nfs do
     # expects
     File.expects( :copy ).with( '/etc/exports', '/etc/exports.old' )
     File.expects( :open ).with( '/etc/exports', 'w' ).yields( @file )
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1(async,ro,no_root_squash,no_subtree_check)" ) )
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE2(async,ro,no_root_squash,no_subtree_check)" ) )
+    @file.expects( :puts ).with( "# NODE1" )
+    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
+    @file.expects( :puts ).with( "# NODE2" )
+    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
     @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server restart' )
 
     # when

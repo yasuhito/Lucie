@@ -17,7 +17,8 @@ class Nfs
 
     File.open( config_file, 'w' ) do | file |
       nodes.each do | each |
-        file.puts "#{ nfsroot( each.installer_name ) } #{ each.name }(async,ro,no_root_squash,no_subtree_check)"
+        file.puts "# #{ each.name }"
+        file.puts "#{ nfsroot( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
       end
     end
 
