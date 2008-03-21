@@ -68,8 +68,8 @@ describe PuppetController, 'when calling PuppetController.restart' do
     @node_list.stubs( :list ).returns( [ stub_node( 'FOO' ), stub_node( 'BAR' ) ] )
 
     # expects
-    @puppet.expects( :sh_exec ).with( 'puppetca --clean FOO.DOMAIN_NAME' )
-    @puppet.expects( :sh_exec ).with( 'puppetca --clean BAR.DOMAIN_NAME' )
+    @puppet.expects( :sh_exec ).with( 'puppetca --clean FOO.DOMAIN_NAME || true' )
+    @puppet.expects( :sh_exec ).with( 'puppetca --clean BAR.DOMAIN_NAME || true' )
     @puppet.expects( :sh_exec ).with( '/etc/init.d/puppetmaster restart' )
 
     # when
