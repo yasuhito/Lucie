@@ -276,18 +276,20 @@ class Installer
   end
 
 
-  def build(revisions = nil)
-    notify(:build_initiated)
+  def build revisions = nil
+    notify :build_initiated
     if revisions.nil?
       revisions = new_revisions
-      revisions = [@source_control.latest_revision(self)] if revisions.empty?
+      if revisions.empty?
+        revisions = [ @source_control.latest_revision( self ) ]
+      end
     end
     previous_build = last_build
     last_revision = revisions.last
 
-    build = Build.new(self, create_build_label(last_revision.number))
-    log_changeset(build.artifacts_directory, revisions)
-    @source_control.update(self, last_revision)
+    build = Build.new( self, create_build_label( last_revision.number ) )
+    log_changeset build.artifacts_directory, revisions
+    @source_control.update self, last_revision
 
     if config_tracker.config_modified?
       build.abort
@@ -295,15 +297,15 @@ class Installer
       throw :reload_installer
     end
 
-    notify(:build_started, build)
+    notify :build_started, build
     build.run
-    notify(:build_finished, build)
+    notify :build_finished, build
 
     if previous_build
       if build.failed? and previous_build.successful?
-        notify(:build_broken, build, previous_build)
+        notify :build_broken, build, previous_build
       elsif build.successful? and previous_build.failed?
-        notify(:build_fixed, build, previous_build)
+        notify :build_fixed, build, previous_build
       end
     end
 

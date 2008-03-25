@@ -16,7 +16,7 @@ class Nfs
     File.copy config_file, config_file + '.old'
 
     File.open( config_file, 'w' ) do | file |
-      nodes.each do | each |
+      enabled_nodes.each do | each |
         file.puts "# #{ each.name }"
         file.puts "#{ nfsroot( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
       end
@@ -37,7 +37,7 @@ class Nfs
   end
 
 
-  def nodes
+  def enabled_nodes
     Nodes.load_all.select do | each |
       each.enable?
     end
