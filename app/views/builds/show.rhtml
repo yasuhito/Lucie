@@ -61,13 +61,6 @@
     <div class="section_content"><div class="logfile"><%= format_build_log(@build.output) %></div></div>
   </div>
 
-  <% unless @build.additional_artifacts.empty? %>
-    <div class="section_open">
-      <div class="section_header" onclick="toggle_section(this.parentNode)">Custom Build Artifacts</div>
-      <div class="section_content"><% @build.additional_artifacts.each do |artifact| %><div class="artifact"><%= link_to artifact, build_artifact_url(:installer => @installer.name, :build => @build.label, :path => artifact) %></div><% end %></div>
-    </div>
-  <% end %>
-  
   <div class="section_closed">
     <div class="section_header" onclick="toggle_section(this.parentNode)">Installer Settings</div>
     <div class="section_content"><%= format_installer_settings(@build.installer_settings) %></div>

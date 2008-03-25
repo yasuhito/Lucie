@@ -118,28 +118,6 @@ describe Build do
   end
 
 
-  it 'should know about additional artifacts' do
-    with_sandbox_installer do | sandbox, installer |
-      # additional artifacts
-      sandbox.new :file => 'build-1/coverage/index.html'
-      sandbox.new :file => 'build-1/coverage/units/index.html'
-      sandbox.new :file => 'build-1/coverage/functionals/index.html'
-      sandbox.new :file => 'build-1/foo'
-      sandbox.new :file => 'build-1/foo.txt'
-
-      # artifacts
-      sandbox.new :file => 'build-1/lucie_config.rb'
-      sandbox.new :file => 'build-1/plugin_errors.log'
-      sandbox.new :file => 'build.log'
-      sandbox.new :file => 'build_status.failure'
-      sandbox.new :file => 'changeset.log'
-
-      build = Build.new( installer, 1 )
-      build.additional_artifacts.sort.should == %w(coverage foo foo.txt)
-    end
-  end
-
-
   it 'should generate build url using dashboard_url' do
     with_sandbox_installer do | sandbox, installer |
       sandbox.new :file => 'build-1/build_status.success.in0s'

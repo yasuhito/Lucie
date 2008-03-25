@@ -50,6 +50,7 @@ describe Tftp, 'when calling Tftp.setup_pxe' do
       Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( node )
 
       Configuration.stubs( :tftp_root ).returns( sandbox.root )
+      Nfsroot.stubs( :path ).returns( 'NFSROOT_PATH' )
 
       lambda do
         Tftp.new.setup_pxe 'NODE_NAME', 'INSTALLER_NAME'

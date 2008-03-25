@@ -1,10 +1,10 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-describe Nfs do
+describe 'Common NFS', :shared => true do
   before( :each ) do
     @nfs = Nfs.new
-    @file = Object.new
+    @exports = Object.new
 
     @node1 = Object.new
     @node1.stubs( :name ).returns( 'NODE1' )
@@ -20,65 +20,90 @@ describe Nfs do
 
     Nfs.stubs( :new ).returns( @nfs )
   end
+end
+
+
+describe Nfs, 'when generating /etc/exports' do
+  it_should_behave_like 'Common NFS'
+
+
+  before( :each ) do
+    File.stubs( :copy ).with( '/etc/exports', '/etc/exports.old' )
+    File.stubs( :open ).with( '/etc/exports', 'w' ).yields( @exports )
+    @nfs.stubs( :nfsd_is_down ).returns( false )
+    @nfs.stubs( :sh_exec )
+    Installer.stubs( :path ).returns( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER" ) ).times( 2 )
+  end
 
 
   it 'should do nothing if there is no node' do
     # given
     Nodes.stubs( :load_all ).returns( [ ] )
 
-    # expects
-    File.expects( :copy ).with( '/etc/exports', '/etc/exports.old' )
-    File.expects( :open ).with( '/etc/exports', 'w' ).yields( @file )
-    @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server restart' )
-
     # when
-    lambda do
-      Nfs.setup
-
-      # then
-    end.should_not raise_error
+    Nfs.setup
   end
 
 
-  it 'should setup nfs daemon if there is 1 node' do
+  it 'should export to 1 node' do
     # given
     Nodes.stubs( :load_all ).returns( [ @node1 ] )
 
-    # expects
-    File.expects( :copy ).with( '/etc/exports', '/etc/exports.old' )
-    File.expects( :open ).with( '/etc/exports', 'w' ).yields( @file )
-    @file.expects( :puts ).with( "# NODE1")
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
-    @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server restart' )
+    # then
+    @exports.expects( :puts ).with( "# NODE1")
+    @exports.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
 
     # when
-    lambda do
-      Nfs.setup
-
-      # then
-    end.should_not raise_error
+    Nfs.setup
   end
 
 
-  it 'should setup nfs daemon if there are 2 nodes' do
+  it 'should export to 2 nodes' do
     # given
     Nodes.stubs( :load_all ).returns( [ @node1, @node2 ] )
 
-    # expects
-    File.expects( :copy ).with( '/etc/exports', '/etc/exports.old' )
-    File.expects( :open ).with( '/etc/exports', 'w' ).yields( @file )
-    @file.expects( :puts ).with( "# NODE1" )
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
-    @file.expects( :puts ).with( "# NODE2" )
-    @file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER/nfsroot NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
-    @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server restart' )
+    # then
+    @exports.expects( :puts ).with( "# NODE1" )
+    @exports.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
+    @exports.expects( :puts ).with( "# NODE2" )
+    @exports.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) )
 
     # when
-    lambda do
-      Nfs.setup
+    Nfs.setup
+  end
+end
 
-      # then
-    end.should_not raise_error
+
+describe Nfs, 'when controlling nfsd' do
+  it_should_behave_like 'Common NFS'
+
+
+  before( :each ) do
+    @exports.stubs( :puts )
+    File.stubs( :copy )
+    File.stubs( :open ).yields( @exports )
+    Installer.stubs( :path )
+    Nodes.stubs( :load_all ).returns( [ @node1, @node2 ] )
+  end
+
+
+  it 'should start the nfs daemon if nfsd is down' do
+    # given, then
+    @nfs.expects( :nfsd_is_down ).returns( true )
+    @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server start' )
+
+    # when
+    Nfs.setup
+  end
+
+
+  it 'should reload the nfs daemon if nfsd is up' do
+    # given, then
+    @nfs.expects( :nfsd_is_down ).returns( false )
+    @nfs.expects( :sh_exec ).with( '/etc/init.d/nfs-kernel-server reload' )
+
+    # when
+    Nfs.setup
   end
 end
 

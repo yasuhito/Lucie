@@ -18,11 +18,15 @@ class Nfs
     File.open( config_file, 'w' ) do | file |
       enabled_nodes.each do | each |
         file.puts "# #{ each.name }"
-        file.puts "#{ nfsroot( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
+        file.puts "#{ Installer.path( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
       end
     end
 
-    sh_exec '/etc/init.d/nfs-kernel-server restart'
+    if nfsd_is_down
+      sh_exec '/etc/init.d/nfs-kernel-server start'
+    else
+      sh_exec '/etc/init.d/nfs-kernel-server reload'
+    end
   end
 
 
@@ -31,9 +35,8 @@ class Nfs
   ################################################################################
 
 
-  # [FIXME] Get nfsroot path from Nfsroot class
-  def nfsroot installer_name
-    File.join( Configuration.installers_directory, installer_name, 'nfsroot' )
+  def nfsd_is_down
+    not system( "ps -U root -u root | grep nfsd" )
   end
 
 

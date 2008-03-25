@@ -2,6 +2,11 @@ class Installer
   @@plugin_names = []
 
 
+  def self.path name
+    File.join( Configuration.installers_directory, name )
+  end
+
+
   def self.install node
     installer = Installer.new( node.installer_name )
     installer.run node

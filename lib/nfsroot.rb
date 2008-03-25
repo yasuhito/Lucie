@@ -33,6 +33,12 @@ class Nfsroot < Rake::TaskLib
   attr_accessor :target_directory
 
 
+  def self.path installer_name
+    last_build = Installer.new( installer_name ).builds.last
+    File.join( Configuration.installers_directory, installer_name, "build-#{ last_build.label }", 'nfsroot' )
+  end
+
+
   def initialize
     @name = :nfsroot
 
@@ -46,7 +52,7 @@ class Nfsroot < Rake::TaskLib
 
     @extra_packages = nil
     @root_password = "h29SP9GgVbLHE"
-    @target_directory = File.join( Configuration.installers_directory, ENV[ 'INSTALLER_NAME' ], 'nfsroot' )
+    @target_directory = File.join( Configuration.installers_directory, ENV[ 'INSTALLER_NAME' ], "build-#{ ENV[ 'BUILD_LABEL' ] }", 'nfsroot' )
   end
 
 
@@ -340,8 +346,8 @@ class Nfsroot < Rake::TaskLib
     sh_exec "cp #{ RAILS_ROOT }/script/fai-do-scripts #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/fai-do-scripts' ) }"
     sh_exec "mkdir #{ target( '/etc/lucie' ) }"
-    sh_exec "cp #{ target( '../work/partition.rb' ) } #{ target( '/etc/lucie' ) }"
-    sh_exec "cp #{ target( '../work/package.rb' ) } #{ target( '/etc/lucie' ) }"
+    sh_exec "cp #{ target( '../../work/partition.rb' ) } #{ target( '/etc/lucie' ) }"
+    sh_exec "cp #{ target( '../../work/package.rb' ) } #{ target( '/etc/lucie' ) }"
     sh_exec "cp -a #{ RAILS_ROOT }/config/scripts #{ target( '/etc/lucie' ) }"
 
     if FileTest.directory?( target( '/var/yp' ) )

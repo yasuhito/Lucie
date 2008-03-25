@@ -64,7 +64,7 @@ default lucie
 
 label lucie
 kernel #{ installer_name }
-append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ nfsroot( installer_name ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name }
+append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ Nfsroot.path( installer_name ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name }
 EOF
     end
   end
@@ -120,12 +120,6 @@ EOF
 
   def pxe_config_file mac_address
     return "#{ Configuration.tftp_root }/pxelinux.cfg/01-#{ mac_address.gsub( ':', '-' ).downcase }"
-  end
-
-
-  # [???] get nfsroot path with Installer#nfsroot?
-  def nfsroot installer_name
-    return File.join( Configuration.installers_directory, installer_name, 'nfsroot' )
   end
 end
 
