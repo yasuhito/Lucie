@@ -84,8 +84,9 @@ begin
   Lucie::Log.info "Install log will be redirected to #{ install_log_path }."
   RAILS_DEFAULT_LOGGER.instance_variable_set :@log, File.open( install_log_path, 'w' )
 
+  lucie_daemon = LucieDaemon.server
+
   unless multi
-    lucie_daemon = LucieDaemon.server
     lucie_daemon.restart_puppet
 
     begin
