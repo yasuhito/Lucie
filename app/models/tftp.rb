@@ -26,7 +26,6 @@ class Tftp
 
   def disable node_name
     disable_pxe node_name
-    setup_tftpd
   end
 
 

@@ -26,7 +26,6 @@ describe Tftp, 'when calling Tftp.disable' do
 
     # expects
     tftp.expects( :disable_pxe ).with( 'NODE_NAME' )
-    tftp.expects :setup_tftpd
 
     # when
     lambda do
