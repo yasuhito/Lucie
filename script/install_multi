@@ -40,13 +40,24 @@ begin
   trace_option = trace ? '--trace' : ''
   nodes = ARGV.shift.split( ',' )
 
-  Array.new( nodes.size ) do | i |
-    Thread.new( i ) do | j |
-      Thread.stop
-      system "./node install #{ nodes[ j ] } #{ trace_option }"
+  lucie_daemon = LucieDaemon.server
+  lucie_daemon.restart_puppet
+
+  begin
+    FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
+  rescue
+    # ignore
+  end
+
+  FileUtils.cd( File.dirname( __FILE__ ) ) do
+    Array.new( nodes.size ) do | i |
+      Thread.new( i ) do | j |
+        Thread.stop
+        system "../node install #{ nodes[ j ] } #{ trace_option } --multi"
+      end
+    end.each do | t |
+      t.wakeup
     end
-  end.each do | t |
-    t.wakeup
   end
 rescue Interrupt
   Lucie::Log.error 'Interrupted.'
