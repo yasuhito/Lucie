@@ -64,8 +64,6 @@ begin
   end
 
   case installer.last_build.status
-  when 'incomplete'
-    raise "installer '#{ node.installer_name }' is being built now."
   when 'failed'
     raise "installer '#{ node.installer_name }' is broken."
   end
