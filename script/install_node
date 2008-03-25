@@ -11,6 +11,7 @@ require 'popen3/shell'
 
 
 pre_scripts = []
+multi = false
 trace = false
 
 
@@ -39,6 +40,13 @@ opts.on( '-h', '--help', 'Show this help message.' ) do
   puts opts
   exit 1
 end
+
+opts.separator ''
+
+opts.on( '-m', '--multi', 'Internal use only.' ) do
+  multi = true
+end
+
 
 opts.parse! ARGV
 
@@ -76,17 +84,19 @@ begin
   Lucie::Log.info "Install log will be redirected to #{ install_log_path }."
   RAILS_DEFAULT_LOGGER.instance_variable_set :@log, File.open( install_log_path, 'w' )
 
-  lucie_daemon = LucieDaemon.server
-  lucie_daemon.restart_puppet
+  unless multi
+    lucie_daemon = LucieDaemon.server
+    lucie_daemon.restart_puppet
 
-  begin
-    FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
-  rescue
-    # ignore
-  end
+    begin
+      FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
+    rescue
+      # ignore
+    end
 
-  pre_scripts.each do | each |
-    lucie_daemon.sudo each
+    pre_scripts.each do | each |
+      lucie_daemon.sudo each
+    end
   end
 
   Lucie::Log.info "Connecting to #{ node_name } ..."
