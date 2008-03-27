@@ -348,6 +348,9 @@ class Nfsroot < Rake::TaskLib
     sh_exec "mkdir #{ target( '/etc/lucie' ) }"
     sh_exec "cp #{ target( '../../work/partition.rb' ) } #{ target( '/etc/lucie' ) }"
     sh_exec "cp #{ target( '../../work/package.rb' ) } #{ target( '/etc/lucie' ) }"
+    # [FIXME]
+    sh_exec "cp #{ target( '../../work/puppet/facts/lucie.rb' ) } #{ target( '/etc/lucie' ) } || true"
+    sh_exec "cp #{ target( '../../work/puppet/facts/lucie.yaml' ) } #{ target( '/etc/lucie' ) } || true"
     sh_exec "cp -a #{ RAILS_ROOT }/config/scripts #{ target( '/etc/lucie' ) }"
 
     if FileTest.directory?( target( '/var/yp' ) )
