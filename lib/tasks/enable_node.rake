@@ -11,8 +11,11 @@ task 'lucie:enable_node' do
   if installer_name.nil?
     raise MandatoryOptionError, "Installer name for node '#{ node_name }' not defined."
   end
-  unless Nodes.find( node_name )
-    raise "Node '#{ node_name }' is not added yet."
+  # tau
+  node_name.split(',').each do | node_nam |
+    unless Nodes.find( node_nam )
+      raise "Node '#{ node_nam }' is not added yet."
+    end
   end
   unless Installers.find( installer_name )
     raise "Installer '#{ installer_name }' is not added yet."
@@ -21,7 +24,9 @@ task 'lucie:enable_node' do
   lucie_daemon = LucieDaemon.server
 
   Lucie::Log.debug "Enabling node #{ node_name }"
-  lucie_daemon.enable_node node_name, installer_name
+  # lucie_daemon.enable_node node_name, installer_name
+  # tau
+  lucie_daemon.enable_nodes node_name, installer_name
 
   Lucie::Log.debug 'Setting up TFTP daemon'
   lucie_daemon.setup_tftp node_name, installer_name

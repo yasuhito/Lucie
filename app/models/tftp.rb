@@ -19,7 +19,8 @@ class Tftp
 
 
   def setup node_name, installer_name
-    setup_pxe node_name, installer_name
+    # setup_pxe node_name, installer_name
+    setup_pxes node_name, installer_name
     setup_tftpd
   end
 
@@ -50,6 +51,11 @@ class Tftp
     end
   end
 
+  def setup_pxes node_name, installer_name
+    node_name.split(',').each do | node_nam |
+      setup_pxe(node_nam, installer_name)
+    end
+  end
 
   def setup_pxe node_name, installer_name
     node = node_named( node_name )

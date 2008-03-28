@@ -362,7 +362,9 @@ describe Node, 'when enabling a node with lucie:enable_node rake task' do
     Installers.stubs( :find ).with( 'TEST_INSTALLER' ).returns( true )
 
     LucieDaemon.expects( :server ).returns( lucie_daemon )
-    lucie_daemon.expects( :enable_node ).with( 'TEST_NODE', 'TEST_INSTALLER' )
+    # tau
+    #lucie_daemon.expects( :enable_node ).with( 'TEST_NODE', 'TEST_INSTALLER' )
+    lucie_daemon.expects( :enable_nodes ).with( 'TEST_NODE', 'TEST_INSTALLER' )
     lucie_daemon.expects( :setup_tftp ).with( 'TEST_NODE', 'TEST_INSTALLER' )
     lucie_daemon.expects( :setup_nfs )
     lucie_daemon.expects( :setup_dhcp )

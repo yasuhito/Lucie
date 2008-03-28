@@ -115,6 +115,13 @@ class LucieDaemon
     Nodes.find( node_name ).enable! installer_name
   end
 
+  # tau
+  def enable_nodes node_names, installer_name
+    node_names.split( ',' ).each do | node_name |
+      enable_node(node_name,installer_name)
+    end
+  end
+
 
   def setup_tftp node_name, installer_name
     Tftp.setup node_name, installer_name
