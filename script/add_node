@@ -22,6 +22,9 @@ netmask_address = nil
 wol = false
 trace = false
 
+# [HACK]
+add_only = false
+
 
 opts = OptionParser.new
 
@@ -72,6 +75,12 @@ opts.on( '-h', '--help', 'Show this help message.' ) do
   exit 1
 end
 
+opts.separator ''
+
+opts.on( '-A', '--add-only', '[HACK] node add only (do not enable).' ) do
+  add_only = true
+end
+
 opts.parse! ARGV
 
 
@@ -102,6 +111,10 @@ begin
   load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
 
   Rake::Task[ 'lucie:add_node' ].execute
+  # [HACK]
+  if add_only
+    exit
+  end
   Rake::Task[ 'lucie:enable_node' ].execute
 
 rescue DRb::DRbConnError
