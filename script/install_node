@@ -41,80 +41,87 @@ opts.on( '-h', '--help', 'Show this help message.' ) do
   exit 1
 end
 
-opts.separator ''
-
-opts.on( '-m', '--multi', 'Internal use only.' ) do
-  multi = true
-end
-
-
 opts.parse! ARGV
 
 
-begin
-  node_name = ARGV.shift
+nodes = ARGV.dup
 
-  unless node_name
+
+begin
+  if nodes.empty?
     raise MandatoryOptionError, 'Node name not defined.'
   end
-  node = Nodes.find( node_name )
-  unless node
-    raise "Node '#{ node_name }' is not added yet."
-  end
 
-  installer = Installers.find( node.installer_name )
+  nodes.each do | each |
+    node = Nodes.find( each )
+    unless node
+      raise "Node '#{ each }' is not added yet."
+    end
 
-  unless installer
-    raise "installer '#{ node.installer_name }' is not added yet."
-  end
-  if installer.last_build.nil?
-    raise "installer '#{ node.installer_name }' is not built yet."
-  end
+    installer = Installers.find( node.installer_name )
 
-  case installer.last_build.status
-  when 'failed'
-    raise "installer '#{ node.installer_name }' is broken."
-  end
+    unless installer
+      raise "installer '#{ node.installer_name }' is not added yet."
+    end
+    if installer.last_build.nil?
+      raise "installer '#{ node.installer_name }' is not built yet."
+    end
 
-  label = node.latest_install ? node.latest_install.label + 1 : 0
-  install_log_dir = File.expand_path( "#{ Configuration.nodes_directory }/#{ node_name }/install-#{ label }" )
-  FileUtils.mkdir_p install_log_dir
-  install_log_path = File.join( install_log_dir, 'install.log' )
-  Lucie::Log.info "Starting lucie installer."
-  Lucie::Log.info "Install log will be redirected to #{ install_log_path }."
-  RAILS_DEFAULT_LOGGER.instance_variable_set :@log, File.open( install_log_path, 'w' )
+    case installer.last_build.status
+    when 'failed'
+      raise "installer '#{ node.installer_name }' is broken."
+    end
+
+    label = node.latest_install ? node.latest_install.label + 1 : 0
+    install_log_dir = File.expand_path( "#{ Configuration.nodes_directory }/#{ each }/install-#{ label }" )
+    FileUtils.mkdir_p install_log_dir
+    install_log_path = File.join( install_log_dir, 'install.log' )
+    Lucie::Log.info "Starting lucie installer."
+    Lucie::Log.info "Install log will be redirected to #{ install_log_path }."
+    RAILS_DEFAULT_LOGGER.instance_variable_set :@log, File.open( install_log_path, 'w' )
+  end
 
   lucie_daemon = LucieDaemon.server
+  lucie_daemon.restart_puppet
 
-  unless multi
-    lucie_daemon.restart_puppet
-
-    begin
-      FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
-    rescue
-      # ignore
-    end
-
-    pre_scripts.each do | each |
-      lucie_daemon.sudo each
-    end
+  begin
+    FileUtils.rm File.expand_path( '~/.ssh/known_hosts' )
+  rescue
+    # ignore
   end
 
-  Lucie::Log.info "Connecting to #{ node_name } ..."
-  catch( :node_up ) do
-    loop do
-      Popen3::Shell.open do | shell |
-        shell.on_success do
-          throw :node_up
+  pre_scripts.each do | each |
+    lucie_daemon.sudo each
+  end
+
+  Array.new( nodes.size ) do | i |
+    Thread.new( i ) do | j |
+      Thread.stop
+
+      Lucie::Log.info "Connecting to #{ nodes[ j ] } ..."
+      catch( :node_up ) do
+        loop do
+          Popen3::Shell.open do | shell |
+            shell.on_success do
+              throw :node_up
+            end
+            shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ nodes[ j ] } "grep -q nfsroot /proc/cmdline"}, { :env => { 'LC_ALL' => 'C' } } )
+          end
+          sleep 10
         end
-        shell.exec( %{ssh -o "StrictHostKeyChecking no" root@#{ node_name } "grep -q nfsroot /proc/cmdline"}, { :env => { 'LC_ALL' => 'C' } } )
       end
-      sleep 10
+
+      Installer.install Nodes.find( nodes[ j ] )
     end
+  end.each do | t |
+    t.wakeup
   end
 
-  Installer.install node
-  lucie_daemon.disable_node node_name
+  while Thread.list.size > 1
+    sleep 1
+  end
+
+  lucie_daemon.disable_node nodes
 
 rescue Interrupt
   Lucie::Log.error 'Interrupted.'
@@ -136,7 +143,7 @@ end
 
 
 Lucie::Log.verbose = true
-Lucie::Log.info "Node '#{ node_name }' installed."
+Lucie::Log.info "Node '#{ nodes.join( ', ' ) }' installed."
 
 
 ### Local variables:

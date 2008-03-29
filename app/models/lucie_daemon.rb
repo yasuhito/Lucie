@@ -154,13 +154,15 @@ class LucieDaemon
   end
 
 
-  def disable_node node_name
-    node = Nodes.find( node_name )
-    if node
-      node.disable!
-      Tftp.disable node_name
-    else
-      raise "Node #{ node_name } not found!"
+  def disable_node nodes
+    nodes.each do | each |
+      node = Nodes.find( each )
+      if node
+        node.disable!
+        Tftp.disable each
+      else
+        raise "Node #{ each } not found!"
+      end
     end
   end
 
