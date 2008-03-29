@@ -18,9 +18,8 @@ class Tftp
   end
 
 
-  def setup node_name, installer_name
-    # setup_pxe node_name, installer_name
-    setup_pxes node_name, installer_name
+  def setup nodes, installer_name
+    setup_pxe nodes, installer_name
     setup_tftpd
   end
 
@@ -51,26 +50,23 @@ class Tftp
     end
   end
 
-  def setup_pxes node_name, installer_name
-    node_name.split(',').each do | node_nam |
-      setup_pxe(node_nam, installer_name)
-    end
-  end
 
-  def setup_pxe node_name, installer_name
-    node = node_named( node_name )
+  def setup_pxe nodes, installer_name
+    nodes.each do | each |
+      node = node_named( each )
 
-    unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
-      FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
-    end
-    File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
-      file.print <<-EOF
+      unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
+        FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
+      end
+      File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
+        file.print <<-EOF
 default lucie
 
 label lucie
 kernel #{ installer_name }
 append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ Nfsroot.path( installer_name ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name }
 EOF
+      end
     end
   end
 

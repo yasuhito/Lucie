@@ -2,19 +2,19 @@ require 'rake'
 
 
 task 'lucie:enable_node' do
-  node_name = ENV[ 'NODE_NAME' ]
+  nodes = ENV[ 'NODE_NAME' ] ? ENV[ 'NODE_NAME' ].split( /\s+/ ) : []
   installer_name = ENV[ 'INSTALLER_NAME' ]
 
-  if node_name.nil?
+  if nodes.empty?
     raise MandatoryOptionError, 'Node name not defined.'
   end
   if installer_name.nil?
-    raise MandatoryOptionError, "Installer name for node '#{ node_name }' not defined."
+    raise MandatoryOptionError, "Installer name for node #{ nodes.join( ', ' ) } not defined."
   end
-  # tau
-  node_name.split(',').each do | node_nam |
-    unless Nodes.find( node_nam )
-      raise "Node '#{ node_nam }' is not added yet."
+
+  nodes.each do | each |
+    unless Nodes.find( each )
+      raise "Node '#{ each }' is not added yet."
     end
   end
   unless Installers.find( installer_name )
@@ -23,13 +23,11 @@ task 'lucie:enable_node' do
 
   lucie_daemon = LucieDaemon.server
 
-  Lucie::Log.debug "Enabling node #{ node_name }"
-  # lucie_daemon.enable_node node_name, installer_name
-  # tau
-  lucie_daemon.enable_nodes node_name, installer_name
+  Lucie::Log.debug "Enabling node #{ nodes.join( ', ' ) }"
+  lucie_daemon.enable_nodes nodes, installer_name
 
   Lucie::Log.debug 'Setting up TFTP daemon'
-  lucie_daemon.setup_tftp node_name, installer_name
+  lucie_daemon.setup_tftp nodes, installer_name
 
   Lucie::Log.debug 'Setting up NFS daemon'
   lucie_daemon.setup_nfs
@@ -41,8 +39,10 @@ task 'lucie:enable_node' do
   lucie_daemon.setup_puppet installer_name
 
   if ENV[ 'WOL' ]
-    Lucie::Log.debug 'Sending Wake on Lan magick packets'
-    lucie_daemon.wol node_name
+    # [FIXME] temporary disable wol feature.
+    $stderr.puts "WOL feature is disabled."
+    # Lucie::Log.debug 'Sending Wake on Lan magick packets'
+    # lucie_daemon.wol nodes
   end
 end
 
