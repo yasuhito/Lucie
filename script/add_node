@@ -92,11 +92,11 @@ begin
   end
   overwrite_node = Nodes.find( node_name ) ? true : false
 
-  unless installer_name
+  if ( not add_only ) and ( not installer_name )
     raise MandatoryOptionError, 'Installer name not defined.'
-  end
-  unless Installers.find( installer_name )
-    raise "Installer '#{ installer_name }' is not added yet."
+    unless Installers.find( installer_name )
+      raise "Installer '#{ installer_name }' is not added yet."
+    end
   end
 
   ENV[ 'NODE_NAME' ] = node_name
