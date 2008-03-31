@@ -111,7 +111,11 @@ begin
         end
       end
 
-      Installer.install Nodes.find( nodes[ j ] )
+      begin
+        Installer.install Nodes.find( nodes[ j ] )
+      rescue
+        Lucie::Log.error $!.message
+      end
     end
   end.each do | t |
     t.wakeup
