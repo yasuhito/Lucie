@@ -178,7 +178,7 @@ class Install
 
     ssh_exec @node.name, 'swapoff -a'
 
-    # ssh_exec @node.name, 'shutdown -r now'
+    ssh_exec @node.name, 'shutdown -r now'
   end
 
 
