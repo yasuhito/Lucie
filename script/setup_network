@@ -6,9 +6,49 @@ require 'facter'
 
 $host_name = ARGV[ 0 ]
 $mac_address = ARGV[ 1 ].downcase
-$domain_name = ARGV[ 2 ]
-$lucie_server = ARGV[ 3 ]
-$lucie_server_ipaddress = ARGV[ 4 ]
+$ipaddress = ARGV[ 2 ]
+$netmask_address = ARGV[ 3 ]
+$network_address = ARGV[ 4 ]
+$broadcast_address = ARGV[ 5 ]
+$gateway_address = ARGV[ 6 ]
+$domain_name = ARGV[ 7 ]
+$lucie_server = ARGV[ 8 ]
+$lucie_server_ipaddress = ARGV[ 9 ]
+
+
+$eth_id = nil
+
+
+# parse udev persistent net rules.
+File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'r' ) do | f |
+  found = false
+  f.each do | l |
+    # skip comments and empty lines
+    next if /^#|^\s+$/=~ l
+
+    l.split( /,\s*/ ).each do | each |
+      key, value = each.split( /=+/ )
+      found = true if key == 'ATTRS{address}' and eval( value ) == $mac_address
+      $eth_id = eval( value ) if found and key == 'NAME'
+    end
+  end
+  raise "#{ __FILE__ }: This should not happen!" unless found
+end
+
+
+File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
+  file.puts( <<-EOF )
+auto lo #{ $eth_id }
+iface lo inet loopback
+
+iface #{ $eth_id } inet static
+  address #{ $ipaddress }
+  netmask #{ $netmask_address }
+  network #{ $network_address }
+  broadcast #{ $broadcast_address }
+  gateway #{ $gateway_address }
+EOF
+end
 
 
 File.open( '/tmp/target/etc/hostname', 'w' ) do | file |

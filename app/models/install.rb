@@ -168,17 +168,17 @@ class Install
     ssh_exec @node.name, 'setup_grub'
 
     Lucie::Log.info 'Setting up network'
-    ssh_exec @node.name, "setup_network #{ @node.name } #{ @node.mac_address } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
+    ssh_exec @node.name, "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ Network.network_address( @node.ip_address, @node.netmask_address ) } #{ Network.broadcast_address( @node.ip_address, @node.netmask_address ) } #{ @node.gateway_address } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
 
     Lucie::Log.info 'Setting up puppet'
     ssh_exec @node.name, "setup_puppet #{ Facter.value( 'fqdn' ) }"
 
     Lucie::Log.info 'Setting up default password'
     ssh_exec @node.name, "setup_password"
-    
+
     ssh_exec @node.name, 'swapoff -a'
 
-    ssh_exec @node.name, 'shutdown -r now'
+    # ssh_exec @node.name, 'shutdown -r now'
   end
 
 
