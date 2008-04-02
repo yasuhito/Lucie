@@ -16,23 +16,6 @@ File.open( '/tmp/target/etc/hostname', 'w' ) do | file |
 end
 
 
-File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'w' ) do | file |
-  file.puts( <<-EOF )
-SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="eth0"
-EOF
-end
-
-
-File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
-  file.puts( <<-INTERFACES )
-auto lo eth0
-iface lo inet loopback
-
-iface eth0 inet dhcp
-INTERFACES
-end
-
-
 File.open( '/tmp/target/etc/hosts', 'w' ) do | file |
   file.puts( <<-EOF )
 127.0.0.1\tlocalhost.localdomain\tlocalhost

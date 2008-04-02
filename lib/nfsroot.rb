@@ -76,7 +76,7 @@ class Nfsroot < Rake::TaskLib
       task.distribution = @distribution
       task.suite = @suite
       task.http_proxy = @http_proxy
-      task.include = [ 'grub', 'dhcp3-client', 'puppet' ]
+      task.include = [ 'grub', 'puppet' ]
     end
 
     directory @target_directory

@@ -77,7 +77,9 @@ EOF
     nodes = Nodes.load_all.list.collect do | each |
       each.name + '.' + Facter.value( 'domain' )
     end
-    sh_exec "puppetca --clean #{ nodes.join( ' ' ) } || true"
+    unless nodes.empty?
+      sh_exec "puppetca --clean #{ nodes.join( ' ' ) } || true"
+    end
     sh_exec '/etc/init.d/puppetmaster restart'
   end
 end
