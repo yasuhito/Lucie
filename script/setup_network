@@ -20,22 +20,24 @@ $eth_id = nil
 
 
 # parse udev persistent net rules.
-File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'r' ) do | f |
-  found = false
-  f.each do | l |
-    # skip comments and empty lines
-    next if /^#|^\s+$/=~ l
+catch( :eth_found ) do
+  File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'r' ) do | f |
+    found = false
+    f.each do | l |
+      # skip comments and empty lines
+      next if /^#|^\s+$/=~ l
 
-    l.split( /,\s*/ ).each do | each |
-      key, value = each.split( /=+/ )
-      found = true if key == 'ATTRS{address}' and eval( value ) == $mac_address
-      if found and key == 'NAME'
-        $eth_id = eval( value )
-        break
+      l.split( /,\s*/ ).each do | each |
+        key, value = each.split( /=+/ )
+        found = true if key == 'ATTRS{address}' and eval( value ) == $mac_address
+        if found and key == 'NAME'
+          $eth_id = eval( value )
+          throw :eth_found
+        end
       end
     end
+    raise "#{ __FILE__ }: This should not happen!" unless found
   end
-  raise "#{ __FILE__ }: This should not happen!" unless found
 end
 
 
