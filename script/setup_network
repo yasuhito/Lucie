@@ -41,7 +41,7 @@ end
 
 File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
   file.puts( <<-EOF )
-auto lo #{ $eth_id }
+auto lo
 iface lo inet loopback
 
 auto #{ $eth_id }
