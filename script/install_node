@@ -43,6 +43,10 @@ end
 opts.parse! ARGV
 
 
+node_success = []
+node_fail = []
+
+
 nodes = ARGV.dup
 
 
@@ -58,7 +62,6 @@ begin
     end
 
     installer = Installers.find( node.installer_name )
-
     unless installer
       raise "installer '#{ node.installer_name }' is not added yet."
     end
@@ -66,8 +69,7 @@ begin
       raise "installer '#{ node.installer_name }' is not built yet."
     end
 
-    case installer.last_build.status
-    when 'failed'
+    if installer.last_build.status == 'failed'
       raise "installer '#{ node.installer_name }' is broken."
     end
 
@@ -97,9 +99,9 @@ begin
     Thread.new( i ) do | j |
       Thread.stop
 
-      Lucie::Log.info "Connecting to #{ nodes[ j ] } ..."
       catch( :node_up ) do
         loop do
+          Lucie::Log.info "Connecting to #{ nodes[ j ] }..."
           Popen3::Shell.open do | shell |
             shell.on_success do
               throw :node_up
@@ -112,8 +114,10 @@ begin
 
       begin
         Installer.install Nodes.find( nodes[ j ] )
+        node_success << nodes[ j ]
       rescue
         Lucie::Log.error $!.message
+        node_fail << nodes[ j ]
       end
     end
   end.each do | t |
@@ -124,7 +128,7 @@ begin
     sleep 1
   end
 
-  lucie_daemon.disable_node nodes
+  lucie_daemon.disable_node node_success
 
 rescue Interrupt
   Lucie::Log.error 'Interrupted.'
@@ -145,8 +149,13 @@ rescue => e
 end
 
 
-Lucie::Log.verbose = true
-Lucie::Log.info "Node '#{ nodes.join( ', ' ) }' installed."
+if node_success.size > 0
+  Lucie::Log.verbose = true
+  Lucie::Log.info "Success (#{ node_success.size } #{ node_success.size == 1 ? 'node' : 'nodes' }: #{ node_success.join( ', ' ) })"
+end
+if node_fail.size > 0
+  Lucie::Log.error "Failed (#{ node_fail.size } #{ node_fail.size == 1 ? 'node' : 'nodes' }: #{ node_fail.join( ', ' ) })"
+end
 
 
 ### Local variables:
