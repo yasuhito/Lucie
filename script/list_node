@@ -45,11 +45,13 @@ begin
   nodes = Nodes.load_all
 
   puts "Nodes directory = '#{ Configuration.nodes_directory }'"
-  
+
   if nodes.size == 0
     puts 'No node is added yet.'
   else
-    nodes.list.each do | each |
+    nodes.list.sort_by do | each |
+      each.name
+    end.each do | each |
       if each.latest_install and each.latest_install.incomplete?
         printf "incomplete %s (installer = %s)\n", each.name, each.installer_name
       elsif each.latest_install and each.latest_install.failed?
@@ -64,7 +66,7 @@ begin
     end
   end
 rescue => e
-  Lucie::Log.error e.message  
+  Lucie::Log.error e.message
   if trace
     e.backtrace.each do | each |
       Lucie::Log.error each
