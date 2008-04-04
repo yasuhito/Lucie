@@ -29,7 +29,10 @@ File.open( '/tmp/target/etc/udev/rules.d/z25_persistent-net.rules', 'r' ) do | f
     l.split( /,\s*/ ).each do | each |
       key, value = each.split( /=+/ )
       found = true if key == 'ATTRS{address}' and eval( value ) == $mac_address
-      $eth_id = eval( value ) if found and key == 'NAME'
+      if found and key == 'NAME'
+        $eth_id = eval( value )
+        break
+      end
     end
   end
   raise "#{ __FILE__ }: This should not happen!" unless found
@@ -41,6 +44,7 @@ File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
 auto lo #{ $eth_id }
 iface lo inet loopback
 
+auto #{ $eth_id }
 iface #{ $eth_id } inet static
   address #{ $ipaddress }
   netmask #{ $netmask_address }
