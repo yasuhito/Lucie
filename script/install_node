@@ -7,7 +7,6 @@ RAILS_ENV = 'install_node'
 require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
 require 'fileutils'
 require 'optparse'
-require 'popen3/shell'
 
 
 pre_scripts = []
@@ -95,6 +94,17 @@ begin
     lucie_daemon.sudo each
   end
 
+
+  # [WORKAROUND] require libs explicitly because rails autoload
+  # mechanism is not thread safe (see
+  # http://dev.rubyonrails.org/ticket/9155)
+  require 'installer'
+  require 'installer_blocker'
+  require 'installers'
+  require 'nodes'
+  require 'popen3/shell'
+
+
   Array.new( nodes.size ) do | i |
     Thread.new( i ) do | j |
       Thread.stop
@@ -115,8 +125,13 @@ begin
       begin
         Installer.install Nodes.find( nodes[ j ] )
         node_success << nodes[ j ]
-      rescue
-        Lucie::Log.error $!.message
+      rescue => e
+        Lucie::Log.error e.message
+        if trace
+          e.backtrace.each do | each |
+            Lucie::Log.error each
+          end
+        end
         node_fail << nodes[ j ]
       end
     end
@@ -151,10 +166,10 @@ end
 
 if node_success.size > 0
   Lucie::Log.verbose = true
-  Lucie::Log.info "Success (#{ node_success.size } #{ node_success.size == 1 ? 'node' : 'nodes' }: #{ node_success.join( ', ' ) })"
+  Lucie::Log.info "Success (#{ node_success.size } #{ node_success.size == 1 ? 'node' : 'nodes' }: #{ node_success.sort.join( ', ' ) })"
 end
 if node_fail.size > 0
-  Lucie::Log.error "Failed (#{ node_fail.size } #{ node_fail.size == 1 ? 'node' : 'nodes' }: #{ node_fail.join( ', ' ) })"
+  Lucie::Log.error "Failed (#{ node_fail.size } #{ node_fail.size == 1 ? 'node' : 'nodes' }: #{ node_fail.sort.join( ', ' ) })"
 end
 
 
