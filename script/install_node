@@ -137,10 +137,8 @@ begin
     end
   end.each do | t |
     t.wakeup
-  end
-
-  while Thread.list.size > 1
-    sleep 1
+  end.each do | t |
+    t.join
   end
 
   lucie_daemon.disable_node node_success
