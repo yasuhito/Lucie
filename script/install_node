@@ -98,6 +98,7 @@ begin
   # [WORKAROUND] require libs explicitly because rails autoload
   # mechanism is not thread safe (see
   # http://dev.rubyonrails.org/ticket/9155)
+  require 'install'
   require 'installer'
   require 'installer_blocker'
   require 'installers'
