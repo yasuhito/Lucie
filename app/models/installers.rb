@@ -23,7 +23,7 @@ class Installers
   def self.load_installer dir
     installer = Installer.read( dir, load_config = false )
     installer.path = dir
-    return installer
+    installer
   end
 
 

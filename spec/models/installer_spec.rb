@@ -1,46 +1,46 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
+################################################################################
+# Desctiptions for Installer.read
+################################################################################
+
+
 describe 'Installers read with Installer.read', :shared => true do
   include FileSandbox
 
 
-  it 'should return an Installer' do
-    @installer.should be_kind_of( Installer )
+  it 'should have a name equal to basename of installer_path' do
+    @installer.name.should == File.basename( @installer_path )
   end
 
 
-  it 'should have a name' do
-    @installer.name.should == 'DUMMY_INSTALLER'
-  end
-
-
-  it 'should have a path' do
+  it 'should have a path equal to installer_path' do
     @installer.path.should == @installer_path
   end
 
 
   it 'should have a installer config tracker' do
-    @installer.config_tracker.should be_instance_of( InstallerConfigTracker )
+    @installer.config_tracker.should_not be_nil
   end
 
 
-  it 'should have a polling scheduler' do
-    @installer.scheduler.should be_instance_of( PollingScheduler )
+  it 'should have a scheduler' do
+    @installer.scheduler.should_not be_nil
   end
 
 
-  it 'should have a subversion source control' do
-    @installer.source_control.should be_instance_of( Subversion )
+  it 'should have a source control' do
+    @installer.source_control.should_not be_nil
   end
 
 
-  it 'should have a nil build command' do
+  it 'should NOT have a default build command' do
     @installer.build_command.should be_nil
   end
 
 
-  it 'should have a nil rake task' do
+  it 'should NOT have a default rake task' do
     @installer.rake_task.should be_nil
   end
 end
@@ -50,7 +50,7 @@ end
 # I want to load a installer object from installers/ directory
 # So that I can build a installer.
 
-describe Installer, 'when reading a installer using Installer.read (load_config = false)' do
+describe Installer, 'when reading with Installer.read( installer_path, load_config = *FALSE* )' do
   it_should_behave_like 'Installers read with Installer.read'
 
 
@@ -60,12 +60,12 @@ describe Installer, 'when reading a installer using Installer.read (load_config 
       sandbox.new :file => 'DUMMY_INSTALLER/foobar'
 
       @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
-      @installer = Installer.read( @installer_path, false )
+      @installer = Installer.read( @installer_path, load_config = false )
     end
   end
 
 
-  it 'should have an empty setting' do
+  it 'should have an empty installer setting' do
     @installer.settings.should be_empty
   end
 
@@ -80,7 +80,7 @@ end
 # I want to load a installer object from installers/ directory
 # So that I can build a installer.
 
-describe Installer, 'when reading a installer using Installer.read (load_config = true)' do
+describe Installer, 'when reading with Installer.read( installer_path, load_config = *TRUE* )' do
   it_should_behave_like 'Installers read with Installer.read'
 
 
@@ -89,17 +89,17 @@ describe Installer, 'when reading a installer using Installer.read (load_config 
       sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "key = 'value'"
 
       @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
-      @installer = Installer.read( @installer_path, true )
+      @installer = Installer.read( @installer_path, load_config = true )
     end
   end
 
 
-  it 'should have a setting' do
+  it 'should have installer settings' do
     @installer.settings.should_not be_empty
   end
 
 
-  it 'should have a config' do
+  it 'should keep contents of config file' do
     @installer.config_file_content.should_not be_empty
   end
 end
@@ -109,7 +109,7 @@ end
 # I want to load a installer object from installers/ directory
 # So that I can build a installer.
 
-describe Installer, 'when reading a broken installer using Installer.read' do
+describe Installer, 'when reading a broken installer with Installer.read' do
   it_should_behave_like 'Installers read with Installer.read'
 
 
@@ -120,17 +120,17 @@ describe Installer, 'when reading a broken installer using Installer.read' do
       sandbox.new :file => 'DUMMY_INSTALLER/work/lucie_config.rb', :with_contents => "class Invalid"
 
       @installer_path = File.join( sandbox.root, 'DUMMY_INSTALLER' )
-      @installer = Installer.read( @installer_path, true )
+      @installer = Installer.read( @installer_path )
     end
   end
 
 
-  it 'should have a empty setting' do
+  it 'should have an empty installer setting' do
     @installer.settings.should be_empty
   end
 
 
-  it 'should have a config' do
+  it 'should keep contents of config file' do
     @installer.config_file_content.should_not be_empty
   end
 end
@@ -345,7 +345,7 @@ describe 'All Installers', :shared => true do
 
   before( :each ) do
     Lucie::Log.stubs( :event )
-    
+
     @svn = Object.new
     @installer = Installer.new( 'DUMMY_INSTALLER' )
     @installer.source_control = @svn

@@ -19,16 +19,13 @@ class Installer
 
 
   def self.read dir, load_config = true
-    @installer_in_the_works = Installer.new( File.basename( dir ) )
+    installer_name = File.basename( dir )
+    @installer_in_the_works = Installer.new( installer_name )
     @installer_in_the_works.path = dir
-    begin
-      if load_config
-        @installer_in_the_works.load_config
-      end
-      return @installer_in_the_works
-    ensure
-      @installer_in_the_works = nil
+    if load_config
+      @installer_in_the_works.load_config
     end
+    @installer_in_the_works
   end
 
 
