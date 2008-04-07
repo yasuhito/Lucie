@@ -178,6 +178,8 @@ class Install
 
     ssh_exec @node.name, 'swapoff -a'
 
+    LucieDaemon.server.disable_node [ @node.name ]
+
     ssh_exec @node.name, 'shutdown -r now'
   end
 

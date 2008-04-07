@@ -101,6 +101,7 @@ begin
   Dir.glob( File.join( RAILS_ROOT, 'app', 'models', '*.rb' ) ).each do | each |
     require File.basename( each, '.rb' )
   end
+
   require 'popen3/shell'
 
 
@@ -139,8 +140,6 @@ begin
   end.each do | t |
     t.join
   end
-
-  lucie_daemon.disable_node node_success
 
 rescue Interrupt
   Lucie::Log.error 'Interrupted.'

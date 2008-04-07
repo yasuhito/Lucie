@@ -140,6 +140,10 @@ describe Install do
       InstallStatus.any_instance.stubs( :succeed! )
       Facter.stubs( :value )
 
+      lucie_daemon = Object.new
+      LucieDaemon.stubs( :server ).returns( lucie_daemon )
+      lucie_daemon.stubs( :disable_node )
+
       lambda do
         install.run
       end.should_not raise_error
