@@ -95,14 +95,12 @@ begin
   end
 
 
-  # [WORKAROUND] require libs explicitly because rails autoload
-  # mechanism is not thread safe (see
+  # [WORKAROUND] require all models here explicitly because rails
+  # autoload mechanism is not thread safe (see
   # http://dev.rubyonrails.org/ticket/9155)
-  require 'install'
-  require 'installer'
-  require 'installer_blocker'
-  require 'installers'
-  require 'nodes'
+  Dir.glob( File.join( RAILS_ROOT, 'app', 'models', '*.rb' ) ).each do | each |
+    require File.basename( each, '.rb' )
+  end
   require 'popen3/shell'
 
 
