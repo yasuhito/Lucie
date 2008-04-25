@@ -95,13 +95,15 @@ begin
   end
 
 
-  # [WORKAROUND] require all models here explicitly because rails
+  # [WORKAROUND] require all models/libs here explicitly because rails
   # autoload mechanism is not thread safe (see
   # http://dev.rubyonrails.org/ticket/9155)
   Dir.glob( File.join( RAILS_ROOT, 'app', 'models', '*.rb' ) ).each do | each |
     require File.basename( each, '.rb' )
   end
-
+  Dir.glob( File.join( RAILS_ROOT, 'lib', '*.rb' ) ).each do | each |
+    require File.basename( each, '.rb' )
+  end
   require 'popen3/shell'
 
 
