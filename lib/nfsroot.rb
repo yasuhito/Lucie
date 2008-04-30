@@ -52,6 +52,14 @@ class Nfsroot < Rake::TaskLib
 
     @extra_packages = nil
     @root_password = "h29SP9GgVbLHE"
+
+    unless ENV[ 'INSTALLER_NAME' ]
+      raise "Environment variable 'INSTALLER_NAME' is not set."
+    end
+    unless ENV[ 'BUILD_LABEL' ]
+      raise "Environment variable 'BUILD_LABEL' is not set."
+    end
+
     @target_directory = File.join( Configuration.installers_directory, ENV[ 'INSTALLER_NAME' ], "build-#{ ENV[ 'BUILD_LABEL' ] }", 'nfsroot' )
   end
 
