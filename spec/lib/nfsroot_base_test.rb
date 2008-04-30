@@ -1,66 +1,86 @@
-require File.dirname( __FILE__ ) + '/../test_helper'
-require 'lib/nfsroot_base'
+require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-class NfsrootBaseTest < Test::Unit::TestCase
-  def setup
-    STDOUT.stubs( :puts )
+describe NfsrootBase, 'when defining nfsroot base rake tasks' do
+  before( :each ) do
     Rake::Task.clear
   end
 
 
-  def teardown
+  after( :each ) do
     Rake::Task.clear
   end
 
 
-  def test_accessor_methods
+  it 'should have accessors for nfsroot base properties' do
+    # when
     installer_base_task = NfsrootBase.configure do | task |
       task.arch = 'AMD64'
       task.distribution = 'DEBIAN'
       task.http_proxy = 'HTTP://PROXY:3128'
-      task.include = [ 'INCLUDE' ]
+      task.include = [ 'PACKAGES', 'TO', 'BE', 'INCLUDED' ]
       task.mirror = 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
       task.suite = 'SARGE'
       task.target_directory = '/TARGET_DIRECTORY'
     end
 
-    assert_equal 'AMD64', installer_base_task.arch
-    assert_equal 'DEBIAN', installer_base_task.distribution
-    assert_equal 'HTTP://PROXY:3128', installer_base_task.http_proxy
-    assert_equal [ 'INCLUDE' ], installer_base_task.include
-    assert_equal 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/', installer_base_task.mirror
-    assert_equal 'SARGE', installer_base_task.suite
-    assert_equal '/TARGET_DIRECTORY', installer_base_task.target_directory
+    # then
+    installer_base_task.arch.should == 'AMD64'
+    installer_base_task.distribution.should == 'DEBIAN'
+    installer_base_task.http_proxy.should == 'HTTP://PROXY:3128'
+    installer_base_task.include.should == [ 'PACKAGES', 'TO', 'BE', 'INCLUDED' ]
+    installer_base_task.mirror.should == 'HTTP://WWW.DEBIAN.OR.JP/DEBIAN/'
+    installer_base_task.suite.should == 'SARGE'
+    installer_base_task.target_directory.should == '/TARGET_DIRECTORY'
   end
 
 
-  def test_all_targets_defined
+  it 'should define all rake targets' do
+    # when
     NfsrootBase.new.define_tasks
 
-    assert_equal 4, Rake::Task.tasks.size
-    assert_kind_of Rake::FileTask, Rake.application.lookup( File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz" ) )
-    assert_kind_of Rake::Task, Rake.application.lookup( 'installer:clobber_nfsroot_base' )
-    assert_kind_of Rake::Task, Rake.application.lookup( 'installer:nfsroot_base' )
-    assert_kind_of Rake::Task, Rake.application.lookup( 'installer:rebuild_nfsroot_base' )
+    # then
+    Rake::Task.tasks.size.should == 4
+    Rake.application.lookup( base_tgz_path ).should be_an_instance_of( Rake::FileTask )
+    Rake.application.lookup( 'installer:clobber_nfsroot_base' ).should be_an_instance_of( Rake::Task )
+    Rake.application.lookup( 'installer:nfsroot_base' ).should be_an_instance_of( Rake::Task )
+    Rake.application.lookup( 'installer:rebuild_nfsroot_base' ).should be_an_instance_of( Rake::Task )
   end
 
 
-  def test_prerequisites_defined
-    base_tgz_path = File.expand_path( "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz" )
-
+  it 'should define all prerequisites' do
+    # when
     NfsrootBase.new.define_tasks
 
-    assert_equal [ base_tgz_path ], Rake::Task[ 'installer:nfsroot_base' ].prerequisites
-    assert_equal [ 'installer:clobber_nfsroot_base', 'installer:nfsroot_base' ], Rake::Task[ 'installer:rebuild_nfsroot_base' ].prerequisites
-    assert_equal [], Rake::Task[ base_tgz_path ].prerequisites
-    assert_equal [], Rake::Task[ 'installer:clobber_nfsroot_base' ].prerequisites
+    # then
+    Rake::Task[ 'installer:nfsroot_base' ].prerequisites.should == [ base_tgz_path ]
+    Rake::Task[ 'installer:rebuild_nfsroot_base' ].prerequisites.should == [ 'installer:clobber_nfsroot_base', 'installer:nfsroot_base' ]
+    Rake::Task[ base_tgz_path ].prerequisites.should == []
+    Rake::Task[ 'installer:clobber_nfsroot_base' ].prerequisites.should == []
   end
 
 
-  def test_nfsroot_base_target_should___success___
+  def base_tgz_path
+    File.expand_path "#{ RAILS_ROOT }/installers/.base/debian_etch_i386.tgz"
+  end
+end
+
+
+describe NfsrootBase, 'when executing nfsroot base rake tasks' do
+  before( :each ) do
+    STDOUT.stubs( :puts )
     Lucie::Log.stubs( :info )
+    Rake::Task.clear
+  end
 
+
+  after( :each ) do
+    Rake::Task.clear
+  end
+
+
+  it 'should succcess to build nfsroot base' do
+    # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
       task.target_directory = '/TMP'
@@ -70,19 +90,23 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.http_proxy = 'http://PROXY/'
     end
 
+    # expects
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
     nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap.i386 --exclude DEBIAN_SARGE_i386.tgz -czf /TMP/DEBIAN_SARGE_i386.tgz ." )
     AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap.i386" )
 
-    assert_nothing_raised do
+    # when
+    lambda do
       Rake::Task[ 'installer:nfsroot_base' ].invoke
-    end
+      # then
+    end.should_not raise_error
   end
 
 
-  def test_clobber_target_should___success___
+  it 'should success to clobber nfsroot base' do
+    # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
       task.target_directory = '/TMP'
@@ -90,15 +114,19 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.suite = 'SARGE'
     end
 
+    # expects
     nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap.i386/*" ).times( 1 )
 
-    Rake::Task[ 'installer:clobber_nfsroot_base' ].invoke
+    # when
+    lambda do
+      Rake::Task[ 'installer:clobber_nfsroot_base' ].invoke
+      # then
+    end.should_not raise_error
   end
 
 
-  def test_rebuild___success___
-    Lucie::Log.stubs( :info )
-
+  it 'should success to rebuild' do
+    # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
       task.target_directory = '/TMP'
@@ -108,6 +136,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
       task.http_proxy = 'http://PROXY/'
     end
 
+    # expects
     nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap.i386/*" )
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
@@ -115,15 +144,12 @@ class NfsrootBaseTest < Test::Unit::TestCase
     nfsroot_base.expects( :sh_exec ).with( "tar --one-file-system --directory #{ RAILS_ROOT }/tmp/debootstrap.i386 --exclude DEBIAN_SARGE_i386.tgz -czf /TMP/DEBIAN_SARGE_i386.tgz ." )
     AptGet.expects( :clean ).with( :root => "#{ RAILS_ROOT }/tmp/debootstrap.i386" )
 
-    assert_nothing_raised do
+    # when
+    lambda do
       Rake::Task[ 'installer:rebuild_nfsroot_base' ].invoke
-    end
+      # then
+    end.should_not raise_error
   end
-
-
-  ################################################################################
-  private
-  ################################################################################
 
 
   def debootstrap_option
@@ -136,7 +162,7 @@ class NfsrootBaseTest < Test::Unit::TestCase
     option.expects( :mirror= )
     option.expects( :include= )
 
-    return option
+    option
   end
 end
 
