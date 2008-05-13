@@ -229,7 +229,7 @@ describe Node, 'when adding a new node with lucie:add_node rake task' do
 
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
       Nodes.load_all.list.size.should == 1
@@ -254,11 +254,11 @@ describe Node, 'when adding a same node twice with lucie:add_node rake task' do
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
 
       # given
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # when
       lambda do
-        Rake::Task[ 'lucie:add_node' ].execute
+        Rake::Task[ 'lucie:add_node' ].execute nil
 
         # then
       end.should raise_error( "Node 'TEST_NODE' already exists." )
@@ -276,7 +276,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
       ENV[ 'NODE_NAME' ] = nil
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
     end.should raise_error( MandatoryOptionError, "Node name not defined." )
@@ -288,7 +288,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
       ENV[ 'MAC_ADDRESS' ] = nil
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
     end.should raise_error( MandatoryOptionError, "MAC address for node 'TEST_NODE' not defined." )
@@ -300,7 +300,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
       ENV[ 'IP_ADDRESS' ] = nil
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
     end.should raise_error( MandatoryOptionError, "IP address for node 'TEST_NODE' not defined." )
@@ -312,7 +312,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
       ENV[ 'GATEWAY_ADDRESS' ] = nil
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
     end.should raise_error( MandatoryOptionError, "Gateway address for node 'TEST_NODE' not defined." )
@@ -324,7 +324,7 @@ describe Node, 'when creating a new node with lucie:add_node rake task (mandator
       # when
       load "#{ RAILS_ROOT }/lib/tasks/add_node.rake"
       ENV[ 'NETMASK_ADDRESS' ] = nil
-      Rake::Task[ 'lucie:add_node' ].execute
+      Rake::Task[ 'lucie:add_node' ].execute nil
 
       # then
     end.should raise_error( MandatoryOptionError, "Netmask address for node 'TEST_NODE' not defined." )
@@ -389,7 +389,7 @@ describe Node, 'when enabling a node with lucie:enable_node rake task (mandatory
       # when
       load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
       ENV[ 'NODE_NAME' ] = nil
-      Rake::Task[ 'lucie:enable_node' ].execute
+      Rake::Task[ 'lucie:enable_node' ].execute nil
 
       # then
     end.should raise_error( "Node name not defined." )
@@ -404,7 +404,7 @@ describe Node, 'when enabling a node with lucie:enable_node rake task (mandatory
       load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
       ENV[ 'NODE_NAME' ] = 'TEST_NODE'
       ENV[ 'INSTALLER_NAME' ] = nil
-      Rake::Task[ 'lucie:enable_node' ].execute
+      Rake::Task[ 'lucie:enable_node' ].execute nil
 
       # then
     end.should raise_error( "Installer name for node 'TEST_NODE' not defined." )
