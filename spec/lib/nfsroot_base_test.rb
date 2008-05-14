@@ -79,7 +79,7 @@ describe NfsrootBase, 'when executing nfsroot base rake tasks' do
   end
 
 
-  it 'should succcess to build nfsroot base' do
+  it 'should succceed to build nfsroot base' do
     # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
@@ -91,6 +91,7 @@ describe NfsrootBase, 'when executing nfsroot base rake tasks' do
     end
 
     # expects
+    Debootstrap.expects( :VERSION ).returns( 'DEBOOTSTRAP_VERSION' )
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
@@ -105,7 +106,7 @@ describe NfsrootBase, 'when executing nfsroot base rake tasks' do
   end
 
 
-  it 'should success to clobber nfsroot base' do
+  it 'should succeed to clobber nfsroot base' do
     # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
@@ -125,7 +126,7 @@ describe NfsrootBase, 'when executing nfsroot base rake tasks' do
   end
 
 
-  it 'should success to rebuild' do
+  it 'should succeed to rebuild' do
     # given
     nfsroot_base = NfsrootBase.configure do | task |
       task.arch = 'i386'
@@ -138,6 +139,7 @@ describe NfsrootBase, 'when executing nfsroot base rake tasks' do
 
     # expects
     nfsroot_base.expects( :sh_exec ).with( "rm -rf #{ RAILS_ROOT }/tmp/debootstrap.i386/*" )
+    Debootstrap.expects( :VERSION ).returns( 'DEBOOTSTRAP_VERSION' )
     Debootstrap.expects( :start ).yields( debootstrap_option )
     nfsroot_base.expects( :sh_exec ).with( 'rm -f /TMP/etc/resolv.conf' )
     nfsroot_base.expects( :sh_exec ).with( 'mkdir /TMP' )
