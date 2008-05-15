@@ -43,6 +43,10 @@ describe Tftp, 'when calling Tftp.setup_pxe' do
 
   it 'should succeed' do
     in_sandbox do | sandbox |
+      build_statuses = Object.new
+      build_statuses.stubs( :last_complete_build_status ).returns( 'OK' )
+      Installer.stubs( :new ).returns( build_statuses )
+
       node = Object.new
       node.stubs( :name ).returns( 'NODE_NAME' )
       node.stubs( :mac_address ).returns( 'AA:BB:CC:DD:EE:FF' )
@@ -52,7 +56,7 @@ describe Tftp, 'when calling Tftp.setup_pxe' do
       Nfsroot.stubs( :path ).returns( 'NFSROOT_PATH' )
 
       lambda do
-        Tftp.new.setup_pxe 'NODE_NAME', 'INSTALLER_NAME'
+        Tftp.new.setup_pxe [ 'NODE_NAME' ], 'INSTALLER_NAME'
       end.should_not raise_error
 
       File.file?( File.join( sandbox.root, '/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff' ) ).should be_true
@@ -93,6 +97,7 @@ end
 describe Tftp, 'when calling Tftp.setup_tftpd' do
   before( :each ) do
     @tftp = Tftp.new
+    @tftp.stubs( :check_tftpd_installed )
 
     @net_tftp = Object.new
     Net::TFTP.stubs( :open ).returns( @net_tftp )

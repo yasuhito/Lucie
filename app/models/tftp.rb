@@ -35,6 +35,8 @@ class Tftp
 
 
   def setup_tftpd
+    check_tftpd_installed
+
     File.open( '/etc/default/tftpd-hpa', 'w' ) do | file |
       file.puts 'RUN_DAEMON=yes'
       file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
@@ -55,9 +57,15 @@ class Tftp
     nodes.each do | each |
       node = node_named( each )
 
+      # [???] use Installer.read?
+      if Installer.new( installer_name ).last_complete_build_status == 'never_built'
+        next
+      end
+
       unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
         FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
       end
+
       File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
         file.print <<-EOF
 default lucie
@@ -96,6 +104,13 @@ EOF
   ################################################################################
   private
   ################################################################################
+
+
+  def check_tftpd_installed
+    unless File.exists?( '/etc/init.d/tftpd-hpa' )
+      raise 'tftpd-hpa package is not installed. Please install first.'
+    end
+  end
 
 
   def node_named node_name
