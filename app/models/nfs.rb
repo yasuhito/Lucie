@@ -13,6 +13,8 @@ class Nfs
 
 
   def setup
+    check_nfs_installed
+
     File.copy config_file, config_file + '.old'
 
     File.open( config_file, 'w' ) do | file |
@@ -33,6 +35,13 @@ class Nfs
   ################################################################################
   private
   ################################################################################
+
+
+  def check_nfs_installed
+    unless File.exists?( '/etc/init.d/nfs-kernel-server' )
+      raise 'nfs-kernel-server package is not installed. Please install first.'
+    end
+  end
 
 
   def nfsd_is_down
