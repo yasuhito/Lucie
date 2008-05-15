@@ -15,6 +15,8 @@ class Dhcp
       return
     end
 
+    check_dhcpd_installed
+
     File.copy config_file, config_file + '.orig'
 
     File.open( config_file, 'w' ) do | file |
@@ -48,6 +50,13 @@ EOF
   ################################################################################
   private
   ################################################################################
+
+
+  def check_dhcpd_installed
+    unless File.exists?( '/usr/sbin/dhcpd3' )
+      raise 'dhcp3-server package is not installed. Please install first.'
+    end
+  end
 
 
   def subnet
