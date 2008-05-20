@@ -186,6 +186,8 @@ class Install
 
   # [HACK]
   def nfsroot_setting
+    # [FIXME] hoaks assertions in Nfsroot#new
+    ENV[ 'BUILD_LABEL' ] = 'DUMMY_LABEL'
     ENV[ 'INSTALLER_NAME' ] = @node.installer_name
     eval File.read( "#{ Installers.find( @node.installer_name ).path }/work/installer_config.rb" )
   end

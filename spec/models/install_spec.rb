@@ -128,7 +128,7 @@ describe Install do
       Lucie::Log.stubs( :info )
       Lucie::Log.stubs( :fatal )
 
-      # install.stubs( :ssh_exec )
+      install.stubs( :ssh_exec )
       shell = Object.new
       shell.stubs( :on_stdout )
       shell.stubs( :on_stderr )
