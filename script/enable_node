@@ -54,8 +54,13 @@ begin
 
   load "#{ RAILS_ROOT }/lib/tasks/enable_node.rake"
 
-  Rake::Task[ 'lucie:enable_node' ].execute
-
+  begin
+    # rake 0.7.x
+    Rake::Task[ 'lucie:enable_node' ].execute
+  rescue ArgumentError
+    # rake 0.8.x
+    Rake::Task[ 'lucie:enable_node' ].execute nil
+  end
 rescue DRb::DRbConnError
   Lucie::Log.error 'Lucie daemon (lucied) is down.'
   exit -1
