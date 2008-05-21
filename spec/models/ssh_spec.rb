@@ -87,6 +87,7 @@ describe SSH do
 
       SSH.configure do | ssh |
         ssh.expects( :sh_exec ).with( %{ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ File.join( sandbox.root, '/etc/ssh/sshd_config' ) }} )
+        ssh.expects( :sh_exec ).with( %{ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ File.join( sandbox.root, '/etc/ssh/sshd_config' ) }} )
         ssh.stubs( :register_authorized_keys )
         ssh.stubs( :ssh_user_home ).returns( sandbox.root )
         ssh.target_directory = sandbox.root

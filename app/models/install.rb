@@ -176,6 +176,9 @@ class Install
     Lucie::Log.info 'Setting up default password'
     ssh_exec @node.name, "setup_password"
 
+    Lucie::Log.info 'Installing SSH public key'
+    ssh_exec @node.name, "cp -ar /root/.ssh /tmp/target/root/"
+
     ssh_exec @node.name, 'swapoff -a'
 
     LucieDaemon.server.disable_node [ @node.name ]
