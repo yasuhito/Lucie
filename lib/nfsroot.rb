@@ -347,6 +347,8 @@ class Nfsroot < Rake::TaskLib
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_network' ) }"
     sh_exec "cp #{ RAILS_ROOT }/script/setup_puppet #{ target( '/usr/sbin/setup_puppet' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/setup_puppet' ) }"
+    sh_exec "cp #{ RAILS_ROOT }/script/setup_ssh #{ target( '/usr/sbin/setup_ssh' ) }"
+    sh_exec "chmod +x #{ target( '/usr/sbin/setup_ssh' ) }"
     sh_exec "cp #{ RAILS_ROOT }/script/mount2dir #{ target( '/usr/sbin/mount2dir' ) }"
     sh_exec "chmod +x #{ target( '/usr/sbin/mount2dir' ) }"
     sh_exec "cp #{ RAILS_ROOT }/script/install_packages #{ target( '/usr/sbin/install_packages' ) }"
