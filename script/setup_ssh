@@ -1,9 +1,28 @@
 #!/usr/bin/env ruby
+#
+# 説明:
+# インストール対象ノードに ssh をセットアップするためのスクリプト。
+#
+# Lucie による遠隔インストール後、インストールが完了した遠隔ノードへ確
+# 実に ssh でログインできなくてはならない。そこで、ssh のセットアップに
+# は万が一失敗することのある Puppet を使わず、Lucie 本体でセットアップ
+# を行う。
+#
 
-$apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
+
 ENV[ 'DEBIAN_FRONTEND' ] = 'noninteractive'
+$apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
+
 
 system "chroot /tmp/target apt-get #{ $apt_option } install ssh"
 system "cp -ar /root/.ssh /tmp/target/root/"
 system %{ruby -pi -e "gsub( /PermitRootLogin no/, 'PermitRootLogin yes' )" /tmp/target/etc/ssh/sshd_config}
 system %{ruby -pi -e "gsub( /.*PasswordAuthentication.*/, 'PasswordAuthentication no' )" /tmp/target/etc/ssh/sshd_config}
+system %{echo 'UseDNS no' >> /tmp/target/etc/ssh/sshd_config}
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
