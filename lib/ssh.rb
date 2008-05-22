@@ -44,6 +44,7 @@ class SSH < Rake::TaskLib
 
         sh_exec %{ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ target( '/etc/ssh/sshd_config' ) }}
         sh_exec %{ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ target( '/etc/ssh/sshd_config' ) }}
+        sh_exec %{echo "UseDNS no" >> #{ target( '/etc/ssh/sshd_config' ) }}
       end
     end
   end
