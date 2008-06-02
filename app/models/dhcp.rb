@@ -114,14 +114,9 @@ EOF
 
 
   def next_server subnet, netmask
-    ifconfig = IfconfigWrapper.new.parse
-    ifconfig.interfaces.each do | each |
-      if_netmask = ifconfig[ each ].networks[ 'inet' ].mask
-      if_ipaddress = ifconfig[ each ].addresses( 'inet' ).to_s
-      if_subnet = Network.network_address( if_ipaddress, if_netmask )
-
-      if if_subnet == subnet and if_netmask == netmask
-        return if_ipaddress
+    NetworkInterfaces.each do | each |
+      if each.subnet == subnet and each.netmask == netmask
+        return each.ipaddress
       end
     end
     raise "Cannnot find network interface for subnet = \"#{ subnet }\", netmask = \"#{ netmask }\""
