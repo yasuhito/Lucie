@@ -1,45 +1,51 @@
 #!/usr/bin/env ruby
 
 
-RAILS_ENV = 'builder'
-LUCIE_THIS_PROCESS_IS_BUILDER = true
-
-
-require File.dirname( __FILE__ ) + '/../config/boot'
 require 'optparse'
 
 
+RAILS_ENV = 'builder'
+LUCIE_THIS_PROCESS_IS_BUILDER = true
 INSTALLER_OPTIONS = { :verbose => false }
 
 
-ARGV.options do | opts |
-  opts.banner = "Usage: installer build <installer_name> [options]"
+################################################################################
+# Parse commandline options
+################################################################################
 
-  opts.separator ""
+opts = OptionParser.new
 
-  opts.on("-t", "--trace", "Trace-level (verbose) logging") do
-    INSTALLER_OPTIONS[ :verbose ] = true
-  end
-  opts.on( "-h", "--help", "Show this help message." ) do
-    puts opts
-    exit
-  end
+opts.banner = "Usage: installer build <installer_name> [options]"
 
-  args = opts.parse!
+opts.separator ''
 
-  unless args.length == 1
-    STDERR.puts "Installer name not specified"
-    STDERR.puts
-    puts opts
-    exit -1
-  end
-
-  INSTALLER_OPTIONS[ :installer_name ] = args[ 0 ]
-  INSTALLER_OPTIONS[ :log_file_name ] = "log/#{ INSTALLER_OPTIONS[ :installer_name ] }_builder.log"
+opts.on( "-t", "--trace", "Trace-level (verbose) logging" ) do
+  INSTALLER_OPTIONS[ :verbose ] = true
+end
+opts.on( "-h", "--help", "Show this help message." ) do
+  puts opts
+  exit
 end
 
+opts.parse!
 
-require RAILS_ROOT + "/config/environment"
+unless ARGV.length == 1
+  STDERR.puts "Installer name not specified"
+  STDERR.puts
+  puts opts
+  exit -1
+end
+
+INSTALLER_OPTIONS[ :installer_name ] = ARGV[ 0 ]
+INSTALLER_OPTIONS[ :log_file_name ] = File.join( 'log', INSTALLER_OPTIONS[ :installer_name ] + '_builder.log' )
+
+
+################################################################################
+# Start builders.
+################################################################################
+
+require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
+
 if File.exists?( "#{ RAILS_ROOT }/config/site_config.rb" )
   require 'site_config'
 end
@@ -56,14 +62,14 @@ end
 
 def write_to_log_and_console message, severity = :info
   Lucie::Log.event( message, severity ) rescue nil
-  (puts message unless INSTALLER_OPTIONS[ :verbose ]) rescue nil
+  ( puts message unless INSTALLER_OPTIONS[ :verbose ] ) rescue nil
 end
 
 
-def cleanup(installer)
-  write_to_log_and_console "Builder for installer '#{INSTALLER_OPTIONS[:installer_name]}' exited"
+def cleanup installer
+  write_to_log_and_console "Builder for installer '#{ INSTALLER_OPTIONS[ :installer_name ] }' exited"
   if installer
-    InstallerBlocker.release(installer) rescue nil
+    InstallerBlocker.release( installer ) rescue nil
   end
 end
 
@@ -83,12 +89,13 @@ installer = nil
 begin
   installer = load_installer( installer_path )
 
-  # this will create builder.pid file in installer's CC directory and grab an exclusive lock on it, or else
-  # blow up saying that something else is already locking it
+  # this will create builder.pid file in installer's directory and
+  # grab an exclusive lock on it, or else blow up saying that
+  # something else is already locking it
   InstallerBlocker.block installer
 
-  write_to_log_and_console "Builder for installer '#{installer.name}' started"
-  puts "Logging to: #{File.expand_path(INSTALLER_OPTIONS[:log_file_name])}"
+  write_to_log_and_console "Builder for installer '#{ installer.name }' started"
+  puts "Logging to: #{ File.expand_path( INSTALLER_OPTIONS[ :log_file_name ] ) }"
 
   loop do
     catch( :reload_installer ) do
@@ -105,8 +112,7 @@ rescue Interrupt
   # this is okay, we're just control-c'ing the app
 rescue Exception => e
   begin
-    Lucie::Log.fatal(e)
-
+    Lucie::Log.fatal e
   rescue => logging_error
     STDERR.puts e.message
     STDERR.puts e.backtrace
@@ -114,9 +120,9 @@ rescue Exception => e
     STDERR.puts logging_error.message
     STDERR.puts logging_error.backtrace
   end
-  INSTALLER_OPTIONS[:verbose] ? raise : exit(1)
+  INSTALLER_OPTIONS[ :verbose ] ? raise : exit( 1 )
 ensure
-  cleanup(installer)
+  cleanup installer
 end
 
 
