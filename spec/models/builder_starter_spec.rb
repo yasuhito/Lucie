@@ -1,10 +1,9 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-# As a Lucie script running in the production environment,
-# I want 'installer build' subprocess to be spawned automatically
-# So that installers are successfully built.
-
+#
+# Verbose ON/OFF test.
+#
 describe BuilderStarter, 'when spawning builder subprocess' do
   before( :each ) do
     BuilderStarter.stubs( :fork ).returns( false )
@@ -23,10 +22,10 @@ describe BuilderStarter, 'when spawning builder subprocess' do
     $VERBOSE_MODE = false
 
     # expects
-    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_ONE " ).returns( 'PID' )
+    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_NAME " ).returns( 'PID' )
 
     # when
-    BuilderStarter.begin_builder 'INSTALLER_ONE'
+    BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
     verify_mocks
@@ -38,10 +37,10 @@ describe BuilderStarter, 'when spawning builder subprocess' do
     $VERBOSE_MODE = true
 
     # expects
-    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_ONE --trace" ).returns( 'PID' )
+    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_NAME --trace" ).returns( 'PID' )
 
     # when
-    BuilderStarter.begin_builder 'INSTALLER_ONE'
+    BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
     verify_mocks
@@ -49,10 +48,9 @@ describe BuilderStarter, 'when spawning builder subprocess' do
 end
 
 
-# As a Lucie script running in the production environment,
-# I want pid files for each installers to be created automatically
-# So that multiple builders for one installer should not run at the same time.
-
+#
+# Test if PID file created.
+#
 describe BuilderStarter, 'when creating PID file' do
   it "should create installer pid file in the directory '[lucie]/tmp/pids/builders/<installer name>.pid' if successfully spawns a builder subprocess" do
     file = mock( 'FILE' )
@@ -62,11 +60,11 @@ describe BuilderStarter, 'when creating PID file' do
 
     # expects
     FileUtils.expects( :mkdir_p ).with( "#{ RAILS_ROOT }/tmp/pids/builders" )
+    File.expects( :open ).with( "#{ RAILS_ROOT }/tmp/pids/builders/INSTALLER_NAME.pid", 'w' ).yields( file )
     file.expects( :write ).with( 'DUMMY_PID' )
-    File.expects( :open ).with( "#{ RAILS_ROOT }/tmp/pids/builders/INSTALLER_ONE.pid", 'w' ).yields( file )
 
     # when
-    BuilderStarter.begin_builder 'INSTALLER_ONE'
+    BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
     verify_mocks
@@ -74,10 +72,9 @@ describe BuilderStarter, 'when creating PID file' do
 end
 
 
-# As a Lucie script running in the production environment,
-# I want to control builder starter by 'run_builders_at_startup' option and installer state
-# So that unnecessary builders does not start building installers.
-
+#
+# Tests for run_builders_at_startup flag
+#
 describe BuilderStarter, 'when calling start_builders' do
   it "should begin builders for each installers if 'run_builders_at_startup' option is on and two installers are added" do
     # given
@@ -96,7 +93,7 @@ describe BuilderStarter, 'when calling start_builders' do
   end
 
 
-  it "should not run builders if 'run_builders_at_startup' option is on but no installer is added" do
+  it "should not run builders if 'run_builders_at_startup' option is ON but no installer is added" do
     # given
     BuilderStarter.run_builders_at_startup = true
     Installers.stubs( :load_all ).returns( [ ] )
@@ -112,7 +109,7 @@ describe BuilderStarter, 'when calling start_builders' do
   end
 
 
-  it "should not run builders if 'run_builders_at_startup' option is off" do
+  it "should not run builders if 'run_builders_at_startup' option is OFF" do
     # given
     BuilderStarter.run_builders_at_startup = false
 
@@ -128,7 +125,9 @@ describe BuilderStarter, 'when calling start_builders' do
 
 
   def installer_stub name
-    Installer.new( name, Object.new )
+    installer = Object.new
+    installer.stubs( :name ).returns( name )
+    installer
   end
 end
 
