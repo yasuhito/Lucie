@@ -50,10 +50,10 @@ module Lucie
       is_error = ( method == :error or method == :fatal )
       if @verbose or is_error
         stream = is_error ? STDERR : STDOUT
-        stream.puts message
+        stream.puts message rescue nil
         if backtrace and @verbose
           backtrace.each do | line |
-            stream.puts line
+            stream.puts line rescue nil
           end
         end
       end
