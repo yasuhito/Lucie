@@ -9,7 +9,6 @@
 
 require 'facter'
 require 'ftools'
-require 'ifconfig'
 require 'popen3/shell'
 require 'resolv'
 
@@ -53,17 +52,22 @@ class Dhcp
   def generate_config_file
     File.copy config_file, config_file + '.orig'
     File.open( config_file, 'w' ) do | file |
-      all_subnets.each_pair do | netinfo, nodes_in_subnet |
-        subnet = netinfo[ 0 ]
-        netmask = netinfo[ 1 ]
+      file.puts %{option domain-name "#{ domain }";}
+      file.puts
+      file.puts subnet_entries
+    end
+  end
 
-        first_node = nodes_in_subnet.first
-        router = first_node.gateway_address
-        broadcast = Network.broadcast_address( first_node.ip_address, first_node.netmask_address )
 
-        file.puts <<-EOF
-option domain-name "#{ domain }";
+  def subnet_entries
+    entries = ''
+    all_subnets.each_pair do | netinfo, nodes_in_subnet |
+      first_node = nodes_in_subnet.first
+      router = first_node.gateway_address
+      broadcast = Network.broadcast_address( first_node.ip_address, first_node.netmask_address )
+      subnet, netmask = netinfo
 
+      entries += <<-EOF
 subnet #{ subnet } netmask #{ netmask } {
   option routers #{ router };
   option broadcast-address #{ broadcast };
@@ -75,8 +79,8 @@ subnet #{ subnet } netmask #{ netmask } {
 #{ host_entries( nodes_in_subnet ) }
 }
 EOF
-      end
     end
+    entries
   end
 
 
@@ -119,7 +123,7 @@ EOF
         return each.ipaddress
       end
     end
-    raise "Cannnot find network interface for subnet = \"#{ subnet }\", netmask = \"#{ netmask }\""
+    raise %{Cannnot find network interface for subnet = "#{ subnet }", netmask = "#{ netmask }"}
   end
 
 

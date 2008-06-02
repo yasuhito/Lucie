@@ -21,6 +21,9 @@ describe 'Dhcp with dummy nodes', :shared => true do
 
     Facter.stubs( :value ).with( 'domain' ).returns( 'DUMMY_DOMAIN' )
     Facter.stubs( :value ).with( 'ipaddress' ).returns( 'DUMMY_IP_ADDRESS' )
+
+    @network_interface = Object.new
+    NetworkInterfaces.stubs( :each ).yields( @network_interface )
   end
 
 
@@ -72,7 +75,9 @@ describe Dhcp, 'when everything is properly configured' do
 
 
   it 'should setup DHCP' do
-    @dhcp.stubs( :next_server ).returns( 'NEXT_SERVER' )
+    @network_interface.stubs( :subnet ).returns( '192.168.1.0' )
+    @network_interface.stubs( :netmask ).returns( '255.255.255.0' )
+    @network_interface.stubs( :ipaddress ).returns( 'IP_ADDRESS' )
     @dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' ).returns( 'SUCCESS' )
 
     lambda do
@@ -117,7 +122,7 @@ describe Dhcp, 'when dhcpd fails to restart' do
 
 
   it 'should raise when Dhcp.setup called' do
-    @dhcp.stubs( :next_server ).returns( 'NEXT_SERVER' )
+    @dhcp.stubs( :next_server ).returns( 'NEXT_SERVER_ADDRESS' )
     @dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' ).raises( RuntimeError )
 
     lambda do
@@ -127,11 +132,14 @@ describe Dhcp, 'when dhcpd fails to restart' do
 end
 
 
-describe Dhcp, 'when ipaddress is not determined' do
+describe Dhcp, 'when next-server is not determined' do
   it_should_behave_like 'dhcp with dummy nodes, dhcpd installed'
 
 
   it 'should raise when Dhcp.setup called' do
+    @network_interface.stubs( :subnet ).returns( 'SUBNET' )
+    @network_interface.stubs( :netmask ).returns( 'NETMASK' )
+
     lambda do
       Dhcp.setup
     end.should raise_error( RuntimeError, /Cannnot find network interface for subnet = "\d+\.\d+\.\d+\.\d+", netmask = "\d+\.\d+\.\d+\.\d+"/ )
