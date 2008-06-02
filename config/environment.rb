@@ -23,6 +23,7 @@ Rails::Initializer.run do | config |
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
   config.load_paths << "#{ RAILS_ROOT }/builder_plugins/installed"
+  config.load_paths << "#{ RAILS_ROOT }/vendor/ruby-ifconfig-1.2/lib"
 
   # See Rails::Configuration for more options
 end

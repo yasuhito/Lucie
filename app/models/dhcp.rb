@@ -9,6 +9,7 @@
 
 require 'facter'
 require 'ftools'
+require 'ifconfig'
 require 'popen3/shell'
 require 'resolv'
 
@@ -68,7 +69,7 @@ subnet #{ subnet } netmask #{ netmask } {
   option broadcast-address #{ broadcast };
   deny unknown-clients;
 
-  next-server #{ ipaddress };
+  next-server #{ next_server( subnet, netmask ) };
   filename "pxelinux.0";
 
 #{ host_entries( nodes_in_subnet ) }
@@ -80,7 +81,7 @@ EOF
 
 
   def dhcpd_installed
-    File.exists?( '/usr/sbin/dhcpd3' )
+    File.exists? '/usr/sbin/dhcpd3'
   end
 
 
@@ -112,12 +113,18 @@ EOF
   end
 
 
-  def ipaddress
-    my_ipaddress = Facter.value( 'ipaddress' )
-    unless my_ipaddress
-      raise "Cannnot resolve Lucie server's IP address."
+  def next_server subnet, netmask
+    ifconfig = IfconfigWrapper.new.parse
+    ifconfig.interfaces.each do | each |
+      if_netmask = ifconfig[ each ].networks[ 'inet' ].mask
+      if_ipaddress = ifconfig[ each ].addresses( 'inet' ).to_s
+      if_subnet = Network.network_address( if_ipaddress, if_netmask )
+
+      if if_subnet == subnet and if_netmask == netmask
+        return if_ipaddress
+      end
     end
-    my_ipaddress
+    raise "Cannnot find network interface for subnet = \"#{ subnet }\", netmask = \"#{ netmask }\""
   end
 
 

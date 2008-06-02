@@ -72,6 +72,7 @@ describe Dhcp, 'when everything is properly configured' do
 
 
   it 'should setup DHCP' do
+    @dhcp.stubs( :next_server ).returns( 'NEXT_SERVER' )
     @dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' ).returns( 'SUCCESS' )
 
     lambda do
@@ -116,6 +117,7 @@ describe Dhcp, 'when dhcpd fails to restart' do
 
 
   it 'should raise when Dhcp.setup called' do
+    @dhcp.stubs( :next_server ).returns( 'NEXT_SERVER' )
     @dhcp.stubs( :sh_exec ).with( '/etc/init.d/dhcp3-server restart' ).raises( RuntimeError )
 
     lambda do
@@ -130,11 +132,9 @@ describe Dhcp, 'when ipaddress is not determined' do
 
 
   it 'should raise when Dhcp.setup called' do
-    Facter.stubs( :value ).with( 'ipaddress' ).returns( nil )
-
     lambda do
       Dhcp.setup
-    end.should raise_error( "Cannnot resolve Lucie server's IP address." )
+    end.should raise_error( RuntimeError, /Cannnot find network interface for subnet = "\d+\.\d+\.\d+\.\d+", netmask = "\d+\.\d+\.\d+\.\d+"/ )
   end
 end
 
