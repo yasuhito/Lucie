@@ -12,6 +12,12 @@ namespace :installer do
 
     if Rake.application.lookup( 'installer:nfsroot' )
       Lucie::invoke_rake_task 'installer:nfsroot'
+
+      # update pxelinux.cfg/* files
+      nodes = Nodes.load_enabled( ENV[ 'INSTALLER_NAME' ] ).list.collect do | each |
+        each.name
+      end
+      Tftp.setup nodes, ENV[ 'INSTALLER_NAME' ]
     else
       raise "'installer:nfsroot' task not found. Lucie doesn't know what to build."
     end
