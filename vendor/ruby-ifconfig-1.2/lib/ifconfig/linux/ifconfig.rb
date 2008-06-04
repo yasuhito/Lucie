@@ -12,9 +12,6 @@ class Ifconfig
   #
   def initialize(input=nil,verbose=nil)
     if input.nil?
-      cmd = IO.popen('which ifconfig'){ |f| f.readlines[0] }
-      exit unless !cmd.nil?
-
       # [PATCH] Avoid parse failures if using m17n'ed ifconfig
       old_lc_all = ENV[ 'LC_ALL' ]
       ENV[ 'LC_ALL' ] = 'C'
