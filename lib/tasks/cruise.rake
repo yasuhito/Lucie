@@ -1,3 +1,25 @@
+rspec_base = File.expand_path( RAILS_ROOT + '/vendor/plugins/rspec/lib')
+$LOAD_PATH.unshift( rspec_base ) if File.exist?( rspec_base )
+require 'spec/rake/spectask'
+require 'spec/translator'
+
+
+# derived from rspec_on_rails/tasks/rspec.rake
+namespace :lucie do
+  desc "Run all specs in spec directory with RCov"
+  Spec::Rake::SpecTask.new( :rcov ) do | t |
+    t.spec_opts = []
+    t.spec_files = FileList[ 'spec/**/*_spec.rb','spec/**/*_test.rb' ]
+    t.rcov = true
+    t.rcov_opts = lambda do
+      IO.readlines( "#{ RAILS_ROOT }/spec/rcov.opts" ).map do | l |
+        l.chomp.split " "
+      end.flatten
+    end
+  end
+end
+
+
 desc 'Continuous build target'
 task :cruise do
   out = ENV[ 'CC_BUILD_ARTIFACTS' ]
@@ -5,7 +27,7 @@ task :cruise do
     mkdir_p out unless File.directory? out
   end
 
-  Rake::Task[ 'spec:rcov' ].invoke
+  Rake::Task[ 'lucie:rcov' ].invoke
 
   Rake::Task[ 'spec:controllers' ].invoke
   Rake::Task[ 'spec:helpers' ].invoke
