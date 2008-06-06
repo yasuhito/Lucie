@@ -1,6 +1,10 @@
 #
-# NFS daemon controller class
+# nfs.rb - setups NFS server
 #
+# methods:
+#   Nfs.setup - setups NFS server
+#
+
 
 require 'ftools'
 require 'popen3/shell'
@@ -8,21 +12,26 @@ require 'popen3/shell'
 
 class Nfs
   def self.setup
-    self.new.setup
+    self.new.__send__ :setup
   end
 
 
+  ################################################################################
+  private
+  ################################################################################
+
+
   def setup
-    check_nfs_installed
-
-    File.copy config_file, config_file + '.old'
-
-    File.open( config_file, 'w' ) do | file |
-      enabled_nodes.each do | each |
-        file.puts "# #{ each.name }"
-        file.puts "#{ Installer.path( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
-      end
+    unless nfs_installed
+      raise 'nfs-kernel-server package is not installed. Please install first.'
     end
+
+    if enabled_nodes.empty?
+      # do nothing.
+      return
+    end
+
+    generate_config_file
 
     if nfsd_is_down
       sh_exec '/etc/init.d/nfs-kernel-server start'
@@ -32,15 +41,19 @@ class Nfs
   end
 
 
-  ################################################################################
-  private
-  ################################################################################
-
-
-  def check_nfs_installed
-    unless File.exists?( '/etc/init.d/nfs-kernel-server' )
-      raise 'nfs-kernel-server package is not installed. Please install first.'
+  def generate_config_file
+    File.copy config_file, config_file + '.old'
+    File.open( config_file, 'w' ) do | file |
+      enabled_nodes.each do | each |
+        file.puts "# #{ each.name }"
+        file.puts "#{ Installer.path( each.installer_name ) } #{ each.ip_address }(async,ro,no_root_squash,no_subtree_check)"
+      end
     end
+  end
+
+
+  def nfs_installed
+    File.exists? '/etc/init.d/nfs-kernel-server'
   end
 
 
@@ -57,7 +70,7 @@ class Nfs
 
 
   def config_file
-    return '/etc/exports'
+    '/etc/exports'
   end
 end
 
