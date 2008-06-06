@@ -1,5 +1,5 @@
 --text-counts
 --no-color
 --text-report
---exclude "spec/*,gems/*"
+--exclude "spec/*,gems/*,__sandbox/*,/usr/*"
 --rails
