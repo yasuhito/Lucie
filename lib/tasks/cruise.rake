@@ -24,8 +24,8 @@ end
 desc 'Continuous build target'
 task :cruise do
   out = ENV[ 'CC_BUILD_ARTIFACTS' ]
-  if out
-    mkdir_p out unless File.directory? out
+  if out and ( not File.directory?( out ) )
+    mkdir_p out
   end
 
   Rake::Task[ 'lucie:rcov' ].invoke
@@ -35,7 +35,9 @@ task :cruise do
 
   RCov::VerifyTask.new( :cruise_verify_rcov ) do | t |
     t.threshold = 85.8
-    t.index_html = "#{ out }/spec coverage/index.html"
+    if out
+      t.index_html = "#{ out }/spec coverage/index.html"
+    end
   end
 
   Rake::Task[ 'spec:models' ].invoke
