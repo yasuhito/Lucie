@@ -120,7 +120,7 @@ describe Nfs do
     it 'should export to 1 node if 1 node enabled' do
       Nodes.stubs( :load_all ).returns( [ @node1 ] )
 
-      @config_file.expects( :puts ).with( "# NODE1" ).once
+      @config_file.expects( :puts ).with( "# NODE1" ).times( 1 )
       @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
 
       Nfs.setup
@@ -130,9 +130,9 @@ describe Nfs do
     it 'should export to 1 node if 2 nodes enabled' do
       Nodes.stubs( :load_all ).returns( [ @node1, @node2 ] )
 
-      @config_file.expects( :puts ).with( "# NODE1" ).once
+      @config_file.expects( :puts ).with( "# NODE1" ).times( 1 )
       @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
-      @config_file.expects( :puts ).with( "# NODE2" ).once
+      @config_file.expects( :puts ).with( "# NODE2" ).times( 1 )
       @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
 
       Nfs.setup
