@@ -1,6 +1,7 @@
 rspec_base = File.expand_path( RAILS_ROOT + '/vendor/plugins/rspec/lib')
 $LOAD_PATH.unshift( rspec_base ) if File.exist?( rspec_base )
 require 'spec/rake/spectask'
+require 'spec/rake/verify_rcov'
 require 'spec/translator'
 
 
@@ -32,14 +33,16 @@ task :cruise do
     mv 'coverage', "#{ out }/spec coverage"
   end
 
-  Rake::Task[ 'spec:controllers' ].invoke
-  Rake::Task[ 'spec:helpers' ].invoke
-  Rake::Task[ 'spec:lib' ].invoke
   Rake::Task[ 'spec:models' ].invoke
   Rake::Task[ 'spec:views' ].invoke
+  Rake::Task[ 'spec:controllers' ].invoke
+  Rake::Task[ 'spec:lib' ].invoke
+  Rake::Task[ 'spec:helpers' ].invoke
   Rake::Task[ 'spec:plugins' ].invoke
   # Rake::Task[ 'spec:plugins:rspec_on_rails' ].invoke
   # Rake::Task[ 'spec:stories' ].invoke
+
+  Rake::Task[ 'verify_rcov' ].invoke
 end
 
 

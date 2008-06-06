@@ -3,8 +3,8 @@ require "#{ RAILS_ROOT }/vendor/plugins/rspec/lib/spec/rake/verify_rcov"
 
 
 # Coverage threshold
-RCov::VerifyTask.new( :verify_rcov => :spec ) do | t |
-  t.threshold = 77.8
+RCov::VerifyTask.new( :verify_rcov ) do | t |
+  t.threshold = 85.5
   t.index_html = "#{ RAILS_ROOT }/coverage/index.html"
 end
 
