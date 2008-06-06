@@ -28,6 +28,9 @@ task :cruise do
   end
 
   Rake::Task[ 'lucie:rcov' ].invoke
+  if out
+    mv 'coverage', "#{ out }/spec coverage"
+  end
 
   Rake::Task[ 'spec:controllers' ].invoke
   Rake::Task[ 'spec:helpers' ].invoke
