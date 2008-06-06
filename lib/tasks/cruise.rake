@@ -6,7 +6,7 @@ task :cruise do
   end
 
   Rake::Task[ 'spec:controllers' ].invoke
-#   Rake::Task[ 'spec:helpers' ].invoke
+  Rake::Task[ 'spec:helpers' ].invoke
 #   Rake::Task[ 'spec:lib' ].invoke
 #   Rake::Task[ 'spec:models' ].invoke
 #   Rake::Task[ 'spec:plugins' ].invoke
