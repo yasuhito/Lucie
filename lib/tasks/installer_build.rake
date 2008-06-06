@@ -18,6 +18,7 @@ namespace :installer do
         each.name
       end
       Tftp.setup nodes, ENV[ 'INSTALLER_NAME' ]
+      PuppetController.restart
     else
       raise "'installer:nfsroot' task not found. Lucie doesn't know what to build."
     end
