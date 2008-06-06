@@ -5,6 +5,14 @@ require 'spec/rake/verify_rcov'
 require 'spec/translator'
 
 
+def banner task_name
+  puts
+  puts "*" * 80
+  puts " #{ task_name }"
+  puts "*" * 80
+end
+
+
 # derived from rspec_on_rails/tasks/rspec.rake
 namespace :lucie do
   desc "Run all specs in spec directory with RCov"
@@ -40,14 +48,29 @@ task :cruise do
     end
   end
 
+  banner "spec:models"
   Rake::Task[ 'spec:models' ].invoke
+
+  banner "spec:views"
   Rake::Task[ 'spec:views' ].invoke
+
+  banner "spec:controllers"
   Rake::Task[ 'spec:controllers' ].invoke
+
+  banner "spec:lib"
   Rake::Task[ 'spec:lib' ].invoke
+
+  banner "spec:helpers"
   Rake::Task[ 'spec:helpers' ].invoke
+
+  banner "spec:plugins"
   Rake::Task[ 'spec:plugins' ].invoke
   # Rake::Task[ 'spec:plugins:rspec_on_rails' ].invoke
   # Rake::Task[ 'spec:stories' ].invoke
+
+  puts
+  puts "RSpec tests finished."
+  puts
 
   Rake::Task[ 'cruise_verify_rcov' ].invoke
 end
