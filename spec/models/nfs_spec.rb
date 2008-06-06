@@ -121,7 +121,7 @@ describe Nfs do
       Nodes.stubs( :load_all ).returns( [ @node1 ] )
 
       @config_file.expects( :puts ).with( "# NODE1" ).times( 1 )
-      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
+      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).times( 1 )
 
       Nfs.setup
     end
@@ -131,9 +131,9 @@ describe Nfs do
       Nodes.stubs( :load_all ).returns( [ @node1, @node2 ] )
 
       @config_file.expects( :puts ).with( "# NODE1" ).times( 1 )
-      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
+      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE1_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).times( 1 )
       @config_file.expects( :puts ).with( "# NODE2" ).times( 1 )
-      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).once
+      @config_file.expects( :puts ).with( File.expand_path( "#{ RAILS_ROOT }/installers/TEST_INSTALLER NODE2_IP_ADDRESS(async,ro,no_root_squash,no_subtree_check)" ) ).times( 1 )
 
       Nfs.setup
     end
