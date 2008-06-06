@@ -5,6 +5,8 @@ task :cruise do
     mkdir_p out unless File.directory? out
   end
 
+  Rake::Task[ 'spec:rcov' ].invoke
+
   Rake::Task[ 'spec:controllers' ].invoke
   Rake::Task[ 'spec:helpers' ].invoke
   Rake::Task[ 'spec:lib' ].invoke
@@ -13,7 +15,6 @@ task :cruise do
   Rake::Task[ 'spec:plugins' ].invoke
   # Rake::Task[ 'spec:plugins:rspec_on_rails' ].invoke
   # Rake::Task[ 'spec:stories' ].invoke
-  Rake::Task[ 'spec:rcov' ].invoke
 end
 
 
