@@ -21,6 +21,12 @@ namespace :lucie do
 end
 
 
+RCov::VerifyTask.new( :cruise_verify_rcov ) do | t |
+  t.threshold = 85.8
+  t.index_html = "./spec coverage/index.html"
+end
+
+
 desc 'Continuous build target'
 task :cruise do
   out = ENV[ 'CC_BUILD_ARTIFACTS' ]
@@ -33,11 +39,6 @@ task :cruise do
     mv 'coverage', "#{ out }/spec coverage"
   end
 
-  RCov::VerifyTask.new( :cruise_verify_rcov ) do | t |
-    t.threshold = 85.5
-    t.index_html = "#{ out }/spec coverage/index.html"
-  end
-
   Rake::Task[ 'spec:models' ].invoke
   Rake::Task[ 'spec:views' ].invoke
   Rake::Task[ 'spec:controllers' ].invoke
@@ -47,7 +48,7 @@ task :cruise do
   # Rake::Task[ 'spec:plugins:rspec_on_rails' ].invoke
   # Rake::Task[ 'spec:stories' ].invoke
 
-  Rake::Task[ ':cruise_verify_rcov' ].invoke
+  Rake::Task[ 'cruise_verify_rcov' ].invoke
 end
 
 
