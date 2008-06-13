@@ -110,7 +110,7 @@ task :cruise do
   banner "LIBRARIES"
 
   run_rcov 'lib', out
-  verify_rcov 'lib', 72.6, out
+  verify_rcov 'lib', 72.8, out
 
 
   ################################################################################
