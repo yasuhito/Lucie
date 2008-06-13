@@ -5,6 +5,11 @@ require 'spec/rake/verify_rcov'
 require 'spec/translator'
 
 
+################################################################################
+# helper methods
+################################################################################
+
+
 def banner task_name
   puts
   puts "*" * 80
@@ -13,18 +18,45 @@ def banner task_name
 end
 
 
-# derived from rspec_on_rails/tasks/rspec.rake
-namespace :lucie do
-  desc "Run all specs in spec directory with RCov"
-  Spec::Rake::SpecTask.new( :rcov ) do | t |
+def run_rcov component, out
+  # derived from rspec_on_rails/tasks/rspec.rake
+  desc "Run all specs in #{ component } directory with RCov"
+  spec_task = Spec::Rake::SpecTask.new( "lucie:rcov_#{ component }" ) do | t |
     t.spec_opts = []
-    t.spec_files = FileList[ 'spec/**/*_spec.rb','spec/**/*_test.rb' ]
+    t.spec_files = FileList[ "spec/#{ component }/*_spec.rb" ]
     t.rcov = true
-    t.rcov_opts = lambda do
-      IO.readlines( "#{ RAILS_ROOT }/spec/rcov.opts" ).map do | l |
-        l.chomp.split " "
-      end.flatten
+    if component == 'lib'
+      t.rcov_opts = [ '--no-color', '--text-report', '--rails', "--exclude \"^(?!lib/)\"" ]
+    else
+      t.rcov_opts = [ '--no-color', '--text-report', '--rails', "--exclude \"^(?!app/#{ component })\"" ]
     end
+  end
+  if spec_task.spec_files.empty?
+    puts "WARNING: Specs for #{ component } component is not added yet."
+    return
+  end
+  Rake::Task[ "lucie:rcov_#{ component }" ].invoke
+
+  if out
+    outdir = "#{ out }/spec_#{ component }_coverage"
+    if FileTest.directory? outdir
+      sh "rm -r #{ outdir }"
+    end
+    mv 'coverage', outdir
+  end
+end
+
+
+def verify_rcov component, threshold, out
+  if FileTest.directory? "#{ out }/spec_#{ component }_coverage"
+    RCov::VerifyTask.new( "verify_rcov_#{ component }" ) do | t |
+      t.threshold = threshold
+      if out
+        t.index_html = "#{ out }/spec_#{ component }_coverage/index.html"
+      end
+    end
+
+    Rake::Task[ "verify_rcov_#{ component }" ].invoke
   end
 end
 
@@ -36,43 +68,67 @@ task :cruise do
     mkdir_p out
   end
 
-  Rake::Task[ 'lucie:rcov' ].invoke
-  if out
-    mv 'coverage', "#{ out }/spec coverage"
-  end
 
-  RCov::VerifyTask.new( :cruise_verify_rcov ) do | t |
-    t.threshold = 85.8
-    if out
-      t.index_html = "#{ out }/spec coverage/index.html"
-    end
-  end
+  ################################################################################
+  # models
+  ################################################################################
 
-  banner "spec:models"
-  Rake::Task[ 'spec:models' ].invoke
+  puts
+  banner "MODELS"
 
-  banner "spec:views"
-  Rake::Task[ 'spec:views' ].invoke
+  run_rcov 'models', out
+  verify_rcov 'models', 90.6, out
 
-  banner "spec:controllers"
-  Rake::Task[ 'spec:controllers' ].invoke
 
-  banner "spec:lib"
-  Rake::Task[ 'spec:lib' ].invoke
+  ################################################################################
+  # views
+  ################################################################################
 
-  banner "spec:helpers"
-  Rake::Task[ 'spec:helpers' ].invoke
+  puts
+  banner "VIEWS"
 
-  banner "spec:plugins"
-  Rake::Task[ 'spec:plugins' ].invoke
+  run_rcov 'views', out
+  verify_rcov 'views', 57.0, out
+
+
+  ################################################################################
+  # controllers
+  ################################################################################
+
+  puts
+  banner "CONTROLLERS"
+
+  run_rcov 'controllers', out
+  verify_rcov 'controllers', 57.0, out
+
+
+  ################################################################################
+  # libraries
+  ################################################################################
+
+  puts
+  banner "LIBRARIES"
+
+  run_rcov 'lib', out
+  verify_rcov 'lib', 72.6, out
+
+
+  ################################################################################
+  # helpers
+  ################################################################################
+
+
+  puts
+  banner "HELPERS"
+
+  run_rcov 'helpers', out
+  verify_rcov 'helpers', 42.5, out
+
+
+  # [TODO]
+  # Rake::Task[ 'spec:plugins' ].invoke
   # Rake::Task[ 'spec:plugins:rspec_on_rails' ].invoke
   # Rake::Task[ 'spec:stories' ].invoke
-
-  puts
-  puts "RSpec tests finished."
-  puts
-
-  Rake::Task[ 'cruise_verify_rcov' ].invoke
 end
 
 
