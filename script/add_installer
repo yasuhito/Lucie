@@ -74,6 +74,13 @@ begin
     puts "   http://subversion.tigris.org/faq.html#ssh-auth-cache"
     puts
   end
+
+  lucie_daemon = LucieDaemon.server
+  Lucie::Log.debug 'Setting up Puppet daemon'
+  lucie_daemon.setup_puppet installer_name
+rescue DRb::DRbConnError
+  Lucie::Log.error 'Lucie daemon (lucied) is down.'
+  exit -1
 rescue => e
   if trace
     raise
