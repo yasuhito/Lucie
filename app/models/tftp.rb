@@ -1,21 +1,36 @@
+#
+# tftp.rb - setups TFTP server
+#
+# methods:
+#   Tftp.setup - setups TFTP server
+#   Tftp.disable -
+#
+
+
+
 require 'net/tftp'
 require 'popen3/shell'
 
 
 class Tftp
-  def self.setup node_name, installer_name
-    self.new.setup node_name, installer_name
+  def self.setup nodes, installer_name
+    self.new.__send__ :setup, nodes, installer_name
   end
 
 
   def self.disable node_name
-    self.new.disable node_name
+    self.new.__send__ :disable, node_name
   end
 
 
-  def self.remove! node_name
-    self.new.remove! node_name
+  def self.remove! nodes
+    self.new.__send__ :remove!, nodes
   end
+
+
+  ################################################################################
+  private
+  ################################################################################
 
 
   def setup nodes, installer_name
@@ -59,7 +74,7 @@ class Tftp
 
       # [???] use Installer.read?
       if Installer.new( installer_name ).last_complete_build_status == 'never_built'
-        next
+        raise "Installer '#{ installer_name }' is never built."
       end
 
       unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
@@ -99,11 +114,6 @@ EOF
   def remove_pxe node_name
     FileUtils.rm pxe_config_file( node_named( node_name ).mac_address ), :force => true
   end
-
-
-  ################################################################################
-  private
-  ################################################################################
 
 
   def check_tftpd_installed
