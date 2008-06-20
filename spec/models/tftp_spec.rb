@@ -83,6 +83,7 @@ describe Tftp do
       @net_tftp.expects( :getbinary ).raises( Net::TFTPTimeout )
       @tftp.stubs( :setup_pxe )
       @tftp.stubs( :check_tftpd_installed ).returns( true )
+      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
 
       # expects
       @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
@@ -93,11 +94,12 @@ describe Tftp do
     end
 
 
-    it 'should start and stop TFTPD if failed to getginary' do
+    it 'should start and stop TFTPD if failed to getbinary' do
       # given
       @net_tftp.expects( :getbinary ).raises( 'getbinary failed' )
       @tftp.stubs( :setup_pxe )
       @tftp.stubs( :check_tftpd_installed ).returns( true )
+      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
 
       # expects
       @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
@@ -115,6 +117,7 @@ describe Tftp do
       @net_tftp.expects( :getbinary )
       @tftp.stubs( :setup_pxe )
       @tftp.stubs( :check_tftpd_installed ).returns( true )
+      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
 
       # expects
       @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
