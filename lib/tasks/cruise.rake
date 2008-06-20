@@ -77,7 +77,7 @@ task :cruise do
   banner "MODELS"
 
   run_rcov 'models', out
-  verify_rcov 'models', 90.6, out
+  verify_rcov 'models', 90.7, out
 
 
   ################################################################################
