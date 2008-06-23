@@ -204,30 +204,37 @@ describe Tftp do
   end
 
 
-  describe "when node 'DUMMY_NODE' is not added" do
+  describe "when tftpd-hpa is installed" do
     before( :each ) do
-      Nodes.stubs( :find ).with( 'DUMMY_NODE' ).returns( nil )
+      @tftp.stubs( :tftpd_is_installed ).returns( true )
     end
 
 
-    it 'should fail to Tftp.setup' do
-      lambda do
-        Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
-      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
-    end
+    describe "and node 'DUMMY_NODE' is not added" do
+      before( :each ) do
+        Nodes.stubs( :find ).with( 'DUMMY_NODE' ).returns( nil )
+      end
 
 
-    it 'should fail to Tftp.disable' do
-      lambda do
-        Tftp.disable 'DUMMY_NODE'
-      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
-    end
+      it 'should fail to Tftp.setup' do
+        lambda do
+          Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+        end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
+      end
 
 
-    it 'should fail to Tftp.remove!' do
-      lambda do
-        Tftp.remove! 'DUMMY_NODE'
-      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
+      it 'should fail to Tftp.disable' do
+        lambda do
+          Tftp.disable 'DUMMY_NODE'
+        end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
+      end
+
+
+      it 'should fail to Tftp.remove!' do
+        lambda do
+          Tftp.remove! 'DUMMY_NODE'
+        end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
+      end
     end
   end
 end
