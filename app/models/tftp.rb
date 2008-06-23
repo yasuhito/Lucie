@@ -34,25 +34,33 @@ class Tftp
 
 
   def setup nodes, installer_name
+    test_tftpd_is_installed
     setup_pxe nodes, installer_name
     setup_tftpd
   end
 
 
   def disable node_name
+    test_tftpd_is_installed
     disable_pxe node_name
   end
 
 
   def remove! node_name
+    test_tftpd_is_installed
     remove_pxe node_name
   end
 
 
-  def setup_tftpd
-    check_tftpd_installed
+  def test_tftpd_is_installed
+    unless tftpd_is_installed
+      raise 'tftpd-hpa package is not installed. Please install first.'
+    end
+  end
 
-    File.open( '/etc/default/tftpd-hpa', 'w' ) do | file |
+
+  def setup_tftpd
+    File.open( tftpd_default_config, 'w' ) do | file |
       file.puts 'RUN_DAEMON=yes'
       file.puts "OPTIONS=\"-l -s #{ Configuration.tftp_root }\""
     end
@@ -65,6 +73,11 @@ class Tftp
       sleep 2
       sh_exec '/etc/init.d/tftpd-hpa start'
     end
+  end
+
+
+  def tftpd_default_config
+    '/etc/default/tftpd-hpa'
   end
 
 
@@ -116,10 +129,8 @@ EOF
   end
 
 
-  def check_tftpd_installed
-    unless File.exists?( '/etc/init.d/tftpd-hpa' )
-      raise 'tftpd-hpa package is not installed. Please install first.'
-    end
+  def tftpd_is_installed
+    File.exists? '/etc/init.d/tftpd-hpa'
   end
 
 
@@ -138,14 +149,15 @@ EOF
     rescue Net::TFTPTimeout
       return true
     rescue
-      return false
+      # Failed to getbinary. do nothing.
+      nil
     end
     return false
   end
 
 
   def pxe_config_file mac_address
-    return "#{ Configuration.tftp_root }/pxelinux.cfg/01-#{ mac_address.gsub( ':', '-' ).downcase }"
+    File.join Configuration.tftp_root, 'pxelinux.cfg', "01-#{ mac_address.gsub( ':', '-' ).downcase }"
   end
 end
 

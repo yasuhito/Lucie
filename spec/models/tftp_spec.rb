@@ -14,173 +14,220 @@ describe Tftp do
     @tftp = Tftp.new
     Tftp.stubs( :new ).returns( @tftp )
 
-    @node = Object.new
-    @node.stubs( :name ).returns( 'NODE_NAME' )
-    @node.stubs( :mac_address ).returns( 'AA:BB:CC:DD:EE:FF' )
+    Nfsroot.stubs( :path ).returns( 'NFSROOT_PATH' )
   end
 
 
-  ################################################################################
-  # Tftp.setup
-  ################################################################################
+  it "should have tftpd-hpa's default configuration file path" do
+    @tftp.__send__( :tftpd_default_config ).should == '/etc/default/tftpd-hpa'
+  end
 
 
-  describe 'when setting up TFTPD' do
+  describe "when node 'DUMMY_NODE is added" do
     before( :each ) do
-      @net_tftp = Object.new
-      Net::TFTP.stubs( :open ).returns( @net_tftp )
+      node = Object.new
+      node.stubs( :name ).returns( 'DUMMY_NODE' )
+      node.stubs( :mac_address ).returns( 'AA:BB:CC:DD:EE:FF' )
+
+      Nodes.stubs( :find ).with( 'DUMMY_NODE' ).returns( node )
     end
 
 
-    it 'should succeed to generate PXE config file' do
-      @tftp.stubs( :setup_tftpd )
-
-      in_sandbox do | sandbox |
-        build_statuses = Object.new
-        build_statuses.stubs( :last_complete_build_status ).returns( 'OK' )
-        Installer.stubs( :new ).returns( build_statuses )
-
-        Configuration.stubs( :tftp_root ).returns( sandbox.root )
-        Nfsroot.stubs( :path ).returns( 'NFSROOT_PATH' )
-
-        Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( @node )
-
-        lambda do
-          Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
-        end.should_not raise_error
-      end
-    end
-
-
-    it 'should raise if installer is never built' do
-      @tftp.stubs( :setup_tftpd )
-
-      in_sandbox do | sandbox |
+    describe "and installer 'DUMMY_INSTALLER' is not built" do
+      before( :each ) do
         build_statuses = Object.new
         build_statuses.stubs( :last_complete_build_status ).returns( 'never_built' )
         Installer.stubs( :new ).returns( build_statuses )
+      end
 
-        Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( @node )
 
-        lambda do
-          Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
-        end.should raise_error( "Installer 'INSTALLER_NAME' is never built." )
+      describe 'and tftpd-hpa is installed' do
+        before( :each ) do
+          @tftp.stubs( :tftpd_is_installed ).returns( true )
+        end
+
+
+        it 'should abort Tftp.setup' do
+          lambda do
+            Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+          end.should raise_error( "Installer 'DUMMY_INSTALLER' is never built." )
+        end
+
+
+        it 'should disable network boot with Tftp.disable' do
+          in_sandbox do | sandbox |
+            Configuration.stubs( :tftp_root ).returns( sandbox.root )
+
+            lambda do
+              Tftp.disable 'DUMMY_NODE'
+            end.should_not raise_error
+          end
+        end
+
+
+        it 'should remove network boot configuration with Tftp.remove!' do
+          lambda do
+            Tftp.remove! 'DUMMY_NODE'
+          end.should_not raise_error
+        end
       end
     end
 
 
-    it 'should fail if TFTPD is not installed' do
-      @tftp.stubs( :setup_pxe ).with( ['NODE_NAME' ], 'INSTALLER_NAME' )
-      File.stubs( :exists? ).with( '/etc/init.d/tftpd-hpa' ).returns( false )
+    describe "and installer 'DUMMY_INSTALLER is added and built" do
+      before( :each ) do
+        build_statuses = Object.new
+        build_statuses.stubs( :last_complete_build_status ).returns( 'OK' )
+        Installer.stubs( :new ).returns( build_statuses )
+      end
 
+
+      describe 'and tftpd-hpa is installed' do
+        before( :each ) do
+          @tftp.stubs( :tftpd_is_installed ).returns( true )
+        end
+
+
+        it 'should disable network boot with Tftp.disable' do
+          in_sandbox do | sandbox |
+            Configuration.stubs( :tftp_root ).returns( sandbox.root )
+
+            lambda do
+              Tftp.disable 'DUMMY_NODE'
+            end.should_not raise_error
+          end
+        end
+
+
+        it 'should remove network boot configuration with Tftp.remove!' do
+          lambda do
+            Tftp.remove! 'DUMMY_NODE'
+          end.should_not raise_error
+        end
+
+
+        describe 'and tftpd-hpa is up' do
+          before( :each ) do
+            net_tftp = Object.new
+            net_tftp.stubs( :getbinary ).returns( 'OK' )
+            Net::TFTP.stubs( :open ).returns( net_tftp )
+          end
+
+
+          it 'should generate network boot configuration with Tftp.setup' do
+            in_sandbox do | sandbox |
+              Configuration.stubs( :tftp_root ).returns( sandbox.root )
+              @tftp.stubs( :tftpd_default_config ).returns( File.join( sandbox.root, 'CONFIG' ) )
+
+              @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
+              @tftp.expects( :sleep ).with( 2 )
+              @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
+
+              lambda do
+                Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+              end.should_not raise_error
+            end
+          end
+        end
+
+
+        describe 'and tftpd-hpa is down' do
+          before( :each ) do
+            @net_tftp = Object.new
+            Net::TFTP.stubs( :open ).returns( @net_tftp )
+          end
+
+
+          it 'should generate network boot configuration then start TFTPD with Tftp.setup if timeouted to connect to TFTPD' do
+            @net_tftp.stubs( :getbinary ).raises( Net::TFTPTimeout )
+
+            in_sandbox do | sandbox |
+              Configuration.stubs( :tftp_root ).returns( sandbox.root )
+              @tftp.stubs( :tftpd_default_config ).returns( File.join( sandbox.root, 'CONFIG' ) )
+
+              @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
+
+              lambda do
+                Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+              end.should_not raise_error
+            end
+          end
+
+
+          it 'should generate network boot configuration then stop/start TFTPD with Tftp.setup if failed to getbinary' do
+            @net_tftp.stubs( :getbinary ).raises( 'getbinary failed' )
+
+            in_sandbox do | sandbox |
+              Configuration.stubs( :tftp_root ).returns( sandbox.root )
+              @tftp.stubs( :tftpd_default_config ).returns( File.join( sandbox.root, 'CONFIG' ) )
+
+              @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
+              @tftp.expects( :sleep ).with( 2 )
+              @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
+
+              lambda do
+                Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+              end.should_not raise_error
+            end
+          end
+        end
+      end
+    end
+  end
+
+
+  describe 'when tftpd-hpa is not installed' do
+    before( :each ) do
+      @tftp.stubs( :tftpd_is_installed ).returns( false )
+    end
+
+
+    it 'should abort Tftp.setup' do
       lambda do
-        Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
+        Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
       end.should raise_error( 'tftpd-hpa package is not installed. Please install first.' )
     end
 
 
-    it 'should start TFTPD if TFTPD is down' do
-      @net_tftp.expects( :getbinary ).raises( Net::TFTPTimeout )
-      @tftp.stubs( :setup_pxe )
-      @tftp.stubs( :check_tftpd_installed ).returns( true )
-      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
-
-      # expects
-      @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
-
+    it 'should abort Tftp.disable' do
       lambda do
-        Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
-      end.should_not raise_error
+        Tftp.disable 'DUMMY_NODE'
+      end.should raise_error( 'tftpd-hpa package is not installed. Please install first.' )
     end
 
 
-    it 'should start and stop TFTPD if failed to getbinary' do
-      # given
-      @net_tftp.expects( :getbinary ).raises( 'getbinary failed' )
-      @tftp.stubs( :setup_pxe )
-      @tftp.stubs( :check_tftpd_installed ).returns( true )
-      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
-
-      # expects
-      @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
-      @tftp.expects( :sleep ).with( 2 )
-      @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
-
+    it 'should abort Tftp.remove!' do
       lambda do
-        Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
-      end.should_not raise_error
-    end
-
-
-    it 'should start and stop TFTPD if succeed to getbinary' do
-      # given
-      @net_tftp.expects( :getbinary )
-      @tftp.stubs( :setup_pxe )
-      @tftp.stubs( :check_tftpd_installed ).returns( true )
-      File.stubs( :open ).with( '/etc/default/tftpd-hpa', 'w' )
-
-      # expects
-      @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa stop' )
-      @tftp.expects( :sleep ).with( 2 )
-      @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
-
-      lambda do
-        Tftp.setup [ 'NODE_NAME' ], 'INSTALLER_NAME'
-      end.should_not raise_error
+        Tftp.remove! 'DUMMY_NODE'
+      end.should raise_error( 'tftpd-hpa package is not installed. Please install first.' )
     end
   end
 
 
-  ################################################################################
-  # Tftp.disable
-  ################################################################################
-
-
-  describe 'when disabling a node' do
-    it 'should successfully generate TFTPD config file if the node found' do
-      in_sandbox do | sandbox |
-        Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( @node )
-
-        Configuration.stubs( :tftp_root ).returns( sandbox.root )
-
-        Tftp.disable 'NODE_NAME'
-        File.file?( File.join( sandbox.root, '/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff' ) ).should be_true
-      end
+  describe "when node 'DUMMY_NODE' is not added" do
+    before( :each ) do
+      Nodes.stubs( :find ).with( 'DUMMY_NODE' ).returns( nil )
     end
 
 
-    it 'should fail if the node is not added yet' do
-      Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( nil )
-
+    it 'should fail to Tftp.setup' do
       lambda do
-        Tftp.disable 'NODE_NAME'
-      end.should raise_error( "Node 'NODE_NAME' is not added or enabled yet." )
-    end
-  end
-
-
-  ################################################################################
-  # Tftp.remove
-  ################################################################################
-
-
-  describe 'when removing a node' do
-    it 'should succeed to remove PXE config file if node exists' do
-      Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( @node )
-      FileUtils.stubs( :rm )
-
-      lambda do
-        Tftp.remove! 'NODE_NAME'
-      end.should_not raise_error
+        Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
     end
 
 
-    it 'should fail to remove PXE config file it no such node found' do
-      Nodes.stubs( :find ).with( 'NODE_NAME' ).returns( nil )
-
+    it 'should fail to Tftp.disable' do
       lambda do
-        Tftp.remove! 'NODE_NAME'
-      end.should raise_error( "Node 'NODE_NAME' is not added or enabled yet.")
+        Tftp.disable 'DUMMY_NODE'
+      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
+    end
+
+
+    it 'should fail to Tftp.remove!' do
+      lambda do
+        Tftp.remove! 'DUMMY_NODE'
+      end.should raise_error( "Node 'DUMMY_NODE' is not added or enabled yet." )
     end
   end
 end
