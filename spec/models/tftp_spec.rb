@@ -58,9 +58,14 @@ describe Tftp do
           in_sandbox do | sandbox |
             Configuration.stubs( :tftp_root ).returns( sandbox.root )
 
-            lambda do
-              Tftp.disable 'DUMMY_NODE'
-            end.should_not raise_error
+            Tftp.disable 'DUMMY_NODE'
+
+            File.read( File.join( sandbox.root, 'pxelinux.cfg', '01-aa-bb-cc-dd-ee-ff' ) ).should == ( <<-EXPECTED )
+default local
+
+label local
+localboot 0
+EXPECTED
           end
         end
 
@@ -74,7 +79,7 @@ describe Tftp do
     end
 
 
-    describe "and installer 'DUMMY_INSTALLER is added and built" do
+    describe "and installer 'DUMMY_INSTALLER is added && built" do
       before( :each ) do
         build_statuses = Object.new
         build_statuses.stubs( :last_complete_build_status ).returns( 'OK' )
@@ -92,9 +97,14 @@ describe Tftp do
           in_sandbox do | sandbox |
             Configuration.stubs( :tftp_root ).returns( sandbox.root )
 
-            lambda do
-              Tftp.disable 'DUMMY_NODE'
-            end.should_not raise_error
+            Tftp.disable 'DUMMY_NODE'
+
+            File.read( File.join( sandbox.root, 'pxelinux.cfg', '01-aa-bb-cc-dd-ee-ff' ) ).should == ( <<-EXPECTED )
+default local
+
+label local
+localboot 0
+EXPECTED
           end
         end
 
@@ -123,9 +133,12 @@ describe Tftp do
               @tftp.expects( :sleep ).with( 2 )
               @tftp.expects( :sh_exec ).with( '/etc/init.d/tftpd-hpa start' )
 
-              lambda do
-                Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
-              end.should_not raise_error
+              Tftp.setup 'DUMMY_NODE', 'DUMMY_INSTALLER'
+
+              File.read( File.join( sandbox.root, 'CONFIG' ) ).should == ( <<-EXPECTED )
+RUN_DAEMON=yes
+OPTIONS="-l -s #{ sandbox.root }"
+EXPECTED
             end
           end
         end
