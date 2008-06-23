@@ -35,7 +35,9 @@ class Tftp
 
   def setup nodes, installer_name
     test_tftpd_is_installed
-    setup_pxe nodes, installer_name
+    nodes.each do | each |
+      setup_pxe each, installer_name
+    end
     setup_tftpd
   end
 
@@ -81,28 +83,26 @@ class Tftp
   end
 
 
-  def setup_pxe nodes, installer_name
-    nodes.each do | each |
-      node = node_named( each )
+  def setup_pxe node_name, installer_name
+    node = node_named( node_name )
 
-      # [???] use Installer.read?
-      if Installer.new( installer_name ).last_complete_build_status == 'never_built'
-        raise "Installer '#{ installer_name }' is never built."
-      end
+    # [???] use Installer.read?
+    if Installer.new( installer_name ).last_complete_build_status == 'never_built'
+      raise "Installer '#{ installer_name }' is never built."
+    end
 
-      unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
-        FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
-      end
+    unless File.directory?( File.dirname( pxe_config_file( node.mac_address ) ) )
+      FileUtils.mkdir_p File.dirname( pxe_config_file( node.mac_address ) )
+    end
 
-      File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
-        file.print <<-EOF
+    File.open( pxe_config_file( node.mac_address ), 'w' ) do | file |
+      file.print <<-EOF
 default lucie
 
 label lucie
 kernel #{ installer_name }
 append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ Nfsroot.path( installer_name ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name }
 EOF
-      end
     end
   end
 
