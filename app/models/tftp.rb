@@ -2,10 +2,10 @@
 # tftp.rb - setups TFTP server
 #
 # methods:
-#   Tftp.setup - setups TFTP server
-#   Tftp.disable -
+#   Tftp.setup - generates network boot configuration
+#   Tftp.disable - disables network boot
+#   Tftp.remove! - removes network boot configuration
 #
-
 
 
 require 'net/tftp'
