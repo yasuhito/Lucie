@@ -4,9 +4,17 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 describe NetworkInterfaces, 'when accessing network information using each iterator' do
   it 'should have interfaces for network info' do
     NetworkInterfaces.each do | each |
-      each.netmask.should_not be_nil
-      each.ipaddress.should_not be_nil
-      each.subnet.should_not be_nil
+      lambda do
+        each.netmask
+      end.should_not raise_error
+
+      lambda do
+        each.ipaddress
+      end.should_not raise_error
+
+      lambda do
+        each.subnet
+      end.should_not raise_error
     end
   end
 end

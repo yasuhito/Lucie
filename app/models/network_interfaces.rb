@@ -21,15 +21,17 @@ class NetworkInterfaces
     interface = ifconfig[ each ]
 
     def interface.netmask
-      networks[ 'inet' ].mask
+      networks[ 'inet' ] ? networks[ 'inet' ].mask : nil
     end
 
     def interface.ipaddress
-      addresses( 'inet' ).to_s
+      addresses( 'inet' ) ? addresses( 'inet' ).to_s : nil
     end
 
     def interface.subnet
-      Network.network_address( ipaddress, netmask )
+      if ipaddress and netmask
+        return Network.network_address( ipaddress, netmask )
+      end
     end
 
     interface
