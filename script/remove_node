@@ -43,13 +43,19 @@ opts.parse! ARGV
 
 
 begin
-  node_name = ARGV.shift
+  ENV[ 'NODE_NAME' ] = ARGV.join( ' ' )
 
-  ENV[ 'NODE_NAME' ] = node_name
   load "#{ RAILS_ROOT }/lib/tasks/disable_node.rake"
   load "#{ RAILS_ROOT }/lib/tasks/remove_node.rake"
-  Rake::Task[ 'lucie:disable_node' ].execute
-  Rake::Task[ 'lucie:remove_node' ].execute
+  begin
+    # rake 0.7.x
+    Rake::Task[ 'lucie:disable_node' ].execute
+    Rake::Task[ 'lucie:remove_node' ].execute
+  rescue ArgumentError
+    # rake 0.8.x
+    Rake::Task[ 'lucie:disable_node' ].execute nil
+    Rake::Task[ 'lucie:remove_node' ].execute nil
+  end
 rescue DRb::DRbConnError
   Lucie::Log.error 'Lucie daemon (lucied) is down.'
   exit -1
@@ -71,7 +77,7 @@ end
 
 verbosity = Lucie::Log.verbose?
 Lucie::Log.verbose = true
-Lucie::Log.info "Node '#{ node_name }' removed."
+Lucie::Log.info "Node '#{ ARGV.join( ', ' ) }' removed."
 Lucie::Log.verbose = verbosity
 
 

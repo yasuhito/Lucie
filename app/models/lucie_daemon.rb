@@ -128,8 +128,8 @@ class LucieDaemon
   end
 
 
-  def remove_tftp node_name
-    Tftp.remove! node_name
+  def remove_tftp nodes
+    Tftp.remove! nodes
   end
 
 

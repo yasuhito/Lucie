@@ -2,27 +2,31 @@ require 'rake'
 
 
 task 'lucie:remove_node' do
-  node_name = ENV[ 'NODE_NAME' ]
+  nodes = ENV[ 'NODE_NAME' ] ? ENV[ 'NODE_NAME' ].split( /\s+/ ) : []
 
-  if node_name.nil?
+  if nodes.nil?
     raise MandatoryOptionError, 'Node name not defined.'
   end
-  unless Nodes.find( node_name )
-    raise "Node '#{ node_name }' not found."
+  nodes.each do | each |
+    unless Nodes.find( each )
+      raise "Node '#{ each }' not found."
+    end
   end
 
   lucie_daemon = LucieDaemon.server
+
+  Lucie::Log.debug 'Removing TFTP setting'
+  lucie_daemon.remove_tftp nodes
+
+  nodes.each do | each |
+    Nodes.remove! each
+  end
 
   Lucie::Log.debug 'Setting up DHCP daemon'
   lucie_daemon.setup_dhcp
 
   Lucie::Log.debug 'Setting up NFS daemon'
   lucie_daemon.setup_nfs
-
-  Lucie::Log.debug 'Removing TFTP setting'
-  lucie_daemon.remove_tftp node_name
-
-  Nodes.remove! node_name
 end
 
 

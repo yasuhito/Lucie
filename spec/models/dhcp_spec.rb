@@ -94,6 +94,9 @@ end
 
 describe Dhcp, 'when no node is added yet' do
   it 'should return silently when Dhcp.setup called' do
+    @dhcp = Dhcp.new
+    Dhcp.stubs( :new ).returns( @dhcp )
+
     @dhcp.stubs( :all_subnets ).returns( { } )
 
     lambda do

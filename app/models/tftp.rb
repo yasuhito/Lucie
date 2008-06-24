@@ -50,9 +50,11 @@ class Tftp
   end
 
 
-  def remove! node_name
+  def remove! nodes
     test_tftpd_is_installed
-    remove_pxe node_name
+    nodes.each do | each |
+      remove_pxe each
+    end
   end
 
 
