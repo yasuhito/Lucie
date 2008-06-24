@@ -43,7 +43,7 @@ describe Tftp do
 
       describe 'and tftpd-hpa is installed' do
         before( :each ) do
-          @tftp.stubs( :tftpd_is_installed ).returns( true )
+          FileTest.stubs( :exists? ).with( '/usr/sbin/in.tftpd' ).returns( true )
         end
 
 
@@ -89,7 +89,7 @@ EXPECTED
 
       describe 'and tftpd-hpa is installed' do
         before( :each ) do
-          @tftp.stubs( :tftpd_is_installed ).returns( true )
+          FileTest.stubs( :exists? ).with( '/usr/sbin/in.tftpd' ).returns( true )
         end
 
 
@@ -191,7 +191,7 @@ EXPECTED
 
   describe 'when tftpd-hpa is not installed' do
     before( :each ) do
-      @tftp.stubs( :tftpd_is_installed ).returns( false )
+      FileTest.stubs( :exists? ).with( '/usr/sbin/in.tftpd' ).returns( false )
     end
 
 
@@ -219,7 +219,7 @@ EXPECTED
 
   describe "when tftpd-hpa is installed" do
     before( :each ) do
-      @tftp.stubs( :tftpd_is_installed ).returns( true )
+      FileTest.stubs( :exists? ).with( '/usr/sbin/in.tftpd' ).returns( true )
     end
 
 

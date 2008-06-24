@@ -132,7 +132,7 @@ EOF
 
 
   def tftpd_is_installed
-    File.exists? '/etc/init.d/tftpd-hpa'
+    FileTest.exists? '/usr/sbin/in.tftpd'
   end
 
 
