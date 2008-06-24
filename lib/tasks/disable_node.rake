@@ -2,17 +2,19 @@ require 'rake'
 
 
 task 'lucie:disable_node' do
-  node_name = ENV[ 'NODE_NAME' ]
+  nodes = ENV[ 'NODE_NAME' ] ? ENV[ 'NODE_NAME' ].split( /\s+/ ) : []
 
-  if node_name.nil?
+  if nodes.nil?
     raise MandatoryOptionError, 'Node name not defined.'
   end
-  unless Nodes.find( node_name )
-    raise "Node '#{ node_name }' is not added yet."
+  nodes.each do | each |
+    unless Nodes.find( each )
+      raise "Node '#{ each }' is not added yet."
+    end
   end
 
   lucie_daemon = LucieDaemon.server
-  lucie_daemon.disable_node( node_name )
+  lucie_daemon.disable_node( nodes )
 end
 
 

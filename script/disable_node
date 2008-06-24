@@ -43,9 +43,8 @@ opts.parse! ARGV
 
 
 begin
-  node_name = ARGV.shift
+  ENV[ 'NODE_NAME' ] = ARGV.join( ' ' )
 
-  ENV[ 'NODE_NAME' ] = node_name
   load "#{ RAILS_ROOT }/lib/tasks/disable_node.rake"
   begin
     # rake 0.7.x
@@ -75,7 +74,7 @@ end
 
 verbosity = Lucie::Log.verbose?
 Lucie::Log.verbose = true
-Lucie::Log.info "Node '#{ node_name }' disabled."
+Lucie::Log.info "Node '#{ ARGV.join( ', ' ) }' disabled."
 Lucie::Log.verbose = verbosity
 
 

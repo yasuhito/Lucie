@@ -18,8 +18,8 @@ class Tftp
   end
 
 
-  def self.disable node_name
-    self.new.__send__ :disable, node_name
+  def self.disable nodes
+    self.new.__send__ :disable, nodes
   end
 
 
@@ -42,9 +42,11 @@ class Tftp
   end
 
 
-  def disable node_name
+  def disable nodes
     test_tftpd_is_installed
-    disable_pxe node_name
+    nodes.each do | each |
+      disable_pxe each
+    end
   end
 
 
