@@ -12,9 +12,9 @@ require 'spec/translator'
 
 def banner task_name
   puts
-  puts "*" * 80
-  puts " #{ task_name }"
-  puts "*" * 80
+  puts '==' + '-' * 76 + '=='
+  puts task_name.center( 80 )
+  puts '==' + '-' * 76 + '=='
 end
 
 
