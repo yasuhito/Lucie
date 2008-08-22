@@ -22,6 +22,10 @@ namespace :spec do
     steps = []
     stories = []
 
+    Dir.glob( File.join( RAILS_ROOT, 'stories', 'steps', '*.rb' ) ).each do | each |
+      require each
+    end
+
     if ENV[ 'STORY' ]
       # Run a story.
       # 
@@ -46,7 +50,6 @@ namespace :spec do
     end
 
     steps.each do | each |
-      require each
       step = File.basename( each, '.rb' )
       with_steps_for step.to_sym do
         stories.each do | story |
