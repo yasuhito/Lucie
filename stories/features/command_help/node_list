@@ -1,25 +1,31 @@
-Story: read the 'node list' help message
+Story: help message of 'node list'
   As a cluster administrator
-  I want to read help message of 'node list'
-  So that I can understand how to get nodes list
+  I want to read help message of node list command
+  So that I can understand how to get a list of nodes
+
 
   Scenario: node help list
-    When I run ./node help list
-    Then the first line of the help message should be a usage example
-    And the help message should include a description of -t and --trace option
-    And the help message should include a description of -v and --verbose option
-    And the help message should include a description of -h and --help option
+    When I run './node help list'
+
+    Then the first line of help message should be a usage example
+    And the help message should include a description of '-t' and '--trace' option
+    And the help message should include a description of '-v' and '--verbose' option
+    And the help message should include a description of '-h' and '--help' option
+
 
   Scenario: node list --help
-    When I run ./node list --help
-    Then the first line of the help message should be a usage example
-    And the help message should include a description of -t and --trace option
-    And the help message should include a description of -v and --verbose option
-    And the help message should include a description of -h and --help option
+    When I run './node list --help'
+
+    Then the first line of help message should be a usage example
+    And the help message should include a description of '-t' and '--trace' option
+    And the help message should include a description of '-v' and '--verbose' option
+    And the help message should include a description of '-h' and '--help' option
+
 
   Scenario: node list -h
-    When I run ./node list -h
-    Then the first line of the help message should be a usage example
-    And the help message should include a description of -t and --trace option
-    And the help message should include a description of -v and --verbose option
-    And the help message should include a description of -h and --help option
+    When I run './node list -h'
+
+    Then the first line of help message should be a usage example
+    And the help message should include a description of '-t' and '--trace' option
+    And the help message should include a description of '-v' and '--verbose' option
+    And the help message should include a description of '-h' and '--help' option

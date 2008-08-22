@@ -18,7 +18,7 @@ trace = false
 
 
 opts = OptionParser.new
-opts.banner = 'usage: node list'
+opts.banner = 'Usage: node list'
 
 opts.separator ''
 
@@ -26,7 +26,7 @@ opts.on( '-v', '--verbose', 'Be verbose.' ) do
   Lucie::Log.verbose = true
 end
 
-opts.on( '-t', '--trace', 'Print out exception stack traces' ) do
+opts.on( '-t', '--trace', 'Print out exception stack traces.' ) do
   Lucie::Log.verbose = true
   trace = true
 end
