@@ -1,0 +1,8 @@
+To run a specific story, 
+  % rake STORY=node:list spec:stories
+
+To run all stories,
+  % rake spec:stories
+
+See also:
+  RAILS_ROOT/lib/tasks/story.rake

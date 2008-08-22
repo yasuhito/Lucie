@@ -19,12 +19,37 @@ namespace :spec do
       require each
     end
 
-    Dir.glob( File.join( RAILS_ROOT, 'stories', 'steps', '*.rb' ) ).each do | each |
-      require each
+    steps = []
+    stories = []
 
+    if ENV[ 'STORY' ]
+      # Run a story.
+      # 
+      # Example:
+      #   % rake STORY=node:list spec:stories
+      #
+      component, feature = ENV[ 'STORY' ].split( ':' )
+      steps << File.join( RAILS_ROOT, 'stories', 'steps', component )
+      stories << File.join( RAILS_ROOT, 'stories', 'features', component, feature )
+    else
+      # Run all stories.
+      # [XXX] This might not work !!
+      #
+      # Example:
+      #   % rake spec:stories
+      #
+      Dir.glob( File.join( RAILS_ROOT, 'stories', 'steps', '*.rb' ) ).each do | each |
+        steps << each
+        step = File.basename( each, '.rb' )
+        stories += Dir.glob( File.join( RAILS_ROOT, 'stories', 'features', step, '*[^~]' ) )
+      end
+    end
+
+    steps.each do | each |
+      require each
       step = File.basename( each, '.rb' )
       with_steps_for step.to_sym do
-        Dir.glob( File.join( RAILS_ROOT, 'stories', 'features', step, '*[^~]' ) ).each do | story |
+        stories.each do | story |
           run story, :type => RailsStory
         end
       end
