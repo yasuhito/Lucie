@@ -40,12 +40,16 @@ end
 
 
 def disable_node node_name, installer_name = nil
+  unless FileTest.directory?( File.join( Configuration.nodes_directory, node_name ) )
+    raise "Node '#{ node_name }' is not added yet!"
+  end
+
   if installer_name
     FileUtils.touch File.join( Configuration.nodes_directory, node_name, installer_name + '.DISABLE' )
   else
     Dir.glob( File.join( Configuration.nodes_directory, node_name, '*' ) ).each do | each |
       if File.file?( each ) and File.basename( each ) != '00_00_00_00_00_00'
-        FileUtils.mv each, each + '.DISABLE'
+        FileUtils.mv each, each + '.DISABLE', :verbose => $DEBUG
       end
     end
   end

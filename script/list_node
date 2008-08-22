@@ -44,7 +44,7 @@ opts.parse! ARGV
 begin
   nodes = Nodes.load_all
 
-  puts "Nodes directory = '#{ Configuration.nodes_directory }'"
+  puts "(Nodes directory = #{ Configuration.nodes_directory })"
 
   if nodes.size == 0
     puts 'No node is added yet.'
