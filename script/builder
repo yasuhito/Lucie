@@ -89,7 +89,7 @@ installer = nil
 begin
   installer = load_installer( installer_path )
 
-  # this will create builder.pid file in installer's directory and
+  # This will create builder.pid file in installer's directory and
   # grab an exclusive lock on it, or else blow up saying that
   # something else is already locking it
   InstallerBlocker.block installer

@@ -17,12 +17,12 @@ describe BuilderStarter, 'when spawning builder subprocess' do
   end
 
 
-  it "should exec 'installer build <installer name>' if verbose mode if off" do
+  it "should exec 'installer build <installer name>' if verbose mode is OFF" do
     # given
     $VERBOSE_MODE = false
 
     # expects
-    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_NAME " ).returns( 'PID' )
+    BuilderStarter.expects( :exec ).with( "#{ RAILS_ROOT }/installer build INSTALLER_NAME" ).returns( 'PID' )
 
     # when
     BuilderStarter.begin_builder 'INSTALLER_NAME'
@@ -32,7 +32,7 @@ describe BuilderStarter, 'when spawning builder subprocess' do
   end
 
 
-  it "should exec 'installer build <installer name> --trace' if verbose mode is on" do
+  it "should exec 'installer build <installer name> --trace' if verbose mode is ON" do
     # given
     $VERBOSE_MODE = true
 
@@ -51,8 +51,8 @@ end
 #
 # Test if PID file created.
 #
-describe BuilderStarter, 'when creating PID file' do
-  it "should create installer pid file in the directory '[lucie]/tmp/pids/builders/<installer name>.pid' if successfully spawns a builder subprocess" do
+describe BuilderStarter, 'when calling BuilderStarter.begin_builder' do
+  it "should create a PID file '[lucie]/tmp/pids/builders/<installer name>.pid'" do
     file = mock( 'FILE' )
 
     # given
@@ -75,59 +75,67 @@ end
 #
 # Tests for run_builders_at_startup flag
 #
-describe BuilderStarter, 'when calling start_builders' do
-  it "should begin builders for each installers if 'run_builders_at_startup' option is on and two installers are added" do
-    # given
-    BuilderStarter.run_builders_at_startup = true
-    Installers.stubs( :load_all ).returns( [ installer_stub( 'INSTALLER_ONE' ), installer_stub( 'INSTALLER_TWO' ) ] )
+describe BuilderStarter, 'when calling BuilderStarter.start_builders' do
+  describe "and 'run_builders_at_startup' option is ON" do
+    before( :each ) do
+      BuilderStarter.run_builders_at_startup = true
+    end
 
-    # expects
-    BuilderStarter.expects( :begin_builder ).with( 'INSTALLER_ONE' )
-    BuilderStarter.expects( :begin_builder ).with( 'INSTALLER_TWO' )
 
-    # when
-    BuilderStarter.start_builders
+    it "should not run builders if no installer is added" do
+      # given
+      BuilderStarter.run_builders_at_startup = true
+      Installers.stubs( :load_all ).returns( [ ] )
+      
+      # expects
+      BuilderStarter.expects( :begin_builder ).never
 
-    # then
-    verify_mocks
+      # when
+      BuilderStarter.start_builders
+
+      # then
+      verify_mocks
+    end
+
+
+    it "should begin two builders if two installers are added" do
+      # given
+      Installers.stubs( :load_all ).returns( [ installer_stub( 'INSTALLER_ONE' ), installer_stub( 'INSTALLER_TWO' ) ] )
+
+      # expects
+      BuilderStarter.expects( :begin_builder ).with( 'INSTALLER_ONE' )
+      BuilderStarter.expects( :begin_builder ).with( 'INSTALLER_TWO' )
+
+      # when
+      BuilderStarter.start_builders
+
+      # then
+      verify_mocks
+    end
+
+
+    def installer_stub name
+      installer = Object.new
+      installer.stubs( :name ).returns( name )
+      installer
+    end
   end
 
 
-  it "should not run builders if 'run_builders_at_startup' option is ON but no installer is added" do
-    # given
-    BuilderStarter.run_builders_at_startup = true
-    Installers.stubs( :load_all ).returns( [ ] )
+  describe "and 'run_builders_at_startup' option is OFF" do
+    it 'should not run builders' do
+      # given
+      BuilderStarter.run_builders_at_startup = false
 
-    # expects
-    BuilderStarter.expects( :begin_builder ).never
+      # expects
+      Installers.expects( :load_all ).never
+      
+      # when
+      BuilderStarter.start_builders
 
-    # when
-    BuilderStarter.start_builders
-
-    # then
-    verify_mocks
-  end
-
-
-  it "should not run builders if 'run_builders_at_startup' option is OFF" do
-    # given
-    BuilderStarter.run_builders_at_startup = false
-
-    # expects
-    Installers.expects( :load_all ).never
-
-    # when
-    BuilderStarter.start_builders
-
-    # then
-    verify_mocks
-  end
-
-
-  def installer_stub name
-    installer = Object.new
-    installer.stubs( :name ).returns( name )
-    installer
+      # then
+      verify_mocks
+    end
   end
 end
 
