@@ -28,7 +28,7 @@ describe BuilderStarter, 'when spawning builder subprocess' do
     BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -43,7 +43,7 @@ describe BuilderStarter, 'when spawning builder subprocess' do
     BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -67,7 +67,7 @@ describe BuilderStarter, 'when calling BuilderStarter.begin_builder' do
     BuilderStarter.begin_builder 'INSTALLER_NAME'
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -94,7 +94,7 @@ describe BuilderStarter, 'when calling BuilderStarter.start_builders' do
       BuilderStarter.start_builders
 
       # then
-      verify_mocks
+      verify_mocks_for_rspec
     end
 
 
@@ -110,7 +110,7 @@ describe BuilderStarter, 'when calling BuilderStarter.start_builders' do
       BuilderStarter.start_builders
 
       # then
-      verify_mocks
+      verify_mocks_for_rspec
     end
 
 
@@ -134,7 +134,7 @@ describe BuilderStarter, 'when calling BuilderStarter.start_builders' do
       BuilderStarter.start_builders
 
       # then
-      verify_mocks
+      verify_mocks_for_rspec
     end
   end
 end
