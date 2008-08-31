@@ -1,0 +1,7 @@
+mocha is copied from mocha-0.9.0 gem.
+
+rails_rcov is installed by
+  % ./script/plugin install http://svn.codahale.com/rails_rcov
+
+rpsec and rspec-rails is checkouted from git repository at 2008/08/30
+  http://github.com/dchelimsky/rspec-rails/wikis/home
