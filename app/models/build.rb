@@ -21,7 +21,8 @@ class Build
 
 
   def destroy
-    FileUtils.rm_rf artifacts_directory
+    lucie_daemon = DRbObject.new_with_uri( LucieDaemon.uri )
+    lucie_daemon.sudo "rm -r #{ artifacts_directory }"
   end
 
 
