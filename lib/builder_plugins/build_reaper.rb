@@ -30,6 +30,7 @@ class BuildReaper
 
   def delete_all_builds_but number
     @installer.builds[ 0..-( number + 1 ) ].each do | each |
+      Lucie::Log.event "Deleting old build #{ each.label }"
       each.destroy
     end
   end

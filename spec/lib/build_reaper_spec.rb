@@ -59,7 +59,8 @@ describe BuildReaper do
     end.collect do | each |
       case each
       when /DESTROY\Z/
-        each.expects( :destroy )
+        each.expects :label
+        each.expects :destroy
       when /KEEP\Z/
         each.expects( :destroy ).never
       else
