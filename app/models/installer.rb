@@ -508,7 +508,7 @@ end
 
 
 def plugin_loader.load_all
-  plugins = Dir[File.join(RAILS_ROOT, 'builder_plugins', 'installed', '*')]
+  plugins = Dir[File.join(RAILS_ROOT, 'lib', 'builder_plugins', '*')] + Dir[File.join(RAILS_ROOT, 'builder_plugins', 'installed', '*')]
 
   plugins.each do |plugin|
     if File.file?(plugin)

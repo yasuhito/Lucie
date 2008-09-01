@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'lucie_daemon'
 
 
@@ -16,6 +17,11 @@ class Build
       FileUtils.mkdir_p artifacts_directory
     end
     @status = BuildStatus.new( artifacts_directory )
+  end
+
+
+  def destroy
+    FileUtils.rm_rf artifacts_directory
   end
 
 
