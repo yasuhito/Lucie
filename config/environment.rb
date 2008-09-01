@@ -25,6 +25,7 @@ Rails::Initializer.run do | config |
   config.load_paths << "#{ RAILS_ROOT }/lib/builder_plugins"
   config.load_paths << "#{ RAILS_ROOT }/builder_plugins/installed"
   config.load_paths << "#{ RAILS_ROOT }/vendor/ruby-ifconfig-1.2/lib"
+  config.load_paths << "#{ RAILS_ROOT }/vendor/file_sandbox/lib"
 
   # See Rails::Configuration for more options
 end
