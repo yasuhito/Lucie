@@ -49,3 +49,8 @@
 # on per-project basis, through project.email.notifier.from attribute
 #
 # Configuration.email_from = 'lucie@mydomain.com'
+
+# To delete build when there are more than a certain number present,
+# uncomment this line.
+#
+# BuildReaper.number_of_builds_to_keep = 5
