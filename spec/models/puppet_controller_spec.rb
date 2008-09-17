@@ -18,7 +18,7 @@ describe PuppetController, 'when calling PuppetController.setup' do
     PuppetController.setup 'LOCAL_CHECKOUT_DIR'
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -31,7 +31,7 @@ describe PuppetController, 'when calling PuppetController.setup' do
       PuppetController.setup 'LOCAL_CHECKOUT_DIR'
       # then
     end.should raise_error( RuntimeError, 'puppetmaster package is not installed. Please install first.' )
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -59,7 +59,7 @@ describe PuppetController, 'when calling PuppetController.restart' do
     PuppetController.restart
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -75,7 +75,7 @@ describe PuppetController, 'when calling PuppetController.restart' do
     PuppetController.restart
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 

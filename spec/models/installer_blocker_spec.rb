@@ -39,7 +39,7 @@ describe InstallerBlocker, 'when calling block' do
     InstallerBlocker.block @installer_stub
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -74,7 +74,7 @@ describe InstallerBlocker, 'when calling block' do
     end.should raise_error( RuntimeError,  "Another process (probably another builder) holds a lock on installer 'DUMMY_INSTALLER'.\n" + "Look for a process with a lock on file #{ @pid_file_path }" )
 
     # and
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -115,7 +115,7 @@ describe InstallerBlocker, 'when calling blocked?' do
 
     # then
     result.should be_true
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -135,7 +135,7 @@ describe InstallerBlocker, 'when calling blocked?' do
 
     # then
     result.should be_false
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -164,7 +164,7 @@ describe InstallerBlocker, 'when calling release' do
     InstallerBlocker.release @installer_stub
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 

@@ -18,7 +18,7 @@ describe Popen3::Shell, 'when executing command using Kernel.sh_exec' do
     Kernel.sh_exec( 'TEST_COMMAND TEST_ARG1 TEST_ARG2' ).should == 'SUCCESS'
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -39,7 +39,7 @@ describe Popen3::Shell, 'when executing command using Kernel.sh_exec' do
     end.should raise_error( RuntimeError, %(Command "TEST_COMMAND TEST_ARG1 TEST_ARG2" failed.\nSTDERR) )
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -133,7 +133,7 @@ describe Popen3::Shell, 'when doing IOs with subprocess' do
     end
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -157,7 +157,7 @@ describe Popen3::Shell, 'when doing IOs with subprocess' do
 
     # then
     ncall_on_stdout.should == 2
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -181,7 +181,7 @@ describe Popen3::Shell, 'when doing IOs with subprocess' do
 
     # then
     assert_equal 2, ncall_on_stderr
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 

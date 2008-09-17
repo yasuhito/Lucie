@@ -30,7 +30,7 @@ describe LuciedBlocker, 'when calling block' do
     LuciedBlocker.block
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -64,7 +64,7 @@ describe LuciedBlocker, 'when calling block' do
     end.should raise_error( RuntimeError,  'Another Lucie daemon is already running.' )
 
     # and
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -104,7 +104,7 @@ describe LuciedBlocker, 'when calling blocked?' do
 
     # then
     @result.should be_true
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -117,7 +117,7 @@ describe LuciedBlocker, 'when calling blocked?' do
 
     # then
     @result.should be_false
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -136,7 +136,7 @@ describe LuciedBlocker, 'when calling blocked?' do
 
     # then
     @result.should be_false
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -163,7 +163,7 @@ describe LuciedBlocker, 'when calling release' do
     LuciedBlocker.release
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -179,7 +179,7 @@ describe LuciedBlocker, 'when manipulating PID file' do
     LuciedBlocker::PidFile.store( 'PID' )
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -191,7 +191,7 @@ describe LuciedBlocker, 'when manipulating PID file' do
     LuciedBlocker::PidFile.recall.should == 12345
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 

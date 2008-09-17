@@ -163,7 +163,7 @@ describe Installer, 'when calling request_build' do
     @installer.request_build
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -179,7 +179,7 @@ describe Installer, 'when calling request_build' do
     @installer.request_build
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -208,7 +208,7 @@ describe Installer, 'when build requested with new revisions' do
     @installer.build_if_necessary
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -232,7 +232,7 @@ describe Installer, 'when :build_if_necessary called' do
 
     # then
     result.should be_nil
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -248,7 +248,7 @@ describe Installer, 'when :build_if_necessary called' do
 
     # then
     result.should == 'DUMMY_BUILD'
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -276,7 +276,7 @@ describe Installer, 'when :build_if_necessary called' do
     @installer.build_if_necessary
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -294,7 +294,7 @@ describe Installer, 'when :build_if_necessary called' do
     @installer.build_if_necessary
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -317,7 +317,7 @@ describe Installer, 'when :build_if_necessary called' do
     end
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -334,7 +334,7 @@ describe Installer, 'when :build_if_necessary called' do
     @installer.build_if_necessary
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 

@@ -25,7 +25,7 @@ describe PollingScheduler, 'when starting polling scheduler' do
     end
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 

@@ -76,7 +76,7 @@ describe LucieDaemon, 'when calling LucieDaemon.kill' do
       LucieDaemon.kill
       # then
     end.should raise_error( SystemExit )
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -92,7 +92,7 @@ describe LucieDaemon, 'when calling LucieDaemon.kill' do
     LucieDaemon.kill
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 end
 
@@ -136,7 +136,7 @@ describe LucieDaemon, 'when calling helper methods' do
     end.should raise_error( RuntimeError )
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
@@ -270,7 +270,7 @@ describe LucieDaemon, 'when calling helper methods' do
     @lucie_daemon.disable_node( 'NODE_NAME' )
 
     # then
-    verify_mocks
+    verify_mocks_for_rspec
   end
 
 
