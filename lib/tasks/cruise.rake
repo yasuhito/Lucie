@@ -122,7 +122,7 @@ task :cruise do
   banner "HELPERS"
 
   run_rcov 'helpers', out
-  verify_rcov 'helpers', 42.5, out
+  verify_rcov 'helpers', 43.6, out
 
 
   # [TODO]
