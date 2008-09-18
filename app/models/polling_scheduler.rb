@@ -7,6 +7,24 @@ class PollingScheduler
   end
 
 
+  def run
+    loop do
+     begin
+       @installer.build_if_necessary or check_build_request_until_next_polling
+       clean_last_build_loop_error
+       if @installer.config_modified?
+         throw :reload_installer
+       end
+     rescue => e
+       unless ( same_error_as_before( e ) and last_logged_less_than_an_hour_ago )
+         log_error e
+       end
+       sleep Configuration.sleep_after_build_loop_error.to_i
+     end
+    end
+  end
+
+
   def polling_interval= value
     begin
       value = value.to_i
@@ -28,34 +46,6 @@ class PollingScheduler
   end
 
 
-  def run
-    loop do
-     begin
-       @installer.build_if_necessary or check_build_request_until_next_polling
-       clean_last_build_loop_error
-       if @installer.config_modified?
-         throw :reload_installer
-       end
-     rescue => e
-       # TODO test this code block.
-       unless ( same_error_as_before( e ) and last_logged_less_than_an_hour_ago )
-         log_error e
-       end
-       sleep Configuration.sleep_after_build_loop_error.to_i
-     end
-    end
-  end
-
-
-  def check_build_request_until_next_polling
-    time_to_go = Time.now + polling_interval
-    while Time.now < time_to_go
-      @installer.build_if_requested
-      sleep build_request_checking_interval
-    end
-  end
-
-
   def polling_interval
     @custom_polling_interval or Configuration.default_polling_interval
   end
@@ -66,9 +56,14 @@ class PollingScheduler
   end
 
 
-  def same_error_as_before(error)
-    @last_build_loop_error_source and (error.backtrace.first == @last_build_loop_error_source)
+  def clean_last_build_loop_error
+    @last_build_loop_error_source = @last_build_loop_error_time = nil
   end
+
+
+  ################################################################################
+  private
+  ################################################################################
 
 
   def log_error error
@@ -83,8 +78,17 @@ class PollingScheduler
   end
 
 
-  def clean_last_build_loop_error
-    @last_build_loop_error_source = @last_build_loop_error_time = nil
+  def same_error_as_before error
+    @last_build_loop_error_source and ( error.backtrace.first == @last_build_loop_error_source )
+  end
+
+
+  def check_build_request_until_next_polling
+    time_to_go = Time.now + polling_interval
+    while Time.now < time_to_go
+      @installer.build_if_requested
+      sleep build_request_checking_interval
+    end
   end
 end
 
