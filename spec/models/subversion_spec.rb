@@ -75,22 +75,6 @@ describe Subversion do
       new_revisions[ 0 ].number.should == 3
       new_revisions[ 1 ].number.should == 2
     end
-
-
-    it 'should raise if svn subprocess failed' do
-      Dir.expects( :chdir ).with( '.' ).yields
-
-      # mock svn command execution
-      dummy_shell = 'SHELL'
-      Popen3::Shell.expects( :open ).yields( dummy_shell )
-      dummy_shell.expects( :on_stderr ).yields( 'ERROR' )
-      dummy_shell.expects( :on_stdout ).yields( 'STDOUT' )
-      dummy_shell.expects( :exec )
-
-      lambda do
-        @subversion.latest_revision( dummy_installer )
-      end.should raise_error( BuilderError, 'ERROR' )
-    end
   end
 
 
@@ -116,10 +100,35 @@ describe Subversion do
   end
 
 
-  it 'should raise if initialized with unknown option' do
-    lambda do
-      Subversion.new :unknown_option => true
-    end.should raise_error
+  describe 'when executing svn subprocess' do
+    it 'should return svn stdout' do
+      Dir.expects( :chdir ).with( '.' ).yields
+
+      # mock svn command execution
+      dummy_shell = 'SHELL'
+      Popen3::Shell.expects( :open ).yields( dummy_shell )
+      dummy_shell.expects( :on_stderr )
+      dummy_shell.expects( :on_stdout ).yields( 'STDOUT' )
+      dummy_shell.expects( :exec )
+
+      @subversion.__send__( :execute_in_local_copy, dummy_installer, 'DUMMY_COMMAND' ).should == [ 'STDOUT' ]
+    end
+
+
+    it 'should raise BuilderError if svn subprocess failed' do
+      Dir.expects( :chdir ).with( '.' ).yields
+
+      # mock svn command execution
+      dummy_shell = 'SHELL'
+      Popen3::Shell.expects( :open ).yields( dummy_shell )
+      dummy_shell.expects( :on_stderr ).yields( 'ERROR' )
+      dummy_shell.expects( :on_stdout ).yields( 'STDOUT' )
+      dummy_shell.expects( :exec )
+
+      lambda do
+        @subversion.latest_revision( dummy_installer )
+      end.should raise_error( BuilderError, 'ERROR' )
+    end
   end
 
 
