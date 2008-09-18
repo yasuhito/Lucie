@@ -70,8 +70,8 @@ class PollingScheduler
     begin
       Lucie::Log.error error
     rescue
-      STDERR.puts error.message rescue nil
-      STDERR.puts( error.backtrace.map do |l| "  #{l}" end.join( "\n" ) ) rescue nil
+      STDERR.puts error.message
+      STDERR.puts( error.backtrace.map do |l| "  #{ l }" end.join( "\n" ) )
     end
     @last_build_loop_error_source = error.backtrace.first
     @last_build_loop_error_time = Time.now

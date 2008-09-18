@@ -1,7 +1,7 @@
 require File.dirname( __FILE__ ) + '/../spec_helper'
 
 
-describe PollingScheduler, 'when starting polling scheduler' do
+describe PollingScheduler do
   before :each do
     @installer = Object.new
     @polling_scheduler = PollingScheduler.new( @installer )
@@ -18,23 +18,39 @@ describe PollingScheduler, 'when starting polling scheduler' do
   end
 
 
-  it 'should log and record a new error' do
-    dummy_error = 'DUMMY_ERROR'
-    @installer.stubs( :build_if_necessary ).raises( dummy_error )
+  describe 'when a new error occured' do
+    before :each do
+      @dummy_error = 'DUMMY_ERROR'
+      @installer.stubs( :build_if_necessary ).raises( @dummy_error )
+    end
 
-    # At first, error log should be empty
-    @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should be_nil
-    @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should be_nil
 
-    Lucie::Log.expects( :error )
+    it 'should log and record the error' do
+      # At first, error log should be empty
+      @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should be_nil
+      @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should be_nil
 
-    # Raise dummy_error in order to quit from infinite loop
-    Configuration.stubs( :sleep_after_build_loop_error ).raises( dummy_error )
-    @polling_scheduler.run rescue nil
+      Lucie::Log.expects( :error )
 
-    # Last build error should be recorded
-    @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should_not be_nil
-    @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should_not be_nil
+      # Raise dummy_error in order to quit from infinite loop
+      Configuration.stubs( :sleep_after_build_loop_error ).raises( @dummy_error )
+      @polling_scheduler.run rescue nil
+
+      # Last build error should be recorded
+      @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should_not be_nil
+      @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should_not be_nil
+    end
+
+
+    it 'shoud emit error message to STDERR if default logger failed' do
+      Lucie::Log.expects( :error ).raises @dummy_error
+
+      STDERR.expects( :puts ).times( 2 )
+
+      # Raise dummy_error in order to quit from infinite loop
+      Configuration.stubs( :sleep_after_build_loop_error ).raises( @dummy_error )
+      @polling_scheduler.run rescue nil
+    end
   end
 end
 
