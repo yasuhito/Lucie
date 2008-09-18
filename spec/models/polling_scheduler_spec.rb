@@ -4,7 +4,7 @@ require File.dirname( __FILE__ ) + '/../spec_helper'
 describe PollingScheduler do
   before :each do
     @installer = Object.new
-    @polling_scheduler = PollingScheduler.new( @installer )
+    @scheduler = PollingScheduler.new( @installer )
   end
 
 
@@ -13,7 +13,42 @@ describe PollingScheduler do
     @installer.stubs( :config_modified? ).returns( true )
 
     assert_throws( :reload_installer ) do
-      @polling_scheduler.run
+      @scheduler.run
+    end
+  end
+
+
+  describe 'when setting polling interval' do
+    it 'should have a default value and can be overridden' do
+      @scheduler.polling_interval.should == Configuration.default_polling_interval
+      @scheduler.polling_interval = 1.minute
+      @scheduler.polling_interval.should == 60
+    end
+
+
+    it 'should raise if polling_interval value exceeds its limits' do
+      lambda do
+        @scheduler.polling_interval = 5.seconds
+      end.should_not raise_error
+
+      lambda do 
+        @scheduler.polling_interval = 4.seconds
+      end.should raise_error( 'Polling interval of 4 seconds is too small (min. 5 seconds)' )
+
+      lambda do
+        @scheduler.polling_interval = 24.hours
+      end.should_not raise_error
+
+      lambda do
+        @scheduler.polling_interval = 24.hours + 1.second
+      end.should raise_error( 'Polling interval of 86401 seconds is too big (max. 24 hours)' )
+    end
+
+
+    it 'should raise if invalid polling interval set' do
+      lambda do
+        @scheduler.polling_interval = {}
+      end.should raise_error( 'Polling interval value {} could not be converted to a number of seconds' )
     end
   end
 
@@ -27,29 +62,29 @@ describe PollingScheduler do
 
     it 'should log and record the error' do
       # At first, error log should be empty
-      @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should be_nil
-      @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should be_nil
+      @scheduler.instance_variable_get( :@last_build_loop_error_source ).should be_nil
+      @scheduler.instance_variable_get( :@last_build_loop_error_time ).should be_nil
 
       Lucie::Log.expects( :error )
 
       # Raise dummy_error in order to quit from infinite loop
       Configuration.stubs( :sleep_after_build_loop_error ).raises( @dummy_error )
-      @polling_scheduler.run rescue nil
+      @scheduler.run rescue nil
 
       # Last build error should be recorded
-      @polling_scheduler.instance_variable_get( :@last_build_loop_error_source ).should_not be_nil
-      @polling_scheduler.instance_variable_get( :@last_build_loop_error_time ).should_not be_nil
+      @scheduler.instance_variable_get( :@last_build_loop_error_source ).should_not be_nil
+      @scheduler.instance_variable_get( :@last_build_loop_error_time ).should_not be_nil
     end
 
 
-    it 'shoud emit error message to STDERR if default logger failed' do
+    it 'should emit error message to STDERR if default logger failed' do
       Lucie::Log.expects( :error ).raises @dummy_error
 
       STDERR.expects( :puts ).times( 2 )
 
       # Raise dummy_error in order to quit from infinite loop
       Configuration.stubs( :sleep_after_build_loop_error ).raises( @dummy_error )
-      @polling_scheduler.run rescue nil
+      @scheduler.run rescue nil
     end
   end
 end
