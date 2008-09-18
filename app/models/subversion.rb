@@ -89,42 +89,26 @@ class Subversion
 
 
   def execute_in_local_copy installer, command
+    result = []
+    error = []
+
     Dir.chdir( installer.local_checkout ) do
-      err_file_path = installer.path + '/svn.err'
-      FileUtils.rm_f err_file_path
-      FileUtils.touch err_file_path
-
-      result = []
-      err = File.open( err_file_path, 'w' )
-
       Popen3::Shell.open do | shell |
         shell.on_stderr do | line |
-          err << line
+          error << line
         end
         shell.on_stdout do | line |
           result << line
         end
         shell.exec command
       end
-
-      err.close
-
-      begin
-        error_message = File.open( err_file_path ) do | f |
-          f.read
-        end.strip.split( "\n" )[ 1 ] || ""
-      rescue
-        error_message = ""
-      ensure
-        FileUtils.rm_f err_file_path
-      end
-
-      unless error_message.empty?
-        raise BuilderError.new( error_message, "svn_error" )
-      end
-
-      return result
     end
+
+    unless error.empty?
+      raise BuilderError.new( error.join( "\n" ), 'svn_error' )
+    end
+
+    result
   end
 
 
