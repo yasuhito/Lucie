@@ -94,10 +94,10 @@ class Subversion
       FileUtils.rm_f err_file_path
       FileUtils.touch err_file_path
 
-      Popen3::Shell.open do | shell |
-        result = []
-        err = File.open( err_file_path, 'w' )
+      result = []
+      err = File.open( err_file_path, 'w' )
 
+      Popen3::Shell.open do | shell |
         shell.on_stderr do | line |
           err << line
         end
@@ -105,21 +105,26 @@ class Subversion
           result << line
         end
         shell.exec command
-
-        err.close
-
-        begin
-          error_message = File.open( err_file_path ) do | f |
-            f.read
-          end.strip.split( "\n" )[ 1 ] || ""
-        rescue
-          error_message = ""
-        ensure
-          FileUtils.rm_f err_file_path
-        end
-        raise BuilderError.new( error_message, "svn_error" ) unless error_message.empty?
-        return result
       end
+
+      err.close
+
+      begin
+        error_message = File.open( err_file_path ) do | f |
+          f.read
+        end.strip.split( "\n" )[ 1 ] || ""
+      rescue
+        p $!
+        error_message = ""
+      ensure
+        FileUtils.rm_f err_file_path
+      end
+
+      unless error_message.empty?
+        raise BuilderError.new( error_message, "svn_error" )
+      end
+
+      return result
     end
   end
 

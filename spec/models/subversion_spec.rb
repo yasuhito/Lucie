@@ -75,6 +75,33 @@ describe Subversion do
       new_revisions[ 0 ].number.should == 3
       new_revisions[ 1 ].number.should == 2
     end
+
+
+    it 'should raise if svn subprocess failed' do
+      Dir.expects( :chdir ).with( '.' ).yields
+      FileUtils.expects( :rm_f ).with( './svn.err' )
+      FileUtils.expects( :touch ).with( './svn.err' )
+
+      dummy_shell = 'SHELL'
+      dummy_err = 'ERROR'
+
+      # mock svn command execution
+      File.expects( :open ).with( './svn.err', 'w' ).returns( dummy_err )
+      Popen3::Shell.expects( :open ).yields( dummy_shell )
+      dummy_shell.expects( :on_stderr ).yields( 'STDERR' )
+      dummy_shell.expects( :on_stdout ).yields( 'STDOUT' )
+      dummy_shell.expects( :exec )
+      dummy_err.expects( :close )
+
+      # mock svn error message handling
+      File.expects( :open ).with( './svn.err' ).yields( dummy_err ).returns( "ERR1\nERR2" )
+      dummy_err.expects( :read )
+      FileUtils.expects( :rm_f ).with( './svn.err' )
+
+      lambda do
+        @subversion.latest_revision( dummy_installer )
+      end.should raise_error( BuilderError )
+    end
   end
 
 
@@ -100,12 +127,10 @@ describe Subversion do
   end
 
 
-  describe 'when error occured' do
-    it 'should raise if initialized with unknown option' do
-      lambda do
-        Subversion.new :unknown_option => true
-      end.should raise_error
-    end
+  it 'should raise if initialized with unknown option' do
+    lambda do
+      Subversion.new :unknown_option => true
+    end.should raise_error
   end
 
 
