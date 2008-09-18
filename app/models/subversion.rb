@@ -114,7 +114,6 @@ class Subversion
           f.read
         end.strip.split( "\n" )[ 1 ] || ""
       rescue
-        p $!
         error_message = ""
       ensure
         FileUtils.rm_f err_file_path
