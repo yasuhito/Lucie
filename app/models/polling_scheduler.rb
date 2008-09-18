@@ -35,7 +35,7 @@ class PollingScheduler
       raise "Polling interval of #{ value } seconds is too small (min. 5 seconds)"
     end
     if value > 24.hours
-      raise "Polling interval of #{value} seconds is too big (max. 24 hours)"
+      raise "Polling interval of #{ value } seconds is too big (max. 24 hours)"
     end
     @custom_polling_interval = value
   end
