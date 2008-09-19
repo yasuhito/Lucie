@@ -18,6 +18,17 @@ describe PollingScheduler do
   end
 
 
+  it 'should check build request until next polling' do
+    @scheduler.expects( :polling_interval ).returns( 2.seconds )
+
+    Time.expects( :now ).times( 4 ).returns( Time.at( 0 ), Time.at( 0 ), Time.at( 1 ), Time.at( 2 ) )
+    @installer.expects( :build_if_requested ).times( 2 )
+    @scheduler.stubs( :build_request_checking_interval ).returns( 0 )
+
+    @scheduler.__send__ :check_build_request_until_next_polling
+  end
+
+
   describe 'when setting polling interval' do
     it 'should have a default value and can be overridden' do
       @scheduler.polling_interval.should == Configuration.default_polling_interval
