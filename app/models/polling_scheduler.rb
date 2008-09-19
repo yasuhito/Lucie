@@ -51,16 +51,6 @@ class PollingScheduler
   end
 
 
-  def build_request_checking_interval
-    return Configuration.build_request_checking_interval.to_i
-  end
-
-
-  def clean_last_build_loop_error
-    @last_build_loop_error_source = @last_build_loop_error_time = nil
-  end
-
-
   ################################################################################
   private
   ################################################################################
@@ -89,6 +79,16 @@ class PollingScheduler
       @installer.build_if_requested
       sleep build_request_checking_interval
     end
+  end
+
+
+  def build_request_checking_interval
+    return Configuration.build_request_checking_interval.to_i
+  end
+
+
+  def clean_last_build_loop_error
+    @last_build_loop_error_source = @last_build_loop_error_time = nil
   end
 end
 
