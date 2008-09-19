@@ -29,6 +29,21 @@ describe PollingScheduler do
   end
 
 
+  it 'should check last logged less than an hour ago' do
+    @scheduler.__send__( :last_logged_less_than_an_hour_ago ).should be_nil
+  
+    @scheduler.instance_eval( "@last_build_loop_error_time = DateTime.new( 2005, 1, 1 )" )
+
+    time = DateTime.new( 2005, 1, 1 )
+
+    Time.stubs( :now ).returns( time + 1.hour )
+    @scheduler.__send__( :last_logged_less_than_an_hour_ago ).should be_true
+    
+    Time.stubs( :now ).returns( time + 1.hour + 1.second )
+    @scheduler.__send__( :last_logged_less_than_an_hour_ago ).should be_false
+  end
+
+
   describe 'when setting polling interval' do
     it 'should have a default value and can be overridden' do
       @scheduler.polling_interval.should == Configuration.default_polling_interval

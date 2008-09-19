@@ -46,11 +46,6 @@ class PollingScheduler
   end
 
 
-  def last_logged_less_than_an_hour_ago
-    @last_build_loop_error_time and @last_build_loop_error_time >= 1.hour.ago
-  end
-
-
   ################################################################################
   private
   ################################################################################
@@ -79,6 +74,11 @@ class PollingScheduler
       @installer.build_if_requested
       sleep build_request_checking_interval
     end
+  end
+
+
+  def last_logged_less_than_an_hour_ago
+    @last_build_loop_error_time and @last_build_loop_error_time >= 1.hour.ago
   end
 
 
