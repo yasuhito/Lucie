@@ -41,6 +41,11 @@ class PollingScheduler
   end
 
 
+  def polling_interval
+    @custom_polling_interval or Configuration.default_polling_interval
+  end
+
+
   def last_logged_less_than_an_hour_ago
     @last_build_loop_error_time and @last_build_loop_error_time >= 1.hour.ago
   end
@@ -74,11 +79,6 @@ class PollingScheduler
       @installer.build_if_requested
       sleep build_request_checking_interval
     end
-  end
-
-
-  def polling_interval
-    @custom_polling_interval or Configuration.default_polling_interval
   end
 
 
