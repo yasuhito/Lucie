@@ -46,11 +46,6 @@ class PollingScheduler
   end
 
 
-  def polling_interval
-    @custom_polling_interval or Configuration.default_polling_interval
-  end
-
-
   ################################################################################
   private
   ################################################################################
@@ -79,6 +74,11 @@ class PollingScheduler
       @installer.build_if_requested
       sleep build_request_checking_interval
     end
+  end
+
+
+  def polling_interval
+    @custom_polling_interval or Configuration.default_polling_interval
   end
 
 
