@@ -41,7 +41,7 @@ INSTALLER_OPTIONS[ :log_file_name ] = File.join( 'log', INSTALLER_OPTIONS[ :inst
 
 
 ################################################################################
-# Start builders.
+# Init
 ################################################################################
 
 require File.join( File.dirname( __FILE__ ), '..', 'config', 'environment' )
@@ -59,6 +59,10 @@ unless File.directory?( installer_path )
   exit -1
 end
 
+
+################################################################################
+# Helper methods
+################################################################################
 
 def write_to_log_and_console message, severity = :info
   Lucie::Log.event( message, severity ) rescue nil
@@ -83,6 +87,10 @@ def load_installer path
   end
 end
 
+
+################################################################################
+# Start builder
+################################################################################
 
 installer = nil
 
