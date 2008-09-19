@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 
-require File.dirname(__FILE__) + '/../config/boot'
+require File.dirname( __FILE__ ) + '/../config/boot'
 
 require 'builder_starter'
 require 'lucie_daemon'
@@ -56,6 +56,7 @@ end
 ARGV.delete( '-w' )
 ARGV.delete( '--without-builders' )
 ARGV.delete( '--trace' )
+ARGV.delete( '--verbose' )
 
 # change default environment to production
 if ( ARGV & [ '-e', '--environment' ] ).empty?
