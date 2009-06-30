@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
+
+
+require "lucie"
+require "command/node-update"
+
+
+Lucie::Log.path = File.join( Configuration.log_directory, "node-update.log" )
+
+
+def target_nodes
+  nodes= []
+  ARGV.each do | each |
+    break if /\A\-/=~ each
+    nodes << each
+  end
+  nodes
+end
+
+
+begin
+  app = Command::NodeUpdate::App.new
+  app.usage_and_exit if target_nodes.empty?
+  app.main target_nodes
+rescue => e
+  $stderr.puts "ERROR: " + e.message
+  if app and app.options.verbose
+    e.backtrace.each do | each |
+      $stderr.puts each
+    end
+  end
+  exit -1
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

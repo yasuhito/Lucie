@@ -6,9 +6,9 @@ module Popen3
     attr_reader :childerr
 
 
-    def initialize command, options = {}
+    def initialize command, env = nil
       @command = command
-      @env = options[ :env ] ? options[ :env ] : { 'LC_ALL' => 'C' }
+      @env = env ? env : { "LC_ALL" => "C" }
       @parent_pipe, @child_pipe = init_pipe
       @tochild, @fromchild, @childerr = @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ]
     end
@@ -30,7 +30,7 @@ module Popen3
 
         close_end_of @child_pipe
 
-        @env.each do | key, value |
+        @env.each_pair do | key, value |
           ENV[ key ]= value
         end
 

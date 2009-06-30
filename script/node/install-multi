@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
+
+
+require "lucie"
+require "command/node-install-multi"
+
+
+def target_nodes
+  nodes = {}
+  ARGV.each do | each |
+    next if /\A\-/=~ each
+    next if /\A\S+\Z/=~ each
+    options = each.split( /\s+/ )
+    nodes[ options.first ] = options[ 1..-1 ]
+  end
+  nodes
+end
+
+
+begin
+  app = Command::NodeInstallMulti::App.new
+  app.usage_and_exit if target_nodes.empty?
+  app.main target_nodes
+rescue => e
+  $stderr.puts "ERROR: " + e.message
+  if app and app.options.verbose
+    e.backtrace.each do | each |
+      $stderr.puts each
+    end
+  end
+  exit -1
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

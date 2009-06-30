@@ -1,6 +1,0 @@
-#!/usr/bin/puppet
-
-exec { 'echo':
-  path => '/bin',
-  command => 'echo Hello Lucie World!',
-}

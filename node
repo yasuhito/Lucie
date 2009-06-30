@@ -2,42 +2,28 @@
 
 
 load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
-
-
-def disable
-  load './script/disable_node'
-end
-
-
-def add
-  load './script/add_node'
-end
-
-
-def remove
-  load './script/remove_node'
-end
-
-
-def enable
-  load './script/enable_node'
-end
+require "fileutils"
 
 
 def install
-  load './script/install_node'
+  load "./script/node/install"
 end
 
 
-def list
-  load './script/list_node'
+def install_multi
+  load "./script/node/install-multi"
+end
+
+
+def update
+  load "./script/node/update"
 end
 
 
 def version
   puts <<-EOL
 Lucie, version #{ Lucie::VERSION::STRING }
-Copyright (C) 2007 Yasuhito TAKAMIYA
+Copyright (C) 2009 Yasuhito TAKAMIYA
   EOL
 end
 
@@ -45,29 +31,25 @@ end
 def help
   command = ARGV.shift
 
-  ARGV.clear << '--help'
+  ARGV.clear << "--help"
   if command.nil?
     puts <<-EOL
-Usage: node <command> [options] [args]
+usage: node <COMMAND> [OPTIONS ...] [ARGS ...]
 
 Lucie node command-line tool, version #{ Lucie::VERSION::STRING }
-Type 'node help <command>' for help on a specific command.
+Type 'node help <COMMAND>' for help on a specific command.
 Type 'node --version' to see the version number.
 
 Available commands:
-  add        - adds and enables a node
-  remove     - removes a node
-  install    - installs a node
-
-  enable     - enables installation of a node
-  disable    - disables installation of a node
-  list       - lists registered nodes
+  install        - installs a node
+  install-multi  - installs nodes
+  update         - updates the ldb repository and reconfigure
 
 Lucie is an Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/
     EOL
-  elsif method_for_command( command )
-    self.send( method_for_command( command ) )
+  elsif method_for( command )
+    self.__send__ method_for( command )
   else
     STDERR.puts "Type 'node help' for usage."
     exit -1
@@ -75,23 +57,17 @@ For additional information, see http://lucie.is.titech.ac.jp/
 end
 
 
-def method_for_command command
+def method_for command
   case command
-  when 'disable'
-    return :disable
-  when 'add'
-    return :add
-  when 'delete', 'remove', 'rm', 'del'
-    return :remove
-  when 'enable'
-    return :enable
-  when 'install'
+  when "install", "inst"
     return :install
-  when 'list'
-    return :list
-  when 'version', '-v', '--version'
+  when "install-multi", "inst-multi"
+    return :install_multi
+  when "update", "up"
+    return :update
+  when "version", "-v", "--version"
     return :version
-  when 'help', '-h', '--help', '/?', '-?'
+  when "help", "-h", "--help", "/?", "-?"
     return :help
   else
     return nil
@@ -100,16 +76,15 @@ end
 
 
 command = ARGV.shift
-if method_for_command( command )
-  require 'fileutils'
-  FileUtils.cd( File.dirname( __FILE__ ) ) do
-    self.send method_for_command( command )
+if method_for( command )
+  FileUtils.cd File.dirname( __FILE__ ) do
+    self.__send__ method_for( command )
   end
 elsif command.nil?
   STDERR.puts "Type 'node --help' for usage."
   exit -1
 else
-  STDERR.puts "Unknown command : '#{ command }'"
+  STDERR.puts "Unknown command: '#{ command }'"
   STDERR.puts "Type 'node --help' for usage."
   exit -1
 end

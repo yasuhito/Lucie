@@ -1,28 +1,14 @@
-#!/usr/bin/env ruby
-#
-# 説明:
-# インストール対象ノードに ssh をセットアップするためのスクリプト。
-#
-# Lucie による遠隔インストール後、インストールが完了した遠隔ノードへ確
-# 実に ssh でログインできなくてはならない。そこで、ssh のセットアップに
-# は万が一失敗することのある Puppet を使わず、Lucie 本体でセットアップ
-# を行う。
-#
+#!/bin/sh -x
 
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+chroot /tmp/target apt-get -y install ssh
 
-ENV[ 'DEBIAN_FRONTEND' ] = 'noninteractive'
-$apt_option = '-y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
-
-
-system "chroot /tmp/target apt-get #{ $apt_option } install ssh"
-system "cp -ar /root/.ssh /tmp/target/root/"
-system %{ruby -pi -e "gsub( /PermitRootLogin no/, 'PermitRootLogin yes' )" /tmp/target/etc/ssh/sshd_config}
-system %{ruby -pi -e "gsub( /.*PasswordAuthentication.*/, 'PasswordAuthentication no' )" /tmp/target/etc/ssh/sshd_config}
-system %{echo 'UseDNS no' >> /tmp/target/etc/ssh/sshd_config}
-
-
-### Local variables:
-### mode: Ruby
-### coding: utf-8-unix
-### indent-tabs-mode: nil
-### End:
+mkdir -p /tmp/target/root/.ssh/
+chmod 700 /tmp/target/root/.ssh/
+cp /root/.ssh/authorized_keys /tmp/target/root/.ssh/
+chmod 644 /tmp/target/root/.ssh/authorized_keys
+ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /tmp/target/etc/ssh/ssh_config
+ruby -pi -e "gsub( /PermitRootLogin no/, 'PermitRootLogin yes' )" /tmp/target/etc/ssh/sshd_config
+ruby -pi -e "gsub( /.*PasswordAuthentication.*/, 'PasswordAuthentication no' )" /tmp/target/etc/ssh/sshd_config
+echo 'UseDNS no' >> /tmp/target/etc/ssh/sshd_config

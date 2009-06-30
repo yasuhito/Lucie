@@ -1,0 +1,58 @@
+Feature: Setup tftpd to boot from nfsroot
+  As a Lucie user
+  I want to setup tftpd nfsroot automatically
+  So that I have not to write configuration and restart tftpd by hand
+
+  Background:
+    Given Lucie log path is "/tmp/lucie.log"
+    And node list is empty
+    And installers directory "/tmp/lucie/tmp/installers" is empty
+    And an installer for suite "lenny" added and built
+
+  Scenario: Setup tftpd
+    Given tftp root path is "/tmp/tftp_root"
+    And a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
+    And a node named "yasuhito_private_node01" with MAC address "11:11:11:11:11:11"
+    And a node named "yasuhito_private_node02" with MAC address "22:22:22:22:22:22"
+    When I try to setup tftpd nfsroot with installer "lenny"
+    Then PXE directory should be created
+    And PXE configuration file for node "yasuhito_private_node00" should be generated
+    And PXE configuration file for node "yasuhito_private_node01" should be generated
+    And PXE configuration file for node "yasuhito_private_node02" should be generated
+
+  Scenario Outline: Tftpd auto reload configuration
+    Given RUN_DAEMON option of tftpd default config is "<RUN_DAEMON>"
+    And command line option of default config is "<tftpd option>"
+    And a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
+    When I try to setup tftpd nfsroot with installer "lenny"
+    Then "tftpd config generated?" is "<config generated?>"
+    And "tftpd restarted?" is "<tftpd restarted?>"
+
+  Scenarios:
+    | RUN_DAEMON | tftpd option            | config generated? | tftpd restarted? |
+    | YES        | -v -l -s /foo/bar          | YES               | YES              |
+    | NO         | -v -l -s /foo/bar          | YES               | YES              |
+    | NO         | -v -l -s /var/lib/tftpboot | YES               | YES              |
+    | YES        | -v -l -s /var/lib/tftpboot | NO                | NO               |
+
+  Scenario Outline: Reconfigure and restart inetd
+    Given RUN_DAEMON option of tftpd default config is "YES"
+    And command line option of default config is "-v -l -s /var/lib/tftpboot"
+    And "inetd.conf has tftpd entry?" is "<inetd.conf has tftpd entry?>"
+    And a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
+    When I try to setup tftpd nfsroot with installer "lenny"
+    Then "inetd.conf updated?" is "<inetd.conf updated?>"
+    And "inetd restarted?" is "<inetd restarted?>"
+    And "tftpd restarted?" is "<tftpd restarted?>"
+
+  Scenarios:
+    | inetd.conf has tftpd entry? | inetd.conf updated? | inetd restarted? | tftpd restarted? |
+    | YES                         | YES                 | YES              | YES              |
+    | NO                          | NO                  | NO               | NO               |
+
+  Scenario: Setup tftpd with no node
+    Given RUN_DAEMON option of tftpd default config is "NO"
+    And command line option of default config is "-v -l -s /var/lib/tftpboot"
+    When I try to setup tftpd nfsroot with installer "lenny"
+    Then "tftpd config generated?" is "NO"
+    And "tftpd restarted?" is "NO"

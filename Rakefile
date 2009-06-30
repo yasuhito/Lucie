@@ -1,19 +1,61 @@
-# Add your own tasks in files placed in lib/tasks ending in .rake,
-# for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
+require "rubygems"
+
+require "cucumber/rake/task"
+require "hanna/rdoctask"
+require "rake"
+require "rake/clean"
+require "spec/rake/spectask"
+require "spec/rake/verify_rcov"
 
 
-require( File.join( File.dirname( __FILE__ ), 'config', 'boot' ) )
-
-require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
-
-require 'tasks/rails'
+################################################################################
+# Helper methods
+################################################################################
 
 
-# Exclude files generated with root permission.
-CLEAN.exclude 'installers/*'
-CLEAN.exclude 'tmp/debootstrap/*'
+def rcov_dat
+  File.join File.dirname( __FILE__ ), "coverage.dat"
+end
+
+
+def rcov_opts
+  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems,lib/popen3.rb,lib/pshell.rb,spec/" ]
+end
+
+
+################################################################################
+# Tasks
+################################################################################
+
+
+task :default => [ :verify_rcov ]
+
+
+Cucumber::Rake::Task.new do | t |
+  rm_f rcov_dat
+  t.rcov = true
+  t.rcov_opts = rcov_opts
+end
+
+
+desc "Run specs with RCov" 
+Spec::Rake::SpecTask.new do | t |
+  t.spec_files = FileList[ 'spec/**/*_spec.rb' ]
+  t.spec_opts = [ '--color', '--format', 'nested' ]
+  t.rcov = true
+  t.rcov_opts = rcov_opts
+end
+
+
+task :verify_rcov => [ "spec", "features" ]
+RCov::VerifyTask.new do | t |
+  t.threshold = 100
+end
+
+
+Rake::RDocTask.new do | t |
+  t.rdoc_files.include "lib/**/*.rb"
+end
 
 
 ### Local variables:

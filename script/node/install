@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
+
+
+require "lucie"
+require "command/node-install"
+
+
+def target_node
+  ARGV.each do | each |
+    next if /\A\-/=~ each
+    return each
+  end
+end
+
+
+begin
+  app = Command::NodeInstall::App.new
+  app.usage_and_exit if target_nodes.empty?
+  app.main target_node
+rescue => e
+  $stderr.puts "ERROR: " + e.message
+  if app and app.options.verbose
+    e.backtrace.each do | each |
+      $stderr.puts each
+    end
+  end
+  exit -1
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

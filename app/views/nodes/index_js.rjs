@@ -1,2 +1,0 @@
-page.replace_html( 'nodes', :partial => 'node', :collection => @nodes) unless @nodes.empty?
-page.replace_html( 'nodes', :partial => 'no_nodes') if @nodes.empty?

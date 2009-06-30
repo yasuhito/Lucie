@@ -2,7 +2,10 @@
 
 
 require 'fileutils'
-require 'popen3/shell'
+require 'lucie/shell'
+
+
+Lucie::Log.path = "/tmp/setup_grub.log"
 
 
 File.open( '/tmp/disk_var.sh', 'r' ).each_line do | each |

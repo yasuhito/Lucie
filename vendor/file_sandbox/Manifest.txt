@@ -1,6 +1,0 @@
-CHANGES
-Manifest.txt
-README
-Rakefile
-lib/file_sandbox.rb
-test/file_sandbox_test.rb

@@ -138,39 +138,6 @@ module Popen3
 end
 
 
-module Kernel
-  def sh_exec command, options = { :env => { 'LC_ALL' => 'C' } }
-    @stderr = []
-
-    Popen3::Shell.open do | shell |
-      shell.on_stdout do | line |
-        STDOUT.puts line
-      end
-      shell.on_stderr do | line |
-        @stderr << line
-        STDERR.puts line
-      end
-      shell.on_failure do
-        raise %{Command "#{ command }" failed.\n#{ @stderr.join( "\n" )}}
-      end
-
-      env_string = []
-      options[ :env ].each do | key, value |
-        env_string << "'#{ key }' => '#{ value }'"
-      end
-      STDOUT.puts "ENV{ #{ env_string.join( ', ' ) } } #{ command }"
-      shell.exec( command, options )
-
-      # Returns a instance of Popen3::Shell as a return value from
-      # this block, in order to get child_status from the return value
-      # of Kernel::sh_exec.
-      shell
-    end
-  end
-  module_function :sh_exec
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

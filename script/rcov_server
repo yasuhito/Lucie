@@ -1,7 +1,0 @@
-#!/usr/bin/env ruby
-require "webrick"
-
-__DIR__ = File.dirname(__FILE__)
-s = WEBrick::HTTPServer.new(:Port => 8000, :DocumentRoot => "#{__DIR__}/../coverage")
-trap('INT'){ s.shutdown }
-s.start

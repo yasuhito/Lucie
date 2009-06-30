@@ -2,31 +2,28 @@
 
 
 require 'lucie/log'
-require 'popen3/shell'
+require 'lucie/shell'
 
 
-################################################################################
-# Global options
-
+Lucie::Log.path = STDOUT
 Lucie::Log.verbose = true
 
 
 ################################################################################
-# Functions
+# Helper methods
+################################################################################
 
+#
 # 1. Save all directories and files under the directory,
 # 2. Mount tmpfs on top of the directory,
 # 3. Extract directories and files into the tmpfs.
+#
 def mkrw dirs
   dirs.each do | each |
-    unless FileTest.directory?( each )
-      Lucie::Log.debug "WARNING: #{ each } is not a directory. Cannot make it writeable."
-      next
-    end
-
+    next unless FileTest.directory?( each )
     begin
       if sh_exec( "mktemp -q -p #{ each }" ).child_status.exitstatus == 0
-        Lucie::Log.debug "#{ each } is already writable."
+        $stderr.puts "#{ each } is already writable."
         next
       end
     rescue
@@ -44,10 +41,28 @@ def mkrw dirs
 end
 
 
+def shell commands
+  commands.split( "\n" ).each do | each |
+    next if /^#/=~ each
+    next if /^\s*$/=~ each
+    Lucie::Log.debug each
+    sh_exec each
+  end
+end
+
+
+def hostname 
+  File.read( '/proc/cmdline' ).split( ' ' ).select do | each |
+    each =~ /hostname=.+/
+  end.first[ 'hostname='.size..-1 ]
+end
+
+
 ################################################################################
 # Create ramdisk
+################################################################################
 
-Lucie::Log.info 'Creating a writable area on the install client.'
+puts 'Creating a writable area on the install client.'
 
 sh_exec 'mount -n -t proc proc /proc'
 
@@ -61,70 +76,64 @@ end
 sh_exec 'mkdir -p /tmp/etc /tmp/target'
 
 mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
-mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat /var/puppet /etc/puppet)
+mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat)
+
+Lucie::Log.path = "/tmp/lucie.log"
+Lucie::Log.verbose = true
 
 
 ################################################################################
-# init
-
-sh_exec 'mount -t sysfs sysfs /sys'
-
-hostname = File.read( '/proc/cmdline' ).split( ' ' ).select { | each | each =~ /hostname=.+/ }.first[ 'hostname='.size..-1 ]
-sh_exec "hostname #{ hostname }"
-
-if FileTest.executable?( '/etc/init.d/udev' )
-  sh_exec '/etc/init.d/udev start'
-end
-unless FileTest.directory?( '/var/run/network' )
-  sh_exec 'mkdir /var/run/network'
-end
-unless FileTest.directory?( '/dev/shm/network' )
-  sh_exec 'mkdir /dev/shm/network'
-end
-
-sh_exec 'ifup lo'
-
-if FileTest.executable?( '/sbin/portmap' )
-  sh_exec '/sbin/portmap'
-end
-sh_exec 'mount -t devpts devpts /dev/pts'
-
-sh_exec 'mount -o remount,noatime,ro /dev/root /'
-
-
+# Init
 ################################################################################
-# confdir
 
-sh_exec 'echo 6 > /proc/sys/kernel/printk'
-sh_exec 'klogd -c7 -f /tmp/kernel.log'
-sh_exec 'syslogd -m 0'
-sh_exec 'cp -p /etc/resolv.conf-lucieserver /tmp/etc/resolv.conf'
+shell <<-COMMANDS
+mount -t sysfs sysfs /sys
 
+hostname #{ hostname }
 
-################################################################################
-# setup
+[ -x /etc/init.d/udev ] && /etc/init.d/udev start || true
+[ -d /var/run/network ] || mkdir /var/run/network
+[ -d /dev/shm/network ] || mkdir /dev/shm/network
+ifup lo
+[ -x /sbin/portmap ] && /sbin/portmap || true
+
+mount -t devpts devpts /dev/pts
+mount -o remount,noatime,ro /dev/root /
+
+# start logging daemons
+echo 6 > /proc/sys/kernel/printk
+klogd -c7 -f /tmp/kernel.log || true
+syslogd -m 0 || true
+
+cp -p /etc/resolv.conf-lucieserver /tmp/etc/resolv.conf
 
 # create two virtual terminals; access via alt-F2 and alt-F3
-sh_exec 'openvt -c2 /bin/bash'
-sh_exec 'openvt -c3 /bin/bash'
+openvt -c2 /bin/bash
+openvt -c3 /bin/bash
 
-sh_exec '/usr/sbin/sshd'
-
-
-################################################################################
-# prompt
+# start ssh daemon to receive installation jobs
+/usr/sbin/sshd
+COMMANDS
 
 puts 'Lucie client SUCCESSFULLY started.'
 puts 'Waiting for installation jobs to be submitted...'
 
 
+################################################################################
+# Reboot
+################################################################################
+
 STDIN.gets
 puts 'Rebooting...'
 Dir.chdir('/')
-sh_exec 'sync'
-sh_exec 'killall -q sshd udevd'
-sh_exec 'umount /tmp/target/proc'
-sh_exec 'umount -ar' rescue nil
+
+shell <<-COMMANDS
+sync
+killall -q sshd udevd
+umount /tmp/target/proc
+umount -ar || true
+COMMANDS
+
 exec 'reboot -dfi'
 
 
