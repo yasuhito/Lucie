@@ -49,6 +49,7 @@ class LDB
 
 
   def local_clone_directory ldb_url
+    return unless ldb_url
     File.join local_ldb_directory, convert( ldb_url )
   end
 

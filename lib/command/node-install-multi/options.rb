@@ -1,7 +1,7 @@
 module Command
   module NodeInstallMulti
     class Options < Command::Option
-      usage "node install-multi <\"NODE-OPTIONS\" ...> --netmask=<NETMASK> --ldb-repository=<REPOSITORY-URL> [OPTIONS ...]"
+      usage "node install-multi <\"NODE-OPTIONS\" ...> --netmask=<NETMASK> [OPTIONS ...]"
 
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
@@ -11,8 +11,7 @@ module Command
       add_option( :long_option => "--ldb-repository",
                   :short_option => "-L",
                   :argument => "[REPOSITORY-URL]",
-                  :description => "LDB repository URL.",
-                  :mandatory => true )
+                  :description => "LDB repository URL." )
 
       separator
 

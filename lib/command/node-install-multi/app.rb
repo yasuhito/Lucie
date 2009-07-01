@@ -158,15 +158,18 @@ module Command
 
 
       def setup_ldb
+        return unless @options.ldb_repository
         @ldb = LDB.new( debug_options, @messenger )
         @ldb.clone @options.ldb_repository, lucie_server_ip, Lucie::Log
       end
 
 
       def start_ldb node, logger
-        @html_logger.update node, "Starting LDB ..."
-        @ldb.update node, @options.ldb_repository, logger
-        @ldb.start node, @options.ldb_repository, logger
+        if @options.ldb_repository
+          @html_logger.update node, "Starting LDB ..."
+          @ldb.update node, @options.ldb_repository, logger
+          @ldb.start node, @options.ldb_repository, logger
+        end
         @html_logger.next_step node
       end
 
