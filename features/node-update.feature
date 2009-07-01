@@ -16,7 +16,8 @@ Feature: node update command
     And --dry-run option is on
     When I run node update "yasuhito_node0, yasuhito_node1"
     Then remote repository cloned to Lucie server
-    And ldb on "yasuhito_node0" updated
+    And "LDB updated on node yasuhito_node0." displayed
+    And "LDB updated on node yasuhito_node1." displayed
     And ldb on "yasuhito_node0" executed
 
   Scenario: node update (second time)
@@ -27,7 +28,7 @@ Feature: node update command
     And --dry-run option is on
     When I run node update "yutaro_node0"
     Then ldb on Lucie server updated
-    And ldb on "yutaro_node0" updated
+    And "LDB updated on node yutaro_node0." displayed
     And ldb on "yutaro_node0" executed
 
   Scenario: fail to resolve IP address
