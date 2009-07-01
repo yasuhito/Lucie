@@ -21,22 +21,17 @@ class Service
 
 
     def setup_nfsroot nodes, installer, config = @@config, inetd_conf = nil
+      return if nodes.empty?
       info "Setting up tftpd ..."
       nodes.each do | each |
         create_pxe_nfsroot_files_for each, installer
       end
-      run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @options, @messenger
-      run "sudo cp #{ installer.kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @options, @messenger
-      unless nodes.empty?
-        setup_tftpd config, inetd_conf
-        restart
-      end
+      setup installer.kernel, config, inetd_conf
     end
 
 
     def setup_localboot node, config = @@config, inetd_conf = nil
       create_pxe_localboot_files_for node
-      setup_tftpd config, inetd_conf
     end
 
 
@@ -50,27 +45,31 @@ class Service
     ############################################################################
 
 
-    def setup_tftpd config, inetd_conf
+    def setup kernel, config, inetd_conf
+      setup_pxe kernel
       reconfigure_inetd inetd_conf
       reconfigure_tftpd config
+      restart
+    end
+
+
+    def setup_pxe kernel
+      run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @options, @messenger
+      run "sudo cp #{ kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @options, @messenger
     end
 
 
     def reconfigure_inetd inetd_conf
       if tftpd_boot_from_inetd( inetd_conf )
         disable_inetd_conf
-        return true
       end
-      false
     end
 
 
     def reconfigure_tftpd config
       if tftpd_not_configured( config )
         write_file config, tftpd_default, @options, @messenger
-        return true
       end
-      false
     end
 
 
