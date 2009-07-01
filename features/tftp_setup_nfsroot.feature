@@ -26,14 +26,13 @@ Feature: Setup tftpd to boot from nfsroot
     And a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
     When I try to setup tftpd nfsroot with installer "lenny"
     Then "tftpd config generated?" is "<config generated?>"
-    And "tftpd restarted?" is "<tftpd restarted?>"
 
   Scenarios:
-    | RUN_DAEMON | tftpd option            | config generated? | tftpd restarted? |
-    | YES        | -v -l -s /foo/bar          | YES               | YES              |
-    | NO         | -v -l -s /foo/bar          | YES               | YES              |
-    | NO         | -v -l -s /var/lib/tftpboot | YES               | YES              |
-    | YES        | -v -l -s /var/lib/tftpboot | NO                | NO               |
+    | RUN_DAEMON | tftpd option               | config generated? |
+    | YES        | -v -l -s /foo/bar          | YES               |
+    | NO         | -v -l -s /foo/bar          | YES               |
+    | NO         | -v -l -s /var/lib/tftpboot | YES               |
+    | YES        | -v -l -s /var/lib/tftpboot | NO                |
 
   Scenario Outline: Reconfigure and restart inetd
     Given RUN_DAEMON option of tftpd default config is "YES"
@@ -43,12 +42,11 @@ Feature: Setup tftpd to boot from nfsroot
     When I try to setup tftpd nfsroot with installer "lenny"
     Then "inetd.conf updated?" is "<inetd.conf updated?>"
     And "inetd restarted?" is "<inetd restarted?>"
-    And "tftpd restarted?" is "<tftpd restarted?>"
 
   Scenarios:
-    | inetd.conf has tftpd entry? | inetd.conf updated? | inetd restarted? | tftpd restarted? |
-    | YES                         | YES                 | YES              | YES              |
-    | NO                          | NO                  | NO               | NO               |
+    | inetd.conf has tftpd entry? | inetd.conf updated? | inetd restarted? |
+    | YES                         | YES                 | YES              |
+    | NO                          | NO                  | NO               |
 
   Scenario: Setup tftpd with no node
     Given RUN_DAEMON option of tftpd default config is "NO"

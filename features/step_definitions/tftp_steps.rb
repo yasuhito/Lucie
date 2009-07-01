@@ -90,12 +90,6 @@ When /^I try to setup tftpd localboot for node "([^\"]*)"$/ do | node |
 end
 
 
-When /^I try to setup tftpd with no node specified$/ do
-  @messenger = StringIO.new( "" )
-  Service::Tftp.setup_localboot [], @tftpd_config.path, nil, { :dry_run => true }, @messenger
-end
-
-
 Then /^PXE configuration file for node "([^\"]*)" should be modified to boot from local$/ do | node_name |
   mac_file = "01-" + Nodes.find( node_name ).mac_address.gsub( ':', '-' ).downcase
   history[ 0..4 ].should == ( <<-EXPECTED ).split( "\n" )
@@ -108,11 +102,6 @@ EXPECTED
 end
 
 
-Then /^PXE configuration file should not be modified$/ do
-  @messenger.string.should_not match( /file write/ )
-end
-
-
 When /^I try to remove tftpd configuration for node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
   @tftpd_config = Tempfile.new( "tftp" )
@@ -121,22 +110,10 @@ When /^I try to remove tftpd configuration for node "([^\"]*)"$/ do | name |
 end
 
 
-When /^I try to remove tftpd configuration with no node specified$/ do
-  @messenger = StringIO.new( "" )
-  @tftpd_config = Tempfile.new( "tftp" )
-  Service::Tftp.remove [], @tftpd_config.path, { :dry_run => true, :verbose => true }, @messenger
-end
-
-
 Then /^PXE configuration file for node "([^\"]*)" removed$/ do | name |
   mac = "01-" + Nodes.find( name ).mac_address.gsub( ':', '-' ).downcase
   expected = Regexp.new( Regexp.escape( "rm -f " + File.join( Configuration.tftp_root, 'pxelinux.cfg', mac ) ) )
   @messenger.string.should match( expected )
-end
-
-
-Then /^PXE configuration file removed$/ do
-  @messenger.string.should_not match( /rm/ )
 end
 
 

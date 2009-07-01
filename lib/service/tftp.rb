@@ -1,25 +1,5 @@
-#
-# = tftp.rb: TFTP daemon configurator for PXE boot
-#
-# Author:: Yasuhito TAKAMIYA
-#
-# == Description
-#
-# tftp.rb defines several methods to
-# * enabling network boot with nfsroot
-# * enabling localboot
-# * removing nodes from PXE boot environment
-#
-# == See also
-#
-# * http://lucie.is.titech.ac.jp/trac/lucie/ticket/93
-# * http://lucie.is.titech.ac.jp/trac/lucie/ticket/225
-#
-
-
 require "configuration"
 require "lucie/io"
-require "lucie/mutex"
 require "lucie/utils"
 require "nfsroot"
 
@@ -27,7 +7,6 @@ require "nfsroot"
 class Service
   class Tftp < Service
     include Lucie::IO
-    include Lucie::Mutex
     include Lucie::Utils
 
 
@@ -48,7 +27,10 @@ class Service
       end
       run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @options, @messenger
       run "sudo cp #{ installer.kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @options, @messenger
-      setup_tftpd( config, inetd_conf ) unless nodes.empty?
+      unless nodes.empty?
+        setup_tftpd( config, inetd_conf )
+        restart
+      end
     end
 
 
@@ -69,9 +51,8 @@ class Service
 
 
     def setup_tftpd config, inetd_conf
-      synchronize do
-        restart if reconfigure_inetd( inetd_conf ) or reconfigure_tftpd( config )
-      end
+      reconfigure_inetd( inetd_conf )
+      reconfigure_tftpd( config )
     end
 
 
