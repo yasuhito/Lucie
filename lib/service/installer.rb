@@ -1,5 +1,5 @@
 require "lucie/io"
-require "network_interfaces"
+require "lucie/server"
 require "nfsroot"
 
 
@@ -10,9 +10,8 @@ class Service
 
     def setup nodes, installer
       info "Setting up installer ..."
-      return if @options[ :dry_run ]
       unless FileTest.exists?( Nfsroot.path( installer ) )
-        installer.build server_ipaddress_for( nodes ), @options, @messenger
+        installer.build server_ip_address_for( nodes ), @options, @messenger
       end
     end
 
@@ -22,11 +21,13 @@ class Service
     ############################################################################
 
 
-    def server_ipaddress_for nodes
-      subnet, netmask = nodes.first.net_info
-      NetworkInterfaces.select do | each |
-        each.subnet == subnet and each.netmask == netmask
-      end.first.ip_address
+    def server_ip_address_for nodes
+      @options[ :dry_run ] ? dummy_ip_address : Lucie::Server.ip_address_for( nodes )
+    end
+
+
+    def dummy_ip_address
+      "192.168.0.1"
     end
   end
 end

@@ -27,6 +27,20 @@ Given /^an installer for suite "([^\"]*)" added and built$/ do | suite |
 end
 
 
+When /^I setup installer$/ do
+  @messenger = StringIO.new( "" )
+  installer_service = Service::Installer.new( { :verbose => true, :dry_run => true }, @messenger )
+  installer_service.setup Nodes.load_all, Installers.load_all.first
+end
+
+
+Then /^installer built$/ do
+  history.should include( "Setting up installer ..." )
+  @messenger.string.should match( /Rake\.application\.run/ )
+  @messenger.string.should match( /build_status\.success/ )
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
