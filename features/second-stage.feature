@@ -4,6 +4,9 @@ Feature: Setup second stage environment
   I want to disable network boot
   So that I can start second stage installer
 
+  Background:
+    Given tftp root path is "/tmp/lucie"
+
   Scenario: start second stage
     Given a node named "yasuhito00" with MAC address "11:22:33:44:55:66"
     When I try to start second stage for node "yasuhito00"

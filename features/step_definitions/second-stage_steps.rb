@@ -6,8 +6,8 @@ end
 
 
 Then /^network boot is disabled for a node with MAC address "([^\"]*)"$/ do | mac_address |
-  pxe_cfg = mac_address.gsub( ":", "-" ).downcase
-  history.should include( "file write (/var/lib/tftpboot/pxelinux.cfg/01-#{ pxe_cfg })" )
+  pxe_cfg = File.join( Configuration.tftp_root, "pxelinux.cfg", "01-" + mac_address.gsub( ":", "-" ).downcase )
+  history.should include( "file write (#{ pxe_cfg })" )
   history.should include( "> default local" )
   history.should include( "> label local" )
   history.should include( "> localboot 0" )
