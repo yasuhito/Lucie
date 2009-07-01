@@ -6,7 +6,7 @@ Feature: Setup tftpd to boot from nfsroot
   Background:
     Given Lucie log path is "/tmp/lucie.log"
     And node list is empty
-    And installers directory "/tmp/lucie/tmp/installers" is empty
+    And installers temporary directory "/tmp/lucie/tmp/installers" is empty
     And an installer for suite "lenny" added and built
 
   Scenario: Setup tftpd

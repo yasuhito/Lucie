@@ -28,7 +28,7 @@ class Service
       run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @options, @messenger
       run "sudo cp #{ installer.kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @options, @messenger
       unless nodes.empty?
-        setup_tftpd( config, inetd_conf )
+        setup_tftpd config, inetd_conf
         restart
       end
     end
@@ -51,8 +51,8 @@ class Service
 
 
     def setup_tftpd config, inetd_conf
-      reconfigure_inetd( inetd_conf )
-      reconfigure_tftpd( config )
+      reconfigure_inetd inetd_conf
+      reconfigure_tftpd config
     end
 
 
