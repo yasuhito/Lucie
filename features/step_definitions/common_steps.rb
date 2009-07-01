@@ -9,6 +9,11 @@ Given /^Lucie log path is "([^\"]*)"$/ do | path |
 end
 
 
+Given /^installers temporary directory is "([^\"]*)"$/ do | path |
+  Configuration.installers_temporary_directory = path
+  FileUtils.rm_rf Dir.glob( File.join( Configuration.installers_temporary_directory, "*" ) )
+end
+
 Given /^Lucie log directory "([^\"]*)" is empty$/ do | path |
   Configuration.log_directory = path
   FileUtils.rm_rf Dir.glob( File.join( Configuration.log_directory, "*" ) )

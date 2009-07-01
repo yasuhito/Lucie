@@ -5,16 +5,14 @@ end
 
 
 Then /^temporary directory for the installer created$/ do
-  dir = File.join( Configuration.temporary_directory, "installers", @suite )
+  dir = File.join( Configuration.installers_temporary_directory, @suite )
   history.should include( "mkdir -p #{ dir }" )
 end
 
 
-Then /^an installer added$/ do
-  installer = Installers.find( @suite )
-  installer.suite.should == @suite
-  installer.http_proxy.should be_nil
-  installer.package_repository.should == "http://cdn.debian.or.jp/debian"
+Then /^installer configuration file for "([^\"]*)" generated$/ do | suite |
+  config = File.join( Configuration.installers_temporary_directory, suite, "config.rb" )
+  history.should include( "file write (#{ config })" )
 end
 
 

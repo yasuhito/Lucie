@@ -1,10 +1,11 @@
 Feature: add installer
-  As a Lucie user
+
+  As a Lucie installer
   I want to add an installer
   So that I can install nodes
 
   Background:
-    Given Lucie log path is "/tmp/lucie.log"
+    Given installers temporary directory is "/tmp/lucie/"
 
   Scenario: add installer
     Given --verbose option is on
@@ -12,5 +13,5 @@ Feature: add installer
     And suite is "lenny"
     When I add an installer
     Then temporary directory for the installer created
-    And an installer added
+    And installer configuration file for "lenny" generated
 
