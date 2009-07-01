@@ -104,7 +104,7 @@ EOF
     <div class="header">
       <table><tr><td>
 	    <b>Debian Release:</b> <a href="http://www.debian.org/releases/#{ @install_options[ :suite ] }/">#{ @install_options[ :suite ] }</a><br/>
-	    <b>LDB Repository:</b> #{ @install_options[ :ldb_repository ] }<br/>
+            #{ @install_options[ :ldb_repository ] ? "<b>LDB Repository:</b> #{ @install_options[ :ldb_repository ] }<br/>" : "" }
 	    <b>Package Repository:</b> <a href="#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }">#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }</a><br/>
 	    <b>Netmask Address:</b> #{ @install_options[ :netmask ] }<br/>
             #{ @install_options[ :http_proxy ] ? %{<b>HTTP Proxy:</b> <a href="#{ @install_options[ :http_proxy ] }">#{ @install_options[ :http_proxy ] }</a><br/>} : "" }

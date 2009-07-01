@@ -10,7 +10,7 @@ class Installer
 
 
   DEFAULT_PACKAGE_REPOSITORY = "http://cdn.debian.or.jp/debian"
-  STEPS = [ "Reboot", "Disk Partition", "Base System", "Kernel", "GRUB", "Misc", "SSH", "Reboot", "LDB", "OK" ]
+  STEPS = [ "Reboot", "Disk Partition", "Base System", "Kernel", "GRUB", "Misc", "SSH", "Reboot", "Configure", "OK" ]
 
 
   attr_accessor :http_proxy
