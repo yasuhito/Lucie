@@ -27,7 +27,7 @@ class Service
 
     def disable
       run "sudo rm -f #{ @@config }", @options, @messenger
-      run 'sudo /etc/init.d/dhcp3-server stop', @options, @messenger
+      run "sudo /etc/init.d/dhcp3-server stop", @options, @messenger
     end
 
 
