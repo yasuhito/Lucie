@@ -3,9 +3,9 @@ require "network_interfaces"
 
 module Lucie
   class Server
-    def self.ip_address_for nodes
+    def self.ip_address_for nodes, interfaces = NetworkInterfaces
       subnet, netmask = nodes.first.net_info
-      nic = NetworkInterfaces.select do | each |
+      nic = interfaces.select do | each |
         each.subnet == subnet and each.netmask == netmask
       end.first
       raise "Cannot determine suitable network interface for installation" unless nic
