@@ -45,13 +45,6 @@ class Service
   end
 
 
-  def self.init name
-    module_eval %-
-      @@init_script = "/etc/init.d/#{ name }"
-    -
-  end
-
-
   def initialize options, messenger
     @options = options
     @messenger = messenger
@@ -65,15 +58,23 @@ class Service
 
   def restart
     instance_eval do | obj |
-      script = obj.class.__send__( :class_variable_get, :@@init_script )
-      run "sudo #{ script } restart", @options, @messenger
+      prerequisites = obj.class.__send__( :class_variable_get, :@@prerequisites )[ obj.class ]
+      prerequisites.each do | each |
+        script = "/etc/init.d/#{ each }"
+        if @options[ :dry_run ] || FileTest.exists?( script )
+          run "sudo #{ script } restart", @options, @messenger
+        end
+      end
     end
   end
 
 
-  def backup file
-    if @options[ :dry_run ] || FileTest.exists?( file )
-      run "sudo mv -f #{ file } #{ file }.old", @options, @messenger
+  def backup
+    instance_eval do | obj |
+      config = obj.class.__send__( :class_variable_get, :@@config )
+      if @options[ :dry_run ] || FileTest.exists?( config )
+        run "sudo mv -f #{ config } #{ config }.old", @options, @messenger
+      end
     end
   end
 end

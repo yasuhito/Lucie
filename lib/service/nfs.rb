@@ -11,7 +11,6 @@ class Service
     include Lucie::Utils
 
 
-    init "nfs-kernel-server"
     config "/etc/exports"
     prerequisite "nfs-kernel-server"
 
@@ -42,7 +41,7 @@ class Service
 
     def generate_config_file nodes, installer
       @options[ :sudo ] = true
-      backup @@config
+      backup
       write_file @@config, exports_config( nodes, installer ), @options, @messenger
     end
 

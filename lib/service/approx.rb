@@ -8,7 +8,6 @@ class Service
     include Lucie::Utils
 
 
-    init "approx"
     config "/etc/approx/approx.conf"
     prerequisite "approx"
 

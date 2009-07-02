@@ -10,7 +10,6 @@ class Service
     include Lucie::Utils
 
 
-    init "tftpd-hpa"
     config "/etc/default/tftpd-hpa"
     prerequisite "syslinux"
     prerequisite "tftpd-hpa"

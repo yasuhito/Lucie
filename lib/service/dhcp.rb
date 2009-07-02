@@ -13,7 +13,6 @@ class Service
     include Lucie::Utils
 
 
-    init "dhcp3-server"
     config "/etc/dhcp3/dhcpd.conf"
     prerequisite "dhcp3-server"
 
@@ -38,7 +37,7 @@ class Service
 
 
     def generate_config_file nodes, interfaces
-      backup @@config
+      backup
       write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
     end
 
