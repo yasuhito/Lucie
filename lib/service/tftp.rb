@@ -20,7 +20,7 @@ class Service
     end
 
 
-    def setup_nfsroot nodes, installer, config = @@config, inetd_conf = nil
+    def setup_nfsroot nodes, installer, config = @@config, inetd_conf = "/etc/inetd.conf"
       return if nodes.empty?
       info "Setting up tftpd ..."
       nodes.each do | each |
@@ -95,7 +95,7 @@ EOF
 
 
     def tftpd_boot_from_inetd inetd_conf
-      inetd_conf and inetd_conf.split( "\n" ).each do | each |
+      inetd_conf and IO.read( inetd_conf ).split( "\n" ).each do | each |
         return true if /^tftp\s+/=~ each
       end
       false
