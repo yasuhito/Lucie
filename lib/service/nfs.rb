@@ -11,6 +11,7 @@ class Service
     include Lucie::Utils
 
 
+    init "nfs-kernel-server"
     config "/etc/exports"
     prerequisite "nfs-kernel-server"
 
@@ -19,7 +20,7 @@ class Service
       info "Setting up nfsd ..."
       return if nodes.empty?
       generate_config_file nodes, installer
-      refresh_nfsd
+      restart
     end
 
 

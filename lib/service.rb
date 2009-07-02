@@ -45,6 +45,13 @@ class Service
   end
 
 
+  def self.init name
+    module_eval %-
+      @@init_script = "/etc/init.d/#{ name }"
+    -
+  end
+
+
   def initialize options, messenger
     @options = options
     @messenger = messenger
@@ -54,6 +61,14 @@ class Service
   ##############################################################################
   private
   ##############################################################################
+
+
+  def restart
+    instance_eval do | obj |
+      script = obj.class.__send__( :class_variable_get, :@@init_script )
+      run "sudo #{ script } restart", @options, @messenger
+    end
+  end
 
 
   def backup file

@@ -14,7 +14,7 @@ end
 
 Then /^nfsd should reload the new configuration$/ do
   @messenger.string.split( "\n" ).inject( false ) do | result, each |
-    result ||= Regexp.new( /\/etc\/init\.d\/nfs\-kernel\-server (start|reload)/ )=~ each
+    result ||= Regexp.new( /\/etc\/init\.d\/nfs\-kernel\-server (start|restart)/ )=~ each
   end.should be_true
 end
 

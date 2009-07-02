@@ -8,6 +8,7 @@ class Service
     include Lucie::Utils
 
 
+    init "approx"
     config "/etc/approx/approx.conf"
     prerequisite "approx"
 
@@ -19,7 +20,7 @@ debian          http://cdn.debian.or.jp/debian
 security        http://security.debian.org/debian-security
 volatile        http://volatile.debian.org/debian-volatile
 CONFIG
-      run "sudo /etc/init.d/approx restart", @options, @messenger
+      restart
     end
   end
 end

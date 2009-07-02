@@ -10,6 +10,7 @@ class Service
     include Lucie::Utils
 
 
+    init "tftpd-hpa"
     config "/etc/default/tftpd-hpa"
     prerequisite "syslinux"
     prerequisite "tftpd-hpa"
@@ -118,12 +119,6 @@ EOF
           return ( $1 == %{"-v -l -s /var/lib/tftpboot"} )
         end
       end
-    end
-
-
-    def restart
-      run "sudo /etc/init.d/tftpd-hpa stop", @options, @messenger
-      run "sudo /etc/init.d/tftpd-hpa start", @options, @messenger
     end
 
 
