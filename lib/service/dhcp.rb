@@ -17,11 +17,11 @@ class Service
     prerequisite "dhcp3-server"
 
 
-    def setup nodes, interfaces = nil
+    def setup nodes, interfaces = NetworkInterfaces
       info "Setting up dhcpd ..."
       return if all_subnets( nodes ) == {}
       generate_config_file nodes, interfaces
-      refresh_dhcpd
+      restart
     end
 
 
@@ -36,8 +36,8 @@ class Service
     ############################################################################
 
 
-    def refresh_dhcpd
-      run 'sudo /etc/init.d/dhcp3-server restart', @options, @messenger
+    def restart
+      run "sudo /etc/init.d/dhcp3-server restart", @options, @messenger
     end
 
 
@@ -93,7 +93,7 @@ EOF
 
 
     #
-    # returns all the subnet and netmask addresses used by enabled nodes.
+    # returns all the subnet and netmask addresses used by nodes.
     #
     # return value:
     #   a Hash of [ network_address, netmask_address ] => [ node1, node2, ... ]
@@ -124,7 +124,7 @@ EOF
 
 
     def interface_with subnet, netmask, interfaces
-      ( interfaces || NetworkInterfaces ).select do | each |
+      interfaces.select do | each |
         each.subnet == subnet and each.netmask == netmask
       end
     end
