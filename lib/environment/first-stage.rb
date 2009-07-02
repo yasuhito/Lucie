@@ -9,12 +9,12 @@ module Environment
     end
 
 
-    def start nodes, installer, interfaces = nil
+    def start nodes, installer
       Service::Installer.new( @options, @messenger ).setup nodes, installer
       Service::Approx.new( @options, @messenger ).setup
       Service::Tftp.new( @options, @messenger ).setup_nfsroot nodes, installer
       Service::Nfs.new( @options, @messenger ).setup nodes, installer
-      Service::Dhcp.new( @options, @messenger ).setup nodes, interfaces
+      Service::Dhcp.new( @options, @messenger ).setup nodes
     end
   end
 end
