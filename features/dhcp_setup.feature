@@ -29,7 +29,7 @@ Feature: Setup dhcpd
   Scenario: No network interface found error
     Given a node named "yasuhito00", with IP address "172.16.47.100"
     When I try to setup dhcpd
-    Then an error "Cannot find network interface for subnet = '172.16.47.0', netmask = '255.255.255.0'" raised
+    Then an error "Cannot determine suitable network interface for installation" raised
 
   Scenario: Setup dhcpd with no node and nothing happens
     When I try to setup dhcpd

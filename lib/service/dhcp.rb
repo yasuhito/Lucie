@@ -2,6 +2,7 @@ require "rubygems"
 
 require "facter"
 require "lucie/io"
+require "lucie/server"
 require "lucie/utils"
 require "network"
 require "network_interfaces"
@@ -83,7 +84,7 @@ subnet #{ subnet } netmask #{ netmask } {
   option broadcast-address #{ broadcast };
   deny unknown-clients;
 
-  next-server #{ next_server( subnet, netmask, interfaces ) };
+  next-server #{ Lucie::Server.ip_address_for( nodes, interfaces ) };
   filename "pxelinux.0";
 
 #{ host_entries( nodes ) }
