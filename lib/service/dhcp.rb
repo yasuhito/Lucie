@@ -37,9 +37,8 @@ class Service
 
 
     def generate_config_file nodes, interfaces
-      @options[ :sudo ] = true
       backup_config_file
-      write_file @@config, dhcpd_conf( nodes, interfaces ), @options, @messenger
+      write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
     end
 
 
@@ -49,9 +48,14 @@ class Service
 
 
     def backup_config_file
-      if FileTest.exists?( @@config )
+      if dhcpd_conf_exists?
         run "sudo mv -f #{ @@config } #{ @@config }.old", @options, @messenger
       end
+    end
+
+
+    def dhcpd_conf_exists?
+      @options[ :dry_run ] || FileTest.exists?( @@config )
     end
 
 
