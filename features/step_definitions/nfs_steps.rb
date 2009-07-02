@@ -1,8 +1,7 @@
 When /^I try to setup nfsd for installer "([^\"]*)"$/ do | installer |
   @messenger = StringIO.new( "" )
-  @nfsd_config = Tempfile.new( "nfsd" )
   nfs_service = Service::Nfs.new( { :dry_run => true, :verbose => true }, @messenger )
-  nfs_service.setup Nodes.load_all, Installers.find( installer ), @nfsd_config.path
+  nfs_service.setup Nodes.load_all, Installers.find( installer )
 end
 
 
@@ -45,7 +44,7 @@ end
 
 
 Then /^nfsd configuration should have no entry$/ do
-  IO.read( @nfsd_config.path ).should == ""
+  history.should == [ "Setting up nfsd ..." ]
 end
 
 

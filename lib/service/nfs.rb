@@ -15,10 +15,10 @@ class Service
     prerequisite "nfs-kernel-server"
 
 
-    def setup nodes, installer, config = @@config
+    def setup nodes, installer
       info "Setting up nfsd ..."
       return if nodes.empty?
-      generate_config_file nodes, installer, config
+      generate_config_file nodes, installer
       refresh_nfsd
     end
 
@@ -39,16 +39,16 @@ class Service
     end
 
 
-    def generate_config_file nodes, installer, config
+    def generate_config_file nodes, installer
       @options[ :sudo ] = true
-      backup config
-      write_file config, exports_config( nodes, installer ), @options, @messenger
+      backup
+      write_file @@config, exports_config( nodes, installer ), @options, @messenger
     end
 
 
-    def backup config
-      if FileTest.exists?( config )
-        run "sudo mv -f #{ config } #{ config }.old", @options, @messenger
+    def backup
+      if FileTest.exists?( @@config )
+        run "sudo mv -f #{ @@config } #{ @@config }.old", @options, @messenger
       end
     end
 
