@@ -1,3 +1,4 @@
+require "facter"
 require "network_interfaces"
 
 
@@ -10,6 +11,15 @@ module Lucie
       end.first
       raise "Cannot determine suitable network interface for installation" unless nic
       nic.ip_address
+    end
+
+
+    def self.domain
+      my_domain = Facter.value( "domain" )
+      unless my_domain
+        raise "Cannot resolve Lucie server's domain name."
+      end
+      my_domain
     end
   end
 end
