@@ -122,7 +122,8 @@ EOF
 
 
     def restart
-      run "sudo /etc/init.d/tftpd-hpa restart", @options, @messenger
+      run "sudo /etc/init.d/tftpd-hpa stop", @options, @messenger
+      run "sudo /etc/init.d/tftpd-hpa start", @options, @messenger
     end
 
 
