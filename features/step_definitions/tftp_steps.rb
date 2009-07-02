@@ -17,8 +17,11 @@ end
 
 
 Given /^"inetd\.conf has tftpd entry\?" is "([^\"]*)"$/ do | yesno |
-  if yesno.downcase == 'yes'
-    @inetd_conf = "tftp dgram udp wait root /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot"
+  if yesno.downcase == "yes"
+    inetd_conf = Tempfile.new( "lucie test" )
+    inetd_conf.puts "tftp dgram udp wait root /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot"
+    inetd_conf.close
+    @inetd_conf = inetd_conf.path
   end
 end
 
