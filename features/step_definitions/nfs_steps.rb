@@ -8,9 +8,8 @@ end
 
 When /^I try to disable nfsd$/ do
   @messenger = StringIO.new( "" )
-  @nfsd_config = Tempfile.new( "nfsd" )
   nfs_service = Service::Nfs.new( { :dry_run => true, :verbose => true }, @messenger )
-  nfs_service.disable @nfsd_config.path
+  nfs_service.disable
 end
 
 
@@ -22,9 +21,7 @@ end
 
 
 Then /^nfsd stopped$/ do
-  history.inject( false ) do | result, each |
-    result ||= Regexp.new( /\/etc\/init\.d\/nfs\-kernel\-server stop/ )=~ each
-  end.should be_true
+  history.should include( "sudo /etc/init.d/nfs-kernel-server stop" )
 end
 
 
@@ -43,7 +40,7 @@ end
 
 
 Then /^nfsd config file removed$/ do
-  @messenger.string.should match( Regexp.new( Regexp.escape( "rm -f " + @nfsd_config.path ) ) )
+  history.should include( "sudo rm -f /etc/exports" )
 end
 
 

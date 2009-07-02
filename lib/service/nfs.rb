@@ -23,8 +23,8 @@ class Service
     end
 
 
-    def disable config = @@config
-      run "sudo rm -f #{ config }", @options, @messenger
+    def disable
+      run "sudo rm -f #{ @@config }", @options, @messenger
       run "sudo /etc/init.d/nfs-kernel-server stop", @options, @messenger
     end
 
