@@ -41,20 +41,8 @@ class Service
 
     def generate_config_file nodes, installer
       @options[ :sudo ] = true
-      backup
+      backup @@config
       write_file @@config, exports_config( nodes, installer ), @options, @messenger
-    end
-
-
-    def backup
-      if exports_file_exists?
-        run "sudo mv -f #{ @@config } #{ @@config }.old", @options, @messenger
-      end
-    end
-
-
-    def exports_file_exists?
-      @options[ :dry_run ] || FileTest.exists?( @@config )
     end
 
 

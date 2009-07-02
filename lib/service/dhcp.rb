@@ -37,25 +37,13 @@ class Service
 
 
     def generate_config_file nodes, interfaces
-      backup_config_file
+      backup @@config
       write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
     end
 
 
     def restart
       run "sudo /etc/init.d/dhcp3-server restart", @options, @messenger
-    end
-
-
-    def backup_config_file
-      if dhcpd_conf_exists?
-        run "sudo mv -f #{ @@config } #{ @@config }.old", @options, @messenger
-      end
-    end
-
-
-    def dhcpd_conf_exists?
-      @options[ :dry_run ] || FileTest.exists?( @@config )
     end
 
 

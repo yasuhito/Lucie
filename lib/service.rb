@@ -49,6 +49,18 @@ class Service
     @options = options
     @messenger = messenger
   end
+
+
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def backup file
+    if @options[ :dry_run ] || FileTest.exists?( file )
+      run "sudo mv -f #{ file } #{ file }.old", @options, @messenger
+    end
+  end
 end
 
 
