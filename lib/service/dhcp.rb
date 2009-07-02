@@ -39,7 +39,7 @@ class Service
     def generate_config_file nodes, interfaces
       @options[ :sudo ] = true
       backup_config_file
-      write_file @@config, dhcpd_config( nodes, interfaces ), @options, @messenger
+      write_file @@config, dhcpd_conf( nodes, interfaces ), @options, @messenger
     end
 
 
@@ -58,7 +58,8 @@ class Service
     # Networking ###############################################################
 
 
-    def broadcast_address node
+    def broadcast_address nodes
+      node = nodes.first
       Network.broadcast_address node.ip_address, node.netmask_address
     end
 
@@ -81,7 +82,7 @@ class Service
     # dhcpd.conf snippets ######################################################
 
 
-    def dhcpd_config nodes, interfaces
+    def dhcpd_conf nodes, interfaces
       <<-EOF
 option domain-name "#{ Lucie::Server.domain }";
 
@@ -93,17 +94,17 @@ EOF
     def subnet_entries nodes, interfaces
       entries = ""
       all_subnets( nodes ).each_pair do | netinfo, nodes |
-        entries += subnet_entry( netinfo, broadcast_address( nodes.first ), nodes, interfaces )
+        entries += subnet_entry( netinfo, nodes, interfaces )
       end
       entries
     end
 
 
-    def subnet_entry netinfo, broadcast, nodes, interfaces
+    def subnet_entry netinfo, nodes, interfaces
       subnet, netmask = netinfo
       return <<-EOF
 subnet #{ subnet } netmask #{ netmask } {
-  option broadcast-address #{ broadcast };
+  option broadcast-address #{ broadcast_address( nodes ) };
   deny unknown-clients;
 
   next-server #{ Lucie::Server.ip_address_for( nodes, interfaces ) };
