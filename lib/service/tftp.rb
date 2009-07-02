@@ -16,21 +16,21 @@ class Service
 
 
     def self.pxe_directory
-      File.join Configuration.tftp_root, 'pxelinux.cfg'
+      File.join Configuration.tftp_root, "pxelinux.cfg"
     end
 
 
-    def setup_nfsroot nodes, installer, config = @@config, inetd_conf = "/etc/inetd.conf"
+    def setup_nfsroot nodes, installer, inetd_conf = "/etc/inetd.conf"
       return if nodes.empty?
       info "Setting up tftpd ..."
       nodes.each do | each |
         create_pxe_nfsroot_files_for each, installer
       end
-      setup installer.kernel, config, inetd_conf
+      setup installer.kernel, inetd_conf
     end
 
 
-    def setup_localboot node, config = @@config, inetd_conf = nil
+    def setup_localboot node
       create_pxe_localboot_files_for node
     end
 
@@ -45,10 +45,10 @@ class Service
     ############################################################################
 
 
-    def setup kernel, config, inetd_conf
+    def setup kernel, inetd_conf
       setup_pxe kernel
       reconfigure_inetd inetd_conf
-      reconfigure_tftpd config
+      reconfigure_tftpd
       restart
     end
 
@@ -66,9 +66,9 @@ class Service
     end
 
 
-    def reconfigure_tftpd config
-      if tftpd_not_configured( config )
-        write_file config, tftpd_default, @options, @messenger
+    def reconfigure_tftpd
+      if tftpd_not_configured
+        write_file @@config, tftpd_default, @options, @messenger
       end
     end
 
@@ -87,10 +87,10 @@ EOF
     end
 
 
-    def tftpd_not_configured config
-      return true unless FileTest.exists?( config )
-      return true unless tftpd_run_as_daemon?( config )
-      return true unless tftpd_commandline_options_are_valid?( config )
+    def tftpd_not_configured
+      return true unless FileTest.exists?( @@config )
+      return true unless tftpd_run_as_daemon?
+      return true unless tftpd_commandline_options_are_valid?
     end
 
 
@@ -102,16 +102,16 @@ EOF
     end
 
 
-    def tftpd_run_as_daemon? config
-      IO.read( config ).split( "\n" ).each do | each |
+    def tftpd_run_as_daemon?
+      IO.read( @@config ).split( "\n" ).each do | each |
         return true if /^RUN_DAEMON=(yes|"yes")$/=~ each
       end
       false
     end
 
 
-    def tftpd_commandline_options_are_valid? config
-      IO.read( config ).split( "\n" ).each do | each |
+    def tftpd_commandline_options_are_valid?
+      IO.read( @@config ).split( "\n" ).each do | each |
         if /^OPTIONS=(.*)$/=~ each
           # -l option: Run the server in standalone (listen) mode.
           # -s option: Change root directory on startup.

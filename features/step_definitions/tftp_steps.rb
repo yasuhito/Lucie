@@ -28,9 +28,9 @@ end
 
 When /^I try to setup tftpd nfsroot with installer "([^\"]*)"$/ do | installer |
   @messenger = StringIO.new( "" )
-  config = @tftpd_config ? @tftpd_config.path : 'DUMMY_TFTPD_CONFIG_PATH'
+  Service::Tftp.__send__ :class_variable_set, :@@config, @tftpd_config ? @tftpd_config.path : "/etc/default/tftpd-hpa"
   tftp_service = Service::Tftp.new( { :verbose => true, :dry_run => true }, @messenger )
-  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), config, @inetd_conf
+  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf
 end
 
 
@@ -89,7 +89,7 @@ end
 When /^I try to setup tftpd localboot for node "([^\"]*)"$/ do | node |
   @messenger = StringIO.new( "" )
   tftp_service = Service::Tftp.new( { :dry_run => true, :verbose => true }, @messenger )
-  tftp_service.setup_localboot Nodes.find( node ), @tftpd_config.path, @inetd_conf
+  tftp_service.setup_localboot Nodes.find( node )
 end
 
 
