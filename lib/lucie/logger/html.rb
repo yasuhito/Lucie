@@ -130,11 +130,14 @@ HTML
       def node_status_html node
         return <<-HTML
       <div class="#{ status_div_class_of( node ) }">
-	<table><tr><td>
-	      <span class="node_name"><a href="#{ Lucie::Logger::Installer.latest_log_relative( node ) }">#{ node.name }</a></span> #{ spinner_html( node ) }
-	      <ul class="step10">
+	<table>
+          <tr><td>
+            <span class="node_name"><a href="#{ Lucie::Logger::Installer.latest_log_relative( node ) }">#{ node.name }</a></span> #{ spinner_html( node ) }
+          </tr></td>
+          <tr><td>
+            <ul class="step10">
 #{ steps_html( node ) }              
-	      </ul>
+	    </ul>
 	</td></tr></table>
       </div>
 HTML
