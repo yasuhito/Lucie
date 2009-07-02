@@ -34,11 +34,6 @@ class Service
     ############################################################################
 
 
-    def refresh_nfsd
-      run "sudo /etc/init.d/nfs-kernel-server reload", @options, @messenger
-    end
-
-
     def generate_config_file nodes, installer
       @options[ :sudo ] = true
       backup
