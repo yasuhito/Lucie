@@ -26,12 +26,6 @@ class Service
     end
 
 
-    def disable
-      remove_config
-      stop
-    end
-
-
     ############################################################################
     private
     ############################################################################
@@ -39,11 +33,6 @@ class Service
 
     def write_config nodes, interfaces
       write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
-    end
-
-
-    def remove_config
-      run "sudo rm -f #{ @@config }", @options, @messenger
     end
 
 

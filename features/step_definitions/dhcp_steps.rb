@@ -9,13 +9,6 @@ When /^I try to setup dhcpd$/ do
 end
 
 
-When /^I try to disable dhcpd$/ do
-  @messenger = StringIO.new( "" )
-  dhcp_service = Service::Dhcp.new( { :verbose => true, :dry_run => true }, @messenger )
-  dhcp_service.disable
-end
-
-
 Then /^dhcpd configuration should include (\d+) node\(s\)$/ do | nentry |
   history.inject( 0 ) do | result, each |
     result += 1 if /^>\s+host .* \{/=~ each
@@ -45,18 +38,6 @@ end
 
 Then /^dhcpd configuration should not include an entry for node "([^\"]*)"$/ do | host_name |
   history.should_not include( ">   host #{ host_name } {" )
-end
-
-
-Then /^dhcpd configuration file removed$/ do
-  @messenger.string.should match( /rm -f \/etc\/dhcp3\/dhcpd\.conf/ )
-end
-
-
-Then /^dhcpd should be stopped$/ do
-  history.inject( false ) do | result, each |
-    result ||= Regexp.new( /\/etc\/init\.d\/dhcp3\-server stop/ ) === each
-  end.should be_true
 end
 
 

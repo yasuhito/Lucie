@@ -56,19 +56,6 @@ class Service
   ##############################################################################
 
 
-  def stop
-    instance_eval do | obj |
-      prerequisites = obj.class.__send__( :class_variable_get, :@@prerequisites )[ obj.class ]
-      prerequisites.each do | each |
-        script = "/etc/init.d/#{ each }"
-        if @options[ :dry_run ] || FileTest.exists?( script )
-          run "sudo #{ script } stop", @options, @messenger
-        end
-      end
-    end
-  end
-
-
   def restart
     instance_eval do | obj |
       prerequisites = obj.class.__send__( :class_variable_get, :@@prerequisites )[ obj.class ]
