@@ -1,6 +1,6 @@
 When /^I try to setup approx$/ do
   @messenger = StringIO.new( "" )
-  Service::Approx.new( { :verbose => true, :dry_run => true }, @messenger ).setup
+  Service::Approx.new( { :verbose => true, :dry_run => true }, @messenger ).setup "DEBIAN_REPOSITORY"
 end
 
 

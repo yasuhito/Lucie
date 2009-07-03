@@ -12,10 +12,10 @@ class Service
     prerequisite "approx"
 
 
-    def setup
+    def setup debian_repository
       info "Setting up approx ..."
       write_file @@config, <<-CONFIG, @options.merge( :sudo => true ), @messenger
-debian          http://cdn.debian.or.jp/debian
+debian          #{ debian_repository }
 security        http://security.debian.org/debian-security
 volatile        http://volatile.debian.org/debian-volatile
 CONFIG
