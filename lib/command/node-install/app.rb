@@ -26,10 +26,10 @@ module Command
         update_sudo_timestamp
         start_main_logger
         check_prerequisites
+        create_node node_name
 
         start_lucie_logger
         create_installer
-        node = load_node( node_name )
         start_html_logger node
         setup_first_stage
         install_parallel node
@@ -112,10 +112,9 @@ module Command
       end
 
 
-      def load_node node_name
+      def create_node node_name
         node = Node.new( node_name, node_options )
         Nodes.add node, debug_options, @messenger
-        Nodes.find node_name
       end
 
 
