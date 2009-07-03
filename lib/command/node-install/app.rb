@@ -23,6 +23,7 @@ module Command
 
 
       def main node_name
+        update_sudo_timestamp
         start_lucie_logger
         create_installer
         node = load_node( node_name )
@@ -35,6 +36,11 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def update_sudo_timestamp
+        run %{sudo -v}, debug_options, @messenger
+      end
 
 
       def setup_first_stage
