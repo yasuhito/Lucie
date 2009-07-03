@@ -19,15 +19,16 @@ class Service
 
     def setup nodes, interfaces = NetworkInterfaces
       info "Setting up dhcpd ..."
-      return if all_subnets( nodes ) == {}
-      generate_config_file nodes, interfaces
+      return if nodes.empty?
+      backup
+      write_config nodes, interfaces
       restart
     end
 
 
     def disable
-      run "sudo rm -f #{ @@config }", @options, @messenger
-      run "sudo /etc/init.d/dhcp3-server stop", @options, @messenger
+      remove_config
+      stop
     end
 
 
@@ -36,9 +37,13 @@ class Service
     ############################################################################
 
 
-    def generate_config_file nodes, interfaces
-      backup
+    def write_config nodes, interfaces
       write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
+    end
+
+
+    def remove_config
+      run "sudo rm -f #{ @@config }", @options, @messenger
     end
 
 
@@ -57,7 +62,7 @@ class Service
     # return value:
     #   a Hash of [ network_address, netmask_address ] => [ node1, node2, ... ]
     #
-    def all_subnets nodes
+    def subnets nodes
       subnets = Hash.new( [] )
       nodes.each do | each |
         subnets[ each.net_info ] = subnets[ each.net_info ].push( each )
@@ -80,7 +85,7 @@ EOF
 
     def subnet_entries nodes, interfaces
       entries = ""
-      all_subnets( nodes ).each_pair do | netinfo, nodes |
+      subnets( nodes ).each_pair do | netinfo, nodes |
         entries += subnet_entry( netinfo, nodes, interfaces )
       end
       entries
