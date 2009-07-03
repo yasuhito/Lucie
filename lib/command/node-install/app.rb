@@ -168,6 +168,14 @@ module Command
       end
 
 
+      def reboot_to_start_first_stage node, logger
+        File.open( "/var/log/syslog", "r" ) do | syslog |
+          @super_reboot.start_first_stage node, syslog, logger, @node_options[ node.name ].reboot_script
+        end
+        @html_logger.next_step node
+      end
+
+
       def install node, logger
         reboot node
         start_installer_for node, logger
