@@ -34,8 +34,7 @@ module Command
         start_super_reboot
         setup_ssh
         setup_first_stage
-
-        install_parallel node
+        install_parallel
       end
 
 
@@ -118,11 +117,25 @@ module Command
       end
 
 
-      def install_parallel node
-        log_directory = Lucie::Logger::Installer.new_log_directory( node, debug_options, @messenger )
-        logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
-        install node, logger
-        log_installation_success node
+      def install_parallel
+        threads = []
+        begin
+          Nodes.load_all.collect do | each |
+            sleep 1
+            log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
+            logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
+            each.status = Status::Installer.new( log_directory, debug_options, @messenger )
+            create_installer_thread each, logger
+          end.each do | each |
+            each.join
+          end
+        rescue Interrupt
+          $stderr.puts "Interrupted"
+          Nodes.load_all.each do | each |
+            each.status.fail!
+            @html_logger.update each, "failed (interrupted)"
+          end
+        end
       end
 
 
