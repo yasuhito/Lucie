@@ -18,14 +18,9 @@ class Service
     def setup nodes, installer
       info "Setting up nfsd ..."
       return if nodes.empty?
-      generate_config_file nodes, installer
+      backup
+      write_config nodes, installer
       restart
-    end
-
-
-    def disable
-      run "sudo rm -f #{ @@config }", @options, @messenger
-      run "sudo /etc/init.d/nfs-kernel-server stop", @options, @messenger
     end
 
 
@@ -34,10 +29,8 @@ class Service
     ############################################################################
 
 
-    def generate_config_file nodes, installer
-      @options[ :sudo ] = true
-      backup
-      write_file @@config, exports_config( nodes, installer ), @options, @messenger
+    def write_config nodes, installer
+      write_file @@config, exports_config( nodes, installer ), @options.merge( :sudo => true ), @messenger
     end
 
 

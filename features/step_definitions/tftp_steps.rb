@@ -18,10 +18,9 @@ end
 
 Given /^"inetd\.conf has tftpd entry\?" is "([^\"]*)"$/ do | yesno |
   if yesno.downcase == "yes"
-    inetd_conf = Tempfile.new( "lucie test" )
-    inetd_conf.puts "tftp dgram udp wait root /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot"
-    inetd_conf.close
-    @inetd_conf = inetd_conf.path
+    @inetd_conf = Tempfile.new( "lucie" )
+    @inetd_conf.puts "tftp dgram udp wait root /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot"
+    @inetd_conf.flush
   end
 end
 
@@ -30,7 +29,7 @@ When /^I try to setup tftpd nfsroot with installer "([^\"]*)"$/ do | installer |
   @messenger = StringIO.new( "" )
   Service::Tftp.__send__ :class_variable_set, :@@config, @tftpd_config ? @tftpd_config.path : "/etc/default/tftpd-hpa"
   tftp_service = Service::Tftp.new( { :verbose => true, :dry_run => true }, @messenger )
-  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf
+  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf ? @inetd_conf.path : "/etc/inetd.conf"
 end
 
 

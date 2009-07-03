@@ -95,7 +95,7 @@ EOF
 
 
     def tftpd_boot_from_inetd inetd_conf
-      inetd_conf and IO.read( inetd_conf ).split( "\n" ).each do | each |
+      IO.read( inetd_conf ).split( "\n" ).each do | each |
         return true if /^tftp\s+/=~ each
       end
       false
