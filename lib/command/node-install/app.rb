@@ -170,7 +170,7 @@ module Command
 
       def reboot_to_start_first_stage node, logger
         File.open( "/var/log/syslog", "r" ) do | syslog |
-          @super_reboot.start_first_stage node, syslog, logger, @node_options[ node.name ].reboot_script
+          @super_reboot.start_first_stage node, syslog, logger, @options.reboot_script
         end
         @html_logger.next_step node
       end
