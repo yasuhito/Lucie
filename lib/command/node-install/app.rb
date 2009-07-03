@@ -25,6 +25,7 @@ module Command
       def main node_name
         update_sudo_timestamp
         start_main_logger
+        check_prerequisites
 
         start_lucie_logger
         create_installer
@@ -38,6 +39,11 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def check_prerequisites
+        Service.check_prerequisites debug_options, @messenger
+      end
 
 
       def start_main_logger
