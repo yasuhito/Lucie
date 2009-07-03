@@ -43,6 +43,14 @@ module Command
       ##########################################################################
 
 
+      def lucie_server_ip
+        subnet, netmask = Nodes.load_all.first.net_info
+        NetworkInterfaces.select do | each |
+          each.subnet == subnet and each.netmask == netmask
+        end.first.ip_address
+      end
+
+
       def setup_ldb
         return unless @options.ldb_repository
         @ldb = LDB.new( debug_options, @messenger )
