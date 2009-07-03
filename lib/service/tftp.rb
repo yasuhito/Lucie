@@ -147,7 +147,7 @@ default lucie
 
 label lucie
 kernel #{ installer_kernel }
-append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ Nfsroot.path( installer ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name } irqpoll idle=poll
+append ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ Nfsroot.path( installer ) },v2,rsize=32768,wsize=32768 hostname=#{ node.name } irqpoll idle=poll pci=noacpi nobiospnp noapic nolapic
 EOF
     end
 
