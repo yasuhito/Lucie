@@ -32,6 +32,7 @@ module Command
         create_installer
         start_html_logger
         start_super_reboot
+        setup_ssh
 
         start_lucie_logger
         setup_first_stage
@@ -42,6 +43,11 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def setup_ssh
+        run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, debug_options, @messenger
+      end
 
 
       def start_super_reboot
