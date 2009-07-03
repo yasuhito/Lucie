@@ -33,9 +33,8 @@ module Command
         start_html_logger
         start_super_reboot
         setup_ssh
-
-        start_lucie_logger
         setup_first_stage
+
         install_parallel node
       end
 
