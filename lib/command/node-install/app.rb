@@ -29,10 +29,10 @@ module Command
         check_prerequisites
         create_node node_name
         setup_ldb
+        create_installer
+        start_html_logger
 
         start_lucie_logger
-        create_installer
-        start_html_logger node
         setup_first_stage
         install_parallel node
       end
@@ -41,6 +41,17 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def start_html_logger
+        @html_logger = Lucie::Logger::HTML.new( { :dry_run => @dry_run }, @messenger )
+        install_options = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
+          :package_repository => @installer.package_repository, :netmask => @options.netmask, :http_proxy => @installer.http_proxy }
+        @html_logger.start install_options
+        Nodes.load_all.each do | each |
+          @html_logger.update each, "started"
+        end
+      end
 
 
       def lucie_server_ip
@@ -93,14 +104,6 @@ module Command
         @installer.package_repository = @options.package_repository if @options.package_repository
         @installer.suite = @options.suite if @options.suite
         Installers.add @installer, debug_options, @messenger
-      end
-
-
-      def start_html_logger node
-        @html_logger = Lucie::Logger::HTML.new( { :dry_run => @dry_run }, @messenger )
-        install_option = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
-          :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
-        @html_logger.start install_option
       end
 
 
