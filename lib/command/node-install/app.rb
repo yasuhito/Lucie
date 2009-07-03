@@ -194,6 +194,38 @@ module Command
       end
 
 
+      def run_second_stage node, logger
+        setup_second_stage_for node
+        reboot_to_start_second_stage node, logger
+        start_ldb node, logger
+        @html_logger.update node, "ok"
+        info "Node '#{ node.name }' installed."
+      end
+
+
+      def start_ldb node, logger
+        if @options.ldb_repository
+          @html_logger.update node, "Starting LDB ..."
+          @ldb.update node, @options.ldb_repository, logger
+          @ldb.start node, @options.ldb_repository, logger
+        end
+        @html_logger.next_step node
+      end
+
+
+      def setup_second_stage_for node
+        Environment::SecondStage.new( debug_options, @messenger ).start( node )
+      end
+
+
+      def reboot_to_start_second_stage node, logger
+        File.open( "/var/log/syslog", "r" ) do | syslog |
+          @super_reboot.start_second_stage node, syslog, logger
+        end
+        @html_logger.next_step node
+      end
+
+
       def create_node node_name
         node = Node.new( node_name, node_options )
         Nodes.add node, debug_options, @messenger
