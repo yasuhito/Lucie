@@ -1,6 +1,7 @@
 require "lucie/shell"
 require "lucie/utils"
 require "network"
+require "resolv"
 require "status/installer"
 
 
@@ -13,7 +14,6 @@ class Node
   attr_reader :eth3
   attr_reader :eth4
   attr_reader :install_command
-  attr_reader :ip_address
   attr_reader :mac_address
   attr_reader :name
   attr_accessor :netmask_address
@@ -39,6 +39,12 @@ class Node
     @eth4 = attributes[ :eth4 ]
     @ip_address = attributes[ :ip_address ]
     @netmask_address = attributes[ :netmask_address ]
+  end
+
+
+  def ip_address
+    return @ip_address if @ip_address
+    Resolv.getaddress( @name ) rescue raise( "no address for #{ @name }" )
   end
 
 
@@ -78,9 +84,6 @@ class Node
     if @mac_address.nil?
       raise "#{ @name }: MAC address is mandatory."
     end
-    if @ip_address.nil?
-      raise "IP address is mandatory."
-    end
     if @netmask_address.nil?
       raise "Netmask address is mandatory."
     end
@@ -90,9 +93,6 @@ class Node
     end
     if invalid_mac_address?
       raise "'#{ @mac_address }' is not a valid MAC address."
-    end
-    if invalid_address?( @ip_address )
-      raise "'#{ @ip_address }' is not a valid IP address."
     end
     if invalid_address?( @netmask_address )
       raise "'#{ @netmask_address }' is not a valid netmask address."
@@ -106,7 +106,7 @@ class Node
 
 
   def net_info
-    [ Network.network_address( @ip_address, @netmask_address ), netmask_address ]
+    [ Network.network_address( ip_address, @netmask_address ), netmask_address ]
   end
 
 

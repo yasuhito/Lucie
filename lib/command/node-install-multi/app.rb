@@ -221,7 +221,6 @@ module Command
 
       def node_options name
         {
-          :ip_address => @node_options[ name ].address,
           :netmask_address => @options.netmask,
           :mac_address => @node_options[ name ].mac,
           :eth1 => @node_options[ name ].eth1,

@@ -4,13 +4,8 @@ require "command/option"
 module Command
   module NodeInstall
     class Options < Command::Option
-      usage "node install <NODE> --address <IP-ADDRESS> --netmask <NETMASK> --mac <MAC-ADDRESS> --storage-conf <FILE> --ldb-repository <URL> [OPTIONS ...]"
+      usage "node install <NODE> --netmask <NETMASK> --mac <MAC-ADDRESS> --storage-conf <FILE> --ldb-repository <URL> [OPTIONS ...]"
 
-      add_option( :long_option => "--address",
-                  :short_option => "-a",
-                  :argument => "[IP-ADDRESS]",
-                  :mandatory => true,
-                  :description => "IP address." )
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
                   :argument => "[NETMASK-ADDRESS]",
