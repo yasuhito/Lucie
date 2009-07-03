@@ -17,9 +17,8 @@ module Command
       include Lucie::Utils
 
 
-      def initialize argv = ARGV, messenger = nil, interfaces = nil
+      def initialize argv = ARGV, messenger = nil
         super argv, messenger
-        @interfaces = interfaces
       end
 
 
@@ -28,15 +27,19 @@ module Command
         create_installer
         node = load_node( node_name )
         start_html_logger node
-        Environment::Install.new( debug_options, @messenger ).start( node, @installer, @interfaces ) do
-          install_parallel node
-        end
+        setup_first_stage
+        install_parallel node
       end
 
 
       ##########################################################################
       private
       ##########################################################################
+
+
+      def setup_first_stage
+        Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer )
+      end
 
 
       def start_lucie_logger
@@ -96,8 +99,8 @@ module Command
 
 
       def node_options
-        { :ip_address => @options.address, :netmask_address => @options.netmask,
-          :mac_address => @options.mac, :eth1 => @options.eth1, :eth2 => @options.eth2, :eth3 => @options.eth3, :eth4 => @options.eth4 }
+        { :netmask_address => @options.netmask, :mac_address => @options.mac,
+          :eth1 => @options.eth1, :eth2 => @options.eth2, :eth3 => @options.eth3, :eth4 => @options.eth4 }
       end
 
 
