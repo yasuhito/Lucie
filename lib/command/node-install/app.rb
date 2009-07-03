@@ -189,7 +189,8 @@ module Command
 
 
       def start_installer_for node, logger
-        @installer.start node, @options.linux_image, @options.storage_conf, logger, @html_logger, debug_options, @messenger
+        local_clone_directory = @ldb ? @ldb.local_clone_directory( @options.ldb_repository ) : nil
+        @installer.start node, @options.linux_image, @options.storage_conf, local_clone_directory, logger, @html_logger, debug_options, @messenger
       end
 
 
