@@ -18,7 +18,7 @@ end
 
 begin
   app = Command::NodeInstall::App.new
-  app.usage_and_exit if target_nodes.empty?
+  app.usage_and_exit if target_node.nil?
   app.main target_node
 rescue => e
   $stderr.puts "ERROR: " + e.message
