@@ -4,7 +4,7 @@ end
 
 
 Given /^RUN_DAEMON option of tftpd default config is "([^\"]*)"$/ do | yesno |
-  @tftpd_config = Tempfile.new( 'tftp' )
+  @tftpd_config = Tempfile.new( "tftp" )
   @tftpd_config.puts %{RUN_DAEMON="#{ yesno.downcase }"}
   @tftpd_config.flush
 end

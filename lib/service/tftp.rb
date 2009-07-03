@@ -59,46 +59,49 @@ class Service
     end
 
 
-    def reconfigure_inetd inetd_conf
-      if tftpd_boot_from_inetd( inetd_conf )
-        disable_inetd_conf
-      end
-    end
-
-
     def reconfigure_tftpd
-      if tftpd_not_configured
-        write_file @@config, tftpd_default, @options, @messenger
+      unless tftpd_configured?
+        write_file @@config, tftpd_default, @options.merge( :sudo => true ), @messenger
       end
     end
 
 
-    def disable_inetd_conf
-      run "sudo /usr/sbin/update-inetd --disable tftp", @options, @messenger
-      run "sudo kill -HUP `cat /var/run/inetd.pid`", @options, @messenger
+    def create_pxe_nfsroot_files_for node, installer
+      make_pxe_directory
+      write_file pxe_config_file( node.mac_address ), pxe_nfsroot_config( node, installer ), @options.merge( :sudo => true ), @messenger
     end
 
 
-    def tftpd_default
-      return <<-EOF
-RUN_DAEMON="yes"
-OPTIONS="-v -l -s #{ Configuration.tftp_root }"
-EOF
-    end
-
-
-    def tftpd_not_configured
-      return true unless FileTest.exists?( @@config )
-      return true unless tftpd_run_as_daemon?
-      return true unless tftpd_commandline_options_are_valid?
-    end
-
-
-    def tftpd_boot_from_inetd inetd_conf
-      IO.read( inetd_conf ).split( "\n" ).each do | each |
-        return true if /^tftp\s+/=~ each
+    def make_pxe_directory
+      unless File.directory?( Tftp.pxe_directory )
+        run "sudo mkdir -p #{ Tftp.pxe_directory }", @options, @messenger
       end
-      false
+    end
+
+
+    def create_pxe_localboot_files_for node
+      write_file pxe_config_file( node.mac_address ), pxe_local_boot_config, @options.merge( :sudo => true ), @messenger
+    end
+
+
+    def remove_pxe_file_of mac
+      run "sudo rm -f #{ pxe_config_file( mac ) }", @options, @messenger
+    end
+
+
+    def installer_kernel
+      "lucie"
+    end
+
+
+    # tftpd status #############################################################
+
+
+    def tftpd_configured?
+      return false unless FileTest.exists?( @@config )
+      return false unless tftpd_run_as_daemon?
+      return false unless tftpd_commandline_options_are_valid?
+      true
     end
 
 
@@ -121,23 +124,19 @@ EOF
     end
 
 
-    def create_pxe_nfsroot_files_for node, installer
-      @options[ :sudo ] = true
-      make_pxe_directory
-      write_file pxe_config_file( node.mac_address ), pxe_nfsroot_config( node, installer ), @options, @messenger
+    # tftpd and pxe configuration snippets #####################################
+
+
+    def pxe_config_file mac
+      File.join Tftp.pxe_directory, pxe_mac_file( mac )
     end
 
 
-    def make_pxe_directory
-      unless File.directory?( Tftp.pxe_directory )
-        run "sudo mkdir -p #{ Tftp.pxe_directory }", @options, @messenger
-      end
-    end
-
-
-    def create_pxe_localboot_files_for node
-      @options[ :sudo ] = true
-      write_file pxe_config_file( node.mac_address ), pxe_local_boot_config, @options, @messenger
+    def tftpd_default
+      return <<-EOF
+RUN_DAEMON="yes"
+OPTIONS="-v -l -s #{ Configuration.tftp_root }"
+EOF
     end
 
 
@@ -163,21 +162,6 @@ EOF
     end
 
 
-    def remove_pxe_file_of mac
-      run "sudo rm -f #{ pxe_config_file( mac ) }", @options, @messenger
-    end
-
-
-    def pxe_config_file mac
-      File.join Tftp.pxe_directory, pxe_mac_file( mac )
-    end
-
-
-    def installer_kernel
-      "lucie"
-    end
-
-
     #
     # PXELINUX will search for the config file using the hardware type
     # (using its ARP type code) and address, all in lower case
@@ -190,6 +174,30 @@ EOF
     #
     def pxe_mac_file mac
       "01-#{ mac.gsub( ':', '-' ).downcase }"
+    end
+
+
+    # inetd ####################################################################
+
+
+    def reconfigure_inetd inetd_conf
+      if tftpd_boot_from_inetd( inetd_conf )
+        disable_inetd_conf
+      end
+    end
+
+
+    def tftpd_boot_from_inetd inetd_conf
+      IO.read( inetd_conf ).split( "\n" ).each do | each |
+        return true if /^tftp\s+/=~ each
+      end
+      false
+    end
+
+
+    def disable_inetd_conf
+      run "sudo /usr/sbin/update-inetd --disable tftp", @options, @messenger
+      run "sudo kill -HUP `cat /var/run/inetd.pid`", @options, @messenger
     end
   end
 end
