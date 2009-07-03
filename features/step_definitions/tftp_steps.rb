@@ -17,19 +17,20 @@ end
 
 
 Given /^"inetd\.conf has tftpd entry\?" is "([^\"]*)"$/ do | yesno |
+  @inetd_conf = Tempfile.new( "lucie" )
   if yesno.downcase == "yes"
-    @inetd_conf = Tempfile.new( "lucie" )
     @inetd_conf.puts "tftp dgram udp wait root /usr/sbin/in.tftpd /usr/sbin/in.tftpd -s /var/lib/tftpboot"
-    @inetd_conf.flush
   end
+  @inetd_conf.flush
 end
 
 
 When /^I try to setup tftpd nfsroot with installer "([^\"]*)"$/ do | installer |
   @messenger = StringIO.new( "" )
+  @inetd_conf ||= Tempfile.new( "lucie" )
   Service::Tftp.__send__ :class_variable_set, :@@config, @tftpd_config ? @tftpd_config.path : "/etc/default/tftpd-hpa"
   tftp_service = Service::Tftp.new( { :verbose => true, :dry_run => true }, @messenger )
-  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf ? @inetd_conf.path : "/etc/inetd.conf"
+  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf.path
 end
 
 
