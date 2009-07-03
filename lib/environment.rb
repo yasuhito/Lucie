@@ -1,4 +1,3 @@
-require "environment/install"
 require "environment/first-stage"
 require "environment/second-stage"
 
