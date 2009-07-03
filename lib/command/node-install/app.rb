@@ -59,7 +59,7 @@ module Command
 
 
       def start_html_logger node
-        @html_logger = Lucie::Logger::HTML.new( debug_options, @messenger )
+        @html_logger = Lucie::Logger::HTML.new( { :dry_run => @dry_run }, @messenger )
         install_option = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
           :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
         @html_logger.start install_option
