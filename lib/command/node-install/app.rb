@@ -24,6 +24,8 @@ module Command
 
       def main node_name
         update_sudo_timestamp
+        start_main_logger
+
         start_lucie_logger
         create_installer
         node = load_node( node_name )
@@ -36,6 +38,13 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def start_main_logger
+        Lucie::Log.path = File.join( Configuration.log_directory, "node-install-multi.log" )
+        Lucie::Log.verbose = @verbose
+        Lucie::Log.info "Lucie installer started."
+      end
 
 
       def update_sudo_timestamp
