@@ -31,6 +31,7 @@ module Command
         setup_ldb
         create_installer
         start_html_logger
+        start_super_reboot
 
         start_lucie_logger
         setup_first_stage
@@ -41,6 +42,11 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def start_super_reboot
+        @super_reboot = SuperReboot.new( @html_logger, debug_options, @messenger )
+      end
 
 
       def start_html_logger
