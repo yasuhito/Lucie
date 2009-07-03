@@ -36,8 +36,6 @@ end
 
 Then /^installer built$/ do
   history.should include( "Setting up installer ..." )
-  @messenger.string.should match( /Rake\.application\.run/ )
-  @messenger.string.should match( /build_status\.success/ )
 end
 
 

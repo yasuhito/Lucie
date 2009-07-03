@@ -55,16 +55,6 @@ Then /^PXE configuration file for node "([^\"]*)" should be generated$/ do | nod
 end
 
 
-Then /^"tftpd restarted\?" is "([^\"]*)"$/ do | yesno |
-  expected = "sudo /etc/init.d/tftpd-hpa restart"
-  if yesno.downcase == 'yes'
-    history.should include( expected )
-  else
-    history.should_not include( expected )
-  end
-end
-
-
 Then /^"inetd\.conf updated\?" is "([^\"]*)"$/ do | yesno |
   expected = "sudo /usr/sbin/update-inetd --disable tftp"
   if yesno.downcase == 'yes'
@@ -116,6 +106,11 @@ Then /^PXE configuration file for node "([^\"]*)" removed$/ do | name |
   mac = "01-" + Nodes.find( name ).mac_address.gsub( ':', '-' ).downcase
   expected = Regexp.new( Regexp.escape( "rm -f " + File.join( Configuration.tftp_root, 'pxelinux.cfg', mac ) ) )
   @messenger.string.should match( expected )
+end
+
+
+Then /^tftpd is not restarted$/ do
+  history.should_not include( "sudo /etc/init.d/tftpd-hpa restart" )
 end
 
 

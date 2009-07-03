@@ -52,5 +52,6 @@ Feature: Setup tftpd to boot from nfsroot
     Given RUN_DAEMON option of tftpd default config is "NO"
     And command line option of default config is "-v -l -s /var/lib/tftpboot"
     When I try to setup tftpd nfsroot with installer "lenny"
-    Then "tftpd config generated?" is "NO"
-    And "tftpd restarted?" is "NO"
+    Then tftpd is not restarted
+    And "tftpd config generated?" is "NO"
+
