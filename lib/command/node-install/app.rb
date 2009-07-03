@@ -162,6 +162,12 @@ module Command
       end
 
 
+      def run_first_stage node, logger
+        reboot_to_start_first_stage node, logger
+        start_installer_for node, logger
+      end
+
+
       def install node, logger
         reboot node
         start_installer_for node, logger
