@@ -27,6 +27,7 @@ module Command
         start_main_logger
         check_prerequisites
         create_node node_name
+        setup_ldb
 
         start_lucie_logger
         create_installer
@@ -39,6 +40,13 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def setup_ldb
+        return unless @options.ldb_repository
+        @ldb = LDB.new( debug_options, @messenger )
+        @ldb.clone @options.ldb_repository, lucie_server_ip, Lucie::Log
+      end
 
 
       def check_prerequisites
