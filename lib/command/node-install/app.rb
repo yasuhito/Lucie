@@ -139,6 +139,29 @@ module Command
       end
 
 
+      def create_installer_thread node, logger
+        Thread.start do
+          begin
+            node.status.start!
+            run_first_stage node, logger
+            run_second_stage node, logger
+            node.status.succeed!
+          rescue => e
+            node.status.fail!
+            $stderr.puts e.message
+            logger.error e.message
+            @html_logger.update node, "failed (#{ e.message })"
+            if @options.verbose
+              e.backtrace.each do | each |
+                $stderr.puts each
+                logger.debug each
+              end
+            end
+          end
+        end
+      end
+
+
       def install node, logger
         reboot node
         start_installer_for node, logger
