@@ -36,11 +36,6 @@ Then /^dhcpd configuration should include an entry for node "([^\"]*)"$/ do | ho
 end
 
 
-Then /^dhcpd configuration should not include an entry for node "([^\"]*)"$/ do | host_name |
-  history.should_not include( ">   host #{ host_name } {" )
-end
-
-
 Then /^dhcpd configuration should not include node entry$/ do
   history.inject( false ) do | result, each |
     result ||= /^>\s+host .* \{/ === each

@@ -19,13 +19,6 @@ Then /^nfsd configuration includes an entry for node "([^\"]*)"$/ do | name |
 end
 
 
-Then /^nfsd configuration should not include an entry for node "([^\"]*)"$/ do | name |
-  @messenger.string.split( "\n" ).inject( false ) do | result, each |
-    result ||= Regexp.new( Nodes.find( name ).ip_address )=~ each
-  end.should_not be_true
-end
-
-
 Then /^nfsd configuration should have no entry$/ do
   history.should == [ "Setting up nfsd ..." ]
 end
