@@ -22,8 +22,15 @@ describe SecretServer do
 
     it "should raise if decryption password was incorrect" do
       lambda do
-        SecretServer.new( @encrypted.path, "incorrect password" ).start
+        SecretServer.new( @encrypted.path, "incorrect password" )
       end.should raise_error( RuntimeError, "Failed to decrypt #{ @encrypted.path }." )
+    end
+
+
+    it "should raise if encrypted file not found" do
+      lambda do
+        SecretServer.new( "NO_SUCH_FILE", "password" )
+      end.should raise_error( Errno::ENOENT, "No such file or directory - NO_SUCH_FILE" )
     end
   end
 

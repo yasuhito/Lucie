@@ -36,9 +36,9 @@ class SecretServer
   end
 
 
-  def decrypt encrypted, password
-    decrypted = `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ new_temp_file( IO.read( encrypted ) ).path }`
-    raise "Failed to decrypt #{ encrypted }." if $?.to_i != 0
+  def decrypt path, password
+    decrypted = `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ new_temp_file( IO.read( path ) ).path }`
+    raise "Failed to decrypt #{ path }." if $?.to_i != 0
     decrypted
   end
 
