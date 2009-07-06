@@ -32,7 +32,7 @@ describe SecretServer do
 
     it "should return decrypted string" do
       client = mock( "client" )
-      client.should_receive( :puts ).with( "decrypted" )
+      client.should_receive( :print ).with( "decrypted" )
       client.should_receive( :close )
       @server.should_receive( :accept ).and_return( client )
       Thread.should_receive( :start ).with( client ).and_yield( client )

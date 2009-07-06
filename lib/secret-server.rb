@@ -17,7 +17,7 @@ class SecretServer
 
 
   def connected client
-    client.puts @decrypted
+    client.print @decrypted
     client.close
   end
 
