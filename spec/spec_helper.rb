@@ -9,6 +9,7 @@ require "debootstrap"
 require "secret-server"
 require "service"
 require "super-reboot"
+require "tempfile"
 
 
 ### Local variables:

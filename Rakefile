@@ -61,7 +61,7 @@ end
 
 task :verify_rcov => [ "spec", "features" ]
 RCov::VerifyTask.new do | t |
-  t.threshold = 90.0
+  t.threshold = 90.1
 end
 
 

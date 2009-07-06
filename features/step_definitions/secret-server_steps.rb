@@ -1,6 +1,22 @@
 Given /^secret server holds confidential data "([^\"]*)"$/ do | data |
-  encrypted = `echo "#{ data }" | openssl enc -pass pass:hoge -e -aes256`
-  @secret_server = SecretServer.new( encrypted )
+  @password = "password"
+  temp = Tempfile.new( "secret-server" )
+  temp.print data
+  temp.flush
+  encrypted = `openssl enc -pass pass:password -e -aes256 < #{ temp.path }`
+  @secret_server = SecretServer.new( encrypted, @password, :verbose => true, :dry_run => true )
+  @secret_server.start
+end
+
+
+When /^I connect to secret server$/ do
+  @socket = StringIO.new( "" )
+  @secret_server.connected( @socket )
+end
+
+
+Then /^I get "([^\"]*)" from secret server$/ do | decrypted |
+  @socket.string.chomp.should == decrypted
 end
 
 
