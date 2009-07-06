@@ -36,7 +36,7 @@ module Command
 
       def start_secret_server
         if @options.secret
-          password = HighLine.new.ask( "Please input password to decrypt #{ @options.secret }:" ) do | q |
+          password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
             q.echo = "*"
           end
           secret_server = SecretServer.new( @options.secret, password, debug_options )
