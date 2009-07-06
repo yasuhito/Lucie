@@ -17,6 +17,7 @@ module Command
         start_main_logger
         check_prerequisites
         create_nodes
+        start_secret_server
         setup_ldb
         create_installer
         start_html_logger

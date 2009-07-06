@@ -2,7 +2,6 @@ require "command/app"
 require "node"
 require "nodes"
 require "secret-server"
-require "highline"
 
 
 module Command
@@ -32,20 +31,6 @@ module Command
       ##########################################################################
       private
       ##########################################################################
-
-
-      def start_secret_server
-        if @options.secret
-          IO.read @options.secret
-          password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
-            q.echo = "*"
-          end
-          secret_server = SecretServer.new( @options.secret, password, debug_options )
-          @secret_server = Thread.start do
-            secret_server.start
-          end
-        end
-      end
 
 
       def start_installer_for node, logger

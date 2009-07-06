@@ -1,5 +1,6 @@
 require "configuration"
 require "environment"
+require "highline"
 require "installer"
 require "installers"
 require "ldb"
@@ -195,6 +196,20 @@ module Command
 
 
     # Misc. ####################################################################
+
+
+    def start_secret_server
+      if @options.secret
+        IO.read @options.secret
+        password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
+          q.echo = "*"
+        end
+        secret_server = SecretServer.new( @options.secret, password, debug_options )
+        @secret_server = Thread.start do
+          secret_server.start
+        end
+      end
+    end
 
 
     def create_installer
