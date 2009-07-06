@@ -10,13 +10,9 @@ class SecretServer
 
 
   def start
-    @server = TCPServer.open( 58243 )
     return if @options[ :dry_run ]
-    Kernel.loop do
-      Thread.start( @server.accept ) do | client |
-        connected client
-      end
-    end
+    @server = TCPServer.open( 58243 )
+    main_loop
   end
 
 
@@ -31,11 +27,24 @@ class SecretServer
   ##############################################################################
 
 
+  def main_loop
+    Kernel.loop do
+      Thread.start( @server.accept ) do | client |
+        connected client
+      end
+    end
+  end
+
+
   def decrypt encrypted, password
+    `openssl enc -pass pass:#{ password } -d -aes256 < #{ new_temp_file( encrypted ).path }`
+  end
+
+
+  def new_temp_file contents
     temp = Tempfile.new( "secret-server" )
-    temp.print encrypted
+    temp.print contents
     temp.flush
-    `openssl enc -pass pass:#{ password } -d -aes256 < #{ temp.path }`
   end
 end
 
