@@ -1,4 +1,6 @@
 class SecretServer
+  def initialize encrypted
+  end
 end
 
 

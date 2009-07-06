@@ -1,6 +1,6 @@
 Given /^secret server holds confidential data "([^\"]*)"$/ do | data |
   encrypted = `echo "#{ data }" | openssl enc -pass pass:hoge -e -aes256`
-  secret_server = SecretServer.new( encrypted )
+  @secret_server = SecretServer.new( encrypted )
 end
 
 
