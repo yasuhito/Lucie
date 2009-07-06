@@ -6,6 +6,7 @@ require "rubygems"
 require "spec"
 
 require "debootstrap"
+require "secret-server"
 require "service"
 require "super-reboot"
 

@@ -16,6 +16,7 @@ module Command
         start_main_logger
         check_prerequisites
         create_node node_name
+        start_secret_server
         setup_ldb
         create_installer
         start_html_logger
@@ -29,6 +30,12 @@ module Command
       ##########################################################################
       private
       ##########################################################################
+
+
+      def start_secret_server
+        puts @options.secret
+        exit
+      end
 
 
       def start_installer_for node, logger

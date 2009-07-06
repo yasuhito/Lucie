@@ -13,6 +13,7 @@ require "lucie"
 require "command/node-install"
 require "command/node-install-multi"
 require "command/node-update"
+require "secret-server"
 
 
 ################################################################################
