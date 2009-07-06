@@ -36,10 +36,10 @@ module Command
 
       def start_secret_server
         if @options.secret
+          IO.read @options.secret
           password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
             q.echo = "*"
           end
-          IO.read @options.secret
           secret_server = SecretServer.new( @options.secret, password, debug_options )
           @secret_server = Thread.start do
             secret_server.start
