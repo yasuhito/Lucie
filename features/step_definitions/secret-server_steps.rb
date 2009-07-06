@@ -13,7 +13,7 @@ end
 
 When /^I connect to secret server$/ do
   @socket = StringIO.new( "" )
-  @secret_server.connected( @socket )
+  @secret_server.__send__ :connected, @socket
 end
 
 

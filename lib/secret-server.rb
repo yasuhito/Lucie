@@ -11,14 +11,8 @@ class SecretServer
 
   def start
     return if @options[ :dry_run ]
-    @server = TCPServer.open( 58243 )
+    @server = TCPServer.open( "localhost", 58243 )
     main_loop
-  end
-
-
-  def connected client
-    client.print @decrypted
-    client.close
   end
 
 
@@ -33,6 +27,12 @@ class SecretServer
         connected client
       end
     end
+  end
+
+
+  def connected client
+    client.print @decrypted
+    client.close
   end
 
 

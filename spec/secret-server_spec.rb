@@ -14,8 +14,8 @@ describe SecretServer do
 
 
   context "when starting secret server" do
-    it "should listen to port 58243" do
-      TCPServer.should_receive( :open ).with( 58243 ).and_return( "SERVER" )
+    it "should listen to port 58243 on localhost" do
+      TCPServer.should_receive( :open ).with( "localhost", 58243 ).and_return( "SERVER" )
       Kernel.should_receive( :loop )
       @secret_server.start
     end
@@ -25,7 +25,7 @@ describe SecretServer do
   context "when a connection created by a client" do
     before :each do
       @server = mock( "server" )
-      TCPServer.should_receive( :open ).with( 58243 ).and_return( @server )
+      TCPServer.should_receive( :open ).with( "localhost", 58243 ).and_return( @server )
       Kernel.should_receive( :loop ).and_yield
     end
 
