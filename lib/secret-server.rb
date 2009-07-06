@@ -4,7 +4,7 @@ require "tempfile"
 
 class SecretServer
   def initialize encrypted, password, options = {}
-    @decrypted = decrypt( encrypted, password )
+    @decrypted = decrypt( IO.read( encrypted ), password )
     @options = options
   end
 

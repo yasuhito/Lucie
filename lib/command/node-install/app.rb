@@ -1,6 +1,7 @@
 require "command/app"
 require "node"
 require "nodes"
+require "secret-server"
 
 
 module Command
@@ -33,8 +34,13 @@ module Command
 
 
       def start_secret_server
-        puts @options.secret
-        exit
+        if @options.secret
+          puts "Please input password to decrypt #{ @options.secret }:"
+          password = $stdin.gets.chomp
+          @secret_server = Thread.start do
+            SecretServer.new( @options.secret, password, debug_options ).start
+          end
+        end
       end
 
 

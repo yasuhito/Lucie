@@ -1,10 +1,12 @@
 Given /^secret server holds confidential data "([^\"]*)"$/ do | data |
   @password = "password"
-  temp = Tempfile.new( "secret-server" )
-  temp.print data
-  temp.flush
-  encrypted = `openssl enc -pass pass:password -e -aes256 < #{ temp.path }`
-  @secret_server = SecretServer.new( encrypted, @password, :verbose => true, :dry_run => true )
+  encrypted = Tempfile.new( "secret-server" )
+  raw = Tempfile.new( "secret-server" )
+  raw.print data
+  raw.flush
+  system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ encrypted.path }"
+  encrypted.flush
+  @secret_server = SecretServer.new( encrypted.path, @password, :verbose => true, :dry_run => true )
   @secret_server.start
 end
 

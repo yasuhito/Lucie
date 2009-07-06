@@ -3,11 +3,13 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 
 describe SecretServer do
   before :each do
-    temp = Tempfile.new( "secret-server" )
-    temp.print "decrypted"
-    temp.flush
-    encrypted = `openssl enc -pass pass:password -e -aes256 < #{ temp.path }`
-    @secret_server = SecretServer.new( encrypted, "password" )
+    encrypted = Tempfile.new( "secret-server" )
+    raw = Tempfile.new( "secret-server" )
+    raw.print "decrypted"
+    raw.flush
+    system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ encrypted.path }"
+    encrypted.flush
+    @secret_server = SecretServer.new( encrypted.path, "password" )
   end
 
 
