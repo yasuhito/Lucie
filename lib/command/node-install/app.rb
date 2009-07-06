@@ -2,6 +2,7 @@ require "command/app"
 require "node"
 require "nodes"
 require "secret-server"
+require "highline"
 
 
 module Command
@@ -35,8 +36,9 @@ module Command
 
       def start_secret_server
         if @options.secret
-          puts "Please input password to decrypt #{ @options.secret }:"
-          password = $stdin.gets.chomp
+          password = HighLine.new.ask( "Please input password to decrypt #{ @options.secret }:" ) do | q |
+            q.echo = "*"
+          end
           @secret_server = Thread.start do
             SecretServer.new( @options.secret, password, debug_options ).start
           end
