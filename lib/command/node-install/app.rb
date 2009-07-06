@@ -9,7 +9,6 @@ require "mandatory_option_error"
 require "node"
 require "nodes"
 require "ssh"
-require "super-reboot"
 
 
 module Command

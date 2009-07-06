@@ -1,5 +1,6 @@
 require "lucie/io"
 require "lucie/server"
+require "super-reboot"
 
 
 module Command
