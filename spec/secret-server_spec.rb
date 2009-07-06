@@ -3,13 +3,12 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 
 describe SecretServer do
   before :each do
-    encrypted = Tempfile.new( "secret-server" )
+    @encrypted = Tempfile.new( "secret-server" )
     raw = Tempfile.new( "secret-server" )
     raw.print "decrypted"
     raw.flush
-    system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ encrypted.path }"
-    encrypted.flush
-    @secret_server = SecretServer.new( encrypted.path, "password" )
+    system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ @encrypted.path }"
+    @encrypted.flush
   end
 
 
@@ -17,12 +16,19 @@ describe SecretServer do
     it "should listen to port 58243 on localhost" do
       TCPServer.should_receive( :open ).with( "localhost", 58243 ).and_return( "SERVER" )
       Kernel.should_receive( :loop )
-      @secret_server.start
+      SecretServer.new( @encrypted.path, "password" ).start
+    end
+
+
+    it "should raise if decryption password was incorrect" do
+      lambda do
+        SecretServer.new( @encrypted.path, "incorrect password" ).start
+      end.should raise_error( RuntimeError, "Failed to decrypt #{ @encrypted.path }." )
     end
   end
 
 
-  context "when a connection created by a client" do
+  context "when connected from a client" do
     before :each do
       @server = mock( "server" )
       TCPServer.should_receive( :open ).with( "localhost", 58243 ).and_return( @server )
@@ -36,7 +42,7 @@ describe SecretServer do
       client.should_receive( :close )
       @server.should_receive( :accept ).and_return( client )
       Thread.should_receive( :start ).with( client ).and_yield( client )
-      @secret_server.start
+      SecretServer.new( @encrypted.path, "password" ).start
     end
   end
 end

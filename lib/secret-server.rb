@@ -4,7 +4,7 @@ require "tempfile"
 
 class SecretServer
   def initialize encrypted, password, options = {}
-    @decrypted = decrypt( IO.read( encrypted ), password )
+    @decrypted = decrypt( encrypted, password )
     @options = options
   end
 
@@ -37,7 +37,9 @@ class SecretServer
 
 
   def decrypt encrypted, password
-    `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ new_temp_file( encrypted ).path }`
+    decrypted = `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ new_temp_file( IO.read( encrypted ) ).path }`
+    raise "Failed to decrypt #{ encrypted }." if $?.to_i != 0
+    decrypted
   end
 
 
