@@ -37,7 +37,7 @@ class SecretServer
 
 
   def decrypt encrypted, password
-    `openssl enc -pass pass:#{ password } -d -aes256 < #{ new_temp_file( encrypted ).path }`
+    `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ new_temp_file( encrypted ).path }`
   end
 
 
