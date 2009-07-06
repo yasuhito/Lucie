@@ -39,8 +39,9 @@ module Command
           password = HighLine.new.ask( "Please input password to decrypt #{ @options.secret }:" ) do | q |
             q.echo = "*"
           end
+          secret_server = SecretServer.new( @options.secret, password, debug_options )
           @secret_server = Thread.start do
-            SecretServer.new( @options.secret, password, debug_options ).start
+            secret_server.start
           end
         end
       end
