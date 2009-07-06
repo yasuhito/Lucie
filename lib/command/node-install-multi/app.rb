@@ -1,12 +1,4 @@
 require "command/app"
-require "configuration"
-require "environment"
-require "installer"
-require "installers"
-require "ldb"
-require "lucie/logger/html"
-require "lucie/utils"
-require "mandatory_option_error"
 require "node"
 require "nodes"
 
@@ -14,9 +6,6 @@ require "nodes"
 module Command
   module NodeInstallMulti
     class App < Command::App
-      include Lucie::Utils
-
-
       def initialize argv = ARGV, messenger = nil
         super argv, messenger
       end

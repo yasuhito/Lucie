@@ -1,11 +1,19 @@
+require "configuration"
+require "environment"
+require "installer"
+require "installers"
+require "ldb"
 require "lucie/io"
+require "lucie/logger/html"
 require "lucie/server"
+require "lucie/utils"
 require "super-reboot"
 
 
 module Command
   class App
     include Lucie::IO
+    include Lucie::Utils
 
 
     attr_reader :options
