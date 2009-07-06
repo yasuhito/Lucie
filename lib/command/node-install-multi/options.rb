@@ -39,6 +39,10 @@ module Command
                   :short_option => "-l",
                   :argument => "[PACKAGE]",
                   :description => "Linux image package (e.g., linux-image-686) to be installed." )
+      add_option( :long_option => "--secret",
+                  :short_option => "-X",
+                  :argument => "[FILE]",
+                  :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
 
       separator
 
