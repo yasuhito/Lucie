@@ -130,6 +130,7 @@ module Command
       reboot_to_start_second_stage node, logger
       start_ldb node, logger
       @html_logger.update node, "ok"
+      logger.info "Node '#{ node.name }' installed."
       info "Node '#{ node.name }' installed."
     end
 
