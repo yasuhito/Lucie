@@ -52,7 +52,7 @@ defined( $ENV{debug} ) and $FAI::debug = $ENV{debug};
 #
 ################################################################################
 $FAI::disk_info = `/usr/sbin/disk-info`;
-$FAI::list_disks = `/usr/sbin/list_disks $FAI::disk_info`;
+$FAI::list_disks = `/usr/sbin/list_disks "$FAI::disk_info"`;
 @FAI::disks = split( /\n/, $FAI::list_disks );
 # ( $FAI::debug > 0 ) and print "disklist was: $ENV{disklist}\n";
 

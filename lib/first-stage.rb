@@ -52,7 +52,7 @@ class FirstStage
   def partition_disk
     info "Setting up hard disk partitions ..."
     scp @storage_conf, "/tmp/storage.conf"
-    ssh "setup-storage -d -X -f /tmp/storage.conf"
+    ssh "setup-storage -X -f /tmp/storage.conf"
     ssh 'mount2dir /tmp/target /tmp/fstab'
     @html_logger.next_step @node
   end

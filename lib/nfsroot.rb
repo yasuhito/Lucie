@@ -221,7 +221,8 @@ class Nfsroot < Rake::TaskLib
   def additional_packages
     [ "ruby", "reiserfsprogs", "discover", "module-init-tools",
       "udev", "console-tools", "psmisc", "file", "perl-modules",
-      "libparse-recdescent-perl", "parted", "facter", "ssh" ]
+      "libparse-recdescent-perl", "parted", "facter", "ssh",
+      "liblinux-lvm-perl" ]
   end
 
 
