@@ -29,7 +29,7 @@ auto lo
 iface lo inet loopback
 
 auto #{ each.name }
-iface eth0 inet static
+iface #{ each.name } inet static
   address #{ $ipaddress }
   netmask #{ $netmask_address }
   network #{ $network_address }
