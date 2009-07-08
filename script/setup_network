@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 
+require "network_interfaces"
 require "facter"
 
 
@@ -15,27 +16,27 @@ $lucie_server = ARGV[ 7 ]
 $lucie_server_ipaddress = ARGV[ 8 ]
 
 
-File.open( '/tmp/target/etc/udev/rules.d/70-persistent-net.rules', 'w' ) do | file |
-  $mac_address.split( "," ).each_with_index do | each, index |
-    file.puts <<-RULE
-SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ each }", NAME="eth#{ index }"
+NetworkInterfaces.each do | each |
+  if each.name != "lo"
+    File.open( "/tmp/target/etc/udev/rules.d/70-persistent-net.rules", "w" ) do | file |
+      file.puts <<-RULE
+SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="#{ each.name }"
 RULE
-  end
-end
-
-
-File.open( '/tmp/target/etc/network/interfaces', 'w' ) do | file |
-  file.puts( <<-EOF )
+    end
+    File.open( "/tmp/target/etc/network/interfaces", "w" ) do | file |
+      file.puts( <<-EOF )
 auto lo
 iface lo inet loopback
 
-auto eth0
+auto #{ each.name }
 iface eth0 inet static
   address #{ $ipaddress }
   netmask #{ $netmask_address }
   network #{ $network_address }
   broadcast #{ $broadcast_address }
 EOF
+    end
+  end
 end
 
 
