@@ -91,7 +91,7 @@ class FirstStage
 
   def setup_misc
     info "Generating misc configurations ..."
-    ssh "setup_network #{ @node.name } #{ @node.eth_list.join( ',' ) } #{ @node.ip_address } #{ @node.netmask_address } #{ Network.network_address( @node.ip_address, @node.netmask_address ) } #{ Network.broadcast_address( @node.ip_address, @node.netmask_address ) } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
+    ssh "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ Network.network_address( @node.ip_address, @node.netmask_address ) } #{ Network.broadcast_address( @node.ip_address, @node.netmask_address ) } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
     ssh "setup_password"
     if @ldb_directory and FileTest.directory?( File.join( @ldb_directory, "scripts/hooks" ) )
       scp_r File.join( @ldb_directory, "scripts/hooks" ), "/tmp/target/tmp"
