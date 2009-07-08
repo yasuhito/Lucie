@@ -68,7 +68,7 @@ USAGE: [-X]                     no test, your harddisks will be formated
 EOF
 
 # $disklist must be provided by the environment
-defined ($ENV{disklist}) or die "Environment variable disklist is not set\n";
+# defined ($ENV{disklist}) or die "Environment variable disklist is not set\n";
 
 ################################################################################
 #
