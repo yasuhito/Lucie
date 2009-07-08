@@ -26,7 +26,7 @@ use strict;
 #
 # @brief functions to execute system commands
 #
-# $Id: Exec.pm 5214 2008-10-28 09:32:32Z lange $
+# $Id: Exec.pm 5261 2009-02-16 12:47:23Z mt $
 #
 # @author Christian Kern, Michael Tautschnig
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -246,7 +246,7 @@ sub execute_command {
 ################################################################################
 sub execute_with_udevsettle {
   my ($command, $stdout, $stderr) = @_;
-  return &execute_command("udevsettle --timeout 10 && $command", $stdout,
+  return &execute_command("udevsettle --timeout=10 && $command", $stdout,
     $stderr);
 }
 

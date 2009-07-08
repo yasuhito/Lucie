@@ -26,7 +26,7 @@ use strict;
 #
 # @brief Compute the size of the partitions and volumes to be created
 #
-# $Id: Sizes.pm 5188 2008-10-14 13:29:57Z lange $
+# $Id: Sizes.pm 5398 2009-05-03 14:58:24Z mt $
 #
 # @author Christian Kern, Michael Tautschnig
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -73,6 +73,8 @@ sub make_range {
     $end = $end * 1024.0 * 1024.0;
   }
 
+  # the user may have specified a partition that is larger than the entire disk
+  ($start <= $size_b) or die "Sorry, can't create a partition of $start B on a disk of $size_b B - check your config!\n";
   # make sure that $end >= $start
   ($end >= $start) or &FAI::internal_error("end < start");
 
@@ -115,7 +117,7 @@ sub estimate_size {
     # the size is known from the current configuration on disk, return it
     defined ($FAI::current_config{$disk}{partitions}{$part_no}{count_byte})
       and return $FAI::current_config{$disk}{partitions}{$part_no}{count_byte} /
-      (1024 * 1024);
+      (1024 * 1024) unless defined ($FAI::configs{"PHY_$disk"}{partitions});
 
     # the size is not known (yet?)
     warn "Cannot determine size of $dev\n";
@@ -197,7 +199,10 @@ sub compute_lv_sizes {
 
       # $dev may be a partition, an entire disk or a RAID device; otherwise we
       # cannot deal with it
-      $vg_size += &FAI::estimate_size($dev);
+      my $cur_size = &FAI::estimate_size($dev);
+      ($cur_size > 0)
+        or die "Size of device $dev in volume group $vg cannot be determined\n";
+      $vg_size += $cur_size;
     }
 
     # now subtract 1% of overhead
@@ -318,11 +323,14 @@ sub do_partition_preserve {
   if ($FAI::configs{$config}{disklabel} eq "msdos") {
 
     # make sure the partition ends at a cylinder boundary
+    # maybe we should make this a warning if ($curr_part->{filesystem} eq
+    # "ntfs")) only, but for now just a warning for everyone; well, it might
+    # also be safe to ignore this, don't know for sure.
     (0 == ($curr_part->{end_byte} + 1)
         % ($current_disk->{sector_size} *
           $current_disk->{bios_sectors_per_track} *
           $current_disk->{bios_heads})) or 
-      die "Preserved partition $part_id does not end at a cylinder boundary\n";
+      warn "Preserved partition $part_id does not end at a cylinder boundary, parted may fail to restore the partition!\n";
 
     # add one head of disk usage if this is a logical partition
     $min_req_total_space += $current_disk->{bios_sectors_per_track} *
@@ -345,7 +353,8 @@ sub do_partition_preserve {
   }
 
   # on gpt, ensure that the partition ends at a sector boundary
-  if ($FAI::configs{$config}{disklabel} eq "gpt") {
+  if ($FAI::configs{$config}{disklabel} eq "gpt" ||
+    $FAI::configs{$config}{disklabel} eq "gpt-bios") {
     (0 == ($current_disk->{partitions}{$part_id}{end_byte} + 1)
         % $current_disk->{sector_size})
       or die "Preserved partition $part_id does not end at a sector boundary\n";
@@ -540,7 +549,8 @@ sub do_partition_real {
   }
 
   # on gpt, ensure that the partition ends at a sector boundary
-  if ($FAI::configs{$config}{disklabel} eq "gpt") {
+  if ($FAI::configs{$config}{disklabel} eq "gpt" ||
+    $FAI::configs{$config}{disklabel} eq "gpt-bios") {
     $end_byte -=
       ($end_byte + 1) % $current_disk->{sector_size};
   }
@@ -613,18 +623,17 @@ sub compute_partition_sizes
     # the start byte for the next partition
     my $next_start = 0;
 
-    # on msdos disk labels, the first partitions starts at head #1
     if ($FAI::configs{$config}{disklabel} eq "msdos") {
+      # on msdos disk labels, the first partitions starts at head #1
       $next_start = $current_disk->{bios_sectors_per_track} *
         $current_disk->{sector_size};
 
       # the MBR requires space, too
       $min_req_total_space += $current_disk->{bios_sectors_per_track} *
         $current_disk->{sector_size};
-    }
 
-    # on GPT disk labels the first 34 and last 34 sectors must be left alone
-    if ($FAI::configs{$config}{disklabel} eq "gpt") {
+    } elsif ($FAI::configs{$config}{disklabel} eq "gpt") {
+      # on GPT-EFI disk labels the first 34 and last 34 sectors must be left alone
       $next_start = 34 * $current_disk->{sector_size};
 
       # modify the disk to claim the space for the second partition table
@@ -632,6 +641,35 @@ sub compute_partition_sizes
 
       # the space required by the GPTs
       $min_req_total_space += 2 * 34 * $current_disk->{sector_size};
+
+    } elsif ($FAI::configs{$config}{disklabel} eq "gpt-bios") {
+      # on BIOS-style disk labels, the first partitions starts at head #1
+      $next_start = $current_disk->{bios_sectors_per_track} *
+        $current_disk->{sector_size};
+
+      # the MBR requires space, too
+      $min_req_total_space += $current_disk->{bios_sectors_per_track} *
+        $current_disk->{sector_size};
+
+      # apparently parted insists in having some space left at the end too
+      # modify the disk to claim the space for the second partition table
+      $current_disk->{end_byte} -= 34 * $current_disk->{sector_size};
+
+      # the space required by the GPTs
+      $min_req_total_space += 34 * $current_disk->{sector_size};
+
+      # on gpt-bios we'll need an additional partition to store what doesn't fit
+      # in the MBR
+      $FAI::device = $config;
+      &FAI::init_part_config("primary");
+      $FAI::configs{$config}{gpt_bios_part} = $FAI::partition_pointer->{number};
+      my $s = &FAI::convert_unit("120k");
+      # enter the range into the hash
+      $FAI::partition_pointer->{size}->{range} = "$s-$s";
+      # set proper defaults
+      $FAI::partition_pointer->{encrypt} = 0;
+      $FAI::partition_pointer->{filesystem} = "-";
+      $FAI::partition_pointer->{mountpoint} = "-";
     }
 
     # the list of partitions that we need to find start and end bytes for
@@ -680,6 +718,10 @@ sub compute_partition_sizes
         ($next_start, $min_req_total_space) = &FAI::do_partition_real($part_id, 
           $config, $current_disk, $next_start, $min_req_total_space, \@worklist);
 
+        # msdos does not support partitions larger than 2TB
+        ($part->{size}->{eff_size} > (&FAI::convert_unit("2TB") * 1024.0 *
+            1024.0)) and die "msdos disklabel does not support partitions > 2TB, please use disklabel:gpt or gpt-bios\n"
+          if ($FAI::configs{$config}{disklabel} eq "msdos");
         # partition done
         shift @worklist;
       }

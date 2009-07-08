@@ -27,7 +27,7 @@ use strict;
 # @brief Build the required commands in @FAI::commands using the config stored
 # in %FAI::configs
 #
-# $Id: Commands.pm 5231 2008-12-22 10:02:42Z mt $
+# $Id: Commands.pm 5398 2009-05-03 14:58:24Z mt $
 #
 # @author Christian Kern, Michael Tautschnig, Sebastian Hetze, Andreas Schuldei
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -54,23 +54,14 @@ sub build_mkfs_commands {
 
   return if ($fs eq "-");
 
-  my ($create_options) = $partition->{fs_options} =~ m/createopts="([^"]+)"/;
-  my ($tune_options)   = $partition->{fs_options} =~ m/tuneopts="([^"]+)"/;
-
-  # this enables the use of all remaining options as create option if
-  # you did not specify createopts= Example: -m0 -i0 will then be used
-  # as createopts. This fails if you do only specify tuneopts without
-  # using createopts. Therefore is disable this feature. IMO this
-  # special behaviour is also not documented in setup-storage.8
-  # T.Lange
-  # $create_options = $partition->{fs_options} unless $create_options;
-
+  my ($create_options) = $partition->{createopts};
+  my ($tune_options)   = $partition->{tuneopts};
   # prevent warnings of uninitialized variables
   $create_options = '' unless $create_options;
   $tune_options   = '' unless $tune_options;
 
-  print "$partition->{mountpoint} create_options: $create_options\n" if ($FAI::debug && $create_options);
-  print "$partition->{mountpoint} tune_options: $tune_options\n" if ($FAI::debug && $tune_options);
+  print "$partition->{mountpoint} FS create_options: $create_options\n" if ($FAI::debug && $create_options);
+  print "$partition->{mountpoint} FS tune_options: $tune_options\n" if ($FAI::debug && $tune_options);
 
   # check for encryption requests
   $device = &FAI::encrypt_device($device, $partition);
@@ -80,7 +71,7 @@ sub build_mkfs_commands {
   ($fs eq "swap") and $create_tool = "mkswap";
   ($fs eq "xfs") and $create_options = "$create_options -f" unless ($create_options =~ m/-f/);
   my $pre_encrypt = "exist_$device";
-  $pre_encrypt = "encrypt_$device" if ($partition->{encrypt});
+  $pre_encrypt = "encrypted_$device" if ($partition->{encrypt});
   &FAI::push_command( "$create_tool $create_options $device", $pre_encrypt,
     "has_fs_$device" );
 
@@ -115,23 +106,29 @@ sub encrypt_device {
 
   # encryption requested, rewrite the device name
   my $enc_dev_name = $device;
-  $enc_dev_name =~ "s#/#_#g";
+  $enc_dev_name =~ s#/#_#g;
   my $enc_dev_short_name = "crypt$enc_dev_name";
   $enc_dev_name = "/dev/mapper/$enc_dev_short_name";
-  my $keyfile = "/tmp/$enc_dev_short_name";
+  my $keyfile = "$ENV{LOGDIR}/$enc_dev_short_name";
 
   # generate a key for encryption
   &FAI::push_command( 
     "head -c 2048 /dev/urandom | head -n 47 | tail -n 46 | od | tee $keyfile",
     "", "keyfile_$device" );
-
   # prepare encryption
+  my $prepare_deps = "keyfile_$device";
+  if ($partition->{encrypt} > 1) {
+    &FAI::push_command(
+      "dd if=/dev/urandom of=$device",
+      "exist_$device", "random_init_$device" );
+    $prepare_deps = "random_init_$device,$prepare_deps";
+  }
   &FAI::push_command(
     "yes YES | cryptsetup luksFormat $device $keyfile -c aes-cbc-essiv:sha256 -s 256",
-    "exist_$device,keyfile_$device", "crypt_format_$device" );
+    $prepare_deps, "crypt_format_$device" );
   &FAI::push_command(
     "cryptsetup luksOpen $device $enc_dev_short_name --key-file $keyfile",
-    "crypt_format_$device", "encrypted_$device" );
+    "crypt_format_$device", "encrypted_$enc_dev_name" );
 
   # add entries to crypttab
   push @FAI::crypttab, "$enc_dev_short_name\t$device\t$keyfile\tluks";
@@ -219,12 +216,16 @@ sub build_raid_commands {
         }
       }
 
+      my ($create_options) = $FAI::configs{$config}{volumes}{$id}{mdcreateopts};
+      # prevent warnings of uninitialized variables
+      $create_options = '' unless $create_options;
+      print "/dev/md$id MD create_options: $create_options\n" if ($FAI::debug && $create_options);
       # create the command
       $pre_req = "exist_/dev/md" . ( $id - 1 ) . $pre_req if (0 != $id);
       $pre_req =~ s/^,//;
       &FAI::push_command(
-        "yes | mdadm --create /dev/md$id --level=$level --force --run --raid-devices="
-          . scalar(@eff_devs) . " --spare-devices=" . scalar(@spares) . " "
+        "yes | mdadm --create $create_options /dev/md$id --level=$level --force --run --raid-devices="
+          . scalar(@eff_devs) . (scalar(@spares) !=0 ? " --spare-devices=" . scalar(@spares) : "") . " "
           . join(" ", @eff_devs) . " " . join(" ", @spares),
         "$pre_req", "exist_/dev/md$id" );
 
@@ -272,19 +273,44 @@ sub create_volume_group {
   ($config =~ /^VG_(.+)$/) and ($1 ne "--ANY--") or &FAI::internal_error("Invalid config $config");
   my $vg = $1; # the actual volume group
 
+  my $vg_exists = 0;
+  if (defined ($FAI::current_lvm_config{$vg})) {
+    $vg_exists = 1;
+    foreach my $dev (@{ $FAI::current_lvm_config{$vg}{"physical_volumes"} }) {
+      my ($i_p_d, $disk, $part_no) = &FAI::phys_dev($dev);
+      # if this is not a physical disk, just assume that the volume group will
+      # not exist anymore
+      if ($i_p_d) {
+        defined ($FAI::configs{"PHY_$disk"}) or next;
+        defined ($FAI::configs{"PHY_$disk"}{partitions}{$part_no}) and
+          ($FAI::configs{"PHY_$disk"}{partitions}{$part_no}{size}{preserve}) and
+          next;
+      }
+      $vg_exists = 0;
+      last;
+    }
+  }
+
+  my ($pv_create_options) = $FAI::configs{$config}{pvcreateopts};
+  my ($vg_create_options) = $FAI::configs{$config}{vgcreateopts};
+  # prevent warnings of uninitialized variables
+  $pv_create_options = '' unless $pv_create_options;
+  $vg_create_options = '' unless $vg_create_options;
+  print "/dev/$vg PV create_options: $pv_create_options\n" if ($FAI::debug && $pv_create_options);
+  print "/dev/$vg VG create_options: $vg_create_options\n" if ($FAI::debug && $vg_create_options);
   # create the volume group, if it doesn't exist already
-  if (!defined ($FAI::current_lvm_config{$vg})) {
+  if (!$vg_exists) {
     # create all the devices
     my @devices = keys %{ $FAI::configs{$config}{devices} };
     &FAI::erase_lvm_signature(\@devices);
-    &FAI::push_command( "pvcreate $_", "pv_sigs_removed,exist_$_",
-      "pv_done_$_" ) foreach (@devices);
+    &FAI::push_command( "pvcreate $pv_create_options $_",
+      "pv_sigs_removed,exist_$_", "pv_done_$_") foreach (@devices);
     # create the volume group
     my $pre_dev = "";
     $pre_dev .= ",exist_$_,pv_done_$_" foreach (@devices);
     $pre_dev =~ s/^,//;
-    &FAI::push_command( "vgcreate $vg " . join (" ", @devices), "$pre_dev",
-      "vg_created_$vg" );
+    &FAI::push_command( "vgcreate $vg_create_options $vg " . join (" ",
+        @devices), "$pre_dev", "vg_created_$vg" );
     # we are done
     return;
   }
@@ -302,7 +328,8 @@ sub create_volume_group {
   # &FAI::erase_lvm_signature( \@new_devices );
 
   # create all the devices
-  &FAI::push_command( "pvcreate $_", "exist_$_", "pv_done_$_" ) foreach (@new_devices);
+  &FAI::push_command( "pvcreate $pv_create_options $_", "exist_$_", "pv_done_$_"
+    ) foreach (@new_devices);
 
   # extend the volume group by the new devices (includes the current ones)
   my $pre_dev = "";
@@ -397,9 +424,14 @@ sub setup_logical_volumes {
       next;
     }
 
+    my ($create_options) = $FAI::configs{$config}{volumes}{$lv}{lvcreateopts};
+    # prevent warnings of uninitialized variables
+    $create_options = '' unless $create_options;
+  print "/dev/$vg/$lv LV create_options: $create_options\n" if ($FAI::debug && $create_options);
     # create a new volume
-    &FAI::push_command( "lvcreate -n $lv -L " . $lv_size->{eff_size} . " $vg",
-      "vg_enabled_$vg,$lv_rm_pre", "exist_/dev/$vg/$lv" );
+    &FAI::push_command( "lvcreate $create_options -n $lv -L " .
+      $lv_size->{eff_size} . " $vg", "vg_enabled_$vg,$lv_rm_pre",
+      "exist_/dev/$vg/$lv" );
 
     # create the filesystem on the volume
     &FAI::build_mkfs_commands("/dev/$vg/$lv",
@@ -641,16 +673,17 @@ sub setup_partitions {
   # the list of partitions that must be preserved
   my @to_preserve = &FAI::get_preserved_partitions($config);
 
+  my $label = $FAI::configs{$config}{disklabel};
+  $label = "gpt" if ($label eq "gpt-bios");
   # A new disk label may only be written if no partitions need to be
   # preserved
-  (($FAI::configs{$config}{disklabel} eq
-      $FAI::current_config{$disk}{disklabel})
+  (($label eq $FAI::current_config{$disk}{disklabel})
     || (scalar (@to_preserve) == 0)) 
     or die "Can't change disklabel, partitions are to be preserved\n";
 
   # write the disklabel to drop the previous partition table
-  &FAI::push_command( "parted -s $disk mklabel " .
-    $FAI::configs{$config}{disklabel}, "exist_$disk", "cleared1_$disk" );
+  &FAI::push_command( "parted -s $disk mklabel $label", "exist_$disk",
+    "cleared1_$disk" );
 
   &FAI::rebuild_preserved_partitions($config, \@to_preserve);
 
@@ -668,9 +701,9 @@ sub setup_partitions {
     $pre_all_resize .= ",exist_" . &FAI::make_device_name($disk, $p) unless
       $part->{size}->{resize};
     if ($part->{size}->{resize}) {
-      warn &FAI::make_device_name($disk, $p) . " will be resized\n";
+      warn &FAI::make_device_name($disk, $mapped_id) . " will be resized\n";
     } else {
-      warn &FAI::make_device_name($disk, $p) . " will be preserved\n";
+      warn &FAI::make_device_name($disk, $mapped_id) . " will be preserved\n";
       next;
     }
 
@@ -753,9 +786,8 @@ sub setup_partitions {
 
   # write the disklabel again to drop the partition table and create a new one
   # that has the proper ids
-  &FAI::push_command( "parted -s $disk mklabel " .
-    $FAI::configs{$config}{disklabel}, "cleared1_$disk$pre_all_resize",
-    "cleared2_$disk" );
+  &FAI::push_command( "parted -s $disk mklabel $label",
+    "cleared1_$disk$pre_all_resize", "cleared2_$disk" );
 
   my $prev_id = -1;
   # generate the commands for creating all partitions
@@ -805,6 +837,14 @@ sub setup_partitions {
       &FAI::make_device_name($disk, $FAI::configs{$config}{bootable}),
       "boot_set_$disk" );
   }
+
+  # set the bios_grub flag on BIOS compatible GPT tables
+  if ($FAI::configs{$config}{disklabel} eq "gpt-bios") {
+    &FAI::push_command( "parted -s $disk set " .
+      $FAI::configs{$config}{gpt_bios_part} . " bios_grub on", "exist_" .
+      &FAI::make_device_name($disk, $FAI::configs{$config}{gpt_bios_part}),
+      "bios_grub_set_$disk" );
+  }
 }
 
 
@@ -823,8 +863,18 @@ sub build_disk_commands {
     ($config =~ /^PHY_(.+)$/) or &FAI::internal_error("Invalid config $config");
     my $disk = $1; # the device to be configured
 
-    # create partitions on non-virtual configs
-    &FAI::setup_partitions($config) unless ($FAI::configs{$config}{virtual});
+    if ($FAI::configs{$config}{virtual}) {
+      foreach my $part_id (&numsort(keys %{ $FAI::configs{$config}{partitions} })) {
+        # reference to the current partition
+        my $part = (\%FAI::configs)->{$config}->{partitions}->{$part_id};
+        # virtual disks always exist
+        &FAI::push_command( "true", "",
+          "exist_" . &FAI::make_device_name($disk, $part_id) );
+      }
+    } else {
+      # create partitions on non-virtual configs
+      &FAI::setup_partitions($config);
+    }
 
     # generate the commands for creating all filesystems
     foreach my $part_id (&numsort(keys %{ $FAI::configs{$config}{partitions} })) {
@@ -899,6 +949,11 @@ sub order_commands {
   my $pushed = -1;
 
   while ($i < $FAI::n_c_i) {
+    if ($FAI::debug) {
+      print "Trying to add CMD: " . $FAI::commands{$i}{cmd} . "\n";
+      defined($FAI::commands{$i}{pre}) and print "PRE: " .  $FAI::commands{$i}{pre} . "\n";
+      defined($FAI::commands{$i}{post}) and print "POST: " .  $FAI::commands{$i}{post} . "\n";
+    }
     my $all_matched = 1;
     if (defined($FAI::commands{$i}{pre})) {
       foreach (split(/,/, $FAI::commands{$i}{pre})) {

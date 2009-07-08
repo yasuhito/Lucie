@@ -26,7 +26,7 @@ use strict;
 #
 # @brief Parse the current partition table and LVM/RAID configurations
 #
-# $Id: Volumes.pm 5189 2008-10-14 13:32:41Z lange $
+# $Id: Volumes.pm 5398 2009-05-03 14:58:24Z mt $
 #
 # @author Christian Kern, Michael Tautschnig
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -51,10 +51,6 @@ sub get_current_disks {
 
     # make sure, $disk is a proper block device
     (-b $disk) or die "$disk is not a block special device!\n";
-    &FAI::push_command( "true", "", "exist_$disk" );
-
-    # initialise the hash
-    $FAI::current_config{$disk}{partitions} = {};
 
     # the list to hold the output of parted commands as parsed below
     my @parted_print = ();
@@ -62,31 +58,43 @@ sub get_current_disks {
     # try to obtain the partition table for $disk
     # it might fail with parted_2 in case the disk has no partition table
     my $error =
-      &FAI::execute_ro_command("parted -s $disk unit TiB print", \@parted_print, 0);
+        &FAI::execute_ro_command("parted -s $disk unit TiB print", \@parted_print, 0);
 
-    # parted_2 happens when the disk has no disk label, because parted then
-    # provides no information about the disk
-    if ($error eq "parted_2" || $error eq "parted_2_new") {
+    # possible problems
+    if (!defined($FAI::configs{"PHY_$disk"}) && $error ne "") {
+      warn "Could not determine size and contents of $disk, skipping\n";
+      next;
+    } elsif (defined($FAI::configs{"PHY_$disk"}) &&
+      $FAI::configs{"PHY_$disk"}{preserveparts} == 1 && $error ne "") {
+      die "Failed to determine size and contents of $disk, but partitions should have been preserved\n";
+    }
+
+    # parted_2 happens when the disk has no disk label, parted_4 means unaligned
+    # partitions
+    if ($error eq "parted_2" || $error eq "parted_2_new" ||
+      $error eq "parted_4" || $error eq "parted_4_new") {
+
       $FAI::no_dry_run or die 
         "Can't run on test-only mode on this system because there is no disklabel on $disk\n";
 
-      # if there is no disk configuration, write an msdos disklabel
-      if (!defined ($FAI::configs{"PHY_$disk"}{disklabel})) {
-
-        # write the disk label as configured
-        $error = &FAI::execute_command("parted -s $disk mklabel msdos");
-      } else {
-
-        # write the disk label as configured
-        $error = &FAI::execute_command("parted -s $disk mklabel " 
-          . $FAI::configs{"PHY_$disk"}{disklabel});
-      }
+      # write the disk label as configured
+      my $label = $FAI::configs{"PHY_$disk"}{disklabel};
+      $label = "gpt" if ($label eq "gpt-bios");
+      $error = &FAI::execute_command("parted -s $disk mklabel $label");
+      ($error eq "") or die "Failed to write disk label\n";
       # retry partition-table print
       $error =
         &FAI::execute_ro_command("parted -s $disk unit TiB print", \@parted_print, 0);
     }
 
     ($error eq "") or die "Failed to read the partition table from $disk\n";
+
+    # disk is usable
+    &FAI::push_command( "true", "", "exist_$disk" );
+
+    # initialise the hash
+    $FAI::current_config{$disk}{partitions} = {};
+
 
 # the following code parses the output of parted print, using various units
 # (TiB, B, chs)
@@ -290,137 +298,37 @@ sub get_current_disks {
 ################################################################################
 sub get_current_lvm {
 
-  # use Linux::LVM, once #488205
+  use Linux::LVM;
 
-  # the list to hold the output of vgdisplay commands as parsed below
-  my @vgdisplay_print = ();
-
-  # try to obtain the list of volume groups
-  my $error =
-    &FAI::execute_ro_command( "vgdisplay --units m -s", \@vgdisplay_print, 0 );
-
-  # the expected output (if any) contains lines like the following
-  #
-  # $ vgdisplay -s
-  #   "XENU" 453.36 MB [451.93 MB used / 1.43 MB free]
-
-  # parse the output line by line and call vgdisplay -v <VG>
-  foreach my $line (@vgdisplay_print) {
-    ( 
-      # example output with an empty vg:
-      #   "my_pv" 267476.00 MB [0 MB      used / 267476.00 MB free]
-      $line =~
-/^\s*"(\S+)"\s+\d+\.\d+ MB\s+\[\d+\.*\d* MB\s+used \/ \d+\.\d+ MB\s+free\]$/
-    ) or die "Unexpected vgdisplay output $line";
-
-    # the name of the volume group
-    my $vg = $1;
-    
+  # get the existing volume groups
+  foreach my $vg (get_volume_group_list()) {
     # initialise the hash entry
-    $FAI::current_lvm_config{$vg}{"physical_volumes"} = ();
+    $FAI::current_lvm_config{$vg}{physical_volumes} = ();
     &FAI::push_command( "true", "", "vg_created_$vg" );
 
-    # get the detailed configuration for $vg
-    my @vgdisplay_v_print = ();
+    # store the vg size in MB
+    my %vg_info = get_volume_group_information($vg);
+    $FAI::current_lvm_config{$vg}{size} =
+      &FAI::convert_unit( $vg_info{alloc_pe_size} .
+        $vg_info{alloc_pe_size_unit} );
 
-    # try to obtain the detailed information for the volume group $vg
-    my $error = &FAI::execute_ro_command( "vgdisplay --units m -v $vg",
-      \@vgdisplay_v_print, 0 );
-
-    # the expected output (if any) looks like this:
-    # $ vgdisplay -v XENU
-    #     Using volume group(s) on command line
-    #     Finding volume group "XENU"
-    #   --- Volume group ---
-    #   VG Name               XENU
-    #   System ID
-    #   Format                lvm2
-    #   Metadata Areas        4
-    #   Metadata Sequence No  65
-    #   VG Access             read/write
-    #   VG Status             resizable
-    #   MAX LV                0
-    #   Cur LV                53
-    #   Open LV               46
-    #   Max PV                0
-    #   Cur PV                4
-    #   Act PV                4
-    #   VG Size               453.36 MB
-    #   PE Size               4.00 MB
-    #   Total PE              116060
-    #   Alloc PE / Size       115693 / 451.93 MB
-    #   Free  PE / Size       367 / 1.43 MB
-    #   VG UUID               09JCPv-v2RU-NWEZ-ilNA-mNLk-Scw3-aURtE6
-    #
-    #   --- Logical volume ---
-    #   LV Name                /dev/XENU/mole_
-    #   VG Name                XENU
-    #   LV UUID                WBcBDw-1z2J-F3b2-FGAk-u7Ki-IEgF-lMEURK
-    #   LV Write Access        read/write
-    #   LV Status              available
-    #   # open                 1
-    #   LV Size                1000.00 MB
-    #   Current LE             250
-    #   Segments               1
-    #   Allocation             inherit
-    #   Read ahead sectors     0
-    #   Block device           254:0
-    #
-    #   --- Physical volumes ---
-    #   PV Name               /dev/sda8
-    #   PV UUID               4i7Tpi-k9io-Ud44-gWJd-nSuG-hbh7-CE1m43
-    #   PV Status             allocatable
-    #   Total PE / Free PE    29015 / 0
-    #
-    #   PV Name               /dev/sda9
-    #   PV UUID               VXSxq1-vEwU-5VrY-QVC8-3Wf1-AY45-ayD9KY
-    #   PV Status             allocatable
-    #   Total PE / Free PE    29015 / 0
-    #
-
-    # parse the output to select the interesting parts
-    # there are 3 main groups: the volume group, logical volumes and physical
-    # volumes; use mode to indicate this
-    my $mode = "";
-
-    # we need to remember the logical volume name across the lines
-    my $lv_name = "";
-
-    # do the line-wise parsing
-    foreach my $line_v (@vgdisplay_v_print) {
-      $mode = "vg" if ( $line_v =~ /^\s*--- Volume group ---\s*$/ );
-      $mode = "lv" if ( $line_v =~ /^\s*--- Logical volume ---\s*$/ );
-      $mode = "pv" if ( $line_v =~ /^\s*--- Physical volumes ---\s*$/ );
-      $mode = "" if ( $mode ne "pv" && $line_v =~ /^\s*$/ );
-      next if ( $mode eq "" );
-
-      # Now select the interesting information for each mode
-      if ( $mode eq "vg" ) {
-
-        # for a volume group only the size is needed
-        # extract the floatingpoint value
-        $FAI::current_lvm_config{$vg}{"size"} = $1
-          if ( $line_v =~ /^\s*Alloc PE \/ Size\s+\d+ \/ (\d+\.\d+) MB\s*$/ );
-      } elsif ( $mode eq "lv" ) {
-
-        # we need the name and the size of each existing logical volume
-        if ( $line_v =~ /^\s*LV Name\s+\/dev\/\Q$vg\E\/(\S+)\s*$/ ) {
-          $lv_name = $1;
-          &FAI::push_command( "true", "", "exist_/dev/$vg/$lv_name" );
-        }
-
-        # the size of the logical volume
-        # extract the floatingpoint value
-        $FAI::current_lvm_config{$vg}{"volumes"}{$lv_name}{"size"} = $1
-          if ( $line_v =~ /^\s*LV Size\s+(\d+\.\d+) MB\s*$/ );
-      } elsif ( $mode eq "pv" ) {
-
-        # get the physical devices that are part of this volume group
-        push @{ $FAI::current_lvm_config{$vg}{"physical_volumes"} }, $1
-          if ( $line_v =~ /^\s*PV Name\s+(\S+)\s*$/ );
-      }
+      # store the logical volumes and their sizes
+    my %lv_info = get_logical_volume_information($vg);
+    foreach my $lv_name (sort keys %lv_info) {
+      my $short_name = $lv_name;
+      $short_name =~ "s{/dev/\Q$vg\E/}{}";
+      $FAI::current_lvm_config{$vg}{volumes}{$short_name}{size} =
+        &FAI::convert_unit($lv_info{$lv_name}->{lv_size} .
+          $lv_info{$lv_name}->{lv_size_unit});
+      &FAI::push_command( "true", "", "exist_/dev/$vg/$short_name" );
     }
+
+    # store the physical volumes
+    my %pv_info = get_physical_volume_information($vg);
+    @{ $FAI::current_lvm_config{$vg}{physical_volumes} } =
+      sort keys %pv_info;
   }
+
 }
 
 ################################################################################
@@ -475,6 +383,7 @@ sub mark_preserve {
 
   if (1 == $i_p_d && defined($FAI::configs{"PHY_$disk"}{partitions}{$part_no})) {
     $FAI::configs{"PHY_$disk"}{partitions}{$part_no}{size}{preserve} = 1;
+    $FAI::configs{"PHY_$disk"}{preserveparts} = 1;
   } elsif ($device_name =~ m{^/dev/md(\d+)$}) {
     my $vol = $1;
     if (defined($FAI::configs{RAID}{volumes}{$vol}) && 
@@ -499,23 +408,31 @@ sub mark_preserve {
 ################################################################################
 #
 # @brief Mark devices as preserve, in case an LVM volume or RAID device shall be
-# preserved
+# preserved and check that only defined devices are marked preserve
 #
 ################################################################################
-sub propagate_preserve {
+sub propagate_and_check_preserve {
 
   # loop through all configs
   foreach my $config (keys %FAI::configs) {
 
-    # no physical devices here
-    next if ($config =~ /^PHY_./);
-
-    if ($config =~ /^VG_(.+)$/) {
+    if ($config =~ /^PHY_(.+)$/) {
+      foreach my $part_id (&numsort(keys %{ $FAI::configs{$config}{partitions} })) {
+        my $part = (\%FAI::configs)->{$config}->{partitions}->{$part_id};
+        next unless ($part->{size}->{preserve} || $part->{size}->{resize});
+        defined ($part->{size}->{range}) or die
+          "Can't preserve ". &FAI::make_device_name($1, $part->{number})
+            . " because it is not defined in the current config\n";
+      }
+    } elsif ($config =~ /^VG_(.+)$/) {
       next if ($1 eq "--ANY--");
       # check for logical volumes that need to be preserved and preserve the
       # underlying devices recursively
       foreach my $l (keys %{ $FAI::configs{$config}{volumes} }) {
-        next unless ($FAI::configs{$config}{volumes}{$l}{size}{preserve} == 1);
+        next unless ($FAI::configs{$config}{volumes}{$l}{size}{preserve} == 1 ||
+          $FAI::configs{$config}{volumes}{$l}{size}{resize} == 1);
+        defined ($FAI::configs{$config}{volumes}{$l}{size}{range}) or die
+          "Can't preserve /dev/$1/$l because it is not defined in the current config\n";
         &FAI::mark_preserve($_) foreach (keys %{ $FAI::configs{$config}{devices} });
         last;
       }
@@ -524,6 +441,8 @@ sub propagate_preserve {
       # devices recursively
       foreach my $r (keys %{ $FAI::configs{$config}{volumes} }) {
         next unless ($FAI::configs{$config}{volumes}{$r}{preserve} == 1);
+        defined ($FAI::configs{$config}{volumes}{$r}{devices}) or die
+          "Can't preserve /dev/md$r because it is not defined in the current config\n";
         &FAI::mark_preserve($_) foreach (keys %{ $FAI::configs{$config}{volumes}{$r}{devices} });
       }
     } else {

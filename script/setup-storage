@@ -43,7 +43,7 @@ use warnings FATAL => qw(uninitialized);
 # - } goes on a line on its own
 # - one blank line after sub ...
 #
-# $Id: setup-storage 5235 2008-12-22 13:52:09Z lange $
+# $Id: setup-storage 5398 2009-05-03 14:58:24Z mt $
 #
 # @author Christian Kern, Michael Tautschnig
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -52,7 +52,7 @@ use warnings FATAL => qw(uninitialized);
 
 package FAI;
 
-my $version = "1.0.3";
+my $version = "1.0.5";
 
 # command line parameter handling
 use Getopt::Std;
@@ -68,7 +68,7 @@ USAGE: [-X]                     no test, your harddisks will be formated
 EOF
 
 # $disklist must be provided by the environment
-# defined ($ENV{disklist}) or die "Environment variable disklist is not set\n";
+defined ($ENV{disklist}) or die "Environment variable disklist is not set\n";
 
 ################################################################################
 #
@@ -88,6 +88,9 @@ use Sizes;
 use Commands;
 use Fstab;
 use Exec;
+
+# enable debug mode, if requested using -d
+$opt_d and $FAI::debug = 1;
 
 # the config source file
 my $config_file = undef;
@@ -112,8 +115,9 @@ warn "Starting setup-storage $version\n";
 print "Using config file: $opt_f\n";
 &FAI::run_parser($config_file);
 
-# mark devices as preserve, where not all already done so
-&FAI::propagate_preserve;
+# mark devices as preserve, where not all already done so and check that only
+# defined devices are marked preserve
+&FAI::propagate_and_check_preserve;
 
 # read the sizes and partition tables of all disks listed in $FAI::disks
 &FAI::get_current_disks;
@@ -183,15 +187,15 @@ my @fstab = &FAI::generate_fstab(\%FAI::configs);
 # print fstab
 $FAI::debug and print "$_\n" foreach (@fstab);
 
-# write the proposed contents of fstab to /tmp/fstab
+# write the proposed contents of fstab to $LOGDIR/fstab
 if ($FAI::no_dry_run) {
   open(FSTAB, ">/tmp/fstab")
-    or die "Failed to open /tmp/fstab for writing\n";
+    or die "Failed to open $ENV{LOGDIR}/fstab for writing\n";
   print FSTAB "$_\n" foreach (@fstab);
   close FSTAB;
 }
 
-# write variables to /tmp/disk_var.sh
+# write variables to $LOGDIR/disk_var.sh
 # debugging
 $FAI::debug and print "$_=$FAI::disk_var{$_}\n"
   foreach (keys %FAI::disk_var);
@@ -199,7 +203,7 @@ $FAI::debug and print "$_=$FAI::disk_var{$_}\n"
 if ($FAI::no_dry_run)
 {
   open(DISK_VAR, ">/tmp/disk_var.sh")
-    or die "Unable to write to file /tmp/disk_var.sh\n";
+    or die "Unable to write to file $ENV{LOGDIR}/disk_var.sh\n";
   print DISK_VAR "$_=$FAI::disk_var{$_}\n" foreach (keys %FAI::disk_var);
   close DISK_VAR;
 }
@@ -207,10 +211,10 @@ if ($FAI::no_dry_run)
 # print crypttab
 $FAI::debug and print "$_\n" foreach (@FAI::crypttab);
 
-# write the proposed contents of fstab to /tmp/fstab
+# write the proposed contents of fstab to $LOGDIR/fstab
 if ($FAI::no_dry_run && scalar(@FAI::crypttab)) {
-  open(CRYPTTAB, ">/tmp/crypttab")
-    or die "Failed to open /tmp/crypttab for writing\n";
+  open(CRYPTTAB, ">$ENV{LOGDIR}/crypttab")
+    or die "Failed to open $ENV{LOGDIR}/crypttab for writing\n";
   print CRYPTTAB "$_\n" foreach (@FAI::crypttab);
   close CRYPTTAB;
 }

@@ -26,7 +26,7 @@ use strict;
 #
 # @brief A parser for the disk_config files within FAI.
 #
-# $Id: Parser.pm 5284 2009-02-25 12:31:00Z holger $
+# $Id: Parser.pm 5398 2009-05-03 14:58:24Z mt $
 #
 # @author Christian Kern, Michael Tautschnig, Sam Vilain, Andreas Schludei
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -99,6 +99,10 @@ sub init_disk_config {
   # test, whether the device name starts with a / and prepend /dev/, if
   # appropriate
   ($disk =~ m{^/}) or $disk = "/dev/$disk";
+  my @candidates = glob($disk);
+  die "Failed to resolve $disk to a unique device name\n" if (scalar(@candidates) > 1);
+  $disk = $candidates[0] if (scalar(@candidates) == 1);
+  die "Device name $disk could not be substituted\n" if ($disk =~ m{[\*\?\[\{\~]});
 
   # prepend PHY_
   $FAI::device = "PHY_$disk";
@@ -113,6 +117,7 @@ sub init_disk_config {
     disklabel  => "msdos",
     bootable   => -1,
     fstabkey   => "device",
+    preserveparts => 0,
     partitions => {}
   };
 }
@@ -410,20 +415,23 @@ $FAI::Parser = Parse::RecDescent->new(
         {
           # set the preserve flag for all ids in all cases
           $FAI::configs{$FAI::device}{partitions}{$_}{size}{preserve} = 1 foreach (split (",", $1));
+          $FAI::configs{$FAI::device}{preserveparts} = 1;
         }
         | /^preserve_reinstall:(\d+(,\d+)*)/
         {
           # set the preserve flag for all ids if $FAI::reinstall is set
           if ($FAI::reinstall) {
             $FAI::configs{$FAI::device}{partitions}{$_}{size}{preserve} = 1 foreach (split(",", $1));
+            $FAI::configs{$FAI::device}{preserveparts} = 1;
           }
         }
         | /^resize:(\d+(,\d+)*)/
         {
           # set the resize flag for all ids
           $FAI::configs{$FAI::device}{partitions}{$_}{size}{resize} = 1 foreach (split(",", $1));
+          $FAI::configs{$FAI::device}{preserveparts} = 1;
         }
-        | /^disklabel:(msdos|gpt)/
+        | /^disklabel:(msdos|gpt-bios|gpt)/
         {
           # set the disk label - actually not only the above, but all types 
           # supported by parted could be allowed, but others are not implemented
@@ -449,7 +457,7 @@ $FAI::Parser = Parse::RecDescent->new(
           $FAI::configs{$FAI::device}{fstabkey} = $1;
         }
 
-    volume: /^vg\s+/ name devices
+    volume: /^vg\s+/ name devices vgcreateopt(s?)
         | /^raid([0156])\s+/
         {
           # make sure that this is a RAID configuration
@@ -466,8 +474,8 @@ $FAI::Parser = Parse::RecDescent->new(
           # the reference is used by all further processing of this config line
           $FAI::partition_pointer = (\%FAI::configs)->{RAID}->{volumes}->{$vol_id};
         }
-        mountpoint devices filesystem mount_options fs_options
-        | type mountpoint size filesystem mount_options fs_options
+        mountpoint devices filesystem mount_options mdcreateopts
+        | type mountpoint size filesystem mount_options lv_or_fsopts
 
     type: 'primary'
         {
@@ -502,27 +510,16 @@ $FAI::Parser = Parse::RecDescent->new(
           $FAI::partition_pointer = (\%FAI::configs)->{$FAI::device}->{volumes}->{$2};
         }
 
-    mountpoint: '-'
-        {
-          # this partition should not be mounted
-          $FAI::partition_pointer->{mountpoint} = "-";
-          $FAI::partition_pointer->{encrypt} = 0;
-        }
-        | 'swap'
-        {
-          # this partition is swap space, not mounted
-          $FAI::partition_pointer->{mountpoint} = "none";
-          $FAI::partition_pointer->{encrypt} = 0;
-        }
-        | m{^/\S*}
+    mountpoint: m{^(-|swap|/[^\s\:]*)(:encrypt(:randinit)?)?}
         {
           # set the mount point, may include encryption-request
-          if ($item[ 1 ] =~ m{^(/[^:]*):encrypt$}) {
+          $FAI::partition_pointer->{mountpoint} = $1;
+          $FAI::partition_pointer->{mountpoint} = "none" if ($1 eq "swap");
+          if (defined($2)) {
             &FAI::in_path("cryptsetup") or die "cryptsetup not found in PATH\n";
-            $FAI::partition_pointer->{mountpoint} = $1;
             $FAI::partition_pointer->{encrypt} = 1;
+            ++$FAI::partition_pointer->{encrypt} if (defined($3));
           } else {
-            $FAI::partition_pointer->{mountpoint} = $item[ 1 ];
             $FAI::partition_pointer->{encrypt} = 0;
           }
         }
@@ -569,7 +566,10 @@ $FAI::Parser = Parse::RecDescent->new(
           # enter the range into the hash
           $FAI::partition_pointer->{size}->{range} = $range;
           # set the resize flag, if required
-          defined ($4) and $FAI::partition_pointer->{size}->{resize} = 1;
+          if (defined ($4)) {
+            $FAI::partition_pointer->{size}->{resize} = 1;
+            $FAI::configs{$FAI::device}{preserveparts} = 1;
+          }
         }
         | /^(-\d+[kMGTP%]?)(:resize)?\s+/
         {
@@ -583,7 +583,10 @@ $FAI::Parser = Parse::RecDescent->new(
           # enter the range into the hash
           $FAI::partition_pointer->{size}->{range} = $range;
           # set the resize flag, if required
-          defined( $2 ) and $FAI::partition_pointer->{size}->{resize} = 1;
+          if (defined ($2)) {
+            $FAI::partition_pointer->{size}->{resize} = 1;
+            $FAI::configs{$FAI::device}{preserveparts} = 1;
+          }
         }
         | <error: invalid partition size near "$text">
 
@@ -606,6 +609,8 @@ $FAI::Parser = Parse::RecDescent->new(
                 $dev = "/dev/$dev";
               }
             }
+            my @candidates = glob($dev);
+
             # options are only valid for RAID
             defined ($2) and ($FAI::device ne "RAID") and die "Option $2 invalid in a non-RAID context\n";
             if ($FAI::device eq "RAID") {
@@ -616,6 +621,15 @@ $FAI::Parser = Parse::RecDescent->new(
                 ($2 =~ /spare/) and $spare = 1;
                 ($2 =~ /missing/) and $missing = 1;
               }
+              (($spare == 1 || $missing == 1) && $FAI::partition_pointer->{mode} == 0)
+                and die "RAID-0 does not support spares or missing devices\n";
+              if ($missing) {
+                die "Failed to resolve $dev to a unique device name\n" if (scalar(@candidates) > 1);
+                $dev = $candidates[0] if (scalar(@candidates) == 1);
+              } else {
+                die "Failed to resolve $dev to a unique device name\n" if (scalar(@candidates) != 1);
+                $dev = $candidates[0];
+              }
               # each device may only appear once
               defined ($FAI::partition_pointer->{devices}->{$dev}) and 
                 die "$dev is already part of the RAID volume\n";
@@ -625,6 +639,8 @@ $FAI::Parser = Parse::RecDescent->new(
                 "missing" => $missing
               };
             } else {
+              die "Failed to resolve $dev to a unique device name\n" if (scalar(@candidates) != 1);
+              $dev = $candidates[0];
               # create an empty hash for each device
               $FAI::configs{$FAI::device}{devices}{$dev} = {};
             }
@@ -648,14 +664,55 @@ $FAI::Parser = Parse::RecDescent->new(
         }
         | /^\S+/
         {
-          &FAI::in_path("mkfs.$item[1]") or 
-            die "unknown/invalid filesystem type $item[1] (mkfs.$item[1] not found in PATH)\n";
           $FAI::partition_pointer->{filesystem} = $item[ 1 ];
+          my $to_be_preserved = 0;
+          if ($FAI::device eq "RAID") {
+            $to_be_preserved = $FAI::partition_pointer->{preserve};
+          } else {
+            $to_be_preserved = $FAI::partition_pointer->{size}->{preserve};
+          }
+          if (0 == $to_be_preserved) {
+            &FAI::in_path("mkfs.$item[1]") or
+              die "unknown/invalid filesystem type $item[1] (mkfs.$item[1] not found in PATH)\n";
+          }
         }
 
-    fs_options: /[^;\n]*/
+    vgcreateopt: /pvcreateopts="([^"]*)"/
         {
-          $FAI::partition_pointer->{fs_options} = $item[ 1 ];
+          $FAI::configs{$FAI::device}{pvcreateopts} = $1 if (defined($1));
+          # make sure this line is part of an LVM configuration
+          ($FAI::device =~ /^VG_/) or
+            die "pvcreateopts is invalid in a non LVM-context.\n";
+        }
+        | /vgcreateopts="([^"]*)"/
+        {
+          $FAI::configs{$FAI::device}{vgcreateopts} = $1 if (defined($1));
+          # make sure this line is part of an LVM configuration
+          ($FAI::device =~ /^VG_/) or
+            die "vgcreateopts is invalid in a non LVM-context.\n";
+        }
+
+    mdcreateopts: /mdcreateopts="([^"]*)"/ createtuneopt(s?)
+        {
+          $FAI::partition_pointer->{mdcreateopts} = $1;
+        }
+        | createtuneopt(s?)
+
+    lv_or_fsopts: /lvcreateopts="([^"]*)"/ createtuneopt(s?)
+        {
+          $FAI::partition_pointer->{lvcreateopts} = $1;
+          ($FAI::device =~ /^VG_/) or
+            die "lvcreateopts is invalid in a non LVM-context.\n";
+        }
+        | createtuneopt(s?)
+
+    createtuneopt: /createopts="([^"]*)"/
+        {
+          $FAI::partition_pointer->{createopts} = $1;
+        }
+        | /tuneopts="([^"]*)"/
+        {
+          $FAI::partition_pointer->{tuneopts} = $1;
         }
 }
 );

@@ -29,7 +29,7 @@ use strict;
 # The layout of the data structures is documented in the wiki:
 # http://faiwiki.informatik.uni-koeln.de/index.php/Setup-storage
 #
-# $Id: Init.pm 5116 2008-09-06 15:16:51Z lange $
+# $Id: Init.pm 5263 2009-02-16 13:01:27Z mt $
 #
 # @author Christian Kern, Michael Tautschnig
 # @date Sun Jul 23 16:09:36 CEST 2006
@@ -170,7 +170,8 @@ sub phys_dev {
     defined($2) or return (1, "/dev/$1", -1);
     return (1, "/dev/$1", $2);
   }
-  elsif ($dev =~ m{^/dev/(cciss/c\dd\d|ida/c\dd\d|rd/c\dd\d|ataraid/d\d)p(\d+)?$})
+  elsif ($dev =~
+    m{^/dev/(cciss/c\dd\d|ida/c\dd\d|rd/c\dd\d|ataraid/d\d|etherd/e\d+\.\d+)p(\d+)?$})
   {
     defined($2) or return (1, "/dev/$1", -1);
     return (1, "/dev/$1", $2);
@@ -192,7 +193,7 @@ sub phys_dev {
 sub make_device_name {
   my ($dev, $p) = @_;
   $dev .= "p" if ($dev =~
-    m{^/dev/(cciss/c\dd\d|ida/c\dd\d|rd/c\dd\d|ataraid/d\d)$});
+    m{^/dev/(cciss/c\dd\d|ida/c\dd\d|rd/c\dd\d|ataraid/d\d|etherd/e\d+\.\d+)$});
   $dev .= $p;
   internal_error("Invalid device $dev") unless (&FAI::phys_dev($dev))[0];
   return $dev;
