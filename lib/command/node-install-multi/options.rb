@@ -1,17 +1,13 @@
 module Command
   module NodeInstallMulti
     class Options < Command::Option
-      usage "node install-multi <\"NODE-OPTIONS\" ...> --netmask=<NETMASK> [OPTIONS ...]"
+      usage "node install-multi <\"NODE-OPTIONS\" ...> --netmask <NETMASK> [OPTIONS ...]"
 
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
                   :argument => "[NETMASK-ADDRESS]",
                   :description => "Netmask address.",
                   :mandatory => true )
-      add_option( :long_option => "--ldb-repository",
-                  :short_option => "-L",
-                  :argument => "[REPOSITORY-URL]",
-                  :description => "LDB repository URL." )
 
       separator
 
@@ -19,6 +15,35 @@ module Command
                   :short_option => "-s",
                   :argument => "[FILE]",
                   :description => "setup-storage configuration file." )
+
+      separator
+
+      add_option( :long_option => "--ldb-repository",
+                  :short_option => "-L",
+                  :argument => "[REPOSITORY-URL]",
+                  :description => "LDB repository URL." )
+      add_option( :long_option => "--secret",
+                  :short_option => "-X",
+                  :argument => "[FILE]",
+                  :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
+
+      separator
+
+      add_option( :long_option => "--linux-image",
+                  :short_option => "-l",
+                  :argument => "[PACKAGE]",
+                  :description => "Linux image package (e.g., linux-image-686) to be installed." )
+      add_option( :long_option => "--installer-linux-image",
+                  :short_option => "-i",
+                  :argument => "[PACKAGE]",
+                  :description => "Linux image package used while installation." )
+      add_option( :long_option => "--suite",
+                  :short_option => "-S",
+                  :argument => "[CODE-NAME]",
+                  :description => "Distribution version code name (e.g., etch, stable etc.)." )
+
+      separator
+
       add_option( :long_option => "--http-proxy",
                   :short_option => "-H",
                   :argument => "[PROXY-URL]",
@@ -27,22 +52,6 @@ module Command
                   :short_option => "-P",
                   :argument => "[REPOSITORY-URL]",
                   :description => "Package repository url." )
-      add_option( :long_option => "--suite",
-                  :short_option => "-S",
-                  :argument => "[CODE-NAME]",
-                  :description => "Distribution version code name (e.g., etch, stable etc.)." )
-      add_option( :long_option => "--installer-linux-image",
-                  :short_option => "-i",
-                  :argument => "[PACKAGE]",
-                  :description => "Linux image package used while installation." )
-      add_option( :long_option => "--linux-image",
-                  :short_option => "-l",
-                  :argument => "[PACKAGE]",
-                  :description => "Linux image package (e.g., linux-image-686) to be installed." )
-      add_option( :long_option => "--secret",
-                  :short_option => "-X",
-                  :argument => "[FILE]",
-                  :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
 
       separator
 
