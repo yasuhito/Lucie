@@ -48,14 +48,7 @@ module Command
 
 
       def node_options name
-        {
-          :netmask_address => @options.netmask,
-          :mac_address => @node_options[ name ].mac,
-          :eth1 => @node_options[ name ].eth1,
-          :eth2 => @node_options[ name ].eth2,
-          :eth3 => @node_options[ name ].eth3,
-          :eth4 => @node_options[ name ].eth4
-        }
+        { :netmask_address => @options.netmask, :mac_address => @node_options[ name ].mac }
       end
 
 

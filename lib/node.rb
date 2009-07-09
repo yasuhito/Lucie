@@ -9,10 +9,6 @@ class Node
   include Lucie::Utils
 
 
-  attr_reader :eth1
-  attr_reader :eth2
-  attr_reader :eth3
-  attr_reader :eth4
   attr_reader :install_command
   attr_reader :mac_address
   attr_reader :name
@@ -33,10 +29,6 @@ class Node
   def initialize name, attributes = {}
     @name = name
     @mac_address = attributes[ :mac_address ]
-    @eth1 = attributes[ :eth1 ]
-    @eth2 = attributes[ :eth2 ]
-    @eth3 = attributes[ :eth3 ]
-    @eth4 = attributes[ :eth4 ]
     @ip_address = attributes[ :ip_address ]
     @netmask_address = attributes[ :netmask_address ]
   end
@@ -45,11 +37,6 @@ class Node
   def ip_address
     return @ip_address if @ip_address
     Resolv.getaddress( @name ) rescue raise( "no address for #{ @name }" )
-  end
-
-
-  def eth_list
-    [ @mac_address, @eth1, @eth2, @eth3, @eth4 ].compact
   end
 
 
@@ -116,19 +103,10 @@ class Node
 
 
   def write_config options, messenger
-    eths = %W( eth1 eth2 eth3 eth4 ).collect do | each |
-      ethx_mac = instance_variable_get( "@#{ each }" )
-      if ethx_mac
-        "#{ each },#{ ethx_mac }"
-      else
-        nil
-      end
-    end.compact.join( "\n" )
     eth0_mac = File.join( @path, @mac_address.gsub( ':', '_' ) )
     write_file eth0_mac, <<-EOF, options, messenger
 ip_address,#{ ip_address }
 netmask_address,#{ netmask_address }
-#{ eths }
 EOF
   end
 
