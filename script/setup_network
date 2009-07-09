@@ -21,17 +21,16 @@ $eth = $1
 
 File.open( "/tmp/target/etc/udev/rules.d/70-persistent-net.rules", "w" ) do | file |
   file.puts <<-RULE
-SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", ATTR{type}=="1", KERNEL=="eth*", NAME="#{ $eth }"
+SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="#{ $eth }"
 RULE
 end
 
 
 File.open( "/tmp/target/etc/network/interfaces", "w" ) do | file |
   file.puts( <<-EOF )
-auto lo
+auto lo #{ $eth }
 iface lo inet loopback
 
-auto #{ $eth }
 iface #{ $eth } inet static
   address #{ $ipaddress }
   netmask #{ $netmask_address }
@@ -41,12 +40,12 @@ EOF
 end
 
 
-File.open( '/tmp/target/etc/hostname', 'w' ) do | file |
+File.open( "/tmp/target/etc/hostname", "w" ) do | file |
   file.puts $host_name
 end
 
 
-File.open( '/tmp/target/etc/hosts', 'w' ) do | file |
+File.open( "/tmp/target/etc/hosts", "w" ) do | file |
   file.puts( <<-EOF )
 127.0.0.1\tlocalhost.localdomain\tlocalhost
 #{ Facter.value( 'ipaddress' ) }\t#{ $host_name }.#{ $domain_name }\t#{ $host_name }
