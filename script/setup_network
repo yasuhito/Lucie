@@ -21,7 +21,7 @@ $eth = $1
 
 File.open( "/tmp/target/etc/udev/rules.d/70-persistent-net.rules", "w" ) do | file |
   file.puts <<-RULE
-SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="#{ $eth }"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", ATTR{type}=="1", KERNEL=="eth*", NAME="#{ $eth }"
 RULE
 end
 
