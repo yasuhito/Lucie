@@ -19,13 +19,6 @@ $lucie_server_ipaddress = ARGV[ 8 ]
 $eth = $1
 
 
-File.open( "/tmp/target/etc/udev/rules.d/70-persistent-net.rules", "w" ) do | file |
-  file.puts <<-RULE
-SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}=="#{ $mac_address }", NAME="#{ $eth }"
-RULE
-end
-
-
 File.open( "/tmp/target/etc/network/interfaces", "w" ) do | file |
   file.puts( <<-EOF )
 auto lo #{ $eth }
