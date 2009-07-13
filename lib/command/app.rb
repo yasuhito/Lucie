@@ -8,6 +8,7 @@ require "lucie/io"
 require "lucie/logger/html"
 require "lucie/server"
 require "lucie/utils"
+require "secret-server"
 require "super-reboot"
 
 
