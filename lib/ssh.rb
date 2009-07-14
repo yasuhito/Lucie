@@ -77,12 +77,8 @@ class SSH < Rake::TaskLib
   ##############################################################################
 
 
-  def run commands
-    commands.split( "\n" ).each do | each |
-      next if /^#/=~ each
-      next if /^\s*$/=~ each
-      Lucie::Utils.run each, { :verbose => @verbose, :dry_run => @dry_run }, @messenger      
-    end
+  def run command
+    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger      
   end
 
 

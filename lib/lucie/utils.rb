@@ -33,8 +33,12 @@ module Lucie
 
 
     def run command, options = {}, messenger = nil
-      debug_print command, options, messenger
-      Lucie::Shell.new( options, messenger ).run command
+      command.split( "\n" ).each do | each |
+        next if /^#/=~ each
+        next if /^\s*$/=~ each
+        debug_print each, options, messenger
+        Lucie::Shell.new( options, messenger ).run each
+      end
     end
 
 
