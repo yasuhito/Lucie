@@ -48,28 +48,6 @@ class SSH < Rake::TaskLib
   end
 
 
-  def wait_until_first_stage_ready node
-    catch :node_up do
-      loop do
-        info "waiting for #{ node.name } to start sshd ..."
-        try_ssh_to node.name, "grep -q nfsroot /proc/cmdline"
-        sleep 5
-      end
-    end
-  end
-
-
-  def wait_until_second_stage_ready node
-    catch :node_up do
-      loop do
-        info "waiting for #{ node.name } to start sshd ..."
-        try_ssh_to node.name, "grep -v -q nfsroot /proc/cmdline"
-        sleep 5
-      end
-    end
-  end
-
-
   def define_tasks  # :nodoc:
     define_task_installer_ssh
     define_task_ssh_directory
@@ -102,11 +80,6 @@ class SSH < Rake::TaskLib
   ##############################################################################
 
 
-  def mkdir_p path
-    Lucie::Utils.mkdir_p path, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
-  end
-
-
   def run commands
     commands.split( "\n" ).each do | each |
       next if /^#/=~ each
@@ -116,26 +89,7 @@ class SSH < Rake::TaskLib
   end
 
 
-  def try_ssh_to node_name, command
-    command = %{ssh -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ node_name } "#{ command }"}
-    info "Connecting to #{ node_name } ..."
-    Popen3::Shell.open do | shell |
-      shell.on_stderr do | line |
-        error line if verbose
-      end
-      shell.on_success do
-        throw :node_up
-      end
-      debug command
-      throw :node_up if @dry_run
-      shell.exec command
-    end
-  end
-
-
-  ##############################################################################
-  # tasks
-  ##############################################################################
+  # tasks ######################################################################
 
 
   def define_task_installer_ssh
@@ -202,9 +156,7 @@ COMMANDS
   end
 
 
-  ##############################################################################
-  # targets
-  ##############################################################################
+  # targets ####################################################################
 
 
   def local_authorized_keys
