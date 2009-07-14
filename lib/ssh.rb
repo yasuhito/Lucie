@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require "rubygems"
 
 require "lucie"
@@ -18,7 +17,6 @@ class SSH < Rake::TaskLib
   OPTIONS = %{-o "PasswordAuthentication no" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile=/dev/null" -o "LogLevel=ERROR"}
 
 
-  attr_accessor :user
   attr_accessor :target_directory
 
   attr_accessor :dry_run # :nodoc:
@@ -26,18 +24,19 @@ class SSH < Rake::TaskLib
   attr_accessor :verbose # :nodoc:
 
 
-  def self.setup &block
-    self.configure( &block )
-    Rake::Task[ "installer:ssh" ].invoke
+  def self.setup_keypair
+    ssh = self.new
+    ssh.define_keypair_tasks
+    Rake::Task[ "installer:ssh_keypair" ].invoke
   end
 
 
-  def self.configure &block # :nodoc:
+  def self.setup_nfsroot &block
     ssh = self.new
     block.call ssh
     ssh.check_prerequisites
-    ssh.define_tasks
-    ssh.define_task_dependencies
+    ssh.define_nfsroot_tasks
+    Rake::Task[ "installer:ssh_nfsroot" ].invoke
   end
 
 
@@ -48,26 +47,24 @@ class SSH < Rake::TaskLib
   end
 
 
-  def define_tasks  # :nodoc:
-    define_task_installer_ssh
+  def define_keypair_tasks # :nodoc:
     define_task_ssh_directory
-    define_task_target_root_ssh_home
     define_task_local_authorized_keys
-    define_task_target_authorized_keys
+    define_task_public_key_file
     define_task_private_key_file
+    task "installer:ssh_keypair" => [ PUBLIC_KEY, PRIVATE_KEY, local_authorized_keys ]
   end
 
 
-  def define_task_dependencies  # :nodoc:
-    task "installer:ssh" => [ target_authorized_keys, local_authorized_keys ]
-    task local_authorized_keys => PUBLIC_KEY
-    task target_authorized_keys => [ target_root_ssh_home, PUBLIC_KEY, PRIVATE_KEY ]
-    task PRIVATE_KEY => LOCAL_SSH_HOME
-    task PUBLIC_KEY => LOCAL_SSH_HOME
+  def define_nfsroot_tasks # :nodoc:
+    define_task_ssh_nfsroot
+    define_task_target_root_ssh_home
+    define_task_target_authorized_keys
+    task "installer:ssh_nfsroot" => target_authorized_keys
   end
 
 
-  def check_prerequisites  # :nodoc:
+  def check_prerequisites # :nodoc:
     return if @dry_run
     unless FileTest.exists?( target( "/usr/bin/ssh" ) )
       raise "No ssh executable was found in #{ @target_directory }"
@@ -92,8 +89,8 @@ class SSH < Rake::TaskLib
   # tasks ######################################################################
 
 
-  def define_task_installer_ssh
-    task "installer:ssh" do
+  def define_task_ssh_nfsroot
+    task "installer:ssh_nfsroot" do
       run <<-COMMANDS
 ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ target( "/etc/ssh/sshd_config" ) }
 ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ target( "/etc/ssh/sshd_config" ) }
@@ -105,23 +102,23 @@ COMMANDS
 
 
   def define_task_ssh_directory
-    directory LOCAL_SSH_HOME do
-      run "chown #{ @user }:#{ @user } #{ LOCAL_SSH_HOME }"
+    directory LOCAL_SSH_HOME
+    file LOCAL_SSH_HOME do
       run "chmod 0700 #{ LOCAL_SSH_HOME }"
     end
   end
 
 
   def define_task_target_root_ssh_home
-    directory target_root_ssh_home do
+    directory target_root_ssh_home
+    file target_root_ssh_home do
       run "chmod 0700 #{ target_root_ssh_home }"
     end
   end
 
 
-  # [TODO] バックアップを取るべし。
   def define_task_local_authorized_keys
-    file local_authorized_keys do
+    file local_authorized_keys => PUBLIC_KEY do
       unless FileTest.exists?( local_authorized_keys )
         run "cp #{ PUBLIC_KEY } #{ local_authorized_keys }"
       else
@@ -132,26 +129,26 @@ COMMANDS
         end
       end
       run "chmod 0644 #{ local_authorized_keys }"
-      run "chown #{ @user }:#{ @user } #{ local_authorized_keys }"
     end
   end
 
 
   def define_task_target_authorized_keys
-    file target_authorized_keys do
+    file target_authorized_keys => target_root_ssh_home do
       run "cp #{ PUBLIC_KEY } #{ target_authorized_keys }"
       run "chmod 0644 #{ target_authorized_keys }"
     end
   end
 
 
+  def define_task_public_key_file
+    file PUBLIC_KEY => LOCAL_SSH_HOME
+  end
+
+
   def define_task_private_key_file
-    file PRIVATE_KEY do
-      run <<-COMMANDS
-ssh-keygen -t rsa -N "" -f #{ PRIVATE_KEY }
-chown #{ @user }:#{ @user } #{ PUBLIC_KEY }
-chown #{ @user }:#{ @user } #{ PRIVATE_KEY }
-COMMANDS
+    file PRIVATE_KEY => LOCAL_SSH_HOME do
+      run %{ssh-keygen -t rsa -N "" -f #{ PRIVATE_KEY }}
     end
   end
 
