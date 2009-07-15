@@ -139,7 +139,7 @@ COMMANDS
 
 
   def authorized_keys_path
-    File.expand_path File.join( @ssh_home || "~/.ssh/", "authorized_keys" )
+    File.expand_path "~/.ssh/authorized_keys"
   end
 
 

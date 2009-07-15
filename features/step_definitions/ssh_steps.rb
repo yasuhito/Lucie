@@ -62,14 +62,14 @@ end
 
 Then /^generated public key copied to authorized_keys$/ do
   public_key = File.join( @ssh_home, "id_rsa.pub" )
-  authorized_keys = File.join( @ssh_home, "authorized_keys" )
+  authorized_keys = File.join( ENV[ "HOME" ], ".ssh", "authorized_keys" )
   history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
 
 
 Then /^generated public key appended to authorized_keys$/ do
   public_key = File.join( @ssh_home, "id_rsa.pub" )
-  authorized_keys = File.join( @ssh_home, "authorized_keys" )
+  authorized_keys = File.join( ENV[ "HOME" ], ".ssh", "authorized_keys" )
   history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
 
