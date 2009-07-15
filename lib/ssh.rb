@@ -26,8 +26,7 @@ class SSH < Rake::TaskLib
 
   def self.generate_keypair options = {}, messenger = nil
     ssh = self.new( options, messenger )
-    ssh.define_keypair_tasks
-    Rake::Task[ "installer:ssh_keypair" ].invoke
+    ssh.generate_ssh_keypair
   end
 
 
@@ -48,22 +47,10 @@ class SSH < Rake::TaskLib
   end
 
 
-  def public_key
-    @ssh_home ? File.join( @ssh_home, "id_rsa.pub" ) : PUBLIC_KEY
-  end
-
-
-  def private_key
-    @ssh_home ? File.join( @ssh_home, "id_rsa" ) : PRIVATE_KEY
-  end
-
-
-  def define_keypair_tasks # :nodoc:
-    define_task_ssh_directory
-    define_task_local_authorized_keys
-    define_task_public_key_file
-    define_task_private_key_file
-    task "installer:ssh_keypair" => [ public_key, private_key, local_authorized_keys ]
+  def generate_ssh_keypair
+    setup_local_ssh_home
+    ssh_keygen
+    update_local_authorized_keys
   end
 
 
@@ -108,34 +95,10 @@ COMMANDS
   end
 
 
-  def define_task_ssh_directory
-    directory LOCAL_SSH_HOME
-    file LOCAL_SSH_HOME do
-      run "chmod 0700 #{ LOCAL_SSH_HOME }"
-    end
-  end
-
-
   def define_task_target_root_ssh_home
     directory target_root_ssh_home
     file target_root_ssh_home do
       run "chmod 0700 #{ target_root_ssh_home }"
-    end
-  end
-
-
-  def define_task_local_authorized_keys
-    file local_authorized_keys => public_key do
-      unless FileTest.exists?( local_authorized_keys )
-        run "cp #{ public_key } #{ local_authorized_keys }"
-      else
-        authorized_keys = IO.read( local_authorized_keys ).split( "\n" )
-        public_key = IO.read( public_key ).chomp
-        unless authorized_keys.include?( public_key )
-          run "cat #{ public_key } >> #{ local_authorized_keys }"
-        end
-      end
-      run "chmod 0644 #{ local_authorized_keys }"
     end
   end
 
@@ -148,23 +111,50 @@ COMMANDS
   end
 
 
-  def define_task_public_key_file
-    file public_key => LOCAL_SSH_HOME
+  def setup_local_ssh_home
+    unless FileTest.directory?( LOCAL_SSH_HOME )
+      Lucie::Utils.mkdir_p LOCAL_SSH_HOME, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    end
+    run "chmod 0700 #{ LOCAL_SSH_HOME }"
   end
 
 
-  def define_task_private_key_file
-    file private_key => LOCAL_SSH_HOME do
+  def ssh_keygen
+    unless FileTest.exists?( private_key ) and FileTest.exists?( private_key )
       run %{ssh-keygen -t rsa -N "" -f #{ private_key }}
     end
+  end
+
+
+  def update_local_authorized_keys
+    unless FileTest.exists?( local_authorized_keys )
+      run "cp #{ public_key } #{ local_authorized_keys }"
+    else
+      authorized_keys = IO.read( local_authorized_keys ).split( "\n" )
+      the_public_key = IO.read( public_key ).chomp
+      unless authorized_keys.include?( the_public_key )
+        run "cat #{ public_key } >> #{ local_authorized_keys }"
+      end
+    end
+    run "chmod 0644 #{ local_authorized_keys }"
   end
 
 
   # targets ####################################################################
 
 
+  def public_key
+    @ssh_home ? File.join( @ssh_home, "id_rsa.pub" ) : PUBLIC_KEY
+  end
+
+
+  def private_key
+    @ssh_home ? File.join( @ssh_home, "id_rsa" ) : PRIVATE_KEY
+  end
+
+
   def local_authorized_keys
-    File.expand_path "~/.ssh/authorized_keys"
+    File.expand_path File.join( @ssh_home || "~/.ssh/", "authorized_keys" )
   end
 
 

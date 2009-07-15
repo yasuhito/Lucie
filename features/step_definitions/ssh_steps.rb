@@ -1,14 +1,25 @@
 Given /^ssh home directory "([^\"]*)" is empty$/ do | path |
   @ssh_home = path
   FileUtils.rm_rf @ssh_home
+  FileUtils.mkdir_p @ssh_home
 end
 
 
-Given /^ssh keypair already generated in ssh home directory "([^\"]*)"$/ do | path |
-  @ssh_home = path
+Given /^ssh keypair already generated$/ do
   FileUtils.mkdir_p @ssh_home unless FileTest.directory?( @ssh_home )
   FileUtils.touch File.join( @ssh_home, "id_rsa" )
   FileUtils.touch File.join( @ssh_home, "id_rsa.pub" )
+end
+
+
+Given /^authorized_keys does not exist$/ do
+  FileUtils.rm_f File.join( @ssh_home, "authorized_keys" )
+end
+
+
+Given /^empty authorized_keys already exists$/ do
+  FileUtils.rm_f File.join( @ssh_home, "authorized_keys" )
+  FileUtils.touch File.join( @ssh_home, "authorized_keys" )
 end
 
 
@@ -19,7 +30,7 @@ end
 
 When /^I try to generate ssh keypair$/ do
   @messenger = StringIO.new( "" )
-  SSH.generate_keypair( { :ssh_home => @ssh_home, :dry_run => true, :verbose => true }, @messenger )
+  SSH.generate_keypair( { :ssh_home => @ssh_home, :verbose => true }, @messenger )
 end
 
 
@@ -50,3 +61,16 @@ Then /^ssh access to nfsroot configured$/ do
   history.should include( "ssh access to nfsroot configured." )
 end
 
+
+Then /^generated public key copied to authorized_keys$/ do
+  public_key = File.join( @ssh_home, "id_rsa.pub" )
+  authorized_keys = File.join( @ssh_home, "authorized_keys" )
+  history.should include( "cp #{ public_key } #{ authorized_keys }" )
+end
+
+
+Then /^generated public key appended to authorized_keys$/ do
+  public_key = File.join( @ssh_home, "id_rsa.pub" )
+  authorized_keys = File.join( @ssh_home, "authorized_keys" )
+  history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
+end
