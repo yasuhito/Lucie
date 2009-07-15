@@ -4,10 +4,9 @@ require "lucie"
 require "lucie/io"
 require "lucie/utils"
 require "popen3/shell"
-require "rake/tasklib"
 
 
-class SSH < Rake::TaskLib
+class SSH
   include Lucie::IO
 
 
@@ -17,7 +16,7 @@ class SSH < Rake::TaskLib
   OPTIONS = %{-o "PasswordAuthentication no" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile=/dev/null" -o "LogLevel=ERROR"}
 
 
-  attr_accessor :target_directory
+  attr_accessor :nfsroot_directory
 
   attr_accessor :dry_run # :nodoc:
   attr_accessor :messenger # :nodoc:
@@ -48,7 +47,7 @@ class SSH < Rake::TaskLib
   def generate_keypair
     setup_local_ssh_home
     ssh_keygen
-    update_local_authorized_keys
+    update_authorized_keys
   end
 
 
@@ -73,8 +72,8 @@ class SSH < Rake::TaskLib
 
   def check_prerequisites # :nodoc:
     return if @dry_run
-    unless FileTest.exists?( target( "/usr/bin/ssh" ) )
-      raise "No ssh executable was found in #{ @target_directory }"
+    unless FileTest.exists?( nfsroot( "/usr/bin/ssh" ) )
+      raise "No ssh executable was found in #{ @nfsroot_directory }"
     end
   end
 
@@ -84,24 +83,24 @@ class SSH < Rake::TaskLib
 
   def setup_sshd
     run <<-COMMANDS
-ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ target( "/etc/ssh/sshd_config" ) }
-ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ target( "/etc/ssh/sshd_config" ) }
-echo "UseDNS no" >> #{ target( "/etc/ssh/sshd_config" ) }
+ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ nfsroot( "/etc/ssh/sshd_config" ) }
+ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ nfsroot( "/etc/ssh/sshd_config" ) }
+echo "UseDNS no" >> #{ nfsroot( "/etc/ssh/sshd_config" ) }
 COMMANDS
   end
 
 
   def setup_nfsroot_ssh_home
-    unless FileTest.directory?( target_root_ssh_home )
-      Lucie::Utils.mkdir_p target_root_ssh_home, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    unless FileTest.directory?( nfsroot_ssh_home )
+      Lucie::Utils.mkdir_p nfsroot_ssh_home, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
     end
-    run "chmod 0700 #{ target_root_ssh_home }"
+    run "chmod 0700 #{ nfsroot_ssh_home }"
   end
 
 
   def install_public_key_to_nfsroot
-    run "cp #{ public_key } #{ target_authorized_keys }"
-    run "chmod 0644 #{ target_authorized_keys }"
+    run "cp #{ public_key_path } #{ nfsroot_authorized_keys_path }"
+    run "chmod 0644 #{ nfsroot_authorized_keys_path }"
   end
 
 
@@ -114,56 +113,63 @@ COMMANDS
 
 
   def ssh_keygen
-    unless FileTest.exists?( private_key ) and FileTest.exists?( private_key )
-      run %{ssh-keygen -t rsa -N "" -f #{ private_key }}
+    unless FileTest.exists?( private_key_path ) and FileTest.exists?( private_key_path )
+      run %{ssh-keygen -t rsa -N "" -f #{ private_key_path }}
     end
   end
 
 
-  def update_local_authorized_keys
-    unless FileTest.exists?( local_authorized_keys )
-      run "cp #{ public_key } #{ local_authorized_keys }"
-    else
-      authorized_keys = IO.read( local_authorized_keys ).split( "\n" )
-      the_public_key = IO.read( public_key ).chomp
-      unless authorized_keys.include?( the_public_key )
-        run "cat #{ public_key } >> #{ local_authorized_keys }"
-      end
+  def update_authorized_keys
+    unless authorized_keys.include?( public_key )
+      run "cat #{ public_key_path } >> #{ authorized_keys_path }"
     end
-    run "chmod 0644 #{ local_authorized_keys }"
+    run "chmod 0644 #{ authorized_keys_path }"
+  end
+
+
+  # keys #######################################################################
+
+
+  def public_key
+    IO.read( public_key_path ).chomp
+  end
+
+
+  def authorized_keys
+    IO.read( authorized_keys_path ).split( "\n" ) rescue []
   end
 
 
   # targets ####################################################################
 
 
-  def public_key
+  def public_key_path
     @ssh_home ? File.join( @ssh_home, "id_rsa.pub" ) : PUBLIC_KEY
   end
 
 
-  def private_key
+  def private_key_path
     @ssh_home ? File.join( @ssh_home, "id_rsa" ) : PRIVATE_KEY
   end
 
 
-  def local_authorized_keys
+  def authorized_keys_path
     File.expand_path File.join( @ssh_home || "~/.ssh/", "authorized_keys" )
   end
 
 
-  def target_authorized_keys
-    File.join target_root_ssh_home, "authorized_keys"
+  def nfsroot_authorized_keys_path
+    File.join nfsroot_ssh_home, "authorized_keys"
   end
 
 
-  def target_root_ssh_home
-    target "root/.ssh"
+  def nfsroot_ssh_home
+    nfsroot "root/.ssh"
   end
 
 
-  def target path
-    File.join( @target_directory, path ).gsub( /\/+/, "/" )
+  def nfsroot path
+    File.join( @nfsroot_directory, path ).gsub( /\/+/, "/" )
   end
 end
 

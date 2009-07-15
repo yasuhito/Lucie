@@ -38,7 +38,7 @@ end
 When /^I try to setup ssh$/ do
   @messenger = StringIO.new( "" )
   SSH.setup_nfsroot do | ssh |
-    ssh.target_directory = @target_directory
+    ssh.nfsroot_directory = @target_directory
     ssh.dry_run = true
     ssh.verbose = true
     ssh.messenger = @messenger
@@ -66,7 +66,7 @@ end
 Then /^generated public key copied to authorized_keys$/ do
   public_key = File.join( @ssh_home, "id_rsa.pub" )
   authorized_keys = File.join( @ssh_home, "authorized_keys" )
-  history.should include( "cp #{ public_key } #{ authorized_keys }" )
+  history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
 
 
