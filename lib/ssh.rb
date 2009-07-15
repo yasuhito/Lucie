@@ -36,7 +36,6 @@ class SSH
 
   def setup_nfsroot path
     @nfsroot_directory = path
-    check_prerequisites
     setup_sshd
     setup_nfsroot_ssh_home
     install_public_key_to_nfsroot
@@ -51,14 +50,6 @@ class SSH
 
   def run command
     Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger      
-  end
-
-
-  def check_prerequisites # :nodoc:
-    return if @dry_run
-    unless FileTest.exists?( nfsroot( "/usr/bin/ssh" ) )
-      raise "No ssh executable was found in #{ @nfsroot_directory }"
-    end
   end
 
 
