@@ -16,42 +16,28 @@ class SSH
   OPTIONS = %{-o "PasswordAuthentication no" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile=/dev/null" -o "LogLevel=ERROR"}
 
 
-  attr_accessor :nfsroot_directory
-
   attr_accessor :dry_run # :nodoc:
   attr_accessor :messenger # :nodoc:
   attr_accessor :verbose # :nodoc:
 
 
-  def self.generate_keypair options = {}, messenger = nil
-    ssh = self.new( options, messenger )
-    ssh.generate_keypair
-  end
-
-
-  def self.setup_nfsroot &block
-    ssh = self.new
-    block.call ssh
-    ssh.setup_nfsroot
-  end
-
-
   def initialize options = {}, messenger = nil
-    @ssh_home = options[ :ssh_home ]
     @verbose = options[ :verbose ]
     @dry_run = options[ :dry_run ]
     @messenger = messenger
   end
 
 
-  def generate_keypair
+  def generate_keypair ssh_home = nil
+    @ssh_home = ssh_home
     setup_local_ssh_home
     ssh_keygen
     update_authorized_keys
   end
 
 
-  def setup_nfsroot
+  def setup_nfsroot path
+    @nfsroot_directory = path
     check_prerequisites
     setup_sshd
     setup_nfsroot_ssh_home
@@ -120,9 +106,13 @@ COMMANDS
 
 
   def update_authorized_keys
-    unless authorized_keys.include?( public_key )
-      run "cat #{ public_key_path } >> #{ authorized_keys_path }"
-    end
+    return if authorized_keys.include?( public_key )
+    authorize_public_key
+  end
+
+
+  def authorize_public_key
+    run "cat #{ public_key_path } >> #{ authorized_keys_path }"
     run "chmod 0644 #{ authorized_keys_path }"
   end
 
