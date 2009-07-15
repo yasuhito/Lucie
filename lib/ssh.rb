@@ -8,9 +8,10 @@ class SSH
   include Lucie::IO
 
 
-  LOCAL_SSH_HOME = File.join( Lucie::ROOT, ".ssh" )
-  PRIVATE_KEY = File.join( LOCAL_SSH_HOME, "id_rsa" )
-  PUBLIC_KEY = File.join( LOCAL_SSH_HOME, "id_rsa.pub" )
+  SSH_HOME = File.join( Lucie::ROOT, ".ssh" )
+  PUBLIC_KEY = File.join( SSH_HOME, "id_rsa.pub" )
+  PRIVATE_KEY = File.join( SSH_HOME, "id_rsa" )
+
   OPTIONS = %{-o "PasswordAuthentication no" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile=/dev/null" -o "LogLevel=ERROR"}
 
 
@@ -80,10 +81,10 @@ COMMANDS
 
 
   def setup_local_ssh_home
-    unless FileTest.directory?( LOCAL_SSH_HOME )
-      Lucie::Utils.mkdir_p LOCAL_SSH_HOME, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    unless FileTest.directory?( ssh_home )
+      Lucie::Utils.mkdir_p ssh_home, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
     end
-    run "chmod 0700 #{ LOCAL_SSH_HOME }"
+    run "chmod 0700 #{ ssh_home }"
   end
 
 
@@ -123,12 +124,17 @@ COMMANDS
 
 
   def public_key_path
-    @ssh_home ? File.join( @ssh_home, "id_rsa.pub" ) : PUBLIC_KEY
+    File.join ssh_home, "id_rsa.pub"
   end
 
 
   def private_key_path
-    @ssh_home ? File.join( @ssh_home, "id_rsa" ) : PRIVATE_KEY
+    File.join ssh_home, "id_rsa"
+  end
+
+
+  def ssh_home
+    @ssh_home || SSH_HOME
   end
 
 
