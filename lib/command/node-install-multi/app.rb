@@ -13,7 +13,7 @@ module Command
 
       def main node_argv
         parse node_argv
-        setup_ssh_keypair
+        generate_ssh_keypair
         update_sudo_timestamp
         start_main_logger
         check_prerequisites
@@ -34,8 +34,8 @@ module Command
       ##########################################################################
 
 
-      def setup_ssh_keypair
-        SSH.setup_keypair
+      def generate_ssh_keypair
+        SSH.generate_keypair
       end
 
 

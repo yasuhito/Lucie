@@ -1,5 +1,17 @@
+Given /^ssh home directory "([^\"]*)" is empty$/ do | path |
+  @ssh_home = path
+  FileUtils.rm_rf @ssh_home
+end
+
+
 Given /^target directory is "([^\"]*)"$/ do | path |
   @target_directory = path
+end
+
+
+When /^I try to generate ssh keypair$/ do
+  @messenger = StringIO.new( "" )
+  SSH.generate_keypair( { :ssh_home => @ssh_home, :dry_run => true, :verbose => true }, @messenger )
 end
 
 
@@ -11,6 +23,12 @@ When /^I try to setup ssh$/ do
     ssh.messenger = @messenger
     ssh.verbose = true
   end
+end
+
+
+Then /^ssh keypair generated$/ do
+  private_key = File.join( @ssh_home, "id_rsa" )
+  history.should include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
 end
 
 

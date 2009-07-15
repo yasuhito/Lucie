@@ -24,8 +24,8 @@ class SSH < Rake::TaskLib
   attr_accessor :verbose # :nodoc:
 
 
-  def self.setup_keypair
-    ssh = self.new
+  def self.generate_keypair options = {}, messenger = nil
+    ssh = self.new( options, messenger )
     ssh.define_keypair_tasks
     Rake::Task[ "installer:ssh_keypair" ].invoke
   end
@@ -41,9 +41,20 @@ class SSH < Rake::TaskLib
 
 
   def initialize options = {}, messenger = nil
+    @ssh_home = options[ :ssh_home ]
     @verbose = options[ :verbose ]
     @dry_run = options[ :dry_run ]
     @messenger = messenger
+  end
+
+
+  def public_key
+    @ssh_home ? File.join( @ssh_home, "id_rsa.pub" ) : PUBLIC_KEY
+  end
+
+
+  def private_key
+    @ssh_home ? File.join( @ssh_home, "id_rsa" ) : PRIVATE_KEY
   end
 
 
@@ -52,7 +63,7 @@ class SSH < Rake::TaskLib
     define_task_local_authorized_keys
     define_task_public_key_file
     define_task_private_key_file
-    task "installer:ssh_keypair" => [ PUBLIC_KEY, PRIVATE_KEY, local_authorized_keys ]
+    task "installer:ssh_keypair" => [ public_key, private_key, local_authorized_keys ]
   end
 
 
@@ -114,14 +125,14 @@ COMMANDS
 
 
   def define_task_local_authorized_keys
-    file local_authorized_keys => PUBLIC_KEY do
+    file local_authorized_keys => public_key do
       unless FileTest.exists?( local_authorized_keys )
-        run "cp #{ PUBLIC_KEY } #{ local_authorized_keys }"
+        run "cp #{ public_key } #{ local_authorized_keys }"
       else
         authorized_keys = IO.read( local_authorized_keys ).split( "\n" )
-        public_key = IO.read( PUBLIC_KEY ).chomp
+        public_key = IO.read( public_key ).chomp
         unless authorized_keys.include?( public_key )
-          run "cat #{ PUBLIC_KEY } >> #{ local_authorized_keys }"
+          run "cat #{ public_key } >> #{ local_authorized_keys }"
         end
       end
       run "chmod 0644 #{ local_authorized_keys }"
@@ -131,20 +142,20 @@ COMMANDS
 
   def define_task_target_authorized_keys
     file target_authorized_keys => target_root_ssh_home do
-      run "cp #{ PUBLIC_KEY } #{ target_authorized_keys }"
+      run "cp #{ public_key } #{ target_authorized_keys }"
       run "chmod 0644 #{ target_authorized_keys }"
     end
   end
 
 
   def define_task_public_key_file
-    file PUBLIC_KEY => LOCAL_SSH_HOME
+    file public_key => LOCAL_SSH_HOME
   end
 
 
   def define_task_private_key_file
-    file PRIVATE_KEY => LOCAL_SSH_HOME do
-      run %{ssh-keygen -t rsa -N "" -f #{ PRIVATE_KEY }}
+    file private_key => LOCAL_SSH_HOME do
+      run %{ssh-keygen -t rsa -N "" -f #{ private_key }}
     end
   end
 
