@@ -1,7 +1,6 @@
 Given /^ssh home directory "([^\"]*)" is empty$/ do | path |
   @ssh_home = path
   FileUtils.rm_rf @ssh_home
-  FileUtils.mkdir_p @ssh_home
 end
 
 
@@ -18,6 +17,7 @@ end
 
 
 Given /^empty authorized_keys already exists$/ do
+  FileUtils.mkdir_p @ssh_home
   FileUtils.rm_f File.join( @ssh_home, "authorized_keys" )
   FileUtils.touch File.join( @ssh_home, "authorized_keys" )
 end
