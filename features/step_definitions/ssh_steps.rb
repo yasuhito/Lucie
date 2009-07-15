@@ -4,6 +4,14 @@ Given /^ssh home directory "([^\"]*)" is empty$/ do | path |
 end
 
 
+Given /^ssh keypair already generated in ssh home directory "([^\"]*)"$/ do | path |
+  @ssh_home = path
+  FileUtils.mkdir_p @ssh_home unless FileTest.directory?( @ssh_home )
+  FileUtils.touch File.join( @ssh_home, "id_rsa" )
+  FileUtils.touch File.join( @ssh_home, "id_rsa.pub" )
+end
+
+
 Given /^target directory is "([^\"]*)"$/ do | path |
   @target_directory = path
 end
@@ -29,6 +37,12 @@ end
 Then /^ssh keypair generated$/ do
   private_key = File.join( @ssh_home, "id_rsa" )
   history.should include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
+end
+
+
+Then /^ssh keypair not generated$/ do
+  private_key = File.join( @ssh_home, "id_rsa" )
+  history.should_not include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
 end
 
 
