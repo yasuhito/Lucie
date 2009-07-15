@@ -30,7 +30,7 @@ class SSH < Rake::TaskLib
   end
 
 
-  def self.setup_nfsroot options = {}, messenger = nil, &block
+  def self.setup_nfsroot &block
     ssh = self.new
     block.call ssh
     ssh.setup_nfsroot
