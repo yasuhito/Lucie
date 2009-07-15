@@ -1,5 +1,3 @@
-require "rubygems"
-
 require "lucie"
 require "lucie/io"
 require "lucie/utils"
