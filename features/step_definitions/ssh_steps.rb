@@ -23,8 +23,9 @@ Given /^empty authorized_keys already exists$/ do
 end
 
 
-Given /^target directory is "([^\"]*)"$/ do | path |
+Given /^nfsroot directory is "([^\"]*)"$/ do | path |
   @target_directory = path
+  FileUtils.rm_rf @target_directory
 end
 
 
@@ -74,3 +75,10 @@ Then /^generated public key appended to authorized_keys$/ do
   authorized_keys = File.join( @ssh_home, "authorized_keys" )
   history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
