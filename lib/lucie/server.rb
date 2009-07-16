@@ -7,7 +7,7 @@ module Lucie
     def self.architecture
       arch_command = "dpkg --print-architecture"
       if system( arch_command )
-        `#{ arch_command }`
+        `#{ arch_command }`.chomp
       else
         "i386"
       end
