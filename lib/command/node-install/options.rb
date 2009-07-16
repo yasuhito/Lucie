@@ -30,14 +30,14 @@ module Command
       add_option( :long_option => "--secret",
                   :short_option => "-X",
                   :argument => "[FILE]",
-                  :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
+                  :description => %{AES-256 encrypted file containing confidential data (for example, passwords, private keys etc.).} )
 
       separator
 
       add_option( :long_option => "--linux-image",
                   :short_option => "-l",
                   :argument => "[PACKAGE]",
-                  :description => "Linux image package (e.g., linux-image-686) to be installed." )
+                  :description => %{Linux image package (for example, "linux-image-686") to be installed.} )
       add_option( :long_option => "--installer-linux-image",
                   :short_option => "-i",
                   :argument => "[PACKAGE]",
@@ -45,7 +45,11 @@ module Command
       add_option( :long_option => "--suite",
                   :short_option => "-S",
                   :argument => "[CODENAME]",
-                  :description => "Distribution version code name (e.g., etch, stable etc.)." )
+                  :description => %{Distribution version code name (for example, "etch", "stable").} )
+      add_option( :long_option => "--architecture",
+                  :short_option => "-a",
+                  :argument => "[ARCHITECTURE]",
+                  :description => %{Architecture of packages Lucie installs (for example, "i386", "amd64").} )
 
       separator
 
@@ -56,7 +60,7 @@ module Command
       add_option( :long_option => "--package-repository",
                   :short_option => "-P",
                   :argument => "[URL]",
-                  :description => "Package repository url (e.g., http://www.debian.or.jp/debian/)." )
+                  :description => %{Package repository url (for example, "http://www.debian.or.jp/debian/").} )
 
       separator
 
