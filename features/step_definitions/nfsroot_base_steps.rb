@@ -17,7 +17,7 @@ end
 
 Then /^nfsroot base tarball created on "([^\"]*)"$/ do | path |
   tgz = File.basename( path )
-  history.should include( "tar --one-file-system --directory #{ Configuration.temporary_directory }/debootstrap --exclude #{ tgz } -czf #{ path } ." )
+  history.should include( "tar --one-file-system --directory #{ Configuration.temporary_directory }/debootstrap_#{ @suite }_#{ @arch } --exclude #{ tgz } -czf #{ path } ." )
 end
 
 

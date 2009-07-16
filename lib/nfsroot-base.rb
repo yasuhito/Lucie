@@ -3,13 +3,18 @@ require "rubygems"
 require "apt"
 require "configuration"
 require "debootstrap"
+require "lucie/io"
 require "lucie/log"
 require "lucie/shell"
+require "lucie/utils"
 require "rake"
 require "rake/tasklib"
 
 
 class NfsrootBase < Rake::TaskLib
+  include Lucie::IO
+
+
   attr_accessor :arch
   attr_accessor :exclude
   attr_accessor :http_proxy
@@ -73,6 +78,7 @@ class NfsrootBase < Rake::TaskLib
       clean_old_debs
       remove_host_dependent_files
       build_base_tarball
+      cleanup_temporary_directory
     end
   end
 
@@ -121,7 +127,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def temporary_directory
-    File.join Configuration.temporary_directory, "debootstrap"
+    File.join Configuration.temporary_directory, "debootstrap_#{ @suite }_#{ @arch }"
   end
 
 
@@ -145,17 +151,14 @@ class NfsrootBase < Rake::TaskLib
     run "tar --one-file-system --directory #{ temporary_directory } --exclude #{ tgz } -czf #{ target } ."
   end
 
-  
-  def info msg
-    Lucie::Log.info msg
-    ( @messenger || $stdout ).puts msg
+
+  def cleanup_temporary_directory
+    run "rm -rf #{ temporary_directory }"
   end
 
 
   def run command
-    Lucie::Log.debug command
-    ( @messenger || $stderr ).puts command if @verbose
-    sh_exec command unless @dry_run
+    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
   end
 end
 
