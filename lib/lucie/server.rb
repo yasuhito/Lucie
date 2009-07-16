@@ -4,8 +4,13 @@ require "network_interfaces"
 
 module Lucie
   class Server
-    def self.architecture dry_run = false
-      dry_run ? "i386" : `dpkg --print-architecture`.chomp
+    def self.architecture
+      arch_command = "dpkg --print-architecture"
+      if system( arch_command )
+        `#{ arch_command }`
+      else
+        "i386"
+      end
     end
 
 

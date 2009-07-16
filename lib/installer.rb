@@ -1,6 +1,7 @@
 require "build"
 require "first-stage"
 require "installers"
+require "lucie/server"
 require "lucie/utils"
 require "nfsroot"
 
@@ -49,7 +50,7 @@ class Installer
   def initialize
     @http_proxy = nil
     @package_repository = DEFAULT_PACKAGE_REPOSITORY
-    @arch = `dpkg --print-architecture`.chomp
+    @arch = Lucie::Server.architecture
     @suite = "lenny"
   end
 
