@@ -15,5 +15,5 @@ Feature: Find installers
     Given an installer for suite "potato"
     Given an installer for suite "etch"
     Given an installer for suite "lenny"
-    When I try to find an installer "etch"
-    Then an installer "etch" loaded
+    When I try to find an installer "etch_i386"
+    Then an installer "etch_i386" loaded

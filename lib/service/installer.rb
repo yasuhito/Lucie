@@ -10,7 +10,9 @@ class Service
 
     def setup nodes, installer
       info "Setting up installer ..."
-      installer.build server_ip_address_for( nodes ), @options, @messenger
+      unless FileTest.directory?( Nfsroot.path( installer ) )
+        installer.build server_ip_address_for( nodes ), @options, @messenger
+      end
     end
 
 

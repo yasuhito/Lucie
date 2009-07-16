@@ -96,7 +96,7 @@ class Nfsroot < Rake::TaskLib
         end
       end
 
-      task name => [ "installer:clobber_#{ name }", @target_directory, "installer:nfsroot_base" ]
+      task name => [ @target_directory, "installer:nfsroot_base" ]
 
       desc "Remove #{ @target_directory }."
       task paste( 'clobber_', name ) do

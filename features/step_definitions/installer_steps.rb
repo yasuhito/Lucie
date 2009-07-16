@@ -11,6 +11,7 @@ end
 
 
 Given /^an installer for suite "([^\"]*)"$/ do | suite |
+  @suite = suite
   @messenger = StringIO.new( "" )
   installer = Installer.new
   installer.suite = suite

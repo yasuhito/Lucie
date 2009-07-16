@@ -6,6 +6,7 @@ Feature: Installer Service
 
   Scenario: Setup installer	 
     Given a node named "yutaro"
+    And installers temporary directory "/tmp/lucie/tmp/installers" is empty
     And an installer for suite "lenny"
     When I setup installer
     Then installer built

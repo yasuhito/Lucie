@@ -49,12 +49,18 @@ class Installer
   def initialize
     @http_proxy = nil
     @package_repository = DEFAULT_PACKAGE_REPOSITORY
+    @arch = `dpkg --print-architecture`.chomp
     @suite = "lenny"
   end
 
 
+  def name
+    "#{ @suite }_#{ @arch }"
+  end
+
+
   def path
-    File.join Installers.path, @suite
+    File.join Installers.path, name
   end
 
 
@@ -104,7 +110,7 @@ class Installer
 
 
   def generate_config options, messenger
-    write_file Installer.config( @suite ), <<-CONFIG, options, messenger
+    write_file Installer.config( name ), <<-CONFIG, options, messenger
 Installer.configure do | installer |
 
   # HTTP proxy url.

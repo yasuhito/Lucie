@@ -53,8 +53,8 @@ Then /^installer list includes a installer "([^\"]*)"$/ do | suite |
 end
 
 
-Then /^an installer "([^\"]*)" loaded$/ do | suite |
-  @found_installer.suite.should == suite
+Then /^an installer "([^\"]*)" loaded$/ do | name |
+  @found_installer.name.should == name
 end
 
 
@@ -78,20 +78,22 @@ Then /^an error "([^\"]*)" should be raised$/ do | err_msg |
 end
 
 
-Then /^configuration example for installer "([^\"]*)" should be generated$/ do | name |
-  FileTest.exists?( File.join( Configuration.installers_temporary_directory, name, "config.rb" ) ).should be_true
+Then /^configuration example for the installer should be generated$/ do
+  config = File.join( Configuration.installers_temporary_directory, "#{ @suite }_i386", "config.rb" )
+  history.should include( "file write (#{ config })" )
 end
 
 
-Then /^a directory for installer "([^\"]*)" should be created$/ do | name |
-  FileTest.directory?( File.join( Configuration.installers_temporary_directory, name ) ).should be_true
+Then /^a directory for the installer should be created$/ do
+  dir = File.join( Configuration.installers_temporary_directory, "#{ @suite }_i386" )
+  history.should include( "mkdir -p #{ dir }" )
 end
 
 
-Then /^I can find a installer "([^\"]*)"$/ do | suite |
-  installer = Installers.find( suite )
+Then /^I can find a installer "([^\"]*)"$/ do | name |
+  installer = Installers.find( name )
   installer.should_not == nil
-  installer.suite.should == suite
+  installer.name.should == name
 end
 
 
