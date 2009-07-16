@@ -1,9 +1,6 @@
-require "rubygems"
-
 require "lucie/io"
 require "lucie/log"
 require "popen3/shell"
-require "rake/tasklib"
 
 
 class Debootstrap
@@ -36,7 +33,6 @@ class Debootstrap
 
   def self.setup &block
     self.new &block
-    Rake::Task[ "installer:debootstrap" ].invoke
   end
 
 
@@ -48,17 +44,15 @@ class Debootstrap
   def initialize # :nodoc:
     yield self
     Lucie::Log.verbose = @verbose
-    define_task
+    run
   end
 
 
-  def define_task
-    task "installer:debootstrap" do
-      check_mandatory_options
-      Popen3::Shell.open do | shell |
-        set_handlers_for shell
-        debootstrap_with shell
-      end
+  def run
+    check_mandatory_options
+    Popen3::Shell.open do | shell |
+      set_handlers_for shell
+      debootstrap_with shell
     end
   end
 
