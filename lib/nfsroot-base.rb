@@ -5,6 +5,7 @@ require "configuration"
 require "debootstrap"
 require "lucie/io"
 require "lucie/log"
+require "lucie/server"
 require "lucie/shell"
 require "lucie/utils"
 require "rake"
@@ -51,7 +52,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def set_defaults
-    @arch = `dpkg --print-architecture`.chomp
+    @arch = Lucie::Server.architecture( @dry_run )
     @suite = "lenny"
   end
 

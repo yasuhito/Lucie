@@ -4,6 +4,11 @@ require "network_interfaces"
 
 module Lucie
   class Server
+    def self.architecture dry_run = false
+      dry_run ? "i386" : `dpkg --print-architecture`.chomp
+    end
+
+
     def self.ip_address_for nodes, interfaces = NetworkInterfaces
       subnet, netmask = nodes.first.net_info
       nic = interfaces.select do | each |
