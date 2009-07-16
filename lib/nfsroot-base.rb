@@ -1,3 +1,5 @@
+require "rubygems"
+
 require "apt"
 require "configuration"
 require "debootstrap"
@@ -8,6 +10,7 @@ require "rake/tasklib"
 
 
 class NfsrootBase < Rake::TaskLib
+  attr_accessor :arch
   attr_accessor :exclude
   attr_accessor :http_proxy
   attr_accessor :include
@@ -43,34 +46,17 @@ class NfsrootBase < Rake::TaskLib
 
 
   def set_defaults
+    @arch = `dpkg --print-architecture`.chomp
     @suite = "lenny"
   end
 
 
-  ##############################################################################
-  # Task definitions
-  ##############################################################################
+  # Task definitions ###########################################################
 
 
   def define_tasks
     define_task_build
     define_task_tgz
-  end
-
-
-  def call_debootstrap
-    Debootstrap.setup do | d |
-      d.exclude = [ "dhcp-client", "info", "udev" ] + ( @exclude ? @exclude : [] )
-      d.http_proxy = @http_proxy
-      d.include = @include ? @include : []
-      d.package_repository = @package_repository
-      d.suite = @suite
-      d.target = temporary_directory
-
-      d.verbose = @verbose
-      d.dry_run = @dry_run
-      d.messenger = @messenger
-    end
   end
 
 
@@ -96,14 +82,50 @@ class NfsrootBase < Rake::TaskLib
   end
 
 
-  ##############################################################################
-  # Helpers
-  ##############################################################################
+  # debootstrap ################################################################
+
+
+  def call_debootstrap
+    Debootstrap.setup do | d |
+      d.arch = @arch
+      d.exclude = [ "dhcp-client", "info", "udev" ] + ( @exclude ? @exclude : [] )
+      d.http_proxy = @http_proxy
+      d.include = @include ? @include : []
+      d.package_repository = @package_repository
+      d.suite = @suite
+      d.target = temporary_directory
+
+      d.verbose = @verbose
+      d.dry_run = @dry_run
+      d.messenger = @messenger
+    end
+  end
+
+
+  # Paths ######################################################################
+
+
+  def tgz
+    "#{ @suite }_#{ @arch }.tgz"
+  end
 
 
   def tgz_directory
     File.dirname target
   end
+
+
+  def debootstrap path
+    File.join temporary_directory, path
+  end
+
+
+  def temporary_directory
+    File.join Configuration.temporary_directory, "debootstrap"
+  end
+
+
+  # Helpers ####################################################################
 
 
   def clean_old_debs
@@ -124,11 +146,6 @@ class NfsrootBase < Rake::TaskLib
   end
 
   
-  def tgz
-    "#{ @suite }.tgz"
-  end
-
-
   def info msg
     Lucie::Log.info msg
     ( @messenger || $stdout ).puts msg
@@ -139,16 +156,6 @@ class NfsrootBase < Rake::TaskLib
     Lucie::Log.debug command
     ( @messenger || $stderr ).puts command if @verbose
     sh_exec command unless @dry_run
-  end
-
-
-  def debootstrap path
-    File.join temporary_directory, path
-  end
-
-
-  def temporary_directory
-    File.join Configuration.temporary_directory, "debootstrap"
   end
 end
 

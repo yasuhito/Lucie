@@ -1,6 +1,7 @@
 When /^I try to build nfsroot base$/ do
   @messenger = StringIO.new
   NfsrootBase.configure do | n |
+    n.arch = @arch
     n.http_proxy = "http://localhost:8123/"
     n.include = [ "emacs23" ]
     n.package_repository = "http://myrepos/debian"
@@ -15,7 +16,8 @@ end
 
 
 Then /^nfsroot base tarball created on "([^\"]*)"$/ do | path |
-  history.last.should == "tar --one-file-system --directory #{ Configuration.temporary_directory }/debootstrap --exclude #{ @suite }.tgz -czf #{ path } ."
+  tgz = File.basename( path )
+  history.should include( "tar --one-file-system --directory #{ Configuration.temporary_directory }/debootstrap --exclude #{ tgz } -czf #{ path } ." )
 end
 
 

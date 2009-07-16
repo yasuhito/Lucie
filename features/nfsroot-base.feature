@@ -10,5 +10,6 @@ Feature: nfsroot base builder
 
   Scenario: build nfsroot base
     Given suite is "potato"
+    And architecture is "amd64"
     When I try to build nfsroot base
-    Then nfsroot base tarball created on "/tmp/installers/potato.tgz"
+    Then nfsroot base tarball created on "/tmp/installers/potato_amd64.tgz"
