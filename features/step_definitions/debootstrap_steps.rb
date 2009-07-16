@@ -65,21 +65,19 @@ end
 
 When /^I try to start debootstrap$/ do
   @messenger = StringIO.new( "" )
-  Debootstrap.configure do | d |
-    d.exclude = @exclude
-    d.http_proxy = @http_proxy
-    d.include = @include
-    d.package_repository = @package_repository
-    d.suite = @suite
-    d.target = @target
-
-    d.verbose = true
-    d.dry_run = true
-    d.messenger = @messenger
-  end
-  
   begin
-    Rake::Task[ "installer:debootstrap" ].invoke
+    Debootstrap.setup do | d |
+      d.exclude = @exclude
+      d.http_proxy = @http_proxy
+      d.include = @include
+      d.package_repository = @package_repository
+      d.suite = @suite
+      d.target = @target
+      
+      d.verbose = true
+      d.dry_run = true
+      d.messenger = @messenger
+    end
   rescue
     @error = $!
   end
