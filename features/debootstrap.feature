@@ -23,6 +23,16 @@ Feature: debootstrap
     When I try to start debootstrap
     Then debootstrap command "/usr/sbin/debootstrap --verbose --exclude=vim,xeyes --include=emacs23,sl lenny /tmp/debootstrap http://debian.repository/debian" executed
 
+  Scenario: start debootstrap with arch option
+    Given architecture is "amd64"
+    And suite is "lenny"
+    And target is "/tmp/debootstrap"
+    And package repository is "http://debian.repository/debian"
+    And exclude is "vim, xeyes"
+    And include is "emacs23, sl"
+    When I try to start debootstrap
+    Then debootstrap command "/usr/sbin/debootstrap --arch amd64 --verbose --exclude=vim,xeyes --include=emacs23,sl lenny /tmp/debootstrap http://debian.repository/debian" executed
+
   Scenario: start debootstrap with http_proxy
     Given suite is "lenny"
     And target is "/tmp/debootstrap"

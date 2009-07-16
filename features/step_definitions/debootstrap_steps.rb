@@ -3,6 +3,11 @@ Given /^debootstrap installed$/ do
 end
 
 
+Given /^architecture is "([^\"]*)"$/ do | arch |
+  @arch = arch
+end
+
+
 Given /^debootstrap not installed$/ do
   @dpkg_l = %{echo foobar}
 end
@@ -62,6 +67,7 @@ When /^I try to start debootstrap$/ do
   @messenger = StringIO.new( "" )
   begin
     Debootstrap.setup do | d |
+      d.arch = @arch if @arch
       d.exclude = @exclude
       d.http_proxy = @http_proxy
       d.include = @include

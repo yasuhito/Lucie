@@ -7,6 +7,7 @@ class Debootstrap
   include Lucie::IO
 
 
+  attr_accessor :arch
   attr_accessor :exclude
   attr_accessor :http_proxy
   attr_accessor :include
@@ -48,24 +49,20 @@ class Debootstrap
   end
 
 
+  def command
+    "/usr/sbin/debootstrap #{ options } #{ suite } #{ target } #{ package_repository }"
+  end
+
+
+  # Popen3 #####################################################################
+
+
   def run
     check_mandatory_options
     Popen3::Shell.open do | shell |
       set_handlers_for shell
-      debootstrap_with shell
+      exec_debootstrap shell
     end
-  end
-
-
-  def check_mandatory_options
-    mandatory_options.each_pair do | key, value |
-      raise "#{ key } option is a mandatory" if value.nil?
-    end
-  end
-
-
-  def mandatory_options
-    { :suite => @suite, :target => @target, :package_repository => @package_repository }
   end
 
 
@@ -99,7 +96,7 @@ class Debootstrap
   end
 
 
-  def debootstrap_with shell
+  def exec_debootstrap shell
     debug command_debug
     shell.exec command, { "LC_ALL" => "C", "http_proxy" => @http_proxy } unless @dry_run
   end
@@ -114,13 +111,33 @@ class Debootstrap
   end
 
 
-  def command
-    "/usr/sbin/debootstrap #{ options } #{ suite } #{ target } #{ package_repository }"
-  end
+  # options ####################################################################
 
 
   def options
-    [ verbose_option, exclude_option, include_option ].compact.join( " " )
+    all_options.join " "
+  end
+
+
+  def all_options
+    [ arch_option, verbose_option, exclude_option, include_option ].compact
+  end
+
+
+  def check_mandatory_options
+    mandatory_options.each_pair do | key, value |
+      raise "#{ key } option is a mandatory" if value.nil?
+    end
+  end
+
+
+  def mandatory_options
+    { :suite => @suite, :target => @target, :package_repository => @package_repository }
+  end
+
+
+  def arch_option
+    @arch ? "--arch #{ @arch }" : nil
   end
 
 
@@ -130,12 +147,12 @@ class Debootstrap
 
 
   def exclude_option
-    exclude ? "--exclude=#{ exclude.join( ',' ) }" : nil
+    @exclude ? "--exclude=#{ @exclude.join( ',' ) }" : nil
   end
 
 
   def include_option
-    include ? "--include=#{ include.join( ',' ) }" : nil
+    @include ? "--include=#{ @include.join( ',' ) }" : nil
   end
 end
 
