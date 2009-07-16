@@ -13,6 +13,7 @@ module Command
 
 
       def main node_name
+        generate_ssh_keypair
         update_sudo_timestamp
         start_main_logger
         check_prerequisites

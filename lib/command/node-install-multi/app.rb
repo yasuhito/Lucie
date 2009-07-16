@@ -34,11 +34,6 @@ module Command
       ##########################################################################
 
 
-      def generate_ssh_keypair
-        SSH.new( debug_options, @messenger ).generate_keypair
-      end
-
-
       def start_installer_for node, logger
         local_clone_directory = @ldb ? @ldb.local_clone_directory( @options.ldb_repository ) : nil
         @installer.start node, @node_options[ node.name ].linux_image, @node_options[ node.name ].storage_conf, local_clone_directory, logger, @html_logger, debug_options, @messenger

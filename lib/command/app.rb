@@ -9,6 +9,7 @@ require "lucie/logger/html"
 require "lucie/server"
 require "lucie/utils"
 require "secret-server"
+require "ssh"
 require "super-reboot"
 
 
@@ -41,6 +42,11 @@ module Command
     ############################################################################
     private
     ############################################################################
+
+
+    def generate_ssh_keypair
+      SSH.new( debug_options, @messenger ).generate_keypair
+    end
 
 
     def install_parallel
