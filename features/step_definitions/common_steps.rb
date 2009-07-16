@@ -1,3 +1,8 @@
+Given /^the rake task list cleared$/ do
+  Rake::Task.clear
+end
+
+
 Given /^eth0 "(.*)"$/ do | ip |
   @if = DummyInterface.new( ip, "255.255.255.0", Network.network_address( ip, "255.255.255.0" ) )
 end

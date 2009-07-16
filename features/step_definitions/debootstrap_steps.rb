@@ -3,11 +3,6 @@ Given /^debootstrap installed$/ do
 end
 
 
-Given /^the rake task list cleared$/ do
-  Rake::Task.clear
-end
-
-
 Given /^debootstrap not installed$/ do
   @dpkg_l = %{echo foobar}
 end

@@ -4,9 +4,6 @@ Feature: debootstrap
   I want to call debootstrap command
   So that I can build nfsroot
 
-  Background:
-    Given the rake task list cleared
-
   Scenario: debootstrap version
     Given debootstrap installed
     When I try to get debootstrap version
