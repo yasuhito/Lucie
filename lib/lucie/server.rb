@@ -6,7 +6,7 @@ module Lucie
   class Server
     def self.architecture
       arch_command = "dpkg --print-architecture"
-      if system( "#{ arch_command } > /dev/null" )
+      if system( "#{ arch_command } 2> /dev/null 1> /dev/null" )
         `#{ arch_command }`.chomp
       else
         "i386"
