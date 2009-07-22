@@ -1,7 +1,6 @@
 require "configuration"
 require "lucie/io"
 require "lucie/utils"
-require "lucie/utils"
 require "network_interfaces"
 require "resolv"
 require "ssh"
