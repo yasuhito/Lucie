@@ -31,8 +31,8 @@ class LDB
 
 
   def update_local_ldb_repository node, logger
-    setup_local_ldb_directory
-    ldb_dir = server_ldb_directory( node )
+    setup_server_ldb_directory
+    ldb_dir = server_ldb_checkout_directory( node )
     unless already_cloned_to_local?( ldb_dir )
       raise "local LDB repository '#{ local_clone_directory( ldb_dir ) }' does not exist."
     end
@@ -53,19 +53,22 @@ class LDB
 
 
   def start node, logger
-    run ssh_agent( ldb_make_command( node, node_ldb_directory( node ) ) ), @options, logger
+    run ssh_agent( ldb_make_command( node, node_ldb_checkout_directory( node ) ) ), @options, logger
     info "LDB executed on #{ node.name }."
   end
 
 
   def local_clone_directory ldb_url
-    File.join local_ldb_directory, convert( ldb_url )
+    File.join server_ldb_directory, convert( ldb_url )
   end
 
 
   ##############################################################################
   private
   ##############################################################################
+
+
+  # hg operations ##############################################################
 
 
   def install_ldb node, ldb_url, logger
@@ -75,58 +78,9 @@ class LDB
 
 
   def update_ldb node, logger
-    ldb_dir = node_ldb_directory( node )
+    ldb_dir = node_ldb_checkout_directory( node )
     run ssh_agent( hg_pull_command( node, ldb_dir ) ), @options, logger
     run ssh_agent( hg_update_command( node, ldb_dir ) ), @options, logger
-  end
-
-
-  def server_ldb_directory node
-    if dry_run
-      "DUMMY_LDB_DIRECTORY"
-    else
-      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
-    end
-  end
-
-
-  def node_ldb_directory node
-    if dry_run
-      "DUMMY_LDB_DIRECTORY"
-    else
-      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
-    end
-  end
-
-
-  def hg_pull_command node, ldb_dir
-    whoami = `whoami`.chomp
-    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg pull --ssh 'ssh -l #{ whoami } #{ ssh_options }'"
-  end
-
-
-  def hg_update_command node, ldb_dir
-    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg update"
-  end
-
-
-  def ldb_make_command node, ldb_dir
-    ssh node.ip_address, "cd #{ scripts_directory( ldb_dir ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } #{ ldb( ldb_dir ) } env` && make"
-  end
-
-
-  def already_cloned_to_node? node, ldb_url, logger
-    begin
-      run %{ssh -A -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "test -d #{ checkout_directory( ldb_url ) }"}, @options, logger
-    rescue
-      return false
-    end
-    true
-  end
-
-
-  def already_cloned_to_local? ldb_dir
-    FileTest.directory? local_clone_directory( ldb_dir )
   end
 
 
@@ -150,40 +104,48 @@ class LDB
   end
 
 
-  def local_clone_clone_directory ldb_url
-    File.join local_ldb_directory, convert( ldb_url ) + ".local"
+  def already_cloned_to_local? ldb_dir
+    FileTest.directory? local_clone_directory( ldb_dir )
   end
 
 
-  ##############################################################################
-  # ssh helpers
-  ##############################################################################
-
-
-  def stdout
-    @messenger || $stdout
+  def setup_server_ldb_directory
+    unless FileTest.directory?( server_ldb_directory )
+      Lucie::Utils.mkdir_p server_ldb_directory, @options, @messenger
+    end
   end
 
 
-  def stderr
-    @messenger || $stderr
+  # hg commands ################################################################
+
+
+  def hg_pull_command node, ldb_dir
+    whoami = `whoami`.chomp
+    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg pull --ssh 'ssh -l #{ whoami } #{ ssh_options }'"
   end
 
 
-  def info message
-    stdout.puts message
-    @logger.info message unless dry_run
+  def hg_update_command node, ldb_dir
+    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg update"
   end
 
 
-  def dry_run
-    @options[ :dry_run ]
+  def ldb_make_command node, ldb_dir
+    ssh node.ip_address, "cd #{ scripts_directory( ldb_dir ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } #{ ldb_command( ldb_dir ) } env` && make"
   end
 
 
-  def verbose
-    @options[ :verbose ]
+  def already_cloned_to_node? node, ldb_url, logger
+    begin
+      run %{ssh -A -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "test -d #{ checkout_directory( ldb_url ) }"}, @options, logger
+    rescue
+      return false
+    end
+    true
   end
+
+
+  # ssh helpers ################################################################
 
 
   def run command, options, logger
@@ -226,23 +188,54 @@ class LDB
   end
 
 
-  ##############################################################################
-  # misc.
-  ##############################################################################
+  # Paths ######################################################################
+
+
+  def server_ldb_checkout_directory node
+    if dry_run
+      "DUMMY_LDB_DIRECTORY"
+    else
+      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
+    end
+  end
+
+
+  def node_ldb_checkout_directory node
+    if dry_run
+      "DUMMY_LDB_DIRECTORY"
+    else
+      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
+    end
+  end
+
+
+  def local_clone_clone_directory ldb_url
+    File.join server_ldb_directory, convert( ldb_url ) + ".local"
+  end
+
+
+  def node_ldb_directory
+    "/var/lib/ldb"
+  end
+
+
+  def server_ldb_directory
+    File.join Configuration.temporary_directory, "ldb"
+  end
 
 
   def checkout_directory ldb_url
-    File.join "/var/lib/ldb", convert( ldb_url )
+    File.join node_ldb_directory, convert( ldb_url )
   end
 
 
   def scripts_directory ldb_dir
-    File.join "/var/lib/ldb", ldb_dir, "scripts"
+    File.join node_ldb_directory, ldb_dir, "scripts"
   end
 
 
-  def ldb ldb_dir
-    File.join "/var/lib/ldb", ldb_dir, "bin", "ldb"
+  def ldb_command ldb_dir
+    File.join node_ldb_directory, ldb_dir, "bin", "ldb"
   end
 
 
@@ -251,15 +244,22 @@ class LDB
   end
 
 
-  def setup_local_ldb_directory
-    unless FileTest.directory?( local_ldb_directory )
-      Lucie::Utils.mkdir_p local_ldb_directory, @options, @messenger
-    end
+  # debug prints ###############################################################
+
+
+  def info message
+    stdout.puts message
+    @logger.info message unless dry_run
   end
 
 
-  def local_ldb_directory
-    File.join Configuration.temporary_directory, "ldb"
+  def dry_run
+    @options[ :dry_run ]
+  end
+
+
+  def verbose
+    @options[ :verbose ]
   end
 end
 
