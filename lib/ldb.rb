@@ -20,6 +20,7 @@ class LDB
 
 
   def clone ldb_url, lucie_ip, logger
+    setup_server_ldb_directory
     if FileTest.exists?( local_clone_directory( ldb_url ) )
       update_local_repositories convert( ldb_url ), logger
     else
