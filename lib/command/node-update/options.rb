@@ -4,15 +4,7 @@ require "command/option"
 module Command
   module NodeUpdate
     class Options < Command::Option
-      usage "node update <NODES ...> -l <REPOSITORY-URL> [OPTIONS ...]"
-
-      add_option( :long_option => "--ldb-repository",
-                  :short_option => "-l",
-                  :argument => "[REPOSITORY-URL]",
-                  :description => "LDB repository URL.",
-                  :mandatory => true )
-
-      separator
+      usage "node update <NODES ...> [OPTIONS ...]"
 
       add_option( :long_option => "--help",
                   :short_option => "-h",

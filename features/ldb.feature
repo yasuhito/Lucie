@@ -5,7 +5,7 @@ Feature: LDB
   So that I can run second stage
 
   Background:
-   Given remote repository "ssh://my.repository.org//ldb"
+   Given remote hg repository "ssh://my.repository.org//ldb"
    And temporary directory "/tmp/lucie/tmp" is empty
 
   Scenario: update LDB
@@ -19,12 +19,6 @@ Feature: LDB
     And local repository is empty
     When I clone remote repository
     Then repository cloned to local
-
-  Scenario: update local clone repository
-    Given eth0 "192.168.0.1"
-    And local repository already exists
-    When I clone remote repository
-    Then local repository updated
 
   Scenario: run LDB
     Given eth0 "192.168.0.1"

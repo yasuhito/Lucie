@@ -156,8 +156,8 @@ module Command
       if @options.ldb_repository
         @html_logger.update node, "Starting LDB ..."
         logger.info "Starting LDB ..."
-        @ldb.update node, @options.ldb_repository, logger
-        @ldb.start node, @options.ldb_repository, logger
+        @ldb.install node, @options.ldb_repository, logger
+        @ldb.start node, logger
       end
       @html_logger.next_step node
     end

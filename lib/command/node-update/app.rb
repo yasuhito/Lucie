@@ -20,7 +20,7 @@ module Command
 
       def main node_names
         nodes = load_nodes( node_names )
-        @ldb.clone @options.ldb_repository, nodes.first, Lucie::Log
+        @ldb.update_local_ldb_repository nodes.first, Lucie::Log
         nodes.collect do | each |
           create_update_thread_for each 
         end.each do | each |
@@ -36,8 +36,8 @@ module Command
 
       def create_update_thread_for node
         Thread.start do
-          @ldb.update node, @options.ldb_repository, Lucie::Log
-          @ldb.start node, @options.ldb_repository, Lucie::Log
+          @ldb.update node, Lucie::Log
+          @ldb.start node, Lucie::Log
         end
       end
 

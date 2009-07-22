@@ -20,10 +20,8 @@ class LDB
 
 
   def clone ldb_url, lucie_ip, logger
-    setup_local_ldb_directory
-    if already_cloned_to_local?( ldb_url )
-      update_local_repositories ldb_url, logger
-      info "clone and clone-clone LDB repositories on local updated."
+    if FileTest.exists?( local_clone_directory( ldb_url ) )
+      update_local_repositories convert( ldb_url ), logger
     else
       clone_repository ldb_url, logger
       clone_clone_repository ldb_url, lucie_ip, logger
@@ -32,18 +30,30 @@ class LDB
   end
 
 
-  def update node, ldb_url, logger
-    if already_cloned_to_node?( node, ldb_url, logger )
-      update_ldb node, ldb_url, logger
-    else
-      install_ldb node, ldb_url, logger
+  def update_local_ldb_repository node, logger
+    setup_local_ldb_directory
+    ldb_dir = server_ldb_directory( node )
+    unless already_cloned_to_local?( ldb_dir )
+      raise "local LDB repository '#{ local_clone_directory( ldb_dir ) }' does not exist."
     end
+    update_local_repositories ldb_dir, logger
+    info "clone and clone-clone LDB repositories on local updated."
+  end
+
+
+  def install node, ldb_url, logger
+    install_ldb node, ldb_url, logger
+  end
+
+
+  def update node, logger
+    update_ldb node, logger
     info "LDB updated on node #{ node.name }."
   end
 
 
-  def start node, ldb_url, logger
-    run ssh_agent( ldb_make_command( node, ldb_url ) ), @options, logger
+  def start node, logger
+    run ssh_agent( ldb_make_command( node, node_ldb_directory( node ) ) ), @options, logger
     info "LDB executed on #{ node.name }."
   end
 
@@ -64,25 +74,44 @@ class LDB
   end
 
 
-  def update_ldb node, ldb_url, logger
-    run ssh_agent( hg_pull_command( node, ldb_url ) ), @options, logger
-    run ssh_agent( hg_update_command( node, ldb_url ) ), @options, logger
+  def update_ldb node, logger
+    ldb_dir = node_ldb_directory( node )
+    run ssh_agent( hg_pull_command( node, ldb_dir ) ), @options, logger
+    run ssh_agent( hg_update_command( node, ldb_dir ) ), @options, logger
   end
 
 
-  def hg_pull_command node, ldb_url
+  def server_ldb_directory node
+    if dry_run
+      "DUMMY_LDB_DIRECTORY"
+    else
+      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
+    end
+  end
+
+
+  def node_ldb_directory node
+    if dry_run
+      "DUMMY_LDB_DIRECTORY"
+    else
+      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
+    end
+  end
+
+
+  def hg_pull_command node, ldb_dir
     whoami = `whoami`.chomp
-    ssh node.ip_address, "cd #{ checkout_directory( ldb_url ) } && hg pull --ssh 'ssh -l #{ whoami } #{ ssh_options }'"
+    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg pull --ssh 'ssh -l #{ whoami } #{ ssh_options }'"
   end
 
 
-  def hg_update_command node, ldb_url
-    ssh node.ip_address, "cd #{ checkout_directory( ldb_url ) } && hg update"
+  def hg_update_command node, ldb_dir
+    ssh node.ip_address, "cd #{ File.join( "/var/lib/ldb", ldb_dir ) } && hg update"
   end
 
 
-  def ldb_make_command node, ldb_url
-    ssh node.ip_address, "cd #{ make_directory( ldb_url ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } #{ ldb( ldb_url ) } env` && make"
+  def ldb_make_command node, ldb_dir
+    ssh node.ip_address, "cd #{ scripts_directory( ldb_dir ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } #{ ldb( ldb_dir ) } env` && make"
   end
 
 
@@ -96,13 +125,13 @@ class LDB
   end
 
 
-  def already_cloned_to_local? ldb_url
-    FileTest.directory? local_clone_directory( ldb_url )
+  def already_cloned_to_local? ldb_dir
+    FileTest.directory? local_clone_directory( ldb_dir )
   end
 
 
-  def update_local_repositories ldb_url, logger
-    [ local_clone_directory( ldb_url ), local_clone_clone_directory( ldb_url ) ].each do | each |
+  def update_local_repositories ldb_dir, logger
+    [ local_clone_directory( ldb_dir ), local_clone_clone_directory( ldb_dir ) ].each do | each |
       FileUtils.cd each do
         run %{hg pull --ssh "ssh -i #{ SSH::PRIVATE_KEY }"}, @options, logger
         run %{hg update}, @options, logger
@@ -207,13 +236,13 @@ class LDB
   end
 
 
-  def make_directory ldb_url
-    File.join checkout_directory( ldb_url ), "scripts"
+  def scripts_directory ldb_dir
+    File.join "/var/lib/ldb", ldb_dir, "scripts"
   end
 
 
-  def ldb ldb_url
-    File.join checkout_directory( ldb_url ), "bin", "ldb"
+  def ldb ldb_dir
+    File.join "/var/lib/ldb", ldb_dir, "bin", "ldb"
   end
 
 

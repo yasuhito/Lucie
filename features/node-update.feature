@@ -1,35 +1,28 @@
 Feature: node update command
+
   As a Lucie user
-  I want to update ldb on the Lucie client
-  So that I can update node configurations
+  I want to update node configurations with 'node update' command
+  So that I can keep node configurations up to date
 
   Background:
-   Given Lucie log path is "/tmp/lucie.log"
-   And node list is empty
-   And remote repository "ssh://my.repository.org//ldb"
+   Given node list is empty
+   And temporary directory "/tmp/lucie" is empty
+   And remote hg repository "ssh://my.repository.org//ldb"
 
   Scenario: node update
-    Given local repository is empty
-    And eth0 "192.168.0.1"
-    And a node named "yasuhito_node0", with IP address "192.168.0.100"
-    And a node named "yasuhito_node1", with IP address "192.168.0.101"
-    And --dry-run option is on
-    When I run node update "yasuhito_node0, yasuhito_node1"
-    Then remote repository cloned to Lucie server
-    And "LDB updated on node yasuhito_node0." displayed
-    And "LDB updated on node yasuhito_node1." displayed
-    And ldb on "yasuhito_node0" executed
-
-  Scenario: node update (second time)
-    Given local repository already exists
+    Given local hg repository already exists
     And eth0 "192.168.0.1"
     And a node named "yutaro_node0", with IP address "192.168.0.100"
     And a node named "yutaro_node1", with IP address "192.168.0.101"
+    And the hg repository already cloned to "yutaro_node0"
     And --dry-run option is on
-    When I run node update "yutaro_node0"
-    Then ldb on Lucie server updated
+    When I run node update "yutaro_node0, yutaro_node1"
+    Then nothing raised
+    And ldb on Lucie server updated
     And "LDB updated on node yutaro_node0." displayed
+    And "LDB updated on node yutaro_node1." displayed
     And ldb on "yutaro_node0" executed
+    And ldb on "yutaro_node1" executed
 
   Scenario: fail to resolve IP address
     Given a node named "no_such_node"

@@ -1,4 +1,4 @@
-Given /^remote repository "([^\"]*)"$/ do | url |
+Given /^remote hg repository "([^\"]*)"$/ do | url |
   @hg_url = url
 end
 
@@ -8,9 +8,13 @@ Given /^local repository is empty$/ do
 end
 
 
-Given /^local repository already exists$/ do
-  FileUtils.mkdir_p File.join( Configuration.temporary_directory, "ldb", @hg_url.gsub( /[\/:]/, "_" ) )
-  FileUtils.mkdir_p File.join( Configuration.temporary_directory, "ldb", @hg_url.gsub( /[\/:]/, "_" ) + ".local" )
+Given /^local hg repository already exists$/ do
+  FileUtils.mkdir_p File.join( Configuration.temporary_directory, "ldb", "DUMMY_LDB_DIRECTORY" )
+  FileUtils.mkdir_p File.join( Configuration.temporary_directory, "ldb", "DUMMY_LDB_DIRECTORY.local" )
+end
+
+
+Given /^the hg repository already cloned to "([^\"]*)"$/ do | name |
 end
 
 
@@ -18,7 +22,7 @@ When /^I update LDB on node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
   logger = Lucie::Logger::Installer.new( "/tmp", true )
   @ldb = LDB.new( { :dry_run => true, :verbose => true }, @messenger, [ @if ] )
-  @ldb.update Nodes.find( name ), @hg_url, logger
+  @ldb.update Nodes.find( name ), logger
 end
 
 
@@ -34,7 +38,7 @@ When /^I start LDB on node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
   logger = Lucie::Logger::Installer.new( "/tmp", true )
   @ldb = LDB.new( { :dry_run => true, :verbose => true }, @messenger, [ @if ] )
-  @ldb.start Nodes.find( name ), @hg_url, logger
+  @ldb.start Nodes.find( name ), logger
 end
 
 
