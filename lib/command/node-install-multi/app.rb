@@ -35,8 +35,8 @@ module Command
 
 
       def start_installer_for node, logger
-        local_clone_directory = @ldb ? @ldb.local_clone_directory( @options.ldb_repository ) : nil
-        @installer.start node, @node_options[ node.name ].linux_image, @node_options[ node.name ].storage_conf, local_clone_directory, logger, @html_logger, debug_options, @messenger
+        server_clone_directory = @ldb ? @ldb.server_clone_directory( @options.ldb_repository ) : nil
+        @installer.start node, @node_options[ node.name ].linux_image, @node_options[ node.name ].storage_conf, server_clone_directory, logger, @html_logger, debug_options, @messenger
       end
 
 

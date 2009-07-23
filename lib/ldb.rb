@@ -18,15 +18,26 @@ class LDB
   end
 
 
+  def server_clone_exists? ldb_url
+    FileTest.exists? server_clone_directory( ldb_url )
+  end
+
+
+  def update_server_clones ldb_dir, logger
+    [ server_clone_directory( ldb_dir ), server_clone_clone_directory( ldb_dir ) ].each do | each |
+      FileUtils.cd( each, { :verbose => verbose } ) do
+        run %{hg pull --ssh "ssh -i #{ SSH::PRIVATE_KEY }"}, @options, logger
+        run "hg update", @options, logger
+      end
+    end
+  end
+
+
   def clone ldb_url, lucie_ip, logger
     setup_server_ldb_directory
-    if FileTest.exists?( local_clone_directory( ldb_url ) )
-      update_local_repositories convert( ldb_url ), logger
-    else
-      clone_repository ldb_url, logger
-      clone_clone_repository ldb_url, lucie_ip, logger
-      info "LDB #{ ldb_url } cloned to local."
-    end
+    clone_repository ldb_url, logger
+    clone_clone_repository ldb_url, lucie_ip, logger
+    info "LDB #{ ldb_url } cloned to local."
   end
 
 
@@ -36,7 +47,7 @@ class LDB
     unless already_cloned_to_local?( ldb_dir )
       raise "local LDB repository '#{ local_clone_directory( ldb_dir ) }' does not exist."
     end
-    update_local_repositories ldb_dir, logger
+    update_server_clones ldb_dir, logger
     info "clone and clone-clone LDB repositories on local updated."
   end
 
@@ -58,7 +69,7 @@ class LDB
   end
 
 
-  def local_clone_directory ldb_url
+  def server_clone_directory ldb_url
     File.join server_ldb_directory, convert( ldb_url )
   end
 
@@ -73,7 +84,7 @@ class LDB
 
   def install_ldb node, ldb_url, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "mkdir -p /var/lib/ldb"}, @options, logger
-    run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } -r #{ local_clone_clone_directory( ldb_url ) } root@#{ node.ip_address }:#{ checkout_directory ldb_url }", @options, logger
+    run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } -r #{ server_clone_clone_directory( ldb_url ) } root@#{ node.ip_address }:#{ checkout_directory ldb_url }", @options, logger
   end
 
 
@@ -84,28 +95,18 @@ class LDB
   end
 
 
-  def update_local_repositories ldb_dir, logger
-    [ local_clone_directory( ldb_dir ), local_clone_clone_directory( ldb_dir ) ].each do | each |
-      FileUtils.cd each do
-        run %{hg pull --ssh "ssh -i #{ SSH::PRIVATE_KEY }"}, @options, logger
-        run %{hg update}, @options, logger
-      end
-    end
-  end
-
-
   def clone_repository ldb_url, logger
-    run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ ldb_url } #{ local_clone_directory( ldb_url ) }}, @options, logger
+    run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ ldb_url } #{ server_clone_directory( ldb_url ) }}, @options, logger
   end
 
 
   def clone_clone_repository ldb_url, lucie_ip, logger
-    run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" ssh://#{ lucie_ip }/#{ local_clone_directory( ldb_url ) } #{ local_clone_clone_directory( ldb_url ) }}, @options, logger
+    run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" ssh://#{ lucie_ip }/#{ server_clone_directory( ldb_url ) } #{ server_clone_clone_directory( ldb_url ) }}, @options, logger
   end
 
 
   def already_cloned_to_local? ldb_dir
-    FileTest.directory? local_clone_directory( ldb_dir )
+    FileTest.directory? File.join( server_ldb_directory, ldb_dir )
   end
 
 
@@ -209,7 +210,7 @@ class LDB
   end
 
 
-  def local_clone_clone_directory ldb_url
+  def server_clone_clone_directory ldb_url
     File.join server_ldb_directory, convert( ldb_url ) + ".local"
   end
 

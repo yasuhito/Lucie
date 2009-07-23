@@ -148,7 +148,11 @@ module Command
     def setup_ldb
       return unless @options.ldb_repository
       @ldb = LDB.new( debug_options, @messenger )
-      @ldb.clone @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all ), Lucie::Log
+      if @ldb.server_clone_exists?( @options.ldb_repository )
+        @ldb.update_server_clones @options.ldb_repository, Lucie::Log
+      else
+        @ldb.clone @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all ), Lucie::Log
+      end
     end
 
 
