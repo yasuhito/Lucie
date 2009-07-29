@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-Given /^SCM として ([a-z]+) を選択$/ do | scm |
-  @scm = scm.to_sym
+Given /^バックエンドとして ([a-z]+) を指定したコンフィグレータ$/ do | scm |
+  @messenger = StringIO.new( "" )
+  @configurator = Configurator.new( scm.to_sym, @messenger )
 end
 
 
@@ -10,12 +11,17 @@ Given /^コンフィグレータ$/ do
 end
 
 
-Given /^SCM がインストールされている$/ do
+Given /^その SCM がインストールされている$/ do
   @configurator.dpkg = DummyDpkg.new( true )
 end
 
 
-When /^コンフィグレータが SCM を確認$/ do
+Given /^その SCM がインストールされていない$/ do
+  @configurator.dpkg = DummyDpkg.new( false )
+end
+
+
+When /^コンフィグレータが SCM のインストール状況を確認$/ do
   begin
     @configurator.scm_installed?
   rescue
@@ -39,12 +45,14 @@ Then /^エラーが発生しない$/ do
 end
 
 
-Given /^SCM がインストールされていない$/ do
-  @configurator.dpkg = DummyDpkg.new( false )
-end
-
-
 Then /^エラー "([^\"]*)"$/ do | message |
   @error.should_not be_nil
   @error.message.should == message
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
