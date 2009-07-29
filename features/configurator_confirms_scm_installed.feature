@@ -1,20 +1,38 @@
 # language: ja
-機能: コンフィグレータが SCM がインストールされていることを確認する
+機能: コンフィグレータは SCM がインストールされていることを確認する
 
+  コンフィグレータは
   リポジトリをサーバ上にチェックアウトするために
-  コンフィグレータとして
-  サーバ上に SCM がインストールされているかを確認する
+  サーバ上に指定された SCM がインストールされているかどうかを確認する
 
-  背景:
-    前提 SCM として Mercurial を選択
+  シナリオ: SCM が指定されていない
+    前提 コンフィグレータ
+    もし コンフィグレータが SCM を確認
+    ならば エラーが発生しない
+    かつ メッセージは空
+
+  テンプレ: SCM がインストールされている
+    前提 SCM として <SCM> を選択
     かつ コンフィグレータ
-
-  シナリオ: SCM がインストールされている
-    前提 SCM がインストールされている
+    かつ SCM がインストールされている
     もし コンフィグレータが SCM を確認
-    ならば メッセージ "Mercurial がインストールされていることを確認しました"
+    ならば エラーが発生しない
+    かつ メッセージ "<message>"
 
-  シナリオ: SCM がインストールされていないためエラー
-    前提 SCM がインストールされていない
+    例:
+      | SCM        | message                           |
+      | mercurial  | Checking mercurial ... INSTALLED  |
+      | subversion | Checking subversion ... INSTALLED |
+
+  テンプレ: SCM がインストールされていない
+    前提 SCM として <SCM> を選択
+    かつ コンフィグレータ
+    かつ SCM がインストールされていない
     もし コンフィグレータが SCM を確認
-    ならば エラー "Mercurial がインストールされていません"
+    ならば メッセージ "<message>"
+    かつ エラー "<error>"
+
+    例:
+      | SCM        | message                               | error                       |
+      | mercurial  | Checking mercurial ... NOT INSTALLED  | mercurial is not installed  |
+      | subversion | Checking subversion ... NOT INSTALLED | subversion is not installed |

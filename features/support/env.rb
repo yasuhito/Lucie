@@ -9,10 +9,11 @@ require "spec"
 $LOAD_PATH.unshift File.join( File.dirname( __FILE__ ), "/../../lib" )
 
 
-require "lucie"
 require "command/node-install"
 require "command/node-install-multi"
 require "command/node-update"
+require "configurator"
+require "lucie"
 require "secret-server"
 
 
@@ -22,6 +23,18 @@ require "secret-server"
 
 
 DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
+
+
+class DummyDpkg
+  def initialize installed
+    @installed = installed
+  end
+
+
+  def installed? scm
+    @installed
+  end
+end
 
 
 ################################################################################
