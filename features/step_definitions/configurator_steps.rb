@@ -32,7 +32,7 @@ class DummySSH
 end
 
 
-def regexp string
+def regexp_from string
   Regexp.escape string
 end
 
@@ -123,26 +123,23 @@ end
 
 
 Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
-  target = Regexp.escape( @url )
-  @messenger.string.should match( /^hg clone .+ #{ target } .+/ )
+  @messenger.string.should match( /^hg clone .+ #{ regexp_from( @url ) } .+/ )
 end
 
 
 Then /^設定リポジトリ用ディレクトリがクライアント上に生成される$/ do
-  ip_esc = Regexp.escape( @ip )
-  @messenger.string.should match( /^ssh .+ root@#{ ip_esc } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+  @messenger.string.should match( /^ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
 end
 
 
 Then /^設定リポジトリ用ディレクトリがクライアント上に生成されない$/ do
-  ip_esc = Regexp.escape( @ip )
-  @messenger.string.should_not match( /^ssh .+ root@#{ ip_esc } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+  @messenger.string.should_not match( /^ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
 end
 
 
 Then /^設定リポジトリが scp \-r コマンドで Lucie クライアントに配置される$/ do
-  from = File.join( Configuration.temporary_directory, "ldb", Configurator.convert( @url ) )
-  @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp( from ) } root@#{ regexp( @ip ) }:\/var\/lib\/lucie\/config$/ )
+  source = File.join( Configuration.temporary_directory, "ldb", Configurator.convert( @url ) )
+  @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp_from( source ) } root@#{ regexp_from( @ip ) }:\/var\/lib\/lucie\/config$/ )
 end
 
 
