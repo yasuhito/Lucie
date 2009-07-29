@@ -77,6 +77,31 @@ describe Configurator do
       configurator.clone @url
     end
   end
+
+
+  context "initializing a client" do
+    before :each do
+      @ssh = mock( "ssh" )
+      SSH.stub!( :new ).and_return( @ssh )
+    end
+
+
+    it "should create a configurator base directory if not found" do
+      @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" ).and_return( false )
+      @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "mkdir -p /var/lib/lucie/config" )
+
+      configurator = Configurator.new( @scm )
+      configurator.setup "DUMMY_IP_ADDRESS"
+    end
+
+
+    it "should not create a configurator base directory if found" do
+      @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" ).and_return( true )
+
+      configurator = Configurator.new( @scm )
+      configurator.setup "DUMMY_IP_ADDRESS"
+    end
+  end
 end
 
 

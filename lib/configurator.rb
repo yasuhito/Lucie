@@ -4,12 +4,15 @@ require "scm/hg"
 
 class Configurator
   attr_writer :dpkg
+  attr_writer :ssh
+
   attr_reader :scm
 
 
   def initialize scm = nil, options = {}
     @scm = scm
     @options = options
+    @ssh = SSH.new( @options, messenger )
     @dpkg = Dpkg.new
   end
 
@@ -28,6 +31,13 @@ class Configurator
   def clone url
     hg = Scm::Hg.new( @options )
     hg.clone url, clone_directory( url )
+  end
+
+
+  def setup ip
+    unless @ssh.sh( ip, "test -d /var/lib/lucie/config" )
+      @ssh.sh ip, "mkdir -p /var/lib/lucie/config"
+    end
   end
 
 

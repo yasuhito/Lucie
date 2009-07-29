@@ -8,7 +8,8 @@ end
 
 Given /^コンフィグレータ$/ do
   @messenger = StringIO.new( "" )
-  @configurator = Configurator.new( @scm, :messenger => @messenger )
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator = Configurator.new( @scm, options )
 end
 
 
@@ -19,6 +20,18 @@ end
 
 Given /^その SCM がインストールされていない$/ do
   @configurator.dpkg = DummyDpkg.new( false )
+end
+
+
+Given /^設定リポジトリ用ディレクトリがクライアント上に存在しない$/ do
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator.ssh = DummySSH.new( false, options )
+end
+
+
+Given /^設定リポジトリ用ディレクトリがクライアント上にすでに存在$/ do
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator.ssh = DummySSH.new( true, options )
 end
 
 
@@ -47,6 +60,30 @@ When /^コンフィグレータが SCM のインストール状況を確認$/ do
 end
 
 
+When /^コンフィグレータがクライアント \(IP アドレスは "([^\"]*)"\) を初期化した$/ do | ip |
+  @ip = ip
+  @configurator.setup @ip
+end
+
+
+Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
+  target = Regexp.escape( @url )
+  @messenger.string.should match( /^hg clone .+ #{ target } .+/ )
+end
+
+
+Then /^設定リポジトリ用ディレクトリがクライアント上に生成される$/ do
+  ip_esc = Regexp.escape( @ip )
+  @messenger.string.should match( /^ssh .+ root@#{ ip_esc } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+end
+
+
+Then /^設定リポジトリ用ディレクトリがクライアント上に生成されない$/ do
+  ip_esc = Regexp.escape( @ip )
+  @messenger.string.should_not match( /^ssh .+ root@#{ ip_esc } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+end
+
+
 Then /^メッセージ "([^\"]*)"$/ do | message |
   @messenger.string.chomp.should == message
 end
@@ -65,12 +102,6 @@ end
 Then /^エラー "([^\"]*)"$/ do | message |
   @error.should_not be_nil
   @error.message.should == message
-end
-
-
-Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
-  target = Regexp.escape( @url )
-  @messenger.string.should match( /^hg clone .+ #{ target } .+/ )
 end
 
 
