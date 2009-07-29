@@ -9,6 +9,11 @@ class Configurator
   attr_reader :scm
 
 
+  def self.convert url
+    url.gsub( /[\/:@]/, "_" )
+  end
+
+
   def initialize scm = nil, options = {}
     @scm = scm
     @options = options
@@ -34,6 +39,11 @@ class Configurator
   end
 
 
+  def install ip, url
+    @ssh.cp_r ip, clone_directory( url ), client_ldb_directory
+  end
+
+
   def setup ip
     unless @ssh.sh( ip, "test -d /var/lib/lucie/config" )
       @ssh.sh ip, "mkdir -p /var/lib/lucie/config"
@@ -47,7 +57,12 @@ class Configurator
 
 
   def clone_directory url
-    File.join ldb_directory, convert( url )
+    File.join ldb_directory, Configurator.convert( url )
+  end
+
+
+  def client_install_directory url
+    File.join client_ldb_directory, Configurator.convert( url )
   end
 
 
@@ -56,8 +71,8 @@ class Configurator
   end
 
 
-  def convert url
-    url.gsub( /[\/:@]/, "_" )
+  def client_ldb_directory
+    "/var/lib/lucie/config"
   end
 
 

@@ -53,6 +53,15 @@ class SSH
   end
 
 
+  def cp_r ip, from, to
+    command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r #{ from } root@#{ ip }:#{ to }"
+    Popen3::Shell.open do | shell |
+      @messenger.puts command if @verbose
+      shell.exec command unless @dry_run
+    end
+  end
+
+
   ##############################################################################
   private
   ##############################################################################

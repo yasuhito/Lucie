@@ -18,12 +18,22 @@ class DummySSH
   end
 
 
+  def cp_r ip, from, to
+    @ssh.cp_r ip, from, to
+  end
+
+
   def sh ip, command
     @ssh.sh ip, command
     if /test \-d/=~ command
       @client_initialized
     end
   end
+end
+
+
+def regexp string
+  Regexp.escape string
 end
 
 
@@ -63,6 +73,11 @@ Given /^設定リポジトリ用ディレクトリがクライアント上にす
 end
 
 
+Given /^Lucie サーバ上に設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | url |
+  @url = url
+end
+
+
 Given /^ドライランモードがオン$/ do
   @dry_run = true
 end
@@ -70,6 +85,11 @@ end
 
 Given /^冗長モードがオン$/ do
   @verbose = true
+end
+
+
+Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
+  Configuration.temporary_directory = path
 end
 
 
@@ -94,6 +114,14 @@ When /^コンフィグレータがクライアント \(IP アドレスは "([^\"
 end
 
 
+When /^コンフィグレータがその設定リポジトリを Lucie クライアント \(IP アドレスは "([^\"]*)"\) へ配置した$/ do | ip |
+  @ip = ip
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator.ssh = DummySSH.new( true, options )
+  @configurator.install @ip, @url
+end
+
+
 Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
   target = Regexp.escape( @url )
   @messenger.string.should match( /^hg clone .+ #{ target } .+/ )
@@ -109,6 +137,12 @@ end
 Then /^設定リポジトリ用ディレクトリがクライアント上に生成されない$/ do
   ip_esc = Regexp.escape( @ip )
   @messenger.string.should_not match( /^ssh .+ root@#{ ip_esc } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+end
+
+
+Then /^設定リポジトリが scp \-r コマンドで Lucie クライアントに配置される$/ do
+  from = File.join( Configuration.temporary_directory, "ldb", Configurator.convert( @url ) )
+  @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp( from ) } root@#{ regexp( @ip ) }:\/var\/lib\/lucie\/config$/ )
 end
 
 

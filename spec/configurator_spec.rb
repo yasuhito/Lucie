@@ -102,6 +102,20 @@ describe Configurator do
       configurator.setup "DUMMY_IP_ADDRESS"
     end
   end
+
+
+  context "creating a configuration repository clone on a client" do
+    it "should make a clone repository on the client" do
+      ssh = mock( "ssh" )
+      SSH.stub!( :new ).and_return( ssh )
+      Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
+
+      ssh.should_receive( :cp_r ).with( "DUMMY_IP_ADDRESS", "/tmp/lucie/ldb/ssh___myrepos.org__lucie", "/var/lib/lucie/config" )
+
+      configurator = Configurator.new( @scm )
+      configurator.install "DUMMY_IP_ADDRESS", "ssh://myrepos.org//lucie"
+    end
+  end
 end
 
 
