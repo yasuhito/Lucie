@@ -1,4 +1,32 @@
 # -*- coding: utf-8 -*-
+class DummyDpkg
+  def initialize installed
+    @installed = installed
+  end
+
+
+  def installed? scm
+    @installed
+  end
+end
+
+
+class DummySSH
+  def initialize client_initialized, options
+    @ssh = SSH.new( options, options[ :messenger ] )
+    @client_initialized = client_initialized
+  end
+
+
+  def sh ip, command
+    @ssh.sh ip, command
+    if /test \-d/=~ command
+      @client_initialized
+    end
+  end
+end
+
+
 Given /^バックエンドとして ([a-z]+) を指定したコンフィグレータ$/ do | scm |
   @messenger = StringIO.new( "" )
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }

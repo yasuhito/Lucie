@@ -25,34 +25,6 @@ require "secret-server"
 DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 
 
-class DummyDpkg
-  def initialize installed
-    @installed = installed
-  end
-
-
-  def installed? scm
-    @installed
-  end
-end
-
-
-class DummySSH
-  def initialize client_initialized, options
-    @ssh = SSH.new( options, options[ :messenger ] )
-    @client_initialized = client_initialized
-  end
-
-
-  def sh ip, command
-    @ssh.sh ip, command
-    if /test \-d/=~ command
-      @client_initialized
-    end
-  end
-end
-
-
 ################################################################################
 # Helper methods
 ################################################################################
