@@ -15,12 +15,18 @@ class Configurator
 
   def scm_installed?
     return unless @scm
-    @messenger.print "Checking #{ @scm } ... "
     if @dpkg.installed?( @scm )
-      @messenger.puts "INSTALLED"
+      @messenger.puts "Checking #{ @scm } ... INSTALLED"
     else
-      @messenger.puts "NOT INSTALLED"
+      @messenger.puts "Checking #{ @scm } ... NOT INSTALLED"
       raise "#{ @scm } is not installed"
     end
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
