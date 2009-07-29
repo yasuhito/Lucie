@@ -36,7 +36,7 @@ describe Configurator do
       messenger.should_receive( :puts ).with( "Checking #{ @scm } ... INSTALLED" )
 
       lambda do
-        configurator = Configurator.new( @scm, messenger )
+        configurator = Configurator.new( @scm, :messenger => messenger )
         configurator.scm_installed?
       end.should_not raise_error
     end
@@ -51,9 +51,30 @@ describe Configurator do
       messenger.should_receive( :puts ).with( "Checking #{ @scm } ... NOT INSTALLED" )
       
       lambda do
-        configurator = Configurator.new( @scm, messenger )
+        configurator = Configurator.new( @scm, :messenger => messenger )
         configurator.scm_installed?
       end.should raise_error( "#{ @scm } is not installed" )
+    end
+  end
+
+
+  context "making a clone of configuration repository on Lucie server" do
+    before :each do
+      @temporary_directory = "/tmp/lucie"
+      Configuration.stub!( :temporary_directory ).and_return( @temporary_directory )
+      @url = "ssh://myrepos.org/lucie"
+    end
+
+
+    it "should create a clone directory on the Lucie server" do
+      hg = mock( "hg" )
+      Scm::Hg.stub!( :new ).and_return( hg )
+
+      target = File.join( @temporary_directory, "ldb", @url.gsub( /[\/:@]/, "_" ) )
+      hg.should_receive( :clone ).with( @url, target )
+
+      configurator = Configurator.new( @scm )
+      configurator.clone @url
     end
   end
 end
