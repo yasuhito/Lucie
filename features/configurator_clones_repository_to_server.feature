@@ -8,8 +8,20 @@
   背景:
     前提 ドライランモードがオン
     かつ 冗長モードがオン
-    かつ バックエンドとして mercurial を指定したコンフィグレータ
 
-  シナリオ: リポジトリをサーバに複製
+  テンプレ: リポジトリをサーバに複製
+    前提 バックエンドとして <SCM> を指定したコンフィグレータ
+    もし コンフィグレータが Lucie サーバに設定リポジトリ "<URL>" を複製
+    ならば "<COMMAND>" コマンドで設定リポジトリが Lucie サーバに複製される
+    かつ エラーが発生しない
+
+    例:
+      | SCM        | URL                               | COMMAND   |
+      | mercurial  | ssh://myrepos.org//lucie/clone_me | hg clone  |
+      | git        | git://myrepos.org//lucie/clone_me | git clone |
+      | subversion | http://myrepos.org/lucie/clone_me | svn co    |
+
+  シナリオ: SCM が指定されていない
+    前提 バックエンドの SCM が指定されていないコンフィグレータ
     もし コンフィグレータが Lucie サーバに設定リポジトリ "ssh://myrepos.org//lucie/clone_me" を複製
-    ならば 設定リポジトリが hg clone コマンドで Lucie サーバに複製される
+    ならば エラー "scm is not specified"

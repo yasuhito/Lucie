@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+
+
+################################################################################
+# HELPERS
+################################################################################
+
+
 class DummyDpkg
   def initialize installed
     @installed = installed
@@ -26,7 +33,7 @@ class DummySSH
   def sh ip, command
     @ssh.sh ip, command
     if /test \-d/=~ command
-      @client_initialized
+      raise "test -d failed" unless @client_initialized
     end
   end
 end
@@ -37,17 +44,29 @@ def regexp_from string
 end
 
 
+################################################################################
+# STEPS
+################################################################################
+
+
 Given /^バックエンドとして ([a-z]+) を指定したコンフィグレータ$/ do | scm |
   @messenger = StringIO.new( "" )
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
-  @configurator = Configurator.new( scm.to_sym, options )
+  @configurator = Configurator::Server.new( scm.to_sym, options )
+end
+
+
+Given /^バックエンドの SCM が指定されていないコンフィグレータ$/ do
+  @messenger = StringIO.new( "" )
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator = Configurator::Server.new( @scm, options )
 end
 
 
 Given /^コンフィグレータ$/ do
   @messenger = StringIO.new( "" )
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
-  @configurator = Configurator.new( @scm, options )
+  @configurator = Configurator::Client.new( @scm, options )
 end
 
 
@@ -100,13 +119,17 @@ end
 
 When /^コンフィグレータが Lucie サーバに設定リポジトリ "([^\"]*)" を複製$/ do | url |
   @url = url
-  @configurator.clone @url
+  begin
+    @configurator.clone @url
+  rescue
+    @error = $!
+  end
 end
 
 
 When /^コンフィグレータが SCM のインストール状況を確認$/ do
   begin
-    @configurator.scm_installed?
+    @configurator.check_backend_scm
   rescue
     @error = $!
   end
@@ -132,8 +155,8 @@ When /^コンフィグレータが設定プロセスを開始した$/ do
 end
 
 
-Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
-  @messenger.string.should match( /^hg clone .+ #{ regexp_from( @url ) } .+/ )
+Then /^"([^\"]*)" コマンドで設定リポジトリが Lucie サーバに複製される$/ do | command |
+  @messenger.string.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( @url ) }.*#{ regexp_from( Configurator.convert( @url ) ) }.*/ )
 end
 
 
@@ -148,7 +171,7 @@ end
 
 
 Then /^設定リポジトリが scp \-r コマンドで Lucie クライアントに配置される$/ do
-  source = File.join( Configuration.temporary_directory, "ldb", Configurator.convert( @url ) )
+  source = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) + ".local" )
   @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp_from( source ) } root@#{ regexp_from( @ip ) }:\/var\/lib\/lucie\/config$/ )
 end
 

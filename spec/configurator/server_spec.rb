@@ -1,0 +1,69 @@
+require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
+
+
+module Configurator
+  describe Server do
+    context "checking if backend SCM is installed" do
+      before :each do
+        @dpkg = mock( "dpkg" )
+        Dpkg.stub!( :new ).and_return( @dpkg )
+      end
+
+
+      it "should not raise if the SCM is installed" do
+        @dpkg.stub!( :installed? ).with( "mercurial" ).and_return( true )
+        lambda do
+          Server.new( :mercurial ).check_backend_scm
+        end.should_not raise_error
+      end
+
+
+      it "should raise if the SCM is not installed" do
+        @dpkg.stub!( :installed? ).with( "mercurial" ).and_return( false )
+        lambda do
+          Server.new( :mercurial ).check_backend_scm
+        end.should raise_error( "mercurial is not installed" )
+      end
+
+
+      it "should do nothing if not using SCM" do
+        lambda do
+          Server.new.check_backend_scm
+        end.should_not raise_error
+      end
+    end
+
+
+    context "making a clone of configuration repository on Lucie server" do
+      before :each do
+        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
+        @url = "ssh://myrepos.org//lucie"
+      end
+
+
+      it "should create a clone directory on the Lucie server" do
+        mercurial = mock( "mercurial" )
+        Scm::Mercurial.stub!( :new ).and_return( mercurial )
+
+        target = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) )
+        mercurial.should_receive( :clone ).with( @url, target )
+        
+        Server.new( :mercurial ).clone @url
+      end
+
+
+      it "should raise if scm not specified" do
+        lambda do
+          Server.new.clone @url
+        end.should raise_error( "scm is not specified" )
+      end
+    end
+  end
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

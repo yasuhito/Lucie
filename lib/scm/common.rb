@@ -1,13 +1,14 @@
 module Scm
-  class Hg
+  class Common
     def initialize options
       @options = options
     end
 
 
-    def clone url, target
-      run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ url } #{ target }}
+    def name
+      self.class.to_s.split( "::" ).last.downcase
     end
+    alias to_s name
 
 
     ############################################################################
@@ -15,10 +16,10 @@ module Scm
     ############################################################################
 
 
-    def run command
+    def run command, env = { "LC_ALL" => "C" }
       Popen3::Shell.open do | shell |
         messenger.puts command if verbose?
-        shell.exec command unless dry_run?
+        shell.exec command, env unless dry_run?
       end
     end
 

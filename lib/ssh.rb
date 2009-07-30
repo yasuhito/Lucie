@@ -51,6 +51,9 @@ class SSH
       shell.on_stdout do | line |
         output << line
       end
+      shell.on_failure do
+        raise "command #{ command } failed on #{ ip }"
+      end
       @messenger.puts real_command if @verbose
       shell.exec real_command unless @dry_run
     end
