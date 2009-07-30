@@ -45,11 +45,16 @@ class SSH
 
 
   def sh ip, command
+    output = ""
     real_command = %{ssh -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@#{ ip } "#{ command }"}
     Popen3::Shell.open do | shell |
+      shell.on_stdout do | line |
+        output << line
+      end
       @messenger.puts real_command if @verbose
       shell.exec real_command unless @dry_run
     end
+    output
   end
 
 

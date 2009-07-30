@@ -116,6 +116,20 @@ describe Configurator do
       configurator.install "DUMMY_IP_ADDRESS", "ssh://myrepos.org//lucie"
     end
   end
+
+
+  context "when starting configuration process" do
+    it "should execute configuration tool" do
+      ssh = mock( "ssh" )
+      SSH.stub!( :new ).and_return( ssh )
+
+      ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/ldb" ).twice.and_return( "LDB_CHECKOUT_DIRECTORY" )
+      ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "cd /var/lib/lucie/config/LDB_CHECKOUT_DIRECTORY/scripts && eval `ssh -i /home/yasuhito/project/lucie/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@DUMMY_IP_ADDRESS /var/lib/lucie/config/LDB_CHECKOUT_DIRECTORY/bin/ldb env` && make" )
+
+      configurator = Configurator.new( @scm )
+      configurator.start "DUMMY_IP_ADDRESS"
+    end
+  end
 end
 
 

@@ -78,6 +78,11 @@ Given /^Lucie サーバ上に設定リポジトリ \(([^\)]*)\) の複製が存�
 end
 
 
+Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
+  @ip = ip
+end
+
+
 Given /^ドライランモードがオン$/ do
   @dry_run = true
 end
@@ -122,6 +127,11 @@ When /^コンフィグレータがその設定リポジトリを Lucie クライ
 end
 
 
+When /^コンフィグレータが設定プロセスを開始した$/ do
+  @configurator.start @ip
+end
+
+
 Then /^設定リポジトリが hg clone コマンドで Lucie サーバに複製される$/ do
   @messenger.string.should match( /^hg clone .+ #{ regexp_from( @url ) } .+/ )
 end
@@ -140,6 +150,11 @@ end
 Then /^設定リポジトリが scp \-r コマンドで Lucie クライアントに配置される$/ do
   source = File.join( Configuration.temporary_directory, "ldb", Configurator.convert( @url ) )
   @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp_from( source ) } root@#{ regexp_from( @ip ) }:\/var\/lib\/lucie\/config$/ )
+end
+
+
+Then /^設定ツールが実行される$/ do
+  @messenger.string.chomp.should match( /^ssh .+ make"$/ )
 end
 
 

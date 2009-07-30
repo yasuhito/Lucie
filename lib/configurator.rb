@@ -51,9 +51,38 @@ class Configurator
   end
 
 
+  def start ip
+    @ssh.sh ip, "cd #{ scripts_directory( ip ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ ip } #{ ldb_command( ip ) } env` && make"
+  end
+
+
   ##############################################################################
   private
   ##############################################################################
+
+
+  def ssh_options
+    "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  end
+
+
+  def ldb_command ip
+    File.join client_ldb_directory, ldb_checkout_directory( ip ), "bin", "ldb"
+  end
+
+
+  def ldb_checkout_directory ip
+    if @options[ :dry_run ]
+      "DUMMY_LDB_DIR"
+    else
+      @ssh.sh( ip, "ls -1 /var/lib/ldb" ).split( "\n" ).first
+    end
+  end
+
+
+  def scripts_directory ip
+    File.join client_ldb_directory, ldb_checkout_directory( ip ), "scripts"
+  end
 
 
   def clone_directory url
