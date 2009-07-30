@@ -17,24 +17,19 @@ module Configurator
     end
 
 
-    def install ip, url
-      @ssh.cp_r ip, Server.clone_clone_directory( url ), checkout_base_directory
+    def install server_ip, client_ip, url
+      @ssh.sh client_ip, @scm.install_command( checkout_base_directory, server_ip, url )
     end
 
 
     def start ip
-      @ssh.sh ip, "cd #{ scripts_directory( ip ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ ip } #{ ldb_command( ip ) } env` && make"
+      @ssh.sh ip, "cd #{ scripts_directory( ip ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ ip } #{ ldb_command( ip ) } env` && make"
     end
 
 
     ############################################################################
     private
     ############################################################################
-
-
-    def ssh_options
-      "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-    end
 
 
     def ldb_command ip

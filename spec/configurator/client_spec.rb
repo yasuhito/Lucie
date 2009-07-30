@@ -13,13 +13,13 @@ module Configurator
       it "should create a configurator base directory if not found" do
         @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" ).and_raise( "test -d failed" )
         @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "mkdir -p /var/lib/lucie/config" )
-        Configurator::Client.new( @scm ).setup "DUMMY_IP_ADDRESS"
+        Configurator::Client.new.setup "DUMMY_IP_ADDRESS"
       end
 
 
       it "should not create a configurator base directory if found" do
         @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" )
-        Configurator::Client.new( @scm ).setup "DUMMY_IP_ADDRESS"
+        Configurator::Client.new.setup "DUMMY_IP_ADDRESS"
       end
     end
 
@@ -30,9 +30,9 @@ module Configurator
         SSH.stub!( :new ).and_return( ssh )
         Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
 
-        ssh.should_receive( :cp_r ).with( "DUMMY_IP_ADDRESS", "/tmp/lucie/config/ssh___myrepos.org__lucie.local", "/var/lib/lucie/config" )
+        ssh.should_receive( :sh ).with( "DUMMY_CLIENT_IP", /^scp/ )
 
-        Client.new( @scm ).install "DUMMY_IP_ADDRESS", "ssh://myrepos.org//lucie"
+        Client.new( :mercurial ).install "DUMMY_SERVER_IP", "DUMMY_CLIENT_IP", "ssh://myrepos.org//lucie"
       end
     end
 
@@ -42,10 +42,10 @@ module Configurator
         ssh = mock( "ssh" )
         SSH.stub!( :new ).and_return( ssh )
 
-        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/ldb" ).twice.and_return( "LDB_CHECKOUT_DIRECTORY" )
-        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "cd /var/lib/lucie/config/LDB_CHECKOUT_DIRECTORY/scripts && eval `ssh -i /home/yasuhito/project/lucie/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@DUMMY_IP_ADDRESS /var/lib/lucie/config/LDB_CHECKOUT_DIRECTORY/bin/ldb env` && make" )
+        ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/ldb" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
+        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", /make$/ )
 
-        Client.new( @scm ).start "DUMMY_IP_ADDRESS"
+        Client.new.start "DUMMY_IP_ADDRESS"
       end
     end
   end

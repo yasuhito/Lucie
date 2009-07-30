@@ -46,7 +46,7 @@ class SSH
 
   def sh ip, command
     output = ""
-    real_command = %{ssh -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@#{ ip } "#{ command }"}
+    real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
         output << line
@@ -73,6 +73,11 @@ class SSH
   ##############################################################################
   private
   ##############################################################################
+
+
+  def ssh_agent command
+    "eval `ssh-agent`; ssh-add #{ PRIVATE_KEY }; #{ command }; ssh-agent -k"
+  end
 
 
   def run command

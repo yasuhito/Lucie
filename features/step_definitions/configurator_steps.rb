@@ -92,13 +92,19 @@ Given /^設定リポジトリ用ディレクトリがクライアント上にす
 end
 
 
-Given /^Lucie サーバ上に設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | url |
+Given /^Lucie サーバ上に ([a-z]+) で管理された設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | scm, url |
+  @scm = scm.to_sym
   @url = url
 end
 
 
 Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
   @ip = ip
+end
+
+
+Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
+  @lucie_ip = ip
 end
 
 
@@ -146,7 +152,7 @@ When /^コンフィグレータがその設定リポジトリを Lucie クライ
   @ip = ip
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
   @configurator.ssh = DummySSH.new( true, options )
-  @configurator.install @ip, @url
+  @configurator.install @lucie_ip, @ip, @url
 end
 
 
@@ -161,7 +167,7 @@ end
 
 
 Then /^設定リポジトリ用ディレクトリがクライアント上に生成される$/ do
-  @messenger.string.should match( /^ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+  @messenger.string.should match( /ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"/ )
 end
 
 
@@ -170,14 +176,14 @@ Then /^設定リポジトリ用ディレクトリがクライアント上に生�
 end
 
 
-Then /^設定リポジトリが scp \-r コマンドで Lucie クライアントに配置される$/ do
+Then /^設定リポジトリが (.+) コマンドで Lucie クライアントに配置される$/ do | command |
   source = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) + ".local" )
-  @messenger.string.chomp.should match( /^scp .+ \-r #{ regexp_from( source ) } root@#{ regexp_from( @ip ) }:\/var\/lib\/lucie\/config$/ )
+  @messenger.string.chomp.should match( /#{ command }/ )
 end
 
 
 Then /^設定ツールが実行される$/ do
-  @messenger.string.chomp.should match( /^ssh .+ make"$/ )
+  @messenger.string.chomp.should match( /make/ )
 end
 
 
