@@ -1,4 +1,5 @@
 require "configuration"
+require "lucie"
 require "lucie/io"
 require "lucie/utils"
 require "network_interfaces"
@@ -84,6 +85,10 @@ class LDB
 
   def install_ldb node, ldb_url, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "mkdir -p /var/lib/ldb"}, @options, logger
+    run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } #{ Lucie::ROOT }/script/get_confidential_data root@#{ node.ip_address }:/var/tmp/get_confidential_data", @options, logger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ruby pi -e 'gsub( /USER/, \"#{ ENV{ 'USER' } }\" )' /var/tmp/get_confidential_data"}, @options, logger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ruby pi -e 'gsub( /SERVER/, \"hoge\" )' /var/tmp/get_confidential_data"}, @options, logger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "chmod +x /var/tmp/get_confidential_data"}, @options, logger
     run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } -r #{ server_clone_clone_directory( ldb_url ) } root@#{ node.ip_address }:#{ checkout_directory ldb_url }", @options, logger
   end
 
