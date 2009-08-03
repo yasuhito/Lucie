@@ -83,10 +83,11 @@ class LDB
   # hg operations ##############################################################
 
 
-  def install_ldb node, ldb_url, logger
+  def install_ldb node, ldb_url, lucie_ip, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "mkdir -p /var/lib/ldb"}, @options, logger
     run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } #{ Lucie::ROOT }/script/get_confidential_data root@#{ node.ip_address }:/var/tmp/get_confidential_data", @options, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "sed -i s/USER/#{ ENV[ 'USER' ] }/ /var/tmp/get_confidential_data"}, @options, logger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "sed -i s/SERVER/#{ lucie_ip }/ /var/tmp/get_confidential_data"}, @options, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "chmod +x /var/tmp/get_confidential_data"}, @options, logger
     run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } -r #{ server_clone_clone_directory( ldb_url ) } root@#{ node.ip_address }:#{ checkout_directory ldb_url }", @options, logger
   end

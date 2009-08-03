@@ -160,7 +160,7 @@ module Command
       if @options.ldb_repository
         @html_logger.update node, "Starting LDB ..."
         logger.info "Starting LDB ..."
-        @ldb.install node, @options.ldb_repository, logger
+        @ldb.install node, @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all ), logger
         @ldb.start node, logger
       end
       @html_logger.next_step node
