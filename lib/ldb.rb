@@ -53,8 +53,8 @@ class LDB
   end
 
 
-  def install node, ldb_url, logger
-    install_ldb node, ldb_url, logger
+  def install node, ldb_url, lucie_ip, logger
+    install_ldb node, ldb_url, lucie_ip, logger
   end
 
 
