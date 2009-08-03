@@ -1,3 +1,3 @@
-#!/usr/bin/env ruby
+#!/bin/sh
 
-system "ssh -oStrictHostKeyChecking=no USER@SERVER 'telnet 127.0.0.1 58243'"
+ssh -oStrictHostKeyChecking=no USER@SERVER 'telnet 127.0.0.1 58243'
