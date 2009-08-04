@@ -5,6 +5,12 @@ module Scm
     end
 
 
+    def update target
+      run "git pull #{ target }", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "git update #{ target }", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+    end
+
+
     def install_command target, server_ip, url
       "git clone git://#{ server_ip }/#{ Configurator::Server.clone_directory( url ) } #{ target }"
     end

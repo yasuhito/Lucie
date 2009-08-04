@@ -179,6 +179,11 @@ When /^コンフィグレータがその設定リポジトリを Lucie クライ
 end
 
 
+When /^コンフィグレータがその設定リポジトリを更新した$/ do
+  @configurator.update @url
+end
+
+
 When /^コンフィグレータが設定プロセスを開始した$/ do
   @configurator.start @ip
 end
@@ -219,6 +224,11 @@ end
 Then /^設定リポジトリが (.+) コマンドで Lucie クライアントに配置される$/ do | command |
   source = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) + ".local" )
   @messenger.string.chomp.should match( /#{ command }/ )
+end
+
+
+Then /^その設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
+  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command )} .*#{ regexp_from( Configurator.convert( @url ) ) }$/ )
 end
 
 

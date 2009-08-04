@@ -5,6 +5,11 @@ module Scm
     end
 
 
+    def update target
+      run %{hg update --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ target }}
+    end
+
+
     def install_command target, server_ip, url
       "scp #{ SSH::OPTIONS } -r #{ server_ip }:#{ Configurator::Server.clone_clone_directory( url ) } #{ target }"
     end

@@ -48,6 +48,11 @@ module Configurator
     end
 
 
+    def update url
+      @scm.update self.class.clone_directory( url )
+    end
+
+
     def check_backend_scm
       return unless @scm
       raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )

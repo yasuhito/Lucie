@@ -3,12 +3,12 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 module Configurator
   describe Server do
+    before :each do
+      Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
+    end
+
+
     context "initializing a client" do
-      before :each do
-        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
-      end
-
-
       it "should create a temporary directory to checkout configuration repository if not found" do
         FileTest.stub!( :exists? ).with( "/tmp/lucie" ).and_return( false )
         Lucie::Utils.should_receive( :mkdir_p ).with( "/tmp/lucie", an_instance_of( Hash ), nil )
@@ -57,7 +57,6 @@ module Configurator
 
     context "making a clone of configuration repository on Lucie server" do
       before :each do
-        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
         @url = "ssh://myrepos.org//lucie"
       end
 
@@ -82,16 +81,21 @@ module Configurator
 
 
     context "making a local clone of configuration repository" do
-      before :each do | each |
-        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
-      end
-
-
       it "should create a local clone directory on the Lucie server" do
         mercurial = mock( "mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
         mercurial.should_receive( :clone ).with( "/tmp/lucie/config/http___myrepos.org__lucie", "/tmp/lucie/config/http___myrepos.org__lucie.local" )
         Server.new( :mercurial ).clone_clone "http://myrepos.org//lucie"
+      end
+    end
+
+
+    context "updating configuration repository" do
+      it "should update configuration repository" do
+        mercurial = mock( "mercurial" )
+        Scm::Mercurial.stub!( :new ).and_return( mercurial )
+        mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie" )
+        Server.new( :mercurial ).update "http://myrepos.org//lucie"
       end
     end
   end

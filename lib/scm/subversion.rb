@@ -5,6 +5,11 @@ module Scm
     end
 
 
+    def update target
+      run "svn update #{ target }", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+    end
+
+
     def install_command target, server_ip, url
       "scp #{ SSH::OPTIONS } -r #{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }"
     end
