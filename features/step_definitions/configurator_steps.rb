@@ -173,7 +173,10 @@ end
 
 When /^コンフィグレータがその設定リポジトリを Lucie クライアント \(IP アドレスは "([^\"]*)"\) へ配置した$/ do | ip |
   @ip = ip
+  @messenger = StringIO.new( "" )
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+
+  @configurator = Configurator::Client.new( @scm, options )
   @configurator.ssh = DummySSH.new( true, options )
   @configurator.install @lucie_ip, @ip, @url
 end
@@ -181,6 +184,11 @@ end
 
 When /^コンフィグレータがその設定リポジトリを更新した$/ do
   @configurator.update @url
+end
+
+
+When /^コンフィグレータがその Lucie クライアント上のリポジトリを更新した$/ do
+  @configurator.update @ip
 end
 
 
@@ -229,6 +237,11 @@ end
 
 Then /^その設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command )} .*#{ regexp_from( Configurator.convert( @url ) ) }$/ )
+end
+
+
+Then /^Lucie クライアント上のそのリポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
+  @messenger.string.should match( regexp_from( command ) )
 end
 
 

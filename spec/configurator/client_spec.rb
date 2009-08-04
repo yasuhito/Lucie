@@ -37,12 +37,25 @@ module Configurator
     end
 
 
-    context "when starting configuration process" do
+    context "updating configuration repository" do
+      it "should update configuration repository" do
+        ssh = mock( "ssh" )
+        SSH.stub!( :new ).and_return( ssh )
+
+        ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/lucie/config" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
+        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "cd LDB_CHECKOUT_DIRECTORY && hg pull && hg update" )
+
+        Client.new( :mercurial ).update "DUMMY_IP_ADDRESS"
+      end
+    end
+
+
+    context "starting configuration process" do
       it "should execute configuration tool" do
         ssh = mock( "ssh" )
         SSH.stub!( :new ).and_return( ssh )
 
-        ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/ldb" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
+        ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/lucie/config" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
         ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", /make$/ )
 
         Client.new.start "DUMMY_IP_ADDRESS"

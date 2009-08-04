@@ -22,6 +22,11 @@ module Configurator
     end
 
 
+    def update ip
+      @ssh.sh ip, "cd #{ checkout_directory( ip ) } && #{ @scm.update_command }"
+    end
+
+
     def start ip
       @ssh.sh ip, "cd #{ scripts_directory( ip ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ ip } #{ ldb_command( ip ) } env` && make"
     end
@@ -46,7 +51,7 @@ module Configurator
       if @options[ :dry_run ]
         "DUMMY_LDB_DIR"
       else
-        @ssh.sh( ip, "ls -1 /var/lib/ldb" ).split( "\n" ).first
+        @ssh.sh( ip, "ls -1 #{ checkout_base_directory }" ).split( "\n" ).first
       end
     end
 
