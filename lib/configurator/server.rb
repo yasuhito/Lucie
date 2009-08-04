@@ -1,3 +1,6 @@
+require "lucie/utils"
+
+
 module Configurator
   class Server
     attr_writer :dpkg
@@ -23,6 +26,13 @@ module Configurator
       @options = options
       @scm = Scm.from( scm, @options ) if scm
       @dpkg = Dpkg.new
+    end
+
+
+    def setup
+      unless FileTest.exists?( Configuration.temporary_directory )
+        Lucie::Utils.mkdir_p Configuration.temporary_directory, { :dry_run => @options[ :dry_run ], :verbose => @options[ :verbose ] }, @options[ :messenger ]
+      end
     end
 
 

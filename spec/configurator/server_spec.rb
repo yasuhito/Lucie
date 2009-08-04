@@ -3,6 +3,27 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 module Configurator
   describe Server do
+    context "initializing a client" do
+      before :each do
+        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
+      end
+
+
+      it "should create a temporary directory to checkout configuration repository if not found" do
+        FileTest.stub!( :exists? ).with( "/tmp/lucie" ).and_return( false )
+        Lucie::Utils.should_receive( :mkdir_p ).with( "/tmp/lucie", an_instance_of( Hash ), nil )
+        Server.new.setup
+      end
+
+
+      it "should not create a temporary directory to checkout configuration repository if found" do
+        FileTest.stub!( :exists? ).with( "/tmp/lucie" ).and_return( true )
+        Lucie::Utils.should_not_receive( :mkdir_p ).with( "/tmp/lucie" )
+        Server.new.setup
+      end
+    end
+
+
     context "checking if backend SCM is installed" do
       before :each do
         @dpkg = mock( "dpkg" )

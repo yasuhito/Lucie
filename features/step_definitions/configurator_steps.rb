@@ -80,6 +80,16 @@ Given /^その SCM がインストールされていない$/ do
 end
 
 
+Given /^設定リポジトリ用ディレクトリがサーバ上に存在しない$/ do
+  FileUtils.rm_rf Configuration.temporary_directory
+end
+
+
+Given /^設定リポジトリ用ディレクトリがサーバ上にすでに存在$/ do
+  FileUtils.mkdir_p Configuration.temporary_directory
+end
+
+
 Given /^設定リポジトリ用ディレクトリがクライアント上に存在しない$/ do
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
   @configurator.ssh = DummySSH.new( false, options )
@@ -142,6 +152,14 @@ When /^コンフィグレータが SCM のインストール状況を確認$/ do
 end
 
 
+When /^コンフィグレータがサーバを初期化した$/ do
+  @messenger = StringIO.new( "" )
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  configurator = Configurator::Server.new( nil, options )
+  configurator.setup
+end
+
+
 When /^コンフィグレータがクライアント \(IP アドレスは "([^\"]*)"\) を初期化した$/ do | ip |
   @ip = ip
   @configurator.setup @ip
@@ -163,6 +181,16 @@ end
 
 Then /^"([^\"]*)" コマンドで設定リポジトリが Lucie サーバに複製される$/ do | command |
   @messenger.string.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( @url ) }.*#{ regexp_from( Configurator.convert( @url ) ) }.*/ )
+end
+
+
+Then /^設定リポジトリ用ディレクトリがサーバ上に生成される$/ do
+  @messenger.string.chomp.should == "mkdir -p #{ Configuration.temporary_directory }"
+end
+
+
+Then /^設定リポジトリ用ディレクトリがサーバ上に生成されない$/ do
+  @messenger.string.should be_empty
 end
 
 
