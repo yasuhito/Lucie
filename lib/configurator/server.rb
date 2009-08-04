@@ -42,6 +42,12 @@ module Configurator
     end
 
 
+    def clone_clone url
+      repos = self.class.clone_directory( url )
+      @scm.clone repos, repos + ".local"
+    end
+
+
     def check_backend_scm
       return unless @scm
       raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )

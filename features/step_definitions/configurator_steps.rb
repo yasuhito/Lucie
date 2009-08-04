@@ -166,6 +166,11 @@ When /^コンフィグレータがクライアント \(IP アドレスは "([^\"
 end
 
 
+When /^コンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成$/ do
+  @configurator.clone_clone @url
+end
+
+
 When /^コンフィグレータがその設定リポジトリを Lucie クライアント \(IP アドレスは "([^\"]*)"\) へ配置した$/ do | ip |
   @ip = ip
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
@@ -181,6 +186,13 @@ end
 
 Then /^"([^\"]*)" コマンドで設定リポジトリが Lucie サーバに複製される$/ do | command |
   @messenger.string.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( @url ) }.*#{ regexp_from( Configurator.convert( @url ) ) }.*/ )
+end
+
+
+Then /^"([^\"]*)" コマンドでローカルな設定リポジトリの複製が作成される$/ do | command |
+  from = File.join( Configurator::Server.config_directory, Configurator.convert( @url ) )
+  to = from + ".local"
+  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command ) }.* #{ regexp_from( from ) } #{ regexp_from( to ) }$/ )
 end
 
 

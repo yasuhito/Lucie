@@ -79,6 +79,21 @@ module Configurator
         end.should raise_error( "scm is not specified" )
       end
     end
+
+
+    context "making a local clone of configuration repository" do
+      before :each do | each |
+        Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
+      end
+
+
+      it "should create a local clone directory on the Lucie server" do
+        mercurial = mock( "mercurial" )
+        Scm::Mercurial.stub!( :new ).and_return( mercurial )
+        mercurial.should_receive( :clone ).with( "/tmp/lucie/config/http___myrepos.org__lucie", "/tmp/lucie/config/http___myrepos.org__lucie.local" )
+        Server.new( :mercurial ).clone_clone "http://myrepos.org//lucie"
+      end
+    end
   end
 end
 
