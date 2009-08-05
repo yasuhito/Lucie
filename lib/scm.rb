@@ -5,7 +5,8 @@ require "scm/subversion"
 
 
 module Scm
-  def from scm, options
+  def from scm, options = {}
+    raise "scm is not specified" unless scm
     case scm
     when :mercurial
       Mercurial.new options
