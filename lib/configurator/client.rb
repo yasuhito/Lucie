@@ -23,7 +23,9 @@ module Configurator
 
 
     def update ip
-      @ssh.sh ip, "cd #{ checkout_directory( ip ) } && #{ @scm.update_command }"
+      @scm.update_commands.each do | each |
+        @ssh.sh ip, "cd #{ checkout_directory( ip ) } && #{ each }"
+      end
     end
 
 
@@ -38,16 +40,21 @@ module Configurator
 
 
     def ldb_command ip
-      File.join checkout_base_directory, checkout_directory( ip ), "bin", "ldb"
+      File.join checkout_base_directory, checkout_name( ip ), "bin", "ldb"
     end
 
 
     def scripts_directory ip
-      File.join checkout_base_directory, checkout_directory( ip ), "scripts"
+      File.join checkout_base_directory, checkout_name( ip ), "scripts"
     end
 
 
     def checkout_directory ip
+      File.join checkout_base_directory, checkout_name( ip )
+    end
+
+
+    def checkout_name ip
       if @options[ :dry_run ]
         "DUMMY_LDB_DIR"
       else

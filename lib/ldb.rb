@@ -1,4 +1,5 @@
 require "configuration"
+require "configurator"
 require "lucie"
 require "lucie/io"
 require "lucie/utils"
@@ -16,6 +17,8 @@ class LDB
     @options = options
     @messenger = messenger
     @nic = nic
+    @client = Configurator::Client.new( :mercurial, @options.merge( :messenger => messenger ) )
+    @server = Configurator::Server.new( :mercurial, @options.merge( :messenger => messenger ) )
   end
 
 
@@ -58,8 +61,8 @@ class LDB
   end
 
 
-  def update node, logger
-    update_ldb node, logger
+  def update node, logger = nil
+    @client.update node.ip_address
     info "LDB updated on node #{ node.name }."
   end
 
@@ -90,13 +93,6 @@ class LDB
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "sed -i s/SERVER/#{ lucie_ip }/ /var/tmp/get_confidential_data"}, @options, logger
     run %{ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "chmod +x /var/tmp/get_confidential_data"}, @options, logger
     run "scp -i #{ SSH::PRIVATE_KEY } #{ ssh_options } -r #{ server_clone_clone_directory( ldb_url ) } root@#{ node.ip_address }:#{ checkout_directory ldb_url }", @options, logger
-  end
-
-
-  def update_ldb node, logger
-    ldb_dir = node_ldb_checkout_directory( node )
-    run ssh_agent( hg_pull_command( node, ldb_dir ) ), @options, logger
-    run ssh_agent( hg_update_command( node, ldb_dir ) ), @options, logger
   end
 
 

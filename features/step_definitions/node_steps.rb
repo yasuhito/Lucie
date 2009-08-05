@@ -1,4 +1,12 @@
+# -*- coding: utf-8 -*-
 Given /^a node named "([^\"]*)"$/ do | name |
+  ph_addr = '1.1.1.1'
+  ph_mac = '00:00:00:00:00:00'
+  Nodes.add Node.new( name, :ip_address => ph_addr, :netmask_address => '255.255.255.0', :mac_address => ph_mac )
+end
+
+
+Given /^Lucie クライアント "([^\"]*)"$/ do | name |
   ph_addr = '1.1.1.1'
   ph_mac = '00:00:00:00:00:00'
   Nodes.add Node.new( name, :ip_address => ph_addr, :netmask_address => '255.255.255.0', :mac_address => ph_mac )

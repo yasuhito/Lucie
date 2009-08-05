@@ -10,13 +10,23 @@ module Scm
     end
 
 
-    def update_command
-      "hg pull && hg update"
+    def update_commands
+      [ "hg pull --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'", "hg update --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'" ]
     end
 
 
     def install_command target, server_ip, url
       "scp #{ SSH::OPTIONS } -r #{ server_ip }:#{ Configurator::Server.clone_clone_directory( url ) } #{ target }"
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def whoami
+      `whoami`.chomp
     end
   end
 end

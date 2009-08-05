@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+Given /^LDB がクライアント "([^\"]*)" の更新を実行した$/ do | name |
+  @messenger = StringIO.new( "" )
+  ldb = LDB.new( { :dry_run => @dry_run, :verbose => @verbose }, @messenger )
+  ldb.update Nodes.find( name )
+end
+
+
 Given /^remote hg repository "([^\"]*)"$/ do | url |
   @hg_url = url
 end
@@ -68,6 +76,13 @@ end
 Then /^configurations updated on "([^\"]*)"$/ do | name |
   history.should include( "LDB executed on #{ name }." )
   @messenger.string.should match( /make/ )
+end
+
+
+Then /^Lucie サーバの設定リポジトリが更新され$/ do
+  @messenger.string.split( "\n" ).each do | each |
+    puts each
+  end
 end
 
 

@@ -12,7 +12,7 @@ class SSH
   PUBLIC_KEY = File.join( SSH_HOME, "id_rsa.pub" )
   PRIVATE_KEY = File.join( SSH_HOME, "id_rsa" )
 
-  OPTIONS = %{-o "PasswordAuthentication no" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile=/dev/null" -o "LogLevel=ERROR"}
+  OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
   attr_accessor :dry_run # :nodoc:

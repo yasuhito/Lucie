@@ -52,7 +52,8 @@ end
 Given /^バックエンドとして ([a-z]+) を指定したコンフィグレータ$/ do | scm |
   @messenger = StringIO.new( "" )
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
-  @configurator = Configurator::Server.new( scm.to_sym, options )
+  @scm = scm.to_sym
+  @configurator = Configurator::Server.new( @scm, options )
 end
 
 
@@ -182,6 +183,13 @@ When /^コンフィグレータがその設定リポジトリを Lucie クライ
 end
 
 
+Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" へ配置した$/ do | name |
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator = Configurator::Client.new( @scm, options )
+  @configurator.install @lucie_ip, name, @url
+end
+
+
 When /^コンフィグレータがその設定リポジトリを更新した$/ do
   @configurator.update @url
 end
@@ -189,6 +197,9 @@ end
 
 When /^コンフィグレータがその Lucie クライアント上のリポジトリを更新した$/ do
   @configurator.update @ip
+  @messenger.string.split( "\n" ).each do | each |
+    puts each
+  end
 end
 
 
