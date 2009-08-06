@@ -3,6 +3,10 @@ module Configurator
     attr_writer :ssh
 
 
+    COMMAND_DIRECTORY = "/var/lib/lucie/bin"
+    REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
+
+
     def initialize scm = nil, options = {}
       @options = options
       @ssh = SSH.new( @options, @options[ :messenger ] )
@@ -10,21 +14,29 @@ module Configurator
     end
 
 
-    def setup ip
-      unless checkout_base_directory_exists?( ip )
-        @ssh.sh ip, "mkdir -p #{ checkout_base_directory }"
+    def setup client_ip
+      unless repository_base_directory_exists?( client_ip )
+        @ssh.sh client_ip, "mkdir -p #{ REPOSITORY_BASE_DIRECTORY }"
+      end
+      unless command_directory_exists?( client_ip )
+        @ssh.sh client_ip, "mkdir -p #{ COMMAND_DIRECTORY }"
       end
     end
 
 
     def install server_ip, client_ip, url
-      @ssh.sh client_ip, @scm.install_command( checkout_base_directory, server_ip, url )
+      @url = url
+      @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", COMMAND_DIRECTORY
+      @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
+      @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
+      @ssh.sh client_ip, "chmod +x #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
+      @ssh.sh_a client_ip, @scm.install_command( File.join( REPOSITORY_BASE_DIRECTORY, Configurator.convert( url ) ), server_ip, url )
     end
 
 
     def update ip
-      @scm.update_commands.each do | each |
-        @ssh.sh ip, "cd #{ checkout_directory( ip ) } && #{ each }"
+      @scm.update_commands_for( repository_directory( ip ) ).each do | each |
+        @ssh.sh_a ip, each
       end
     end
 
@@ -34,39 +46,38 @@ module Configurator
     end
 
 
+    def repository_name ip
+      if @options[ :dry_run ]
+        Configurator.convert( @url )
+      else
+        @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
+      end
+    end
+
+
     ############################################################################
     private
     ############################################################################
 
 
     def ldb_command ip
-      File.join checkout_base_directory, checkout_name( ip ), "bin", "ldb"
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip ), "bin", "ldb"
     end
 
 
     def scripts_directory ip
-      File.join checkout_base_directory, checkout_name( ip ), "scripts"
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip ), "scripts"
     end
 
 
-    def checkout_directory ip
-      File.join checkout_base_directory, checkout_name( ip )
+    def repository_directory ip
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
     end
 
 
-    def checkout_name ip
-      if @options[ :dry_run ]
-        "DUMMY_LDB_DIR"
-      else
-        @ssh.sh( ip, "ls -1 #{ checkout_base_directory }" ).split( "\n" ).first
-      end
-    end
-
-
-
-    def checkout_base_directory_exists? ip
+    def command_directory_exists? ip
       begin
-        @ssh.sh ip, "test -d #{ checkout_base_directory }"
+        @ssh.sh ip, "test -d #{ COMMAND_DIRECTORY }"
         true
       rescue
         false
@@ -74,8 +85,13 @@ module Configurator
     end
 
 
-    def checkout_base_directory
-      "/var/lib/lucie/config"
+    def repository_base_directory_exists? ip
+      begin
+        @ssh.sh ip, "test -d #{ REPOSITORY_BASE_DIRECTORY }"
+        true
+      rescue
+        false
+      end
     end
   end
 end

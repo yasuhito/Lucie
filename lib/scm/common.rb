@@ -18,7 +18,7 @@ module Scm
 
     def run command, env = { "LC_ALL" => "C" }
       Popen3::Shell.open do | shell |
-        messenger.puts command if verbose?
+        messenger.puts command if verbose? || dry_run?
         shell.exec command, env unless dry_run?
       end
     end

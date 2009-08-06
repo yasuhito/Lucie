@@ -45,6 +45,19 @@ class LDB
   end
 
 
+  def clone_to_server url, lucie_ip
+    @server.setup
+    @server.clone url
+    @server.clone_clone url, lucie_ip
+  end
+
+
+  def clone_to_client url, node, lucie_ip
+    @client.setup node.ip_address
+    @client.install lucie_ip, node.ip_address, url
+  end
+
+
   def update_local_ldb_repository node, logger
     setup_server_ldb_directory
     ldb_dir = server_ldb_checkout_directory( node )
@@ -57,11 +70,13 @@ class LDB
 
 
   def install node, ldb_url, lucie_ip, logger
-    install_ldb node, ldb_url, lucie_ip, logger
+    @client.setup node.ip_address
+    @client.install lucie_ip, node.ip_address, ldb_url
   end
 
 
   def update node, logger = nil
+    @server.update @client.repository_name( node.ip_address )
     @client.update node.ip_address
     info "LDB updated on node #{ node.name }."
   end

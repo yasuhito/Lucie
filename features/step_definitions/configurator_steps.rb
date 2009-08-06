@@ -25,6 +25,11 @@ class DummySSH
   end
 
 
+  def cp ip, from, to
+    @ssh.cp ip, from, to
+  end
+
+
   def cp_r ip, from, to
     @ssh.cp_r ip, from, to
   end
@@ -35,6 +40,11 @@ class DummySSH
     if /test \-d/=~ command
       raise "test -d failed" unless @client_initialized
     end
+  end
+
+
+  def sh_a ip, command
+    @ssh.sh_a ip, command
   end
 end
 
@@ -111,6 +121,10 @@ end
 
 Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
   @ip = ip
+  @messenger = StringIO.new( "" )
+  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  @configurator = Configurator::Client.new( :mercurial, options )
+  @configurator.install "DUMMY_SERVER_IP", @ip, "DUMMY_REPOSITORY_URL"
 end
 
 
@@ -168,7 +182,7 @@ end
 
 
 When /^コンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成$/ do
-  @configurator.clone_clone @url
+  @configurator.clone_clone @url, "DUMMY_SERVER_IP"
 end
 
 
@@ -197,9 +211,6 @@ end
 
 When /^コンフィグレータがその Lucie クライアント上のリポジトリを更新した$/ do
   @configurator.update @ip
-  @messenger.string.split( "\n" ).each do | each |
-    puts each
-  end
 end
 
 
@@ -216,7 +227,7 @@ end
 Then /^"([^\"]*)" コマンドでローカルな設定リポジトリの複製が作成される$/ do | command |
   from = File.join( Configurator::Server.config_directory, Configurator.convert( @url ) )
   to = from + ".local"
-  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command ) }.* #{ regexp_from( from ) } #{ regexp_from( to ) }$/ )
+  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( from ) } #{ regexp_from( to ) }$/ )
 end
 
 
@@ -247,7 +258,7 @@ end
 
 
 Then /^その設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
-  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command )} .*#{ regexp_from( Configurator.convert( @url ) ) }$/ )
+  @messenger.string.split( "\n" ).last.should match( regexp_from( command ) )
 end
 
 

@@ -8,12 +8,6 @@ Feature: LDB
    Given remote hg repository "ssh://my.repository.org//ldb"
    And temporary directory "/tmp/lucie/tmp" is empty
 
-  Scenario: update LDB
-    Given eth0 "192.168.0.1"
-    And a node named "yutaro_node", with IP address "192.168.0.100"
-    When I update LDB on node "yutaro_node"
-    Then LDB on "yutaro_node" updated
-
   Scenario: clone remote repository
     Given eth0 "192.168.0.1"
     And local repository is empty

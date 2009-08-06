@@ -5,7 +5,7 @@ module Configurator
   describe Client do
     context "initializing a client" do
       before :each do
-        @ssh = mock( "ssh" )
+        @ssh = mock( "ssh" ).as_null_object
         SSH.stub!( :new ).and_return( @ssh )
       end
 
@@ -26,11 +26,11 @@ module Configurator
 
     context "creating a configuration repository clone on a client" do
       it "should make a clone repository on the client" do
-        ssh = mock( "ssh" )
+        ssh = mock( "ssh" ).as_null_object
         SSH.stub!( :new ).and_return( ssh )
         Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )
 
-        ssh.should_receive( :sh ).with( "DUMMY_CLIENT_IP", /^scp/ )
+        ssh.should_receive( :sh_a ).with( "DUMMY_CLIENT_IP", /^scp/ )
 
         Client.new( :mercurial ).install "DUMMY_SERVER_IP", "DUMMY_CLIENT_IP", "ssh://myrepos.org//lucie"
       end
@@ -39,12 +39,12 @@ module Configurator
 
     context "updating configuration repository" do
       it "should update configuration repository" do
-        ssh = mock( "ssh" )
+        ssh = mock( "ssh" ).as_null_object
         SSH.stub!( :new ).and_return( ssh )
 
         ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/lucie/config" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
-        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", /hg pull/ )
-        ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", /hg update/ )
+        ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg pull/ )
+        ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg update/ )
 
         Client.new( :mercurial ).update "DUMMY_IP_ADDRESS"
       end

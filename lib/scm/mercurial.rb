@@ -5,13 +5,15 @@ module Scm
     end
 
 
-    def update target
-      run %{hg update --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ target }}
+    def update_commands_for target
+      [ "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'",
+        "cd #{ target } && hg update --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'" ]
     end
 
 
-    def update_commands
-      [ "hg pull --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'", "hg update --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'" ]
+    def update target
+      run "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'"
+      run "cd #{ target } && hg update --ssh 'ssh -l #{ whoami } #{ SSH::OPTIONS }'"
     end
 
 

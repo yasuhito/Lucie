@@ -42,14 +42,15 @@ module Configurator
     end
 
 
-    def clone_clone url
+    def clone_clone url, lucie_ip
       repos = self.class.clone_directory( url )
-      @scm.clone repos, repos + ".local"
+      @scm.clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
     end
 
 
-    def update url
-      @scm.update self.class.clone_directory( url )
+    def update repository_name
+      @scm.update File.join( self.class.config_directory, repository_name )
+      @scm.update File.join( self.class.config_directory, repository_name ) + ".local"
     end
 
 

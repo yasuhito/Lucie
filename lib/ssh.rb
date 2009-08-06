@@ -46,6 +46,23 @@ class SSH
 
   def sh ip, command
     output = ""
+    real_command = %{ssh -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"}
+    Popen3::Shell.open do | shell |
+      shell.on_stdout do | line |
+        output << line
+      end
+      shell.on_failure do
+        raise "command #{ command } failed on #{ ip }"
+      end
+      @messenger.puts real_command if @verbose || @dry_run
+      shell.exec real_command unless @dry_run
+    end
+    output
+  end
+
+
+  def sh_a ip, command
+    output = ""
     real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
@@ -54,10 +71,19 @@ class SSH
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"
       end
-      @messenger.puts real_command if @verbose
+      @messenger.puts real_command if @verbose || @dry_run
       shell.exec real_command unless @dry_run
     end
     output
+  end
+
+
+  def cp ip, from, to
+    command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no #{ from } root@#{ ip }:#{ to }"
+    Popen3::Shell.open do | shell |
+      @messenger.puts command if @verbose
+      shell.exec command unless @dry_run
+    end
   end
 
 
