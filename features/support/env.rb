@@ -30,6 +30,16 @@ DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 ################################################################################
 
 
+def options
+  { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+end
+
+
+def regexp_from string
+  Regexp.escape string
+end
+
+
 def successful_boot_syslog_of node
   return <<-SYSLOG
 Jun 17 21:00:18 lucie_server dhcpd: DHCPDISCOVER from #{ node.mac_address } via eth0

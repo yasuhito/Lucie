@@ -1,17 +1,4 @@
 # -*- coding: utf-8 -*-
-Given /^LDB が Lucie サーバに設定リポジトリ "([^\"]*)" を複製$/ do | url |
-  @url = url
-  @messenger = StringIO.new( "" )
-  @ldb = LDB.new( { :dry_run => @dry_run, :verbose => @verbose }, @messenger )
-  @ldb.clone_to_server @url, "DUMMY_LUCIE_IP"
-end
-
-
-Given /^LDB がその複製を Lucie クライアント "([^\"]*)" へ配置した$/ do | name |
-  @ldb.clone_to_client @url, Nodes.find( name ), "DUMMY_LUCIE_IP"
-end
-
-
 Given /^remote hg repository "([^\"]*)"$/ do | url |
   @hg_url = url
 end
@@ -29,11 +16,6 @@ end
 
 
 Given /^the hg repository already cloned to "([^\"]*)"$/ do | name |
-end
-
-
-When /^LDB がクライアント "([^\"]*)" の更新を実行した$/ do | name |
-  @ldb.update Nodes.find( name )
 end
 
 
@@ -87,36 +69,6 @@ end
 Then /^configurations updated on "([^\"]*)"$/ do | name |
   history.should include( "LDB executed on #{ name }." )
   @messenger.string.should match( /make/ )
-end
-
-
-def server_target url
-  File.join Configurator::Server.config_directory, Configurator.convert( url )
-end
-
-
-Then /^Lucie サーバの設定リポジトリが更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) ) } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) ) } && hg update/ )
-end
-
-
-Then /^Lucie サーバの設定リポジトリ複製が更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) + ".local" ) } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) + ".local" ) } && hg update/ )
-end
-
-
-def client_target url
-  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, Configurator.convert( url )
-end
-
-
-Then /^Lucie クライアント "([^\"]*)" の設定リポジトリが更新される$/ do | name |
-  # 更新でノード -> サーバへパスワード無しで接続するために ssh-agent を使う
-  ip = Nodes.find( name ).ip_address
-  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( client_target( @url ) ) } && hg pull/ )
-  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( client_target( @url ) ) } && hg update/ )
 end
 
 

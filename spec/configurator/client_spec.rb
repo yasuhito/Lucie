@@ -1,7 +1,7 @@
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 
-module Configurator
+class Configurator
   describe Client do
     context "initializing a client" do
       before :each do

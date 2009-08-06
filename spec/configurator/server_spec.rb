@@ -1,7 +1,7 @@
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 
-module Configurator
+class Configurator
   describe Server do
     before :each do
       Configuration.stub!( :temporary_directory ).and_return( "/tmp/lucie" )

@@ -3,7 +3,7 @@ require "lucie/utils"
 require "scm"
 
 
-module Configurator
+class Configurator
   class Server
     attr_writer :dpkg
     attr_reader :scm
