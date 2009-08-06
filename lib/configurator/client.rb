@@ -1,3 +1,6 @@
+require "scm"
+
+
 module Configurator
   class Client
     attr_writer :ssh

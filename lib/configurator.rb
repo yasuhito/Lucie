@@ -1,7 +1,5 @@
 require "configurator/client"
 require "configurator/server"
-require "dpkg"
-require "scm"
 
 
 module Configurator

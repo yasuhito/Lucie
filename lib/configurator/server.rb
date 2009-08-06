@@ -1,4 +1,6 @@
+require "dpkg"
 require "lucie/utils"
+require "scm"
 
 
 module Configurator
