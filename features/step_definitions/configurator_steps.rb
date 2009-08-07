@@ -12,11 +12,6 @@ Given /^コンフィグレータがその複製を Lucie クライアント "([^
 end
 
 
-When /^コンフィグレータがクライアント "([^\"]*)" の更新を実行した$/ do | name |
-  @configurator.update Nodes.find( name )
-end
-
-
 Given /^Lucie サーバ上に ([a-z]+) で管理された設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | scm, url |
   @scm = scm.to_sym
   @url = url
@@ -56,6 +51,21 @@ Given /^コンフィグレータがその設定リポジトリを Lucie クラ�
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
   @configurator = Configurator::Client.new( @scm, options )
   @configurator.install @lucie_ip, name, @url
+end
+
+
+When /^コンフィグレータが Lucie サーバの更新を実行した$/ do
+  @configurator.update_server Nodes.load_all
+end
+
+
+When /^コンフィグレータが Lucie クライアント "([^\"]*)" の更新を実行した$/ do | name |
+  @configurator.update_client Nodes.find( name )
+end
+
+
+When /^コンフィグレータがバックエンドのコンフィグレータを Lucie クライアント "([^\"]*)" 上で実行$/ do | name |
+  @configurator.start Nodes.find( name )
 end
 
 
@@ -112,6 +122,14 @@ end
 Then /^エラー "([^\"]*)"$/ do | message |
   @error.should_not be_nil
   @error.message.should == message
+end
+
+
+Then /^バックエンドのコンフィグレータが Lucie クライアント "([^\"]*)" 上で実行される$/ do | name |
+  ip = Nodes.find( name ).ip_address
+  scripts = File.join( client_target( @url ), "scripts" )
+  ldb = File.join( client_target( @url ), "bin", "ldb" )
+  @messenger.string.should match( /eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( scripts ) } && eval `#{ regexp_from( ldb ) } env` && make"/ )
 end
 
 

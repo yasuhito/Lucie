@@ -62,8 +62,8 @@ class LDB
   end
 
 
-  def start node, logger
-    run ssh_agent( ldb_make_command( node, node_ldb_checkout_directory( node ) ) ), @options, logger
+  def start node, repository, logger
+    run ssh_agent( ldb_make_command( node, repository ) ), @options, logger
     info "LDB executed on #{ node.name }."
   end
 
@@ -127,8 +127,8 @@ class LDB
   end
 
 
-  def ldb_make_command node, ldb_dir
-    ssh node.ip_address, "cd #{ scripts_directory( ldb_dir ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } #{ ldb_command( ldb_dir ) } env` && make"
+  def ldb_make_command node, repository
+    ssh node.ip_address, "cd #{ scripts_directory( repository ) } && eval `#{ ldb_command( repository ) } env` && make"
   end
 
 
@@ -161,10 +161,8 @@ class LDB
         raise %{Command "#{ command }" failed}
       end
 
-      if verbose
-        stderr.puts command if verbose
-        logger.debug command unless dry_run
-      end
+      stderr.puts command if verbose || dry_run
+      logger.debug command unless dry_run
       shell.exec command unless dry_run
     end
   end
@@ -197,22 +195,13 @@ class LDB
   end
 
 
-  def node_ldb_checkout_directory node
-    if dry_run
-      "DUMMY_LDB_DIRECTORY"
-    else
-      `ssh -i #{ SSH::PRIVATE_KEY } #{ ssh_options } root@#{ node.ip_address } "ls -1 /var/lib/ldb"`.split( "\n" ).first
-    end
-  end
-
-
   def server_clone_clone_directory ldb_url
     File.join server_ldb_directory, convert( ldb_url ) + ".local"
   end
 
 
   def node_ldb_directory
-    "/var/lib/ldb"
+    "/var/lib/ldb/config"
   end
 
 
@@ -226,13 +215,13 @@ class LDB
   end
 
 
-  def scripts_directory ldb_dir
-    File.join node_ldb_directory, ldb_dir, "scripts"
+  def scripts_directory repository
+    File.join repository, "scripts"
   end
 
 
-  def ldb_command ldb_dir
-    File.join node_ldb_directory, ldb_dir, "bin", "ldb"
+  def ldb_command repository
+    File.join repository, "bin", "ldb"
   end
 
 

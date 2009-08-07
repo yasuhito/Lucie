@@ -13,9 +13,3 @@ Feature: LDB
     And local repository is empty
     When I clone remote repository
     Then repository cloned to local
-
-  Scenario: run LDB
-    Given eth0 "192.168.0.1"
-    And a node named "kosuke", with IP address "192.168.0.100"
-    When I start LDB on node "kosuke"
-    Then configurations updated on "kosuke"

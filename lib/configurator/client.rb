@@ -49,6 +49,11 @@ class Configurator
     end
 
 
+    def repository_directory ip
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
+    end
+
+
     def repository_name ip
       if @options[ :dry_run ]
         Configurator.convert( @url )
@@ -70,11 +75,6 @@ class Configurator
 
     def scripts_directory ip
       File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip ), "scripts"
-    end
-
-
-    def repository_directory ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
     end
 
 

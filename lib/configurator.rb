@@ -10,6 +10,7 @@ class Configurator
 
   def initialize options
     @options = options
+    @backend = LDB.new( @options, @options[ :messenger ] )
     @client = Client.new( :mercurial, @options )
     @server = Server.new( :mercurial, @options )
   end
@@ -28,9 +29,32 @@ class Configurator
   end
 
 
-  def update node, logger = nil
-    @server.update @client.repository_name( node.ip_address )
+  def update_server nodes
+    repositories_for( nodes ).each do | each |
+      @server.update each
+    end
+  end
+
+
+  def update_client node
     @client.update node.ip_address
+  end
+
+
+  def start node
+    @backend.start node, @client.repository_directory( node.ip_address ), Lucie::Log
+  end
+
+
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def repositories_for nodes
+    nodes.collect do | each |
+      @client.repository_name each.ip_address
+    end.uniq
   end
 end
 

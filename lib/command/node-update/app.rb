@@ -1,4 +1,5 @@
 require "command/app"
+require "configurator"
 require "ldb"
 require "network"
 require "network_interfaces"
@@ -14,13 +15,13 @@ module Command
       def initialize argv = ARGV, messenger = nil, nic = nil
         super argv, messenger
         @nic = nic
-        @ldb = LDB.new( debug_options, @messenger, nic )
+        @configurator = Configurator.new( debug_options.merge( :messenger => @messenger ) )
       end
 
 
       def main node_names
         nodes = load_nodes( node_names )
-        @ldb.update_local_ldb_repository nodes.first, Lucie::Log
+        @configurator.update_server nodes
         nodes.collect do | each |
           create_update_thread_for each 
         end.each do | each |
@@ -36,8 +37,8 @@ module Command
 
       def create_update_thread_for node
         Thread.start do
-          @ldb.update node, Lucie::Log
-          @ldb.start node, Lucie::Log
+          @configurator.update_client node
+          @configurator.start node
         end
       end
 
@@ -84,3 +85,10 @@ module Command
     end
   end
 end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
