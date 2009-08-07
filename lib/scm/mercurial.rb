@@ -13,7 +13,7 @@ module Scm
 
     def update target
       run "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS }'"
-      run "cd #{ target } && hg update --ssh 'ssh -l #{ whoami } -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS }'"
+      run "cd #{ target } && hg update"
     end
 
 
