@@ -21,7 +21,7 @@ module Command
 
       def main node_names
         nodes = load_nodes( node_names )
-        @configurator.update_server nodes
+        @configurator.update_server_for nodes
         nodes.collect do | each |
           create_update_thread_for each 
         end.each do | each |
