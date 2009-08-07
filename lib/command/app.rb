@@ -1,4 +1,5 @@
 require "configuration"
+require "configurator"
 require "environment"
 require "highline"
 require "installer"
@@ -142,16 +143,16 @@ module Command
     end
 
 
-    # LDB ######################################################################
+    # Configurator #############################################################
 
 
     def setup_ldb
       return unless @options.ldb_repository
-      @ldb = LDB.new( debug_options, @messenger )
-      if @ldb.server_clone_exists?( @options.ldb_repository )
-        @ldb.update_server_clones @options.ldb_repository, Lucie::Log
+      @configurator = Configurator.new( debug_options.merge( :messenger => @messenger ) )
+      if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
+        @configurator.update_server Nodes.load_all
       else
-        @ldb.clone @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all ), Lucie::Log
+        @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all )
       end
     end
 
