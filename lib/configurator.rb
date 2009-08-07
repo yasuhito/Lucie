@@ -34,6 +34,13 @@ class Configurator
   end
 
 
+  def update_server_for nodes
+    repositories_for( nodes ).each do | each |
+      @server.update each
+    end
+  end
+
+
   def update_client node
     @client.update node.ip_address
   end
