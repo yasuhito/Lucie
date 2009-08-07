@@ -32,8 +32,8 @@ class Configurator
 
 
     def setup
-      unless FileTest.exists?( Configuration.temporary_directory )
-        Lucie::Utils.mkdir_p Configuration.temporary_directory, { :dry_run => @options[ :dry_run ], :verbose => @options[ :verbose ] }, @options[ :messenger ]
+      unless FileTest.exists?( self.class.config_directory )
+        Lucie::Utils.mkdir_p self.class.config_directory, { :dry_run => @options[ :dry_run ], :verbose => @options[ :verbose ] }, @options[ :messenger ]
       end
     end
 

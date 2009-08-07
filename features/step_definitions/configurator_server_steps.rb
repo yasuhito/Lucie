@@ -35,12 +35,12 @@ end
 
 
 Given /^設定リポジトリ用ディレクトリが Lucie サーバ上に存在しない$/ do
-  FileUtils.rm_rf Configuration.temporary_directory
+  FileUtils.rm_rf Configurator::Server.config_directory
 end
 
 
 Given /^設定リポジトリ用ディレクトリが Lucie サーバ上にすでに存在$/ do
-  FileUtils.mkdir_p Configuration.temporary_directory
+  FileUtils.mkdir_p Configurator::Server.config_directory
 end
 
 
@@ -88,7 +88,7 @@ end
 
 
 Then /^設定リポジトリ用ディレクトリが Lucie サーバ上に生成される$/ do
-  @messenger.string.chomp.should == "mkdir -p #{ Configuration.temporary_directory }"
+  @messenger.string.chomp.should == "mkdir -p #{ Configurator::Server.config_directory }"
 end
 
 
