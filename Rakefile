@@ -41,17 +41,9 @@ Cucumber::Rake::Task.new do | t |
 end
 
 
-Cucumber::Rake::Task.new( "features:cruise", "Run Features with Cucumber (cc.rb)" ) do | t |
+Cucumber::Rake::Task.new( "cucumber:cruise", "Run Features with Cucumber (cc.rb)" ) do | t |
   rm_f rcov_dat
   t.cucumber_opts = "--format profile"
-  t.rcov = true
-  t.rcov_opts = rcov_opts
-end
-
-
-Cucumber::Rake::Task.new( "features:html", "Run Features with Cucumber (html format)" ) do | t |
-  rm_f rcov_dat
-  t.cucumber_opts = "--format html --out cucumber.html"
   t.rcov = true
   t.rcov_opts = rcov_opts
 end
@@ -80,7 +72,7 @@ Spec::Rake::SpecTask.new( "spec:cruise" ) do | t |
 end
 
 
-task :verify_rcov => [ "spec", "features" ]
+task :verify_rcov => [ "spec", "cucumber" ]
 RCov::VerifyTask.new do | t |
   t.threshold = COVERAGE_THRESHOLD
 end
