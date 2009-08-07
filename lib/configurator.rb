@@ -53,7 +53,11 @@ class Configurator
 
   def repositories_for nodes
     nodes.collect do | each |
-      @client.repository_name each.ip_address
+      begin
+        @client.repository_name each.ip_address
+      rescue
+        raise "Configuration repository not found on #{ node.name }."
+      end
     end.uniq
   end
 end
