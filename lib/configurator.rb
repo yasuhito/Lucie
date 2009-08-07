@@ -29,10 +29,8 @@ class Configurator
   end
 
 
-  def update_server nodes
-    repositories_for( nodes ).each do | each |
-      @server.update each
-    end
+  def update_server url
+    @server.update self.class.convert( url )
   end
 
 

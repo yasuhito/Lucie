@@ -150,7 +150,7 @@ module Command
       return unless @options.ldb_repository
       @configurator = Configurator.new( debug_options.merge( :messenger => @messenger ) )
       if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
-        @configurator.update_server Nodes.load_all
+        @configurator.update_server @options.ldb_repository
       else
         @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all )
       end

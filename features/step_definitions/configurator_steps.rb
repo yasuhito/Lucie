@@ -55,7 +55,7 @@ end
 
 
 When /^コンフィグレータが Lucie サーバの更新を実行した$/ do
-  @configurator.update_server Nodes.load_all
+  @configurator.update_server @url
 end
 
 
