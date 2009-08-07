@@ -25,7 +25,7 @@ module Scm
 
 
     def messenger
-      @options[ :messenger ]
+      @options[ :messenger ] || $stderr
     end
 
 
