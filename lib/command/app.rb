@@ -162,7 +162,7 @@ module Command
         @html_logger.update node, "Starting LDB ..."
         logger.info "Starting LDB ..."
         @configurator.clone_to_client @options.ldb_repository, node, Lucie::Server.ip_address_for( Nodes.load_all )
-        @configurator.start node, logger
+        @configurator.start node
       end
       @html_logger.next_step node
     end
