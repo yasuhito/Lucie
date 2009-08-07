@@ -54,7 +54,7 @@ class SSH
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"
       end
-      @messenger.puts real_command if @verbose || @dry_run
+      debug real_command if @verbose || @dry_run
       shell.exec real_command unless @dry_run
     end
     output
@@ -71,7 +71,7 @@ class SSH
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"
       end
-      @messenger.puts real_command if @verbose || @dry_run
+      debug real_command if @verbose || @dry_run
       shell.exec real_command unless @dry_run
     end
     output
@@ -81,7 +81,7 @@ class SSH
   def cp ip, from, to
     command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no #{ from } root@#{ ip }:#{ to }"
     Popen3::Shell.open do | shell |
-      @messenger.puts command if @verbose
+      debug command if @verbose
       shell.exec command unless @dry_run
     end
   end
@@ -90,7 +90,7 @@ class SSH
   def cp_r ip, from, to
     command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r #{ from } root@#{ ip }:#{ to }"
     Popen3::Shell.open do | shell |
-      @messenger.puts command if @verbose
+      debug command if @verbose
       shell.exec command unless @dry_run
     end
   end

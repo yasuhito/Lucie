@@ -11,7 +11,7 @@ module Lucie
 
     def debug message
       Lucie::Log.debug message
-      stderr.puts message if @verbose
+      stderr.puts message
     end
 
 
