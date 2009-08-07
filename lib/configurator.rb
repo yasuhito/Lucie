@@ -56,7 +56,7 @@ class Configurator
       begin
         @client.repository_name each.ip_address
       rescue
-        raise "Configuration repository not found on #{ node.name }."
+        raise "Configuration repository not found on #{ each.name }."
       end
     end.uniq
   end
