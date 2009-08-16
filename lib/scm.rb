@@ -7,12 +7,12 @@ require "scm/subversion"
 module Scm
   def from scm, options = {}
     raise "scm is not specified" unless scm
-    case scm
-    when :mercurial
+    case scm.to_s.downcase
+    when "mercurial"
       Mercurial.new options
-    when :subversion
+    when "subversion"
       Subversion.new options
-    when :git
+    when "git"
       Git.new options
     else
       raise "#{ scm } is not supported"

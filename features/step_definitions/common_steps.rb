@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 Given /^the rake task list cleared$/ do
   Rake::Task.clear
 end
@@ -82,9 +83,20 @@ Then /^nothing raised$/ do
 end
 
 
+Then /^エラーが発生しない$/ do
+  @error.should be_nil
+end
+
+
 Then /^an error "([^\"]*)" raised$/ do | message |
   @last_error.should_not == nil
   @last_error.message.should == message
+end
+
+
+Then /^エラー "([^\"]*)"$/ do | message |
+  @error.should_not be_nil
+  @error.message.should == message
 end
 
 

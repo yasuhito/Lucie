@@ -31,7 +31,7 @@ DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 
 
 def options
-  { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
+  { :dry_run => true, :verbose => @verbose, :messenger => @messenger }
 end
 
 

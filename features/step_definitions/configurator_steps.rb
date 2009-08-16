@@ -99,11 +99,6 @@ Then /^Lucie クライアント "([^\"]*)" の設定リポジトリが更新さ�
 end
 
 
-Then /^"([^\"]*)" コマンドで設定リポジトリが Lucie サーバに複製される$/ do | command |
-  @messenger.string.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( @url ) }.*#{ regexp_from( Configurator.convert( @url ) ) }.*/ )
-end
-
-
 Then /^Lucie クライアント上のそのリポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   @messenger.string.should match( regexp_from( command ) )
 end
@@ -111,17 +106,6 @@ end
 
 Then /^メッセージは空$/ do
   @messenger.string.should == ""
-end
-
-
-Then /^エラーが発生しない$/ do
-  @error.should be_nil
-end
-
-
-Then /^エラー "([^\"]*)"$/ do | message |
-  @error.should_not be_nil
-  @error.message.should == message
 end
 
 

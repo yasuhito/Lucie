@@ -11,16 +11,15 @@ class DummyDpkg
 end
 
 
-Given /^バックエンドとして ([a-z]+) を指定したサーバーコンフィグレータ$/ do | scm |
-  @scm = scm.to_sym
-  @messenger = StringIO.new( "" )
-  @configurator = Configurator::Server.new( @scm, options )
+Given /^バックエンドとして ([a-zA-Z]+) を指定したサーバーコンフィグレータ$/ do | scm |
+  @messenger = StringIO.new
+  @configurator = Configurator::Server.new( scm, options )
 end
 
 
 Given /^バックエンドの SCM が指定されていないサーバーコンフィグレータ$/ do
-  @messenger = StringIO.new( "" )
-  @configurator = Configurator::Server.new( @scm, options )
+  @messenger = StringIO.new
+  @configurator = Configurator::Server.new( nil, options )
 end
 
 
@@ -99,6 +98,13 @@ end
 
 Then /^その設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   @messenger.string.split( "\n" ).last.should match( regexp_from( command ) )
+end
+
+
+Then /^"([^\"]*)" コマンドで設定リポジトリが Lucie サーバに複製される$/ do | command |
+  source = regexp_from( @url )
+  dest = regexp_from( Configurator::Server.clone_directory( @url ) )
+  @messenger.string.should match( /^#{ regexp_from( command ) }.*#{ source } #{ dest }$/ )
 end
 
 
