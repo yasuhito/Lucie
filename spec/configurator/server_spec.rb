@@ -43,7 +43,7 @@ class Configurator
         @dpkg.stub!( :installed? ).with( "mercurial" ).and_return( false )
         lambda do
           Server.new( :mercurial ).check_backend_scm
-        end.should raise_error( "mercurial is not installed" )
+        end.should raise_error( "Mercurial is not installed" )
       end
 
 

@@ -14,6 +14,11 @@ module Scm
     def install_command target, server_ip, url
       "git clone git://#{ server_ip }/#{ Configurator::Server.clone_directory( url ) } #{ target }"
     end
+
+
+    def to_s
+      "Git"
+    end
   end
 end
 

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-class DummyDpkg
-  def initialize installed
-    @installed = installed
-  end
-
-
+class SuccessfulDpkg
   def installed? scm
-    @installed
+    true
+  end
+end
+
+
+class FailingDpkg
+  def installed? scm
+    false
   end
 end
 
@@ -24,12 +26,12 @@ end
 
 
 Given /^その SCM がインストールされている$/ do
-  @configurator.dpkg = DummyDpkg.new( true )
+  @configurator.dpkg = SuccessfulDpkg.new
 end
 
 
 Given /^その SCM がインストールされていない$/ do
-  @configurator.dpkg = DummyDpkg.new( false )
+  @configurator.dpkg = FailingDpkg.new
 end
 
 

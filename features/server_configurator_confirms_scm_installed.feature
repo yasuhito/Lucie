@@ -13,9 +13,9 @@
 
     例:
       | SCM        |
-      | mercurial  |
-      | subversion |
-      | git        |
+      | Mercurial  |
+      | Subversion |
+      | Git        |
 
   テンプレ: SCM がインストールされていない
     前提 バックエンドとして <SCM> を指定したサーバーコンフィグレータ
@@ -25,9 +25,9 @@
 
     例:
       | SCM        | error                       |
-      | mercurial  | mercurial is not installed  |
-      | subversion | subversion is not installed |
-      | git        | git is not installed        |
+      | Mercurial  | Mercurial is not installed  |
+      | Subversion | Subversion is not installed |
+      | Git        | Git is not installed        |
 
   シナリオ: SCM が指定されていない
     前提 バックエンドの SCM が指定されていないサーバーコンフィグレータ
