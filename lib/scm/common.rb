@@ -8,7 +8,6 @@ module Scm
     def name
       self.class.to_s.split( "::" ).last.downcase
     end
-    alias to_s name
 
 
     ############################################################################
