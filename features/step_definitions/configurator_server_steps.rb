@@ -65,7 +65,11 @@ end
 
 
 When /^サーバーコンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成$/ do
-  @configurator.clone_clone @url, "DUMMY_SERVER_IP"
+  begin
+    @configurator.clone_clone @url, "DUMMY_SERVER_IP"
+  rescue
+    @error = $!
+  end
 end
 
 
@@ -82,9 +86,9 @@ end
 
 
 Then /^"([^\"]*)" コマンドでローカルな設定リポジトリの複製が作成される$/ do | command |
-  from = File.join( Configurator::Server.config_directory, Configurator.convert( @url ) )
-  to = from + ".local"
-  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command ) }.*#{ regexp_from( from ) } #{ regexp_from( to ) }$/ )
+  source = regexp_from( Configurator::Server.clone_directory( @url ) )
+  dest = regexp_from( Configurator::Server.clone_directory( @url ) + ".local" )
+  @messenger.string.split( "\n" ).last.should match( /^#{ regexp_from( command ) }.*#{ source } #{ dest }$/ )
 end
 
 

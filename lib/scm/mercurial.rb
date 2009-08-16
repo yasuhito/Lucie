@@ -1,8 +1,9 @@
 module Scm
   class Mercurial < Common
-    def clone url, target
-      run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ url } #{ target }}
+    def clone source, dest
+      run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ source } #{ dest }}
     end
+    alias clone_clone clone
 
 
     def update_commands_for target

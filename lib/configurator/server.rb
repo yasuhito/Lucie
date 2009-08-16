@@ -46,7 +46,7 @@ class Configurator
 
     def clone_clone url, lucie_ip
       repos = self.class.clone_directory( url )
-      @scm.clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
+      @scm.clone_clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
     end
 
 

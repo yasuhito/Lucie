@@ -20,6 +20,7 @@ Given /^installers temporary directory is "([^\"]*)"$/ do | path |
   FileUtils.rm_rf Dir.glob( File.join( Configuration.installers_temporary_directory, "*" ) )
 end
 
+
 Given /^Lucie log directory "([^\"]*)" is empty$/ do | path |
   Configuration.log_directory = path
   FileUtils.rm_rf Dir.glob( File.join( Configuration.log_directory, "*" ) )
@@ -27,6 +28,12 @@ end
 
 
 Given /^temporary directory "([^\"]*)" is empty$/ do | path |
+  Configuration.temporary_directory = path
+  FileUtils.rm_rf Dir.glob( File.join( Configuration.temporary_directory, "*" ) )
+end
+
+
+Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
   Configuration.temporary_directory = path
   FileUtils.rm_rf Dir.glob( File.join( Configuration.temporary_directory, "*" ) )
 end

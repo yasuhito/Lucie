@@ -42,11 +42,6 @@ Given /^冗長モードがオン$/ do
 end
 
 
-Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
-  Configuration.temporary_directory = path
-end
-
-
 Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" へ配置した$/ do | name |
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
   @configurator = Configurator::Client.new( @scm, options )
