@@ -78,7 +78,7 @@ RCov::VerifyTask.new do | t |
 end
 
 
-task :verify_rcov_cruise => [ "spec:cruise", "features:cruise" ]
+task :verify_rcov_cruise => [ "spec:cruise", "cucumber:cruise" ]
 RCov::VerifyTask.new( :verify_rcov_cruise ) do | t |
   t.threshold = COVERAGE_THRESHOLD
 end
