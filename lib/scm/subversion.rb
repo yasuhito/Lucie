@@ -5,13 +5,8 @@ module Scm
     end
 
 
-    def clone_clone source, dest
-      raise "local clone-clone is not supported on Subversion"
-    end
-
-
     def update target
-      run "svn update #{ target }", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "cd #{ target } && svn update", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
     end
 
 

@@ -80,7 +80,7 @@ end
 
 
 When /^サーバーコンフィグレータがその設定リポジトリを更新した$/ do
-  @configurator.update @url
+  @configurator.update Configurator.convert( @url )
 end
 
 
@@ -102,7 +102,18 @@ end
 
 
 Then /^その設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
-  @messenger.string.split( "\n" ).last.should match( regexp_from( command ) )
+  clone = regexp_from( Configurator::Server.clone_directory( @url ) )
+  command.split( /,\s*/ ).each do | each |
+    @messenger.string.should match( /^cd #{ clone } && #{ regexp_from( each ) }/ )
+  end
+end
+
+
+Then /^その設定リポジトリのローカル複製が "([^\"]*)" コマンドで更新される$/ do | command |
+  clone_clone = regexp_from( Configurator::Server.clone_directory( @url ) + ".local" )
+  command.split( /,\s*/ ).each do | each |
+    @messenger.string.should match( /^cd #{ clone_clone } && #{ regexp_from( each ) }/ )
+  end
 end
 
 

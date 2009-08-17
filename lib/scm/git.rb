@@ -5,14 +5,9 @@ module Scm
     end
 
 
-    def clone_clone source, dest
-      raise "local clone-clone is not supported on Git"
-    end
-
-
     def update target
-      run "git pull #{ target }", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
-      run "git update #{ target }", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "cd #{ target } && git pull", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "cd #{ target } && git update", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
     end
 
 

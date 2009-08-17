@@ -46,13 +46,19 @@ class Configurator
 
     def clone_clone url, lucie_ip
       repos = self.class.clone_directory( url )
-      @scm.clone_clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
+      if @scm.is_a?( Scm::Mercurial )
+        @scm.clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
+      else
+        raise "local clone-clone is not supported on #{ @scm }"
+      end
     end
 
 
     def update repository_name
       @scm.update File.join( self.class.config_directory, repository_name )
-      @scm.update File.join( self.class.config_directory, repository_name ) + ".local"
+      if @scm.is_a?( Scm::Mercurial )
+        @scm.update File.join( self.class.config_directory, repository_name ) + ".local"
+      end
     end
 
 

@@ -84,7 +84,8 @@ class Configurator
       it "should create a local clone directory on the Lucie server" do
         mercurial = mock( "mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
-        mercurial.should_receive( :clone_clone ).with( "ssh://DUMMY_SERVER_IP//tmp/lucie/config/http___myrepos.org__lucie", "/tmp/lucie/config/http___myrepos.org__lucie.local" )
+        mercurial.should_receive( :is_a? ).with( Scm::Mercurial ).and_return( true )
+        mercurial.should_receive( :clone ).with( "ssh://DUMMY_SERVER_IP//tmp/lucie/config/http___myrepos.org__lucie", "/tmp/lucie/config/http___myrepos.org__lucie.local" )
         Server.new( :mercurial ).clone_clone "http://myrepos.org//lucie", "DUMMY_SERVER_IP"
       end
     end
@@ -94,6 +95,7 @@ class Configurator
       it "should update configuration repository" do
         mercurial = mock( "mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
+        mercurial.should_receive( :is_a? ).with( Scm::Mercurial ).and_return( true )
         mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie" )
         mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie.local" )
         Server.new( :mercurial ).update Configurator.convert( "http://myrepos.org//lucie" )

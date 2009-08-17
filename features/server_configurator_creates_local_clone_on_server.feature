@@ -21,7 +21,7 @@
     もし サーバーコンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成
     ならば エラー "<error>"
 
-  例:
-    | SCM        | URL                               | error                                            |
-    | Git        | git://myrepos.org//lucie/clone_me | local clone-clone is not supported on Git        |
-    | Subversion | http://myrepos.org/lucie/clone_me | local clone-clone is not supported on Subversion |
+    例:
+      | SCM        | URL                               | error                                            |
+      | Git        | git://myrepos.org//lucie/clone_me | local clone-clone is not supported on Git        |
+      | Subversion | http://myrepos.org/lucie/clone_me | local clone-clone is not supported on Subversion |
