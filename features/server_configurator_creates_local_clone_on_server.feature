@@ -22,6 +22,6 @@
     ならば エラー "<error>"
 
   例:
-      | SCM        | URL                               | error                                      |
-      | Git        | git://myrepos.org//lucie/clone_me | local clone is not supported on Git        |
-      | Subversion | http://myrepos.org/lucie/clone_me | local clone is not supported on Subversion |
+    | SCM        | URL                               | error                                      |
+    | Git        | git://myrepos.org//lucie/clone_me | local clone-clone is not supported on Git        |
+    | Subversion | http://myrepos.org/lucie/clone_me | local clone-clone is not supported on Subversion |

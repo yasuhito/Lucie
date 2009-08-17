@@ -6,7 +6,7 @@ module Scm
 
 
     def clone_clone source, dest
-      raise "local clone is not supported on Subversion"
+      raise "local clone-clone is not supported on Subversion"
     end
 
 

@@ -6,7 +6,7 @@ module Scm
 
 
     def clone_clone source, dest
-      raise "local clone is not supported on Git"
+      raise "local clone-clone is not supported on Git"
     end
 
 
