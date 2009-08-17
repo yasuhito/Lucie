@@ -103,7 +103,7 @@ end
 
 
 Then /^設定リポジトリが (.+) コマンドで Lucie クライアントに配置される$/ do | command |
-  @messenger.string.split( "\n" ).last.should match( /#{ command }/ )
+  @messenger.string.split( "\n" ).last.should match( /#{ regexp_from( command ) }/ )
 end
 
 
