@@ -36,12 +36,22 @@ Given /^クライアントコンフィグレータ$/ do
 end
 
 
-Given /^設定リポジトリ用ディレクトリが Lucie クライアント上にすでに存在$/ do
+Given /^config ディレクトリが Lucie クライアント上にすでに存在$/ do
   @configurator.ssh = DummySSH.new( true, options )
 end
 
 
-Given /^設定リポジトリ用ディレクトリが Lucie クライアント上に存在しない$/ do
+Given /^bin ディレクトリが Lucie クライアント上にすでに存在$/ do
+  @configurator.ssh = DummySSH.new( true, options )
+end
+
+
+Given /^config ディレクトリが Lucie クライアント上に存在しない$/ do
+  @configurator.ssh = DummySSH.new( false, options )
+end
+
+
+Given /^bin ディレクトリが Lucie クライアント上に存在しない$/ do
   @configurator.ssh = DummySSH.new( false, options )
 end
 
@@ -72,13 +82,23 @@ When /^クライアントコンフィグレータがその Lucie クライアン
 end
 
 
-Then /^設定リポジトリ用ディレクトリが Lucie クライアント上に生成される$/ do
+Then /^config ディレクトリが Lucie クライアント上に生成される$/ do
   @messenger.string.should match( /ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"/ )
 end
 
 
-Then /^設定リポジトリ用ディレクトリが Lucie クライアント上に生成されない$/ do
+Then /^bin ディレクトリが Lucie クライアント上に生成される$/ do
+  @messenger.string.should match( /ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/bin"/ )
+end
+
+
+Then /^config ディレクトリが Lucie クライアント上に生成されない$/ do
   @messenger.string.should_not match( /^ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"$/ )
+end
+
+
+Then /^bin ディレクトリが Lucie クライアント上に生成されない$/ do
+  @messenger.string.should_not match( /^ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/bin"$/ )
 end
 
 
