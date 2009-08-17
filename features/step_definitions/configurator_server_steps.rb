@@ -75,8 +75,7 @@ end
 
 When /^サーバーコンフィグレータが Lucie サーバを初期化した$/ do
   @messenger = StringIO.new( "" )
-  configurator = Configurator::Server.new( nil, options )
-  configurator.setup
+  Configurator::Server.new( nil, options ).setup
 end
 
 
