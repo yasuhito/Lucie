@@ -56,6 +56,14 @@ Given /^bin ディレクトリが Lucie クライアント上に存在しない$
 end
 
 
+Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
+  @ip = ip
+  @messenger = StringIO.new( "" )
+  @configurator = Configurator::Client.new( :mercurial, options )
+  @configurator.install "DUMMY_SERVER_IP", @ip, "DUMMY_REPOSITORY_URL"
+end
+
+
 When /^クライアントコンフィグレータが Lucie クライアント \(IP アドレスは "([^\"]*)"\) を初期化した$/ do | ip |
   @ip = ip
   @configurator.setup @ip
@@ -108,7 +116,7 @@ end
 
 
 Then /^設定ツールが実行される$/ do
-  @messenger.string.chomp.should match( /make/ )
+  @messenger.string.split( "\n" ).last.should match( /make/ )
 end
 
 

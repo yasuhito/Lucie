@@ -18,15 +18,6 @@ Given /^Lucie サーバ上に ([a-zA-Z]+) で管理された設定リポジト�
 end
 
 
-Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
-  @ip = ip
-  @messenger = StringIO.new( "" )
-  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
-  @configurator = Configurator::Client.new( :mercurial, options )
-  @configurator.install "DUMMY_SERVER_IP", @ip, "DUMMY_REPOSITORY_URL"
-end
-
-
 Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
   @lucie_ip = ip
 end
