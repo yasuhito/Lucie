@@ -12,8 +12,8 @@ Given /^コンフィグレータがその複製を Lucie クライアント "([^
 end
 
 
-Given /^Lucie サーバ上に ([a-z]+) で管理された設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | scm, url |
-  @scm = scm.to_sym
+Given /^Lucie サーバ上に ([a-zA-Z]+) で管理された設定リポジトリ \(([^\)]*)\) の複製が存在$/ do | scm, url |
+  @scm = scm
   @url = url
 end
 

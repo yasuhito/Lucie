@@ -103,8 +103,7 @@ end
 
 
 Then /^設定リポジトリが (.+) コマンドで Lucie クライアントに配置される$/ do | command |
-  source = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) + ".local" )
-  @messenger.string.chomp.should match( /#{ command }/ )
+  @messenger.string.split( "\n" ).last.should match( /#{ command }/ )
 end
 
 

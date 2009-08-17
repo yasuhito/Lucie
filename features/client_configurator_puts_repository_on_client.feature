@@ -9,17 +9,17 @@
     前提 Lucie サーバの IP アドレスは "192.168.0.1"
     かつ Lucie のテンポラリディレクトリは "/tmp/lucie"
 
-  シナリオ: Lucie クライアントにリポジトリを配置 (mercurial)
-    前提 Lucie サーバ上に mercurial で管理された設定リポジトリ (ssh://myrepos.org//lucie) の複製が存在
+  シナリオ: Lucie クライアントにリポジトリを配置 (Mercurial)
+    前提 Lucie サーバ上に Mercurial で管理された設定リポジトリ (ssh://myrepos.org//lucie) の複製が存在
     もし クライアントコンフィグレータがその設定リポジトリを Lucie クライアント (IP アドレスは "192.168.0.100") へ配置した
     ならば 設定リポジトリが scp コマンドで Lucie クライアントに配置される
 
-  シナリオ: Lucie クライアントにリポジトリを配置 (git)
-    前提 Lucie サーバ上に git で管理された設定リポジトリ (git://myrepos.org/lucie) の複製が存在
+  シナリオ: Lucie クライアントにリポジトリを配置 (Git)
+    前提 Lucie サーバ上に Git で管理された設定リポジトリ (git://myrepos.org/lucie) の複製が存在
     もし クライアントコンフィグレータがその設定リポジトリを Lucie クライアント (IP アドレスは "192.168.0.100") へ配置した
     ならば 設定リポジトリが git clone コマンドで Lucie クライアントに配置される
 
-  シナリオ: Lucie クライアントにリポジトリを配置 (subversion)
-    前提 Lucie サーバ上に subversion で管理された設定リポジトリ (http://myrepos.org/lucie) の複製が存在
+  シナリオ: Lucie クライアントにリポジトリを配置 (Subversion)
+    前提 Lucie サーバ上に Subversion で管理された設定リポジトリ (http://myrepos.org/lucie) の複製が存在
     もし クライアントコンフィグレータがその設定リポジトリを Lucie クライアント (IP アドレスは "192.168.0.100") へ配置した
     ならば 設定リポジトリが scp コマンドで Lucie クライアントに配置される
