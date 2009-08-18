@@ -51,7 +51,7 @@ class Configurator
       @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
       @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
       @ssh.sh client_ip, "chmod +x #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
-      @ssh.sh_a client_ip, @scm.install_command( File.join( REPOSITORY_BASE_DIRECTORY, Configurator.convert( url ) ), server_ip, url )
+      @ssh.sh_a client_ip, @scm.install_command( File.join( REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url ) ), server_ip, url )
     end
 
 
@@ -74,7 +74,7 @@ class Configurator
 
     def repository_name ip
       if @options[ :dry_run ]
-        Configurator.convert( @url )
+        Configurator.repository_name_from( @url )
       else
         @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
       end

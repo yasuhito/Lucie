@@ -15,7 +15,7 @@ class Configurator
 
 
     def self.clone_directory url
-      File.join config_directory, Configurator.convert( url )
+      File.join config_directory, Configurator.repository_name_from( url )
     end
 
 

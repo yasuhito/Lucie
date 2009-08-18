@@ -80,7 +80,7 @@ end
 
 
 When /^サーバーコンフィグレータがその設定リポジトリを更新した$/ do
-  @configurator.update Configurator.convert( @url )
+  @configurator.update Configurator.repository_name_from( @url )
 end
 
 

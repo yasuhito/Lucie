@@ -65,7 +65,7 @@ class Configurator
         mercurial = mock( "mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
 
-        target = File.join( Configuration.temporary_directory, "config", Configurator.convert( @url ) )
+        target = File.join( Configuration.temporary_directory, "config", Configurator.repository_name_from( @url ) )
         mercurial.should_receive( :clone ).with( @url, target )
         
         Server.new( :mercurial ).clone @url
@@ -98,7 +98,7 @@ class Configurator
         mercurial.should_receive( :is_a? ).with( Scm::Mercurial ).and_return( true )
         mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie" )
         mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie.local" )
-        Server.new( :mercurial ).update Configurator.convert( "http://myrepos.org//lucie" )
+        Server.new( :mercurial ).update Configurator.repository_name_from( "http://myrepos.org//lucie" )
       end
     end
   end

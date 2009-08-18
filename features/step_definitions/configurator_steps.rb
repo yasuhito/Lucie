@@ -56,7 +56,7 @@ end
 
 
 def server_target url
-  File.join Configurator::Server.config_directory, Configurator.convert( url )
+  File.join Configurator::Server.config_directory, Configurator.repository_name_from( url )
 end
 
 
@@ -73,7 +73,7 @@ end
 
 
 def client_target url
-  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, Configurator.convert( url )
+  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url )
 end
 
 

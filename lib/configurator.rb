@@ -3,7 +3,7 @@ require "configurator/server"
 
 
 class Configurator
-  def self.convert url
+  def self.repository_name_from url
     url.gsub( /[\/:@]/, "_" )
   end
 
@@ -35,7 +35,7 @@ class Configurator
 
 
   def update_server url
-    @server.update self.class.convert( url )
+    @server.update self.class.repository_name_from( url )
   end
 
 
