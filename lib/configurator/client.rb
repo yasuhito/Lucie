@@ -14,7 +14,7 @@ class Configurator
       ssh = SSH.new( options, options[ :messenger ] )
       return "DUMMY_SCM" if options[ :dry_run ]
       repository = ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
-      ssh.sh( node.ip_address, "ls -1 #{ File.join( REPOSITORY_BASE_DIRECTORY, repository ) }" ).split( "\n" ).each do | each |
+      ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY_BASE_DIRECTORY, repository, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
         when ".hg"
           return "Mercurial"
@@ -22,10 +22,9 @@ class Configurator
           return "Subversion"
         when ".git"
           return "Git"
-        else
-          raise "Cannnot guess scm on node #{ node.name }."
         end
       end
+      raise "Cannnot guess scm on node #{ node.name }."
     end
 
 

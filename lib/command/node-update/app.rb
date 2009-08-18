@@ -15,12 +15,13 @@ module Command
       def initialize argv = ARGV, messenger = nil, nic = nil
         super argv, messenger
         @nic = nic
-        @configurator = Configurator.new( debug_options.merge( :messenger => @messenger ) )
       end
 
 
       def main node_names
         nodes = load_nodes( node_names )
+        scm = Configurator.guess_scm( nodes.first, debug_options )
+        @configurator = Configurator.new( scm, debug_options.merge( :messenger => @messenger ) )
         @configurator.update_server_for nodes
         nodes.collect do | each |
           create_update_thread_for each 
