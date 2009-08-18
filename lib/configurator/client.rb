@@ -10,6 +10,25 @@ class Configurator
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 
 
+    def self.guess_scm node, options
+      ssh = SSH.new( options, options[ :messenger ] )
+      return "DUMMY_SCM" if options[ :dry_run ]
+      repository = ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
+      ssh.sh( node.ip_address, "ls -1 #{ File.join( REPOSITORY_BASE_DIRECTORY, repository ) }" ).split( "\n" ).each do | each |
+        case File.basename( each )
+        when ".hg"
+          return "Mercurial"
+        when ".svn"
+          return "Subversion"
+        when ".git"
+          return "Git"
+        else
+          raise "Cannnot guess scm on node #{ node.name }."
+        end
+      end
+    end
+
+
     def initialize scm = nil, options = {}
       @options = options
       @ssh = SSH.new( @options, @options[ :messenger ] )

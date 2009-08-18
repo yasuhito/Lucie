@@ -6,11 +6,11 @@
   まずサーバ上の設定リポジトリを更新する
 
   背景:
-    前提 ドライランモードがオン
-    かつ Lucie のテンポラリディレクトリは "/tmp/lucie"
+    前提 Lucie のテンポラリディレクトリは "/tmp/lucie"
 
   シナリオ: 設定の更新
     前提 Lucie クライアント "yasuhito_node" (IP アドレスは "192.168.0.1")
+    かつ バックエンド が Mercurial のコンフィグレータ
     かつ コンフィグレータが Lucie サーバに設定リポジトリ "http://myrepos.org/myconfig" を複製
     かつ コンフィグレータがその複製を Lucie クライアント "yasuhito_node" へ配置した
     もし コンフィグレータが Lucie サーバの更新を実行した

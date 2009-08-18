@@ -8,11 +8,16 @@ class Configurator
   end
 
 
-  def initialize options
+  def self.guess_scm node, options = {}
+    Client.guess_scm node, options
+  end
+
+
+  def initialize scm, options
     @options = options
     @backend = LDB.new( @options, @options[ :messenger ] )
-    @client = Client.new( :mercurial, @options )
-    @server = Server.new( :mercurial, @options )
+    @client = Client.new( scm, @options )
+    @server = Server.new( scm, @options )
   end
 
 

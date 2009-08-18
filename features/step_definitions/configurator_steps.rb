@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+Given /^バックエンド が ([a-zA-Z]+) のコンフィグレータ$/ do | scm |
+  @messenger = StringIO.new( "" )
+  @configurator = Configurator.new( scm, options )
+end
+
+
 Given /^コンフィグレータが Lucie サーバに設定リポジトリ "([^\"]*)" を複製$/ do | url |
   @url = url
-  @messenger = StringIO.new( "" )
-  @configurator = Configurator.new( options )
   @configurator.clone_to_server @url, "DUMMY_LUCIE_IP"
 end
 
@@ -52,6 +56,12 @@ end
 
 When /^コンフィグレータがバックエンドのコンフィグレータを Lucie クライアント "([^\"]*)" 上で実行$/ do | name |
   @configurator.start Nodes.find( name )
+end
+
+
+When /^コンフィグレータが Lucie クライアント "([^\"]*)" の SCM を推測$/ do | name |
+  @messenger = StringIO.new
+  Configurator.guess_scm Nodes.find( name ), options
 end
 
 
