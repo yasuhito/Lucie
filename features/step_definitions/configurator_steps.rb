@@ -27,16 +27,6 @@ Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
 end
 
 
-Given /^ドライランモードがオン$/ do
-  @dry_run = true
-end
-
-
-Given /^冗長モードがオン$/ do
-  @verbose = true
-end
-
-
 Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" へ配置した$/ do | name |
   options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
   @configurator = Configurator::Client.new( @scm, options )
