@@ -96,7 +96,6 @@ end
 
 
 Then /^バックエンドのコンフィグレータが Lucie クライアント "([^\"]*)" 上で実行される$/ do | name |
-  puts @messenger.string
   ip = Nodes.find( name ).ip_address
   scripts = File.join( client_target( @url ), "scripts" )
   ldb = File.join( client_target( @url ), "bin", "ldb" )
