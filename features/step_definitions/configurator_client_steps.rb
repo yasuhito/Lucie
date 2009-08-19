@@ -11,11 +11,6 @@ class DummySSH
   end
 
 
-  def cp_r ip, from, to
-    @ssh.cp_r ip, from, to
-  end
-
-
   def sh ip, command
     @ssh.sh ip, command
     if /test \-d/=~ command
@@ -117,11 +112,6 @@ end
 
 Then /^設定ツールが実行される$/ do
   @messenger.string.split( "\n" ).last.should match( /make/ )
-end
-
-
-Then /^メッセージ "([^\"]*)"$/ do | message |
-  @messenger.string.chomp.should == message
 end
 
 

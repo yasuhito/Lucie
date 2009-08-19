@@ -27,13 +27,6 @@ Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
 end
 
 
-Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" へ配置した$/ do | name |
-  options = { :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger }
-  @configurator = Configurator::Client.new( @scm, options )
-  @configurator.install @lucie_ip, name, @url
-end
-
-
 When /^コンフィグレータが Lucie サーバの更新を実行した$/ do
   @configurator.update_server @url
 end
@@ -87,11 +80,6 @@ end
 
 Then /^Lucie クライアント上のそのリポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   @messenger.string.should match( regexp_from( command ) )
-end
-
-
-Then /^メッセージは空$/ do
-  @messenger.string.should == ""
 end
 
 
