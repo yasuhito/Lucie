@@ -147,7 +147,7 @@ module Command
 
     def setup_ldb
       return unless @options.ldb_repository
-      @configurator = Configurator.new( debug_options.merge( :messenger => @messenger ) )
+      @configurator = Configurator.new( debug_options )
       if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
         @configurator.update_server @options.ldb_repository
       else
@@ -204,7 +204,7 @@ module Command
 
 
     def debug_options
-      { :verbose => @verbose, :dry_run => @dry_run }
+      { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
     end
 
 
@@ -241,7 +241,7 @@ module Command
 
 
     def check_prerequisites
-      Service.check_prerequisites debug_options, @messenger
+      Service.check_prerequisites debug_options
     end
 
 

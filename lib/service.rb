@@ -2,11 +2,11 @@ class Service
   @@prerequisites = {}
 
 
-  def self.check_prerequisites options, messenger
+  def self.check_prerequisites options
     missings = []
     ObjectSpace.each_object( Class ) do | klass |
       next if klass.superclass != self
-      missings += check_prerequisite( klass, options, messenger || $stderr )
+      missings += check_prerequisite( klass, options, options[ :messenger ] || $stderr )
     end
     unless missings.empty?
       raise "#{ missings.sort.join( ', ' ) } not installed. Try 'aptitude install #{ missings.sort.join( ' ' ) }'"

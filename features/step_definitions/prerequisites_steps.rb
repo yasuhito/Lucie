@@ -1,22 +1,22 @@
 Given /^new service "([^\"]*)", with prerequisite "([^\"]*)"$/ do | klass, prerequisite |
-  eval <<-CLASS
-class Service
-  class #{ klass } < Service
-    prerequisite "#{ prerequisite }"
+  eval <<-EOF
+  class Service
+    class #{ klass } < Service
+      prerequisite "#{ prerequisite }"
+    end
   end
-end
-CLASS
+EOF
 end
 
 
 When /^I try to check prerequisites$/ do
-  @messenger = StringIO.new( "" )
-  Service.check_prerequisites( { :dry_run => true }, @messenger )
+  @messenger = StringIO.new
+  Service.check_prerequisites( :dry_run => true, :messenger => @messenger )
 end
 
 
 Then /^"([^\"]*)" checked$/ do | package |
-  history.join( "\n" ).should match( /Checking #{ package }/ )
+  @messenger.string.should match( /^Checking #{ package } \.\.\. (INSTALLED|NOT INSTALLED)$/ )
 end
 
 
