@@ -63,7 +63,7 @@ class Configurator
 
 
     def start ip
-      @ssh.sh ip, "cd #{ scripts_directory( ip ) } && eval `ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ ip } #{ ldb_command( ip ) } env` && make"
+      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval `#{ ldb_command( ip ) } env` && make"
     end
 
 

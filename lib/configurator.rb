@@ -15,7 +15,6 @@ class Configurator
 
   def initialize scm, options
     @options = options
-    @backend = LDB.new( @options, @options[ :messenger ] )
     @client = Client.new( scm, @options )
     @server = Server.new( scm, @options )
   end
@@ -52,7 +51,7 @@ class Configurator
 
 
   def start node
-    @backend.start node, @client.repository_directory( node.ip_address ), Lucie::Log
+    @client.start node.ip_address
   end
 
 

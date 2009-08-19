@@ -1,6 +1,5 @@
 require "command/app"
 require "configurator"
-require "ldb"
 require "network"
 require "network_interfaces"
 require "node"
