@@ -19,10 +19,10 @@ class Service
     return missings unless @@prerequisites[ service ]
     @@prerequisites[ service ].each do | each |
       messenger.print "Checking #{ each } ... "
-      if options[ :dry_run ] || FileTest.exist?( "/var/lib/dpkg/info/#{ each }.md5sums" )
+      if FileTest.exist?( "/var/lib/dpkg/info/#{ each }.md5sums" )
         messenger.puts "INSTALLED"
       else
-        missings << each
+        missings << each unless options[ :dry_run ]
         messenger.puts "NOT INSTALLED"
       end
     end

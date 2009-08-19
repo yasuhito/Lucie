@@ -11,16 +11,11 @@ end
 
 When /^I try to check prerequisites$/ do
   @messenger = StringIO.new( "" )
-  begin
-    Service.check_prerequisites( { :dry_run => true }, @messenger )
-  rescue => e
-    @error = e
-  end
+  Service.check_prerequisites( { :dry_run => true }, @messenger )
 end
 
 
 Then /^"([^\"]*)" checked$/ do | package |
-  @error.should == nil
   history.join( "\n" ).should match( /Checking #{ package }/ )
 end
 
