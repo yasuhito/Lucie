@@ -12,7 +12,7 @@ end
 When /^I try to check prerequisites$/ do
   @messenger = StringIO.new( "" )
   begin
-    Service.check_prerequisites( { :dry_run => @dry_run }, @messenger )
+    Service.check_prerequisites( { :dry_run => true }, @messenger )
   rescue => e
     @error = e
   end
