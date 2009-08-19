@@ -1,10 +1,13 @@
 When /^I run node update "([^\"]*)"$/ do | nodes |
   @messenger = StringIO.new( "" )
-  argv = ( @dry_run ? [ "--verbose", "--dry-run" ] : [ "--verbose" ] )
+  argv = [ "--verbose", "--dry-run" ]
   begin
     Command::NodeUpdate::App.new( argv, @messenger,  @if ? [ @if ] : nil ).main nodes.split( /,\s*/ )
   rescue => e
     @error = e
+    @error.backtrace.each do | each |
+      $stderr.puts each
+    end
   end
 end
 
@@ -15,8 +18,8 @@ end
 
 
 Then /^ldb on Lucie server updated$/ do
-  history.join( "\n" ).should match( /^hg pull/ )
-  history.join( "\n" ).should match( /^hg update/ )
+  history.join( "\n" ).should match( /hg pull/ )
+  history.join( "\n" ).should match( /hg update/ )
 end
 
 

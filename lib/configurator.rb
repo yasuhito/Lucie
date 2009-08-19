@@ -63,7 +63,11 @@ class Configurator
   def repositories_for nodes
     nodes.collect do | each |
       begin
-        @client.repository_name each.ip_address
+        if @options[ :dry_run ]
+          "REPOSITORY_NAME"
+        else
+          @client.repository_name each.ip_address
+        end
       rescue
         raise "Configuration repository not found on #{ each.name }."
       end

@@ -65,16 +65,16 @@ Then /^Lucie サーバの設定リポジトリ複製が更新される$/ do
 end
 
 
-def client_target url
-  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url )
+def client_target
+  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, "REPOSITORY_NAME"
 end
 
 
 Then /^Lucie クライアント "([^\"]*)" の設定リポジトリが更新される$/ do | name |
   # 更新でノード -> サーバへパスワード無しで接続するために ssh-agent を使う
   ip = Nodes.find( name ).ip_address
-  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( client_target( @url ) ) } && hg pull/ )
-  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( client_target( @url ) ) } && hg update/ )
+  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from client_target } && hg pull/ )
+  @messenger.string.should match( /^eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from client_target } && hg update/ )
 end
 
 
@@ -85,8 +85,8 @@ end
 
 Then /^バックエンドのコンフィグレータが Lucie クライアント "([^\"]*)" 上で実行される$/ do | name |
   ip = Nodes.find( name ).ip_address
-  scripts = File.join( client_target( @url ), "scripts" )
-  ldb = File.join( client_target( @url ), "bin", "ldb" )
+  scripts = File.join( client_target, "scripts" )
+  ldb = File.join( client_target, "bin", "ldb" )
   @messenger.string.should match( /eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( scripts ) } && eval `#{ regexp_from( ldb ) } env` && make"/ )
 end
 

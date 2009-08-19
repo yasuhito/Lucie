@@ -26,14 +26,15 @@ Given /^Lucie log path is "([^\"]*)"$/ do | path |
 end
 
 
-Given /^installers temporary directory is "([^\"]*)"$/ do | path |
-  Configuration.installers_temporary_directory = path
-  FileUtils.rm_rf Dir.glob( File.join( Configuration.installers_temporary_directory, "*" ) )
+Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
+  Configuration.temporary_directory = path
+  FileUtils.rm_rf Dir.glob( File.join( Configuration.temporary_directory, "*" ) )
 end
 
 
-Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
-  Given %{installers temporary directory is "#{ path }"}
+Given /^installers temporary directory is "([^\"]*)"$/ do | path |
+  Configuration.installers_temporary_directory = path
+  FileUtils.rm_rf Dir.glob( File.join( Configuration.installers_temporary_directory, "*" ) )
 end
 
 

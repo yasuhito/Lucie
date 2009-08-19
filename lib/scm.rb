@@ -14,6 +14,9 @@ module Scm
       Subversion.new options
     when "git"
       Git.new options
+    when "dummy_scm"
+      # [FIXME]
+      Mercurial.new options
     else
       raise "#{ scm } is not supported"
     end
