@@ -63,12 +63,18 @@ class Configurator
   def repositories_for nodes
     list = nodes.collect do | each |
       begin
-        @options[ :dry_run ] ? "REPOSITORY_NAME" : @client.repository_name( each.ip_address )
+        repository_name each.ip_address
       rescue
         raise "Configuration repository for #{ each.name } not found on Lucie server."
       end
     end
     list.uniq
+  end
+
+
+  def repository_name ip_address
+    return "REPOSITORY_NAME" if @options[ :dry_run ]
+    @client.repository_name ip_address
   end
 end
 
