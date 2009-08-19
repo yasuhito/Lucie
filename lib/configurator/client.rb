@@ -10,7 +10,7 @@ class Configurator
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 
 
-    def self.guess_scm node, options
+    def self.guess_scm node, options = {}
       ssh = SSH.new( options, options[ :messenger ] )
       return "DUMMY_SCM" if options[ :dry_run ]
       repository = ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
@@ -24,7 +24,7 @@ class Configurator
           return "Git"
         end
       end
-      raise "Cannnot guess scm on node #{ node.name }."
+      raise "Cannot determine SCM used on #{ node.name }:#{ repository }"
     end
 
 
