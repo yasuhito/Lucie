@@ -10,6 +10,5 @@ Feature: node install command
     And --mac option is "11:22:33:44:55:66"
     And --storage-conf option is "my_storage.conf"
     And --verbose option is on
-    And --dry-run option is on
     When I run node install "yasuhito_private_node"
     Then node "yasuhito_private_node" installed

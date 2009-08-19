@@ -9,7 +9,6 @@ Feature: add installer
 
   Scenario: add installer
     Given --verbose option is on
-    And --dry-run option is on
     And suite is "lenny"
     When I add an installer
     Then temporary directory for the installer created

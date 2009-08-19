@@ -55,16 +55,6 @@ Given /^\-\-verbose option is on$/ do
 end
 
 
-Given /^\-\-dry\-run option is on$/ do
-  @dry_run = true
-end
-
-
-Given /^\-\-dry\-run option is off$/ do
-  @dry_run = false
-end
-
-
 Given /^a file "([^\"]*)" not exist$/ do | name |
   system "rm -f #{ name }"
 end

@@ -4,7 +4,6 @@ Feature: check prerequisites
   So that I can make sure all requires softwares are installed
 
   Scenario: check prerequisites (success)
-    Given --dry-run option is on
     When I try to check prerequisites
     Then "syslinux" checked
     And "tftpd-hpa" checked
