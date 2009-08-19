@@ -8,7 +8,6 @@
   背景:
     前提 node list is empty
     かつ Lucie のテンポラリディレクトリは "/tmp/lucie"
-#    And remote hg repository "ssh://my.repository.org//ldb"
 
   シナリオ: node update
     前提 バックエンドとして Mercurial を指定したサーバーコンフィグレータ
