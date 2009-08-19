@@ -65,13 +65,18 @@ Given /^a directory "([^\"]*)" not exist$/ do | name |
 end
 
 
+################################################################################
+# Messages
+################################################################################
+
+
 Then /^"(.*)" displayed$/ do | line |
   history.should include( line )
 end
 
 
 Then /^nothing displayed$/ do
-  history.should == []
+  history.should be_empty
 end
 
 
@@ -86,7 +91,7 @@ end
 
 
 Then /^エラーが発生しない$/ do
-  @error.should be_nil
+  Then "nothing raised"
 end
 
 
@@ -97,8 +102,7 @@ end
 
 
 Then /^エラー "([^\"]*)"$/ do | message |
-  @error.should_not be_nil
-  @error.message.should == message
+  Then %{an error "#{ message }" raised}
 end
 
 
