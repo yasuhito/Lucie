@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+
+################################################################################
+# Misc.
+################################################################################
+
+
 Given /^the rake task list cleared$/ do
   Rake::Task.clear
 end
@@ -7,6 +13,11 @@ end
 Given /^eth0 "(.*)"$/ do | ip |
   @if = DummyInterface.new( ip, "255.255.255.0", Network.network_address( ip, "255.255.255.0" ) )
 end
+
+
+################################################################################
+# Lucie paths
+################################################################################
 
 
 Given /^Lucie log path is "([^\"]*)"$/ do | path |
@@ -21,38 +32,14 @@ Given /^installers temporary directory is "([^\"]*)"$/ do | path |
 end
 
 
-Given /^Lucie log directory "([^\"]*)" is empty$/ do | path |
-  Configuration.log_directory = path
-  FileUtils.rm_rf Dir.glob( File.join( Configuration.log_directory, "*" ) )
-end
-
-
-Given /^temporary directory "([^\"]*)" is empty$/ do | path |
-  Configuration.temporary_directory = path
-  FileUtils.rm_rf Dir.glob( File.join( Configuration.temporary_directory, "*" ) )
-end
-
-
 Given /^Lucie のテンポラリディレクトリは "([^\"]*)"$/ do | path |
-  Configuration.temporary_directory = path
-  FileUtils.rm_rf Dir.glob( File.join( Configuration.temporary_directory, "*" ) )
+  Given %{installers temporary directory is "#{ path }"}
 end
 
 
-Given /^log directory "([^\"]*)" is empty$/ do | path |
-  Configuration.log_directory = path
-  FileUtils.rm_rf Dir.glob( File.join( Configuration.log_directory, "*" ) )
-end
-
-
-Given /^\-\-verbose option is off$/ do
-  @verbose = false
-end
-
-
-Given /^\-\-verbose option is on$/ do
-  @verbose = true
-end
+################################################################################
+# File/Directory existance
+################################################################################
 
 
 Given /^a file "([^\"]*)" not exist$/ do | name |
@@ -62,6 +49,21 @@ end
 
 Given /^a directory "([^\"]*)" not exist$/ do | name |
   system "rm -rf #{ name }"
+end
+
+
+################################################################################
+# On/Off --verbose option
+################################################################################
+
+
+Given /^\-\-verbose option is on$/ do
+  @verbose = true
+end
+
+
+Given /^\-\-verbose option is off$/ do
+  @verbose = false
 end
 
 
