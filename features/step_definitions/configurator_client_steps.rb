@@ -26,7 +26,7 @@ end
 
 
 Given /^クライアントコンフィグレータ$/ do
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   @configurator = Configurator::Client.new( @scm, options )
 end
 
@@ -53,7 +53,7 @@ end
 
 Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
   @ip = ip
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   @configurator = Configurator::Client.new( :mercurial, options )
   @configurator.install "DUMMY_SERVER_IP", @ip, "DUMMY_REPOSITORY_URL"
 end
@@ -67,7 +67,7 @@ end
 
 When /^クライアントコンフィグレータがその設定リポジトリを Lucie クライアント \(IP アドレスは "([^\"]*)"\) へ配置した$/ do | ip |
   @ip = ip
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
 
   @configurator = Configurator::Client.new( @scm, options )
   @configurator.ssh = DummySSH.new( true, options )

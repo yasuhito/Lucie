@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 Given /^バックエンド が ([a-zA-Z]+) のコンフィグレータ$/ do | scm |
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   @configurator = Configurator.new( scm, options )
 end
 
