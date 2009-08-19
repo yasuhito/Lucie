@@ -14,13 +14,13 @@ When /^I try to check prerequisites$/ do
   begin
     Service.check_prerequisites( { :dry_run => @dry_run }, @messenger )
   rescue => e
-    @last_error = e
+    @error = e
   end
 end
 
 
 Then /^"([^\"]*)" checked$/ do | package |
-  @last_error.should == nil
+  @error.should == nil
   history.join( "\n" ).should match( /Checking #{ package }/ )
 end
 

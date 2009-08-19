@@ -10,13 +10,13 @@ When /^I try to run 'node install\-multi', with option "([^\"]*)", and nodes "([
   begin
     Command::NodeInstallMulti::App.new( options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], @messenger, [ @if ] ).main( @node_argv )
   rescue => e
-    @last_error = e
+    @error = e
   end
 end
 
 
 Then /^nodes "([^\"]*)" installed$/ do | nodes |
-  @last_error.should == nil
+  @error.should == nil
   nodes.split( /,\s*/ ).each do | each |
     history.should include( "Node '#{ each }' installed." )
   end
@@ -24,7 +24,7 @@ end
 
 
 Then /^nodes "([^\"]*)" installed using storage conf "([^\"]*)"$/ do | nodes, storage_conf |
-  @last_error.should == nil
+  @error.should == nil
   nodes.split( /,\s*/ ).each do | each |
     history.should include( "node #{ each } is going to be installed using #{ storage_conf }" )
   end
@@ -32,8 +32,8 @@ end
 
 
 Then /^error "([^\"]*)" raised$/ do | message |
-  @last_error.should_not == nil
-  @last_error.message.should == message
+  @error.should_not == nil
+  @error.message.should == message
 end
 
 

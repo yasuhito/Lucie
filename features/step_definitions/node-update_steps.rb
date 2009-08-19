@@ -4,7 +4,7 @@ When /^I run node update "([^\"]*)"$/ do | nodes |
   begin
     Command::NodeUpdate::App.new( argv, @messenger,  @if ? [ @if ] : nil ).main nodes.split( /,\s*/ )
   rescue => e
-    @last_error = e
+    @error = e
   end
 end
 

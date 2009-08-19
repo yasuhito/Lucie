@@ -4,7 +4,7 @@ When /^I try to setup dhcpd$/ do
   begin
     dhcp_service.setup Nodes.load_all, [ @if ]
   rescue => e
-    @last_error = e
+    @error = e
   end
 end
 

@@ -42,7 +42,7 @@ When /^I run "([^\"]*)"$/ do | command |
   begin
     Lucie::Utils.run command, utils_opts, @messenger
   rescue => e
-    @last_error = e
+    @error = e
   end
 end
 

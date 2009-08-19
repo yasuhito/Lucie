@@ -14,7 +14,7 @@ end
 
 
 When /^I try to remove a node "([^\"]*)"$/ do | name |
-  Nodes.remove! name rescue @last_error = $!
+  Nodes.remove! name rescue @error = $!
 end
 
 
@@ -31,7 +31,7 @@ end
 When /^a node named "([^\"]*)" added twice$/ do | name |
   opts = { :ip_address => '1.1.1.1', :netmask_address => '255.255.255.0', :mac_address => '00:00:00:00:00:00' }
   2.times do
-    Nodes.add Node.new( name, opts ) rescue @last_error = $! 
+    Nodes.add Node.new( name, opts ) rescue @error = $! 
   end
 end
 
@@ -89,7 +89,7 @@ end
 
 
 Then /^error "([^\"]*)" should be raised$/ do | message |
-  @last_error.message.should == message
+  @error.message.should == message
 end
 
 

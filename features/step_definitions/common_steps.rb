@@ -75,8 +75,13 @@ Then /^nothing displayed$/ do
 end
 
 
+################################################################################
+# Errors
+################################################################################
+
+
 Then /^nothing raised$/ do
-  @last_error.should == nil
+  @error.should be_nil
 end
 
 
@@ -86,8 +91,8 @@ end
 
 
 Then /^an error "([^\"]*)" raised$/ do | message |
-  @last_error.should_not == nil
-  @last_error.message.should == message
+  @error.should_not be_nil
+  @error.message.should == message
 end
 
 
