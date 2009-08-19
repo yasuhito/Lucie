@@ -66,16 +66,6 @@ class Configurator
       return unless @scm
       raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )
     end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def messenger
-      @options[ :messenger ]
-    end
   end
 end
 
