@@ -13,7 +13,7 @@ class Configurator
   end
 
 
-  def initialize scm, options
+  def initialize scm, options = {}
     @options = options
     @client = Client.new( scm, @options )
     @server = Server.new( scm, @options )
@@ -61,17 +61,14 @@ class Configurator
 
 
   def repositories_for nodes
-    nodes.collect do | each |
+    list = nodes.collect do | each |
       begin
-        if @options[ :dry_run ]
-          "REPOSITORY_NAME"
-        else
-          @client.repository_name each.ip_address
-        end
+        @options[ :dry_run ] ? "REPOSITORY_NAME" : @client.repository_name( each.ip_address )
       rescue
-        raise "Configuration repository not found on #{ each.name }."
+        raise "Configuration repository for #{ each.name } not found on Lucie server."
       end
-    end.uniq
+    end
+    list.uniq
   end
 end
 
