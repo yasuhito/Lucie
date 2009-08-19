@@ -6,7 +6,7 @@ class Service
     missings = []
     ObjectSpace.each_object( Class ) do | klass |
       next if klass.superclass != self
-      missings += check_prerequisite( klass, options, options[ :messenger ] || $stderr )
+      missings += check_prerequisite( klass, options )
     end
     unless missings.empty?
       raise "#{ missings.sort.join( ', ' ) } not installed. Try 'aptitude install #{ missings.sort.join( ' ' ) }'"
@@ -14,9 +14,10 @@ class Service
   end
 
 
-  def self.check_prerequisite service, options, messenger
+  def self.check_prerequisite service, options
     missings = []
     return missings unless @@prerequisites[ service ]
+    messenger = options[ :messenger ] || $stderr
     @@prerequisites[ service ].each do | each |
       messenger.print "Checking #{ each } ... "
       if FileTest.exist?( "/var/lib/dpkg/info/#{ each }.md5sums" )
