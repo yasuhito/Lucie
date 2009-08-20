@@ -147,7 +147,7 @@ module Command
 
     def setup_ldb
       return unless @options.ldb_repository
-      @configurator = Configurator.new( debug_options )
+      @configurator = Configurator.new( "Mercurial", debug_options )
       if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
         @configurator.update_server @options.ldb_repository
       else
