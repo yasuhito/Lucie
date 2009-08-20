@@ -78,6 +78,7 @@ class SSH
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"
       end
+      logger.debug real_command
       debug real_command if @verbose || @dry_run
       shell.exec real_command unless @dry_run
     end
