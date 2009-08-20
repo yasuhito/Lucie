@@ -29,8 +29,8 @@ class Configurator
 
 
   def clone_to_client url, node, lucie_ip, logger = Lucie::Logger::Null.new
-    @client.setup node.ip_address
-    @client.install lucie_ip, node.ip_address, url
+    @client.setup node.ip_address, logger
+    @client.install lucie_ip, node.ip_address, url, logger
   end
 
 
@@ -52,7 +52,7 @@ class Configurator
 
 
   def start node, logger = Lucie::Logger::Null.new
-    @client.start node.ip_address
+    @client.start node.ip_address, logger
   end
 
 

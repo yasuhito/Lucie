@@ -1,3 +1,4 @@
+require "lucie/logger/null"
 require "scm"
 
 
@@ -35,7 +36,7 @@ class Configurator
     end
 
 
-    def setup client_ip
+    def setup client_ip, logger = Lucie::Logger::Null.new
       unless repository_base_directory_exists?( client_ip )
         @ssh.sh client_ip, "mkdir -p #{ REPOSITORY_BASE_DIRECTORY }"
       end
@@ -45,7 +46,7 @@ class Configurator
     end
 
 
-    def install server_ip, client_ip, url
+    def install server_ip, client_ip, url, logger = Lucie::Logger::Null.new
       @url = url
       @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", COMMAND_DIRECTORY
       @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
@@ -62,7 +63,7 @@ class Configurator
     end
 
 
-    def start ip
+    def start ip, logger = Lucie::Logger::Null.new
       @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval `#{ ldb_command( ip ) } env` && make"
     end
 
