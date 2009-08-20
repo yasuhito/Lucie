@@ -5,8 +5,7 @@ end
 
 
 When /^I try to run 'node install\-multi', with option "([^\"]*)", and nodes "([^\"]*)"$/ do | options, nodes |
-  pending
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   begin
     Command::NodeInstallMulti::App.new( options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], @messenger, [ @if ] ).main( @node_argv )
   rescue => e

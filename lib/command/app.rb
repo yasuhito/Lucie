@@ -22,12 +22,13 @@ module Command
     attr_reader :options
 
 
-    def initialize argv, messenger
+    def initialize argv, messenger, nic = nil
       @argv = argv
       @options = parse_argv
       @dry_run = @options.dry_run
       @verbose = @options.verbose
       @messenger = messenger
+      @nic = nic
       usage_and_exit if @options.help
       @options.check_mandatory_options
     end
@@ -98,13 +99,15 @@ module Command
 
 
     def setup_first_stage
-      Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer )
+      Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
     end
 
 
     def reboot_to_start_first_stage node, logger
-      File.open( "/var/log/syslog", "r" ) do | syslog |
-        @super_reboot.start_first_stage node, syslog, logger
+      unless @dry_run
+        File.open( "/var/log/syslog", "r" ) do | syslog |
+          @super_reboot.start_first_stage node, syslog, logger
+        end
       end
       @html_logger.next_step node
     end
@@ -125,8 +128,10 @@ module Command
 
 
     def reboot_to_start_second_stage node, logger
-      File.open( "/var/log/syslog", "r" ) do | syslog |
-        @super_reboot.start_second_stage node, syslog, logger
+      unless @dry_run
+        File.open( "/var/log/syslog", "r" ) do | syslog |
+          @super_reboot.start_second_stage node, syslog, logger
+        end
       end
       @html_logger.next_step node
     end
@@ -151,7 +156,7 @@ module Command
       if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
         @configurator.update_server @options.ldb_repository
       else
-        @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( Nodes.load_all )
+        @configurator.clone_to_server @options.ldb_repository, lucie_server_ip_address
       end
     end
 
@@ -160,7 +165,7 @@ module Command
       if @options.ldb_repository
         @html_logger.update node, "Starting LDB ..."
         logger.info "Starting LDB ..."
-        @configurator.clone_to_client @options.ldb_repository, node, Lucie::Server.ip_address_for( Nodes.load_all ), logger
+        @configurator.clone_to_client @options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
       end
       @html_logger.next_step node
@@ -209,6 +214,15 @@ module Command
 
 
     # Misc. ####################################################################
+
+
+    def lucie_server_ip_address
+      if @nic
+        @nic.first.ip_address
+      else
+        Lucie::Server.ip_address_for Nodes.load_all
+      end
+    end
 
 
     def start_secret_server

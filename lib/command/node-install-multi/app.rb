@@ -6,8 +6,8 @@ require "nodes"
 module Command
   module NodeInstallMulti
     class App < Command::App
-      def initialize argv = ARGV, messenger = nil
-        super argv, messenger
+      def initialize argv = ARGV, messenger = nil, nic = nil
+        super argv, messenger, nic
       end
 
 
@@ -49,7 +49,16 @@ module Command
 
 
       def node_options name
-        { :netmask_address => @options.netmask, :mac_address => @node_options[ name ].mac }
+        { :netmask_address => @options.netmask, :mac_address => @node_options[ name ].mac, :ip_address => ip_address( name ) }
+      end
+
+
+      def ip_address name
+        node = Nodes.find( name )
+        if node
+          return node.ip_address
+        end
+        nil
       end
 
 

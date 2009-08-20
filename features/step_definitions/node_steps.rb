@@ -6,6 +6,7 @@ Given /^a node named "([^\"]*)"$/ do | name |
 end
 
 
+# [FIXME] コードの重複
 Given /^Lucie クライアント "([^\"]*)"$/ do | name |
   ph_addr = '1.1.1.1'
   ph_mac = '00:00:00:00:00:00'
@@ -15,10 +16,12 @@ end
 
 Given /^a node named "([^\"]*)", with IP address "([^\"]*)"$/ do | name, address |
   ph_mac = '00:00:00:00:00:00'
-  Nodes.add Node.new( name, :ip_address => address, :netmask_address => '255.255.255.0', :mac_address => ph_mac )
+  new_node = Node.new( name, :ip_address => address, :netmask_address => '255.255.255.0', :mac_address => ph_mac )
+  Nodes.add new_node
 end
 
 
+# [FIXME] コードの重複
 Given /^Lucie クライアント "([^\"]*)" \(IP アドレスは "([^\"]*)"\)$/ do | name, address |
   ph_mac = '00:00:00:00:00:00'
   Nodes.add Node.new( name, :ip_address => address, :netmask_address => '255.255.255.0', :mac_address => ph_mac )

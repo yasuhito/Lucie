@@ -189,8 +189,13 @@ EOF
 
 
     def tftpd_boot_from_inetd inetd_conf
-      IO.read( inetd_conf ).split( "\n" ).each do | each |
-        return true if /^tftp\s+/=~ each
+      begin
+        IO.read( inetd_conf ).split( "\n" ).each do | each |
+          return true if /^tftp\s+/=~ each
+        end
+      rescue Errno::ENOENT
+        return false if @options[ :dry_run ]
+        raise $!
       end
       false
     end

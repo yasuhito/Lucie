@@ -161,7 +161,7 @@ COMMANDS
 
 
   def update_authorized_keys
-    return if authorized_keys.include?( public_key )
+    return if @dry_run || authorized_keys.include?( public_key )
     authorize_public_key
   end
 
