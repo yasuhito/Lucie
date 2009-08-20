@@ -87,7 +87,7 @@ Then /^バックエンドのコンフィグレータが Lucie クライアント
   ip = Nodes.find( name ).ip_address
   scripts = File.join( client_target, "scripts" )
   ldb = File.join( client_target, "bin", "ldb" )
-  @messenger.string.should match( /eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( scripts ) } && eval `#{ regexp_from( ldb ) } env` && make"/ )
+  @messenger.string.should match( /eval `ssh\-agent`; .* ssh \-A .* root@#{ regexp_from( ip ) } "cd #{ regexp_from( scripts ) } && eval \\`#{ regexp_from( ldb ) } env\\` && make"/ )
 end
 
 
