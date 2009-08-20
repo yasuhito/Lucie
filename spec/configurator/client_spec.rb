@@ -99,7 +99,7 @@ class Configurator
         SSH.stub!( :new ).and_return( ssh )
 
         ssh.stub!( :sh ).with( "DUMMY_IP_ADDRESS", "ls -1 /var/lib/lucie/config" ).and_return( "LDB_CHECKOUT_DIRECTORY" )
-        ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /make$/ )
+        ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /make$/, an_instance_of( Lucie::Logger::Null ) )
 
         Client.new.start "DUMMY_IP_ADDRESS"
       end

@@ -1,5 +1,6 @@
 require "lucie"
 require "lucie/io"
+require "lucie/logger/null"
 require "lucie/utils"
 require "popen3/shell"
 
@@ -61,16 +62,18 @@ class SSH
   end
 
 
-  def sh_a ip, command
+  def sh_a ip, command, logger = Lucie::Logger::Null.new
     output = ""
     real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
         $stdout.puts line
+        logger.debug line
         output << line
       end
       shell.on_stderr do | line |
         $stderr.puts line
+        logger.debug line
       end
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"

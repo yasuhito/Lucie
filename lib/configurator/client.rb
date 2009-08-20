@@ -64,7 +64,7 @@ class Configurator
 
 
     def start ip, logger = Lucie::Logger::Null.new
-      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval `#{ ldb_command( ip ) } env` && make"
+      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval `#{ ldb_command( ip ) } env` && make", logger
     end
 
 
