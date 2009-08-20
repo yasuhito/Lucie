@@ -1,5 +1,6 @@
 require "configurator/client"
 require "configurator/server"
+require "lucie/logger/null"
 
 
 class Configurator
@@ -27,7 +28,7 @@ class Configurator
   end
 
 
-  def clone_to_client url, node, lucie_ip
+  def clone_to_client url, node, lucie_ip, logger = Lucie::Logger::Null.new
     @client.setup node.ip_address
     @client.install lucie_ip, node.ip_address, url
   end
@@ -50,7 +51,7 @@ class Configurator
   end
 
 
-  def start node
+  def start node, logger = Lucie::Logger::Null.new
     @client.start node.ip_address
   end
 
