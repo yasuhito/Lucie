@@ -76,7 +76,6 @@ class Configurator
     def repository_name ip
       if @options[ :dry_run ]
         "REPOSITORY_NAME"
-        # Configurator.repository_name_from( @url )
       else
         @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
       end

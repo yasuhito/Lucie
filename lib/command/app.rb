@@ -99,7 +99,11 @@ module Command
 
 
     def setup_first_stage
-      Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
+      if @dry_run and @nic
+        Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
+      else
+        Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
+      end
     end
 
 
@@ -217,7 +221,7 @@ module Command
 
 
     def lucie_server_ip_address
-      if @nic
+      if @dry_run and @nic
         @nic.first.ip_address
       else
         Lucie::Server.ip_address_for Nodes.load_all
