@@ -22,6 +22,10 @@ module Command
                   :short_option => "-L",
                   :argument => "[REPOSITORY-URL]",
                   :description => "LDB repository URL." )
+      add_option( :long_option => "--source-control",
+                  :short_option => "-c",
+                  :argument => "[SCM]",
+                  :description => "Specify the source control manager to use (default: Mercurial)" )
       add_option( :long_option => "--secret",
                   :short_option => "-X",
                   :argument => "[FILE]",
