@@ -64,7 +64,7 @@ class Nfsroot < Rake::TaskLib
   def define_tasks
     @nfsroot_base = NfsrootBase.configure do | task |
       task.http_proxy = @http_proxy
-      task.include = [ "grub", "mercurial", "sqlite3", "make" ]
+      task.include = [ "grub", "mercurial", "subversion", "sqlite3", "make" ]
       task.package_repository = @package_repository
       task.suite = @suite
 
