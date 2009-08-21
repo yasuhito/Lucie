@@ -56,8 +56,8 @@ class Configurator
     end
 
 
-    def update ip
-      @scm.update_commands_for( repository_directory( ip ) ).each do | each |
+    def update ip, server_ip, repository
+      @scm.update_commands_for( repository_directory( ip ), server_ip, repository ).each do | each |
         @ssh.sh_a ip, each
       end
     end

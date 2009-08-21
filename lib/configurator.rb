@@ -1,6 +1,7 @@
 require "configurator/client"
 require "configurator/server"
 require "lucie/logger/null"
+require "lucie/server"
 
 
 class Configurator
@@ -47,7 +48,8 @@ class Configurator
 
 
   def update_client node
-    @client.update node.ip_address
+    server_repository = File.join( Server.config_directory, @client.repository_name( node.ip_address ) )
+    @client.update node.ip_address, Lucie::Server.ip_address_for( [ node ] ), server_repository
   end
 
 

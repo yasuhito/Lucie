@@ -5,8 +5,8 @@ module Scm
     end
 
 
-    def update_commands_for target
-      [ "cd #{ target } && svn update" ]
+    def update_commands_for target, server_ip, repository
+      [ "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ repository } #{ target }" ]
     end
 
 

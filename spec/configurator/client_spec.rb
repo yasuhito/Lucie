@@ -88,7 +88,7 @@ class Configurator
         ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg pull/ )
         ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg update/ )
 
-        Client.new( :mercurial ).update "DUMMY_IP_ADDRESS"
+        Client.new( :mercurial ).update "DUMMY_IP_ADDRESS", "SERVER_IP", "REPOSITORY"
       end
     end
 

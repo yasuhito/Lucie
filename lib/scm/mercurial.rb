@@ -6,7 +6,7 @@ module Scm
     alias clone_clone clone
 
 
-    def update_commands_for target
+    def update_commands_for target, server_ip, repository
       [ "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS }'",
         "cd #{ target } && hg update" ]
     end
