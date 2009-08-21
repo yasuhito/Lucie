@@ -32,6 +32,11 @@ module Scm
     end
 
 
+    def whoami
+      `whoami`.chomp
+    end
+
+
     def verbose?
       @options[ :verbose ]
     end

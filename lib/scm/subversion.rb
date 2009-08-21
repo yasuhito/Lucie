@@ -11,7 +11,7 @@ module Scm
 
 
     def install_command target, server_ip, url
-      "scp #{ SSH::OPTIONS } -r #{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }"
+      "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }"
     end
 
 
