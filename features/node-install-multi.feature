@@ -41,14 +41,14 @@ Feature: node install-multi command
     When I try to run 'node install-multi', with option "--storage-conf global_storage.conf --netmask 255.255.255.0 --ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
     Then nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2" installed using storage conf "global_storage.conf"
 
-  # Scenario: check prerequisites
-  #   Given install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
-  #   And install option for node "yasuhito_node1" is "--mac 11:22:33:44:55:11 --storage-conf storage1.conf"
-  #   And install option for node "yasuhito_node2" is "--mac 11:22:33:44:55:22 --storage-conf storage2.conf"
-  #   When I try to run 'node install-multi', with option "--netmask 255.255.255.0 --ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
-  #   Then "syslinux" checked
-  #   And "tftpd-hpa" checked
-  #   And "nfs-kernel-server" checked
-  #   And "dhcp3-server" checked
-  #   And "apt-proxy" checked
-  #   And "debootstrap" checked
+  Scenario: check prerequisites
+    Given install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
+    And install option for node "yasuhito_node1" is "--mac 11:22:33:44:55:11 --storage-conf storage1.conf"
+    And install option for node "yasuhito_node2" is "--mac 11:22:33:44:55:22 --storage-conf storage2.conf"
+    When I try to run 'node install-multi', with option "--netmask 255.255.255.0 --ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
+    Then "syslinux" checked
+    And "tftpd-hpa" checked
+    And "nfs-kernel-server" checked
+    And "dhcp3-server" checked
+    And "approx" checked
+    And "debootstrap" checked
