@@ -57,7 +57,7 @@ end
 
 When /^サーバーコンフィグレータが SCM のインストール状況を確認$/ do
   begin
-    @configurator.check_backend_scm
+    @configurator.check_scm
   rescue
     @error = $!
   end

@@ -5,8 +5,11 @@ require "scm"
 
 class Configurator
   class Server
-    attr_writer :dpkg
-    attr_reader :scm
+    CLONE_CLONE_SUFFIX = ".local"
+
+
+    attr_writer :dpkg # :nodoc:
+    attr_reader :scm # :nodoc:
 
 
     def self.config_directory
@@ -20,13 +23,13 @@ class Configurator
 
 
     def self.clone_clone_directory url
-      clone_directory( url ) + ".local"
+      clone_directory( url ) + CLONE_CLONE_SUFFIX
     end
 
 
-    def initialize scm = nil, options = {}
-      @options = options
-      @scm = Scm.from( scm, @options ) if scm
+    def initialize scm = nil, debug_options = {}
+      @debug_options = debug_options
+      @scm = Scm.from( scm, @debug_options ) if scm
       @dpkg = Dpkg.new
     end
 
@@ -37,36 +40,81 @@ class Configurator
 
 
     def clone url
-      raise "scm is not specified" unless @scm
-      @scm.clone url, self.class.clone_directory( url )
+      scm_clone :from => url, :to => clone_directory_for( url )
     end
 
 
     def clone_clone url, lucie_ip
-      repos = self.class.clone_directory( url )
-      if @scm.is_a?( Scm::Mercurial )
-        @scm.clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
-      end
+      return unless mercurial?
+      local_clone = "ssh://#{ lucie_ip }/#{ clone_directory_for( url ) }"
+      local_clone_clone = clone_clone_directory_for( url )
+      scm_clone :from => local_clone, :to => local_clone_clone
     end
 
 
-    def update repository_name
-      @scm.update local_clone_directory( repository_name )
-      if @scm.is_a?( Scm::Mercurial )
-        @scm.update local_clone_clone_directory( repository_name )
-      end
+    def update repos_name
+      scm_update local_clone_directory( repos_name )
+      scm_update local_clone_clone_directory( repos_name ) if mercurial?
     end
 
 
-    def check_backend_scm
+    def check_scm
       return unless @scm
-      raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )
+      raise "#{ @scm } is not installed" unless scm_installed?
     end
 
 
     ############################################################################
     private
     ############################################################################
+
+
+    # SCM operations ###########################################################
+
+
+    def scm_clone from_to
+      raise "scm is not specified" unless @scm
+      @scm.clone from_to[ :from ], from_to[ :to ]
+    end
+
+
+    def scm_update target
+      raise "scm is not specified" unless @scm
+      @scm.update target
+    end
+
+
+    def scm_installed?
+      @dpkg.installed? @scm.name
+    end
+
+
+    def mercurial?
+      @scm.is_a? Scm::Mercurial
+    end
+
+
+    # Paths ####################################################################
+
+
+    def clone_directory_for url
+      self.class.clone_directory url
+    end
+
+
+    def clone_clone_directory_for url
+      self.class.clone_clone_directory url
+    end
+
+
+    def local_clone_directory repository_name
+      File.join self.class.config_directory, repository_name
+    end
+
+
+    def local_clone_clone_directory repository_name
+      local_clone_directory( repository_name ) + CLONE_CLONE_SUFFIX
+    end
 
 
     def config_directory_exists?
@@ -79,20 +127,13 @@ class Configurator
     end
 
 
-    def local_clone_directory repository_name
-      File.join self.class.config_directory, repository_name
-    end
-
-
-    def local_clone_clone_directory repository_name
-      local_clone_directory( repository_name ) + ".local"
-    end
+    # Debug ####################################################################
 
 
     def debug_options
-      { :dry_run => @options[ :dry_run ],
-        :verbose => @options[ :verbose ],
-        :messenger => @options[ :messenger ] }
+      { :dry_run => @debug_options[ :dry_run ],
+        :verbose => @debug_options[ :verbose ],
+        :messenger => @debug_options[ :messenger ] }
     end
   end
 end

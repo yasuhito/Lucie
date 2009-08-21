@@ -34,7 +34,7 @@ class Configurator
       it "should not raise if the SCM is installed" do
         @dpkg.stub!( :installed? ).with( "mercurial" ).and_return( true )
         lambda do
-          Server.new( :mercurial ).check_backend_scm
+          Server.new( :mercurial ).check_scm
         end.should_not raise_error
       end
 
@@ -42,14 +42,14 @@ class Configurator
       it "should raise if the SCM is not installed" do
         @dpkg.stub!( :installed? ).with( "mercurial" ).and_return( false )
         lambda do
-          Server.new( :mercurial ).check_backend_scm
+          Server.new( :mercurial ).check_scm
         end.should raise_error( "Mercurial is not installed" )
       end
 
 
       it "should do nothing if not using SCM" do
         lambda do
-          Server.new.check_backend_scm
+          Server.new.check_scm
         end.should_not raise_error
       end
     end
