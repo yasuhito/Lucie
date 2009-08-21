@@ -6,31 +6,24 @@ Feature: node install-multi command
 
   Background:
     Given eth0 "192.168.0.1"
-
-  Scenario: node install-multi
-    Given node list is empty
+    And node list is empty
     And a node named "yasuhito_node0", with IP address "192.168.0.100"
     And a node named "yasuhito_node1", with IP address "192.168.0.101"
     And a node named "yasuhito_node2", with IP address "192.168.0.102"
-    And install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
+
+  Scenario: node install-multi
+    Given install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
     And install option for node "yasuhito_node1" is "--mac 11:22:33:44:55:11 --storage-conf storage1.conf"
     And install option for node "yasuhito_node2" is "--mac 11:22:33:44:55:22 --storage-conf storage2.conf"
     When I try to run 'node install-multi', with option "--netmask 255.255.255.0 --ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
     Then nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2" installed
 
-#   Scenario: missing --netmask option and error
-#     Given install option for node "yasuhito_node0" is "--address 192.168.0.100 --mac 11:22:33:44:55:00 --storage-conf storage0.conf"
-#     And install option for node "yasuhito_node1" is "--address 192.168.0.101 --mac 11:22:33:44:55:11 --storage-conf storage1.conf"
-#     And install option for node "yasuhito_node2" is "--address 192.168.0.102 --mac 11:22:33:44:55:22 --storage-conf storage2.conf"
-#     When I try to run 'node install-multi', with option "--ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
-#     Then error "--netmask option is a mandatory." raised
-
-#   Scenario: missing --ldb-repository option and error
-#     Given install option for node "yasuhito_node0" is "--address 192.168.0.100 --mac 11:22:33:44:55:00 --storage-conf storage0.conf"
-#     And install option for node "yasuhito_node1" is "--address 192.168.0.101 --mac 11:22:33:44:55:11 --storage-conf storage1.conf"
-#     And install option for node "yasuhito_node2" is "--address 192.168.0.102 --mac 11:22:33:44:55:22 --storage-conf storage2.conf"
-#     When I try to run 'node install-multi', with option "--netmask 255.255.255.0", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
-#     Then error "--ldb-repository option is a mandatory." raised
+  Scenario: missing --netmask option and error
+    Given install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
+    And install option for node "yasuhito_node1" is "--mac 11:22:33:44:55:11 --storage-conf storage1.conf"
+    And install option for node "yasuhito_node2" is "--mac 11:22:33:44:55:22 --storage-conf storage2.conf"
+    When I try to run 'node install-multi', with option "--ldb-repository http://myrepository.com/ldb", and nodes "yasuhito_node0, yasuhito_node1, yasuhito_node2"
+    Then error "--netmask option is a mandatory." raised
 
 #   Scenario: node local --storage-conf option
 #     Given install option for node "yasuhito_node0" is "--address 192.168.0.100 --mac 11:22:33:44:55:00 --storage-conf storage0.conf"
