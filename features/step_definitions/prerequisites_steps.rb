@@ -16,7 +16,7 @@ end
 
 
 Then /^"([^\"]*)" checked$/ do | package |
-  @messenger.string.should match( /^Checking #{ package } \.\.\. (INSTALLED|NOT INSTALLED)$/ )
+  @messenger.string.should match( /^Checking #{ regexp_from( package ) } \.\.\. (INSTALLED|NOT INSTALLED)$/ )
 end
 
 
