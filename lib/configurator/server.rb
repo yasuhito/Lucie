@@ -48,8 +48,6 @@ class Configurator
       repos = self.class.clone_directory( url )
       if @scm.is_a?( Scm::Mercurial )
         @scm.clone "ssh://#{ lucie_ip }/#{ repos }", repos + ".local"
-      else
-        raise "local clone-clone is not supported on #{ @scm }"
       end
     end
 

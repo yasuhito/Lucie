@@ -8,20 +8,20 @@
   背景:
     前提 Lucie のテンポラリディレクトリは "/tmp/lucie"
 
-  シナリオ: Mercurial の場合は成功
+  シナリオ: Mercurial の場合
     前提 バックエンドとして Mercurial を指定したサーバーコンフィグレータ
     かつ サーバーコンフィグレータが Lucie サーバに設定リポジトリ "ssh://myrepos.org//lucie/clone_me" を複製
     もし サーバーコンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成
     ならば "hg clone" コマンドでローカルな設定リポジトリの複製が作成される
     かつ エラーが発生しない
 
-  テンプレ: それ以外の場合は失敗
+  テンプレ: それ以外の場合
     前提 バックエンドとして <SCM> を指定したサーバーコンフィグレータ
     かつ サーバーコンフィグレータが Lucie サーバに設定リポジトリ "<URL>" を複製
     もし サーバーコンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成
-    ならば エラー "<error>"
+    ならば エラーが発生しない
 
     例:
-      | SCM        | URL                               | error                                            |
-      | Git        | git://myrepos.org//lucie/clone_me | local clone-clone is not supported on Git        |
-      | Subversion | http://myrepos.org/lucie/clone_me | local clone-clone is not supported on Subversion |
+      | SCM        | URL                               |
+      | Git        | git://myrepos.org//lucie/clone_me |
+      | Subversion | http://myrepos.org/lucie/clone_me |
