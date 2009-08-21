@@ -8,7 +8,8 @@ Feature: node install-multi command
     Given eth0 "192.168.0.1"
 
   Scenario: node install-multi
-    Given a node named "yasuhito_node0", with IP address "192.168.0.100"
+    Given node list is empty
+    And a node named "yasuhito_node0", with IP address "192.168.0.100"
     And a node named "yasuhito_node1", with IP address "192.168.0.101"
     And a node named "yasuhito_node2", with IP address "192.168.0.102"
     And install option for node "yasuhito_node0" is "--mac 11:22:33:44:55:00 --storage-conf storage0.conf"
