@@ -11,7 +11,7 @@ class Configurator
     context "initializing a client" do
       it "should create a temporary directory to checkout configuration repository if not found" do
         FileTest.stub!( :exists? ).with( "/tmp/lucie/config" ).and_return( false )
-        Lucie::Utils.should_receive( :mkdir_p ).with( "/tmp/lucie/config", an_instance_of( Hash ), nil )
+        Lucie::Utils.should_receive( :mkdir_p ).with( "/tmp/lucie/config", an_instance_of( Hash ) )
         Server.new.setup
       end
 

@@ -84,7 +84,7 @@ EOF
 
       def make_log_directory
         unless FileTest.directory?( Configuration.log_directory )
-          mkdir_p Configuration.log_directory, @options, @messenger
+          mkdir_p Configuration.log_directory, @options.merge( :messenger => @messenger )
         end
       end
 

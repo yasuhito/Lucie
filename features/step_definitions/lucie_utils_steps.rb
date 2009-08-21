@@ -1,5 +1,5 @@
 def utils_opts
-  { :verbose => @verbose, :dry_run => @dry_run }
+  { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
 end
 
 
@@ -49,7 +49,7 @@ end
 
 When /^I execute mkdir "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
-  Lucie::Utils.mkdir_p name, utils_opts, @messenger
+  Lucie::Utils.mkdir_p name, utils_opts
 end
 
 

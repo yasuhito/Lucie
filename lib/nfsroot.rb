@@ -342,7 +342,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def mkdir_p path
-    Lucie::Utils.mkdir_p path, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    Lucie::Utils.mkdir_p path, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
   end
 
 

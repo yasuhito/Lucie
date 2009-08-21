@@ -33,7 +33,7 @@ class Configurator
 
     def setup
       unless FileTest.exists?( self.class.config_directory )
-        Lucie::Utils.mkdir_p self.class.config_directory, { :dry_run => @options[ :dry_run ], :verbose => @options[ :verbose ] }, @options[ :messenger ]
+        Lucie::Utils.mkdir_p self.class.config_directory, debug_options
       end
     end
 
@@ -53,9 +53,9 @@ class Configurator
 
 
     def update repository_name
-      @scm.update File.join( self.class.config_directory, repository_name )
+      @scm.update local_clone_directory( repository_name )
       if @scm.is_a?( Scm::Mercurial )
-        @scm.update File.join( self.class.config_directory, repository_name ) + ".local"
+        @scm.update local_clone_clone_directory( repository_name )
       end
     end
 
@@ -63,6 +63,28 @@ class Configurator
     def check_backend_scm
       return unless @scm
       raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def local_clone_directory repository_name
+      File.join self.class.config_directory, repository_name
+    end
+
+
+    def local_clone_clone_directory repository_name
+      local_clone_directory( repository_name ) + ".local"
+    end
+
+
+    def debug_options
+      { :dry_run => @options[ :dry_run ],
+        :verbose => @options[ :verbose ],
+        :messenger => @options[ :messenger ] }
     end
   end
 end

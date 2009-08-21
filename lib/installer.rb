@@ -83,7 +83,7 @@ class Installer
 
 
   def save options, messenger
-    mkdir_p path, options, messenger
+    mkdir_p path, options.merge( :messenger => messenger )
     generate_config options, messenger
   end
 

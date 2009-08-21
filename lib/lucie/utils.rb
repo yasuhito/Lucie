@@ -20,8 +20,8 @@ module Lucie
     end
 
 
-    def mkdir_p target, options = {}, messenger = nil
-      debug_print "mkdir -p #{ target }", options, messenger
+    def mkdir_p target, options = {}
+      debug_print "mkdir -p #{ target }", options, options[ :messenger ]
       FileUtils.mkdir_p target, :noop => options[ :dry_run ]
     end
 

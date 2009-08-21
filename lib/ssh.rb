@@ -133,7 +133,7 @@ COMMANDS
 
   def setup_nfsroot_ssh_home
     unless FileTest.directory?( nfsroot_ssh_home )
-      Lucie::Utils.mkdir_p nfsroot_ssh_home, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+      Lucie::Utils.mkdir_p nfsroot_ssh_home, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
     end
     run "chmod 0700 #{ nfsroot_ssh_home }"
   end
@@ -147,7 +147,7 @@ COMMANDS
 
   def setup_local_ssh_home
     unless FileTest.directory?( ssh_home )
-      Lucie::Utils.mkdir_p ssh_home, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+      Lucie::Utils.mkdir_p ssh_home, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
     end
     run "chmod 0700 #{ ssh_home }"
   end
