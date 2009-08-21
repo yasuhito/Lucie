@@ -5,6 +5,11 @@ module Scm
     end
 
 
+    def update_commands_for target
+      [ "cd #{ target } && svn update" ]
+    end
+
+
     def update target
       run "cd #{ target } && svn update", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
     end
