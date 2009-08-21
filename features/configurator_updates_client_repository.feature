@@ -5,8 +5,11 @@
   Lucie クライアントの設定を更新するために
   Lucie クライアント上の設定リポジトリを更新する
 
+  背景:
+    前提 eth0 "192.168.0.1"
+
   シナリオ: 設定の更新
-    前提 Lucie クライアント "yasuhito_node" (IP アドレスは "192.168.0.1")
+    前提 Lucie クライアント "yasuhito_node" (IP アドレスは "192.168.0.100")
     かつ バックエンド が Mercurial のコンフィグレータ
     かつ コンフィグレータが Lucie サーバに設定リポジトリ "http://myrepos.org/myconfig" を複製
     かつ コンフィグレータがその複製を Lucie クライアント "yasuhito_node" へ配置した

@@ -49,7 +49,7 @@ class Configurator
 
   def update_client node
     server_repository = File.join( Server.config_directory, @client.repository_name( node.ip_address ) )
-    @client.update node.ip_address, Lucie::Server.ip_address_for( [ node ] ), server_repository
+    @client.update node.ip_address, lucie_server_ip_address_for( [ node ] ), server_repository
   end
 
 
@@ -61,6 +61,15 @@ class Configurator
   ##############################################################################
   private
   ##############################################################################
+
+
+  def lucie_server_ip_address_for nodes
+    if @options[ :dry_run ] and @options[ :nic ]
+      @options[ :nic ].first.ip_address
+    else
+      Lucie::Server.ip_address_for nodes
+    end
+  end
 
 
   def repositories_for nodes
