@@ -32,9 +32,7 @@ class Configurator
 
 
     def setup
-      unless FileTest.exists?( self.class.config_directory )
-        Lucie::Utils.mkdir_p self.class.config_directory, debug_options
-      end
+      create_config_directory unless config_directory_exists?
     end
 
 
@@ -69,6 +67,16 @@ class Configurator
     ############################################################################
     private
     ############################################################################
+
+
+    def config_directory_exists?
+      FileTest.exists? self.class.config_directory
+    end
+
+
+    def create_config_directory
+      Lucie::Utils.mkdir_p self.class.config_directory, debug_options
+    end
 
 
     def local_clone_directory repository_name
