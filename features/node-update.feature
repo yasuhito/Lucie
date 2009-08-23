@@ -11,6 +11,7 @@
 
   シナリオ: node update
     前提 バックエンドとして Mercurial を指定したサーバーコンフィグレータ
+    かつ その SCM がインストールされている
     かつ サーバーコンフィグレータが Lucie サーバに設定リポジトリ "ssh://my.repository.org//ldb" を複製
     かつ eth0 "192.168.0.1"
     かつ a node named "yutaro_node0", with IP address "192.168.0.100"

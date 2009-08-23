@@ -26,12 +26,12 @@ end
 
 
 Given /^その SCM がインストールされている$/ do
-  @configurator.dpkg = SuccessfulDpkg.new
+  @configurator.custom_dpkg = SuccessfulDpkg.new
 end
 
 
 Given /^その SCM がインストールされていない$/ do
-  @configurator.dpkg = FailingDpkg.new
+  @configurator.custom_dpkg = FailingDpkg.new
 end
 
 
@@ -57,7 +57,7 @@ end
 
 When /^サーバーコンフィグレータが SCM のインストール状況を確認$/ do
   begin
-    @configurator.check_scm
+    @configurator.__send__ :check_scm
   rescue
     @error = $!
   end
@@ -92,12 +92,12 @@ end
 
 
 Then /^設定リポジトリ用ディレクトリが Lucie サーバ上に生成される$/ do
-  @messenger.string.chomp.should == "mkdir -p #{ Configurator::Server.config_directory }"
+  history.should include( "mkdir -p #{ Configurator::Server.config_directory }" )
 end
 
 
 Then /^設定リポジトリ用ディレクトリが Lucie サーバ上に生成されない$/ do
-  @messenger.string.should be_empty
+  history.should_not include( "mkdir -p #{ Configurator::Server.config_directory }" )
 end
 
 

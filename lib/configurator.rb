@@ -23,7 +23,6 @@ class Configurator
 
 
   def clone_to_server url, lucie_ip
-    @server.setup
     @server.clone url
     @server.clone_clone url, lucie_ip
   end
@@ -55,6 +54,11 @@ class Configurator
 
   def start node, logger = Lucie::Logger::Null.new
     @client.start node.ip_address, logger
+  end
+
+
+  def custom_dpkg= dpkg
+    @server.custom_dpkg = dpkg
   end
 
 

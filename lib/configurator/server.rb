@@ -8,7 +8,7 @@ class Configurator
     CLONE_CLONE_SUFFIX = ".local"
 
 
-    attr_writer :dpkg # :nodoc:
+    attr_writer :custom_dpkg # :nodoc:
     attr_reader :scm # :nodoc:
 
 
@@ -30,16 +30,11 @@ class Configurator
     def initialize scm = nil, debug_options = {}
       @debug_options = debug_options
       @scm = Scm.from( scm, @debug_options ) if scm
-      @dpkg = Dpkg.new
-    end
-
-
-    def setup
-      create_config_directory unless config_directory_exists?
     end
 
 
     def clone url
+      create_config_directory unless config_directory_exists?
       scm_clone :from => url, :to => clone_directory_for( url )
     end
 
@@ -58,12 +53,6 @@ class Configurator
     end
 
 
-    def check_scm
-      return unless @scm
-      raise "#{ @scm } is not installed" unless scm_installed?
-    end
-
-
     ############################################################################
     private
     ############################################################################
@@ -73,19 +62,29 @@ class Configurator
 
 
     def scm_clone from_to
-      raise "scm is not specified" unless @scm
+      check_scm
       @scm.clone from_to[ :from ], from_to[ :to ]
     end
 
 
     def scm_update target
-      raise "scm is not specified" unless @scm
+      check_scm
       @scm.update target
     end
 
 
+    def check_scm
+      raise "scm is not specified" unless @scm
+      raise "#{ @scm } is not installed" unless scm_installed?
+    end
+
+
     def scm_installed?
-      @dpkg.installed? @scm.name
+      if @custom_dpkg
+        @custom_dpkg.installed?( @scm.name )
+      else
+        @debug_options[ :dry_run ] || Dpkg.new.installed?( @scm.name )
+      end
     end
 
 
