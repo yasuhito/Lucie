@@ -7,7 +7,6 @@ class Configurator
     attr_writer :ssh
 
 
-    COMMAND_DIRECTORY = "/var/lib/lucie/bin"
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 
 
@@ -38,10 +37,10 @@ class Configurator
 
     def setup client_ip, logger = Lucie::Logger::Null.new
       unless repository_base_directory_exists?( client_ip )
-        @ssh.sh client_ip, "mkdir -p #{ REPOSITORY_BASE_DIRECTORY }"
+        create_repository_base_directory client_ip
       end
       unless bin_directory_exists?( client_ip )
-        @ssh.sh client_ip, "mkdir -p #{ COMMAND_DIRECTORY }"
+        create_bin_directory client_ip
       end
     end
 
@@ -88,26 +87,41 @@ class Configurator
     end
 
 
-    def ldb_command ip
-      File.join repository_directory( ip ), "bin", "ldb"
-    end
-
-
     def scripts_directory ip
       File.join repository_directory( ip ), "scripts"
     end
 
 
-    def get_confidential_data
-      File.join COMMAND_DIRECTORY, "get_confidential_data"
+    def bin_directory
+      "/var/lib/lucie/bin"
+    end
+
+
+    def ldb_command ip
+      File.join repository_directory( ip ), "bin", "ldb"
+    end
+
+
+    def get_confidential_data_command
+      File.join bin_directory, "get_confidential_data"
     end
 
 
     # Client-side operations ###################################################
 
 
+    def create_repository_base_directory client_ip
+      @ssh.sh client_ip, "mkdir -p #{ REPOSITORY_BASE_DIRECTORY }"
+    end
+
+
+    def create_bin_directory client_ip
+      @ssh.sh client_ip, "mkdir -p #{ bin_directory }"
+    end
+
+
     def install_get_confidential_data client_ip, server_ip
-      target = get_confidential_data
+      target = get_confidential_data_command
       @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", target
       @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ target }"
       @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ target }"
@@ -127,7 +141,7 @@ class Configurator
 
     def bin_directory_exists? ip
       begin
-        @ssh.sh ip, "test -d #{ COMMAND_DIRECTORY }"
+        @ssh.sh ip, "test -d #{ bin_directory }"
         true
       rescue
         false
