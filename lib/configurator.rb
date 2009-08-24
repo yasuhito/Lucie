@@ -29,7 +29,6 @@ class Configurator
 
 
   def clone_to_client url, node, lucie_ip, logger = Lucie::Logger::Null.new
-    @client.setup node.ip_address, logger
     @client.install lucie_ip, node.ip_address, url, logger
   end
 

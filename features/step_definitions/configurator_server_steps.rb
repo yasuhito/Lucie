@@ -73,12 +73,6 @@ When /^サーバーコンフィグレータが Lucie サーバにその設定リ
 end
 
 
-When /^サーバーコンフィグレータが Lucie サーバを初期化した$/ do
-  @messenger = StringIO.new
-  Configurator::Server.new( nil, options ).setup
-end
-
-
 When /^サーバーコンフィグレータがその設定リポジトリを更新した$/ do
   @configurator.update Configurator.repository_name_from( @url )
 end

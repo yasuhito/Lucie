@@ -45,7 +45,7 @@ class Configurator
     end
 
 
-    context "initializing a client" do
+    context "creating a configuration repository clone on a client" do
       before :each do
         @ssh = mock( "ssh" ).as_null_object
         SSH.stub!( :new ).and_return( @ssh )
@@ -53,20 +53,18 @@ class Configurator
 
 
       it "should create a configurator base directory if not found" do
-        @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" ).and_raise( "test -d failed" )
-        @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "mkdir -p /var/lib/lucie/config" )
-        Client.new.setup "DUMMY_IP_ADDRESS"
+        @ssh.should_receive( :sh ).with( "CLIENT_IP", "test -d /var/lib/lucie/config" ).and_raise( "test -d failed" )
+        @ssh.should_receive( :sh ).with( "CLIENT_IP", "mkdir -p /var/lib/lucie/config" )
+        Client.new( :mercurial ).install "SERVER_IP", "CLIENT_IP", "ssh://myrepos.org//lucie"
       end
 
 
       it "should not create a configurator base directory if found" do
-        @ssh.should_receive( :sh ).with( "DUMMY_IP_ADDRESS", "test -d /var/lib/lucie/config" )
-        Client.new.setup "DUMMY_IP_ADDRESS"
+        @ssh.should_receive( :sh ).with( "CLIENT_IP", "test -d /var/lib/lucie/config" )
+        Client.new( :mercurial ).install "SERVER_IP", "CLIENT_IP", "ssh://myrepos.org//lucie"
       end
-    end
 
 
-    context "creating a configuration repository clone on a client" do
       it "should make a clone repository on the client" do
         ssh = mock( "ssh" ).as_null_object
         SSH.stub!( :new ).and_return( ssh )

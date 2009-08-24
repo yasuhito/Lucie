@@ -35,17 +35,8 @@ class Configurator
     end
 
 
-    def setup client_ip, logger = Lucie::Logger::Null.new
-      unless repository_base_directory_exists?( client_ip )
-        create_repository_base_directory client_ip
-      end
-      unless bin_directory_exists?( client_ip )
-        create_bin_directory client_ip
-      end
-    end
-
-
     def install server_ip, client_ip, url, logger = Lucie::Logger::Null.new
+      setup client_ip, logger
       install_get_confidential_data client_ip, server_ip
       install_repository client_ip, server_ip, url
     end
@@ -108,6 +99,16 @@ class Configurator
 
 
     # Client-side operations ###################################################
+
+
+    def setup client_ip, logger
+      unless repository_base_directory_exists?( client_ip )
+        create_repository_base_directory client_ip
+      end
+      unless bin_directory_exists?( client_ip )
+        create_bin_directory client_ip
+      end
+    end
 
 
     def create_repository_base_directory client_ip

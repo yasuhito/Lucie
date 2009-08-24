@@ -59,18 +59,8 @@ Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*
 end
 
 
-When /^クライアントコンフィグレータが Lucie クライアント \(IP アドレスは "([^\"]*)"\) を初期化した$/ do | ip |
-  @ip = ip
-  @configurator.setup @ip
-end
-
-
 When /^クライアントコンフィグレータがその設定リポジトリを Lucie クライアント \(IP アドレスは "([^\"]*)"\) へ配置した$/ do | ip |
   @ip = ip
-  @messenger = StringIO.new
-
-  @configurator = Configurator::Client.new( @scm, options )
-  @configurator.ssh = DummySSH.new( true, options )
   @configurator.install @lucie_ip, @ip, @url
 end
 
