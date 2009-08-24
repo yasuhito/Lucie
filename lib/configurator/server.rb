@@ -9,7 +9,7 @@ class Configurator
 
 
     attr_writer :custom_dpkg # :nodoc:
-    attr_reader :scm # :nodoc:
+    attr_reader :scm
 
 
     def self.config_directory
@@ -122,17 +122,7 @@ class Configurator
 
 
     def create_config_directory
-      Lucie::Utils.mkdir_p self.class.config_directory, debug_options
-    end
-
-
-    # Debug ####################################################################
-
-
-    def debug_options
-      { :dry_run => @debug_options[ :dry_run ],
-        :verbose => @debug_options[ :verbose ],
-        :messenger => @debug_options[ :messenger ] }
+      Lucie::Utils.mkdir_p self.class.config_directory, @debug_options
     end
   end
 end
