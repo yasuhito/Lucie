@@ -11,10 +11,10 @@ class Configurator
 
 
     def self.guess_scm node, debug_options = {}
-      ssh = SSH.new( debug_options, debug_options[ :messenger ] )
       return "DUMMY_SCM" if debug_options[ :dry_run ]
-      repository = ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
-      ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY_BASE_DIRECTORY, repository, '.*' ) }" ).split( "\n" ).each do | each |
+      ssh = SSH.new( debug_options, debug_options[ :messenger ] )
+      repository_dir = File.join( REPOSITORY_BASE_DIRECTORY, ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp )
+      ssh.sh( node.ip_address, "ls -1 -d #{ File.join( repository_dir, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
         when ".hg"
           return "Mercurial"
@@ -24,7 +24,7 @@ class Configurator
           return "Git"
         end
       end
-      raise "Cannot determine SCM used on #{ node.name }:#{ repository }"
+      raise "Cannot determine SCM used on #{ node.name }:#{ repository_dir }"
     end
 
 
@@ -42,8 +42,8 @@ class Configurator
     end
 
 
-    def update client_ip, server_ip, repository_name
-      update_commands( client_ip, server_ip, repository_name ).each do | each |
+    def update client_ip, server_ip, repository
+      update_commands( client_ip, server_ip, repository ).each do | each |
         @ssh.sh_a client_ip, each
       end
     end
@@ -54,9 +54,9 @@ class Configurator
     end
 
 
-    def repository_name ip
+    def repository_name client_ip
       return "REPOSITORY_NAME" if @debug_options[ :dry_run ]
-      @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
+      @ssh.sh( client_ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
     end
 
 
@@ -68,8 +68,8 @@ class Configurator
     # Paths ####################################################################
 
 
-    def repository_directory ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
+    def repository_directory client_ip
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( client_ip )
     end
 
 
@@ -135,8 +135,8 @@ class Configurator
     end
 
 
-    def update_commands client_ip, server_ip, repository_name
-      @scm.update_commands_for repository_directory( client_ip ), server_ip, repository_name
+    def update_commands client_ip, server_ip, repository
+      @scm.update_commands_for repository_directory( client_ip ), server_ip, repository
     end
 
 

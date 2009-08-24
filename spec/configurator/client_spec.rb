@@ -40,7 +40,7 @@ class Configurator
         @ssh.should_receive( :sh ).with( @ip, "ls -1 -d #{ @basedir }/REPOSITORY_NAME/.*" ).and_return( "#{ @basedir }/REPOSITORY_NAME/.unknown" )
         lambda do
           Client.guess_scm( @node )
-        end.should raise_error( "Cannot determine SCM used on NODE_NAME:REPOSITORY_NAME" )
+        end.should raise_error( "Cannot determine SCM used on NODE_NAME:#{ @basedir }/REPOSITORY_NAME" )
       end
     end
 
