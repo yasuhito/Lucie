@@ -11,9 +11,9 @@ class Configurator
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 
 
-    def self.guess_scm node, options = {}
-      ssh = SSH.new( options, options[ :messenger ] )
-      return "DUMMY_SCM" if options[ :dry_run ]
+    def self.guess_scm node, debug_options = {}
+      ssh = SSH.new( debug_options, debug_options[ :messenger ] )
+      return "DUMMY_SCM" if debug_options[ :dry_run ]
       repository = ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
       ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY_BASE_DIRECTORY, repository, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
@@ -29,10 +29,10 @@ class Configurator
     end
 
 
-    def initialize scm = nil, options = {}
-      @options = options
-      @ssh = SSH.new( @options, @options[ :messenger ] )
-      @scm = Scm.from( scm, @options ) if scm
+    def initialize scm = nil, debug_options = {}
+      @debug_options = debug_options
+      @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
+      @scm = Scm.from( scm, @debug_options ) if scm
     end
 
 
@@ -40,45 +40,33 @@ class Configurator
       unless repository_base_directory_exists?( client_ip )
         @ssh.sh client_ip, "mkdir -p #{ REPOSITORY_BASE_DIRECTORY }"
       end
-      unless command_directory_exists?( client_ip )
+      unless bin_directory_exists?( client_ip )
         @ssh.sh client_ip, "mkdir -p #{ COMMAND_DIRECTORY }"
       end
     end
 
 
     def install server_ip, client_ip, url, logger = Lucie::Logger::Null.new
-      @url = url
-      @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", COMMAND_DIRECTORY
-      @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
-      @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
-      @ssh.sh client_ip, "chmod +x #{ File.join( COMMAND_DIRECTORY, 'get_confidential_data' ) }"
-      @ssh.sh_a client_ip, @scm.install_command( File.join( REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url ) ), server_ip, url )
+      install_get_confidential_data client_ip, server_ip
+      install_repository client_ip, server_ip, url
     end
 
 
-    def update ip, server_ip, repository
-      @scm.update_commands_for( repository_directory( ip ), server_ip, repository ).each do | each |
-        @ssh.sh_a ip, each
+    def update client_ip, server_ip, repository_name
+      update_commands( client_ip, server_ip, repository_name ).each do | each |
+        @ssh.sh_a client_ip, each
       end
     end
 
 
-    def start ip, logger = Lucie::Logger::Null.new
+    def start ip, logger = Lucie::Logger::Null.new    
       @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval \\`#{ ldb_command( ip ) } env\\` && make", logger
     end
 
 
-    def repository_directory ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
-    end
-
-
     def repository_name ip
-      if @options[ :dry_run ]
-        "REPOSITORY_NAME"
-      else
-        @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).split( "\n" ).first
-      end
+      return "REPOSITORY_NAME" if @debug_options[ :dry_run ]
+      @ssh.sh( ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
     end
 
 
@@ -87,17 +75,57 @@ class Configurator
     ############################################################################
 
 
+    # Paths ####################################################################
+
+
+    def repository_directory ip
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip )
+    end
+
+
+    def repository_directory_from url
+      File.join REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url )
+    end
+
+
     def ldb_command ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip ), "bin", "ldb"
+      File.join repository_directory( ip ), "bin", "ldb"
     end
 
 
     def scripts_directory ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( ip ), "scripts"
+      File.join repository_directory( ip ), "scripts"
     end
 
 
-    def command_directory_exists? ip
+    def get_confidential_data
+      File.join COMMAND_DIRECTORY, "get_confidential_data"
+    end
+
+
+    # Client-side operations ###################################################
+
+
+    def install_get_confidential_data client_ip, server_ip
+      target = get_confidential_data
+      @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", target
+      @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ target }"
+      @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ target }"
+      @ssh.sh client_ip, "chmod +x #{ target }"
+    end
+
+
+    def install_repository client_ip, server_ip, url
+      @ssh.sh_a client_ip, @scm.install_command( repository_directory_from( url ), server_ip, url )
+    end
+
+
+    def update_commands client_ip, server_ip, repository_name
+      @scm.update_commands_for repository_directory( client_ip ), server_ip, repository_name
+    end
+
+
+    def bin_directory_exists? ip
       begin
         @ssh.sh ip, "test -d #{ COMMAND_DIRECTORY }"
         true
