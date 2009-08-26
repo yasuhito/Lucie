@@ -1,4 +1,5 @@
 require "command/app"
+require "configurator"
 require "node"
 require "nodes"
 
@@ -35,7 +36,7 @@ module Command
 
 
       def start_installer_for node, logger
-        server_clone_directory = @ldb ? @ldb.server_clone_directory( @options.ldb_repository ) : nil
+        server_clone_directory = @options.ldb_repository ? Configurator::Server.clone_directory( @options.ldb_repository ) : nil
         @installer.start node, @node_options[ node.name ].linux_image, @node_options[ node.name ].storage_conf, server_clone_directory, logger, @html_logger, debug_options, @messenger
       end
 
