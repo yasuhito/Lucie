@@ -18,6 +18,7 @@ module Command
 
 
       def main node_names
+        start_secret_server
         nodes = load_nodes( node_names )
         scm = Configurator.guess_scm( nodes.first, debug_options )
         @configurator = Configurator.new( scm, debug_options.merge( :messenger => @messenger, :nic => @nic ) )

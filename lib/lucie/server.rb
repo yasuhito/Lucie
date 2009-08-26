@@ -1,3 +1,5 @@
+require "rubygems"
+
 require "facter"
 require "network_interfaces"
 
