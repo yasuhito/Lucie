@@ -6,7 +6,7 @@ module Scm
 
 
     def update_commands_for target, server_ip, repository
-      [ "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ repository } #{ target }" ]
+      [ "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ repository } #{ File.dirname target }" ]
     end
 
 

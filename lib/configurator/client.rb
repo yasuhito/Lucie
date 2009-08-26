@@ -43,7 +43,7 @@ class Configurator
 
 
     def update client_ip, server_ip, repository
-      update_commands( client_ip, server_ip, REPOSITORY_BASE_DIRECTORY ).each do | each |
+      update_commands( client_ip, server_ip, repository ).each do | each |
         @ssh.sh_a client_ip, each
       end
     end
