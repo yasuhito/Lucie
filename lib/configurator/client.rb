@@ -131,7 +131,7 @@ class Configurator
 
 
     def install_repository client_ip, server_ip, url
-      @ssh.sh_a client_ip, @scm.install_command( repository_directory_from( url ), server_ip, url )
+      @ssh.sh_a client_ip, @scm.install_command( REPOSITORY_BASE_DIRECTORY, server_ip, url )
     end
 
 
