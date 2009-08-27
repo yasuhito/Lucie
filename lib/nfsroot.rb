@@ -164,7 +164,6 @@ class Nfsroot < Rake::TaskLib
     mkdir_p target( "var/state" ) unless FileTest.directory?( target( "var/state" ) )
 
     write_file target( "etc/apt/sources.list" ), "deb #{ @package_repository } #{ suite } main contrib non-free"
-    write_file target( "etc/apt/sources.list.client" ), "deb http://#{ ENV[ 'SERVER_IP_ADDRESS' ] }:9999/debian #{ suite } main contrib non-free"
   end
 
 

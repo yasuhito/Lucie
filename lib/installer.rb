@@ -99,9 +99,9 @@ class Installer
   end
 
 
-  def start node, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger
+  def start node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger
     ( messenger || $stdout ).puts "node #{ node.name } is going to be installed using #{ storage_conf }"
-    FirstStage.new( node, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger ).run
+    FirstStage.new( node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger ).run
   end
 
 

@@ -4,12 +4,15 @@ require "configuration"
 require "facter"
 require "lucie/logger/html"
 require "lucie/logger/installer"
+require "lucie/server"
 require "status/installer"
+require "tempfile"
 
 
 class FirstStage
-  def initialize node, linux_image, storage_conf, ldb_directory, logger, html_logger, options = {}, messenger = nil
+  def initialize node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options = {}, messenger = nil
     @node = node
+    @suite = suite
     @linux_image = linux_image || "linux-image-686"
     @storage_conf = storage_conf
     @ldb_directory = ldb_directory
@@ -64,7 +67,11 @@ class FirstStage
     ssh 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
     ssh 'cp -a /tmp/fstab /tmp/target/etc/fstab'
 
-    ssh 'cp /etc/apt/sources.list.client /tmp/target/etc/apt/sources.list'
+    sources_list = Tempfile.new( "lucie" )
+    sources_list.puts "deb http://#{ Lucie::Server.ip_address_for( [ @node ], @options ) }:9999/debian #{ @suite } main contrib non-free"
+    sources_list.flush
+    scp sources_list.path, '/tmp/target/etc/apt/sources.list'
+
     ssh 'mount -t proc proc /tmp/target/proc'
     ssh 'mount -t sysfs sysfs /tmp/target/sys'
     ssh '[ -f /etc/init.d/udev ] && mount --bind /dev/ /tmp/target/dev'

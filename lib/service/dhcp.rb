@@ -88,7 +88,7 @@ subnet #{ subnet } netmask #{ netmask } {
   option broadcast-address #{ broadcast_address( nodes ) };
   deny unknown-clients;
 
-  next-server #{ Lucie::Server.ip_address_for( nodes, interfaces ) };
+  next-server #{ Lucie::Server.ip_address_for( nodes, :interfaces => interfaces ) };
   filename "pxelinux.0";
 
 #{ host_entries( nodes ) }

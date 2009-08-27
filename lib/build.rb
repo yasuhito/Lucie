@@ -75,7 +75,7 @@ class Build
 
   def set_env
     verbose = @options[ :verbose ] ? "true" : "false"
-    %{ENV[ 'LUCIE_USER' ] = '#{ `whoami`.chomp }'; ENV[ 'SERVER_IP_ADDRESS' ] = '#{ @installer.ip_address }'; ENV[ 'INSTALLER_NAME' ] = '#{ @installer.suite }'; ENV[ 'INSTALLER_PATH' ] = '#{ @installer.path }'; ENV[ 'VERBOSE' ] = '#{ verbose }'}
+    %{ENV[ 'LUCIE_USER' ] = '#{ `whoami`.chomp }'; ENV[ 'INSTALLER_NAME' ] = '#{ @installer.suite }'; ENV[ 'INSTALLER_PATH' ] = '#{ @installer.path }'; ENV[ 'VERBOSE' ] = '#{ verbose }'}
   end
 
 
