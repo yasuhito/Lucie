@@ -6,6 +6,7 @@ require "lucie/server"
 
 class Configurator
   def self.repository_name_from url
+    raise "Repository url not specified" unless url
     url.gsub( /[\/:@]/, "_" )
   end
 
@@ -88,7 +89,7 @@ class Configurator
 
 
   def repository_name ip_address
-    return "REPOSITORY_NAME" if @options[ :dry_run ]
+    return "REPOSITORY" if @options[ :dry_run ]
     @client.repository_name ip_address
   end
 end

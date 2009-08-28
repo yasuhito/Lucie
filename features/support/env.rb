@@ -12,6 +12,7 @@ $LOAD_PATH.unshift File.join( File.dirname( __FILE__ ), "/../../lib" )
 require "command/node-install"
 require "command/node-install-multi"
 require "command/node-update"
+require "configuration-updator"
 require "configurator"
 require "lucie"
 require "secret-server"
@@ -30,8 +31,14 @@ DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 ################################################################################
 
 
+# [FIXME] obsolete.
 def options
-  { :dry_run => true, :verbose => @verbose, :messenger => @messenger, :nic => [ @if ] }
+  { :dry_run => true, :verbose => @verbose, :messenger => @messenger, :scm => @scm, :nic => [ @if ] }
+end
+
+
+def debug_options
+  options
 end
 
 

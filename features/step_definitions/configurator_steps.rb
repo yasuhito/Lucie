@@ -27,8 +27,8 @@ Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
 end
 
 
-When /^コンフィグレータが Lucie サーバの更新を実行した$/ do
-  @configurator.update_server @url
+When /^コンフィグレータがノード "([^\"]*)" の更新のために Lucie サーバの更新を実行した$/ do | name |
+  @configurator.update_server_for [ Nodes.find( name ) ]
 end
 
 
@@ -48,20 +48,20 @@ When /^コンフィグレータが Lucie クライアント "([^\"]*)" の SCM �
 end
 
 
-def server_target url
-  File.join Configurator::Server.config_directory, Configurator.repository_name_from( url )
+def server_target
+  File.join Configurator::Server.config_directory, "REPOSITORY"
 end
 
 
 Then /^Lucie サーバの設定リポジトリが更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) ) } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) ) } && hg update/ )
+  @messenger.string.should match( /^cd #{ regexp_from server_target } && hg pull/ )
+  @messenger.string.should match( /^cd #{ regexp_from server_target } && hg update/ )
 end
 
 
 Then /^Lucie サーバの設定リポジトリ複製が更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) + ".local" ) } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from( server_target( @url ) + ".local" ) } && hg update/ )
+  @messenger.string.should match( /^cd #{ regexp_from( server_target + ".local" ) } && hg pull/ )
+  @messenger.string.should match( /^cd #{ regexp_from( server_target + ".local" ) } && hg update/ )
 end
 
 
