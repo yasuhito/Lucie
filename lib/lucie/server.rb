@@ -18,11 +18,11 @@ module Lucie
 
     def self.ip_address_for nodes, debug_options = {}
       return "LUCIE_SERVER_IP_ADDRESS" if debug_options[ :dry_run ]
-      subnet, netmask = ( nodes.respond_to?( :first ) ? nodes.first : nodes ).net_info
+      subnet, = ( nodes.respond_to?( :first ) ? nodes.first : nodes ).net_info
       nic = ( debug_options[ :interfaces ] || NetworkInterfaces ).select do | each |
-        each.subnet == subnet and each.netmask == netmask
+        Network.subnet_includes? each.subnet, subnet
       end.first
-      raise "Cannot determine suitable network interface for installation" unless nic
+      raise "No suitable network interface for installation found" unless nic
       nic.ip_address
     end
 

@@ -19,6 +19,17 @@ class Network
     end
     return result.join( '.' )
   end
+
+
+  def self.subnet_includes? subnet_a, subnet_b
+    [ 0, 1, 2, 3 ].inject( true ) do | result, oidx |
+      if subnet_a.split( "." )[ oidx ] == "0"
+        result
+      else
+        result &= subnet_a.split( "." )[ oidx ] == subnet_b.split( "." )[ oidx ]
+      end
+    end
+  end
 end
 
 
