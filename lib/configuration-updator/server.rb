@@ -1,23 +1,19 @@
+require "configuration"
+require "scm"
+
+
 class ConfigurationUpdator
   class Server
-    CLONE_CLONE_SUFFIX = ".local"
-
-
-    def self.config_directory
-      File.join Configuration.temporary_directory, "config"
-    end
-
-
     def initialize debug_options = {}
-      @debug_options = debug_options
+      @scm = Scm.new( debug_options )
     end
 
 
     def update repos_name
-      scm_from( repos_name ).update local_clone_directory( repos_name )
-      if mercurial_repository?( repos_name )
-        scm_from( repos_name ).update local_clone_clone_directory( repos_name )
-      end
+      scm = @scm.from( local_clone_directory( repos_name ) )
+      scm.test_installed
+      scm.update local_clone_directory( repos_name )
+      scm.update local_clone_clone_directory( repos_name ) if scm.mercurial?
     end
 
 
@@ -26,40 +22,23 @@ class ConfigurationUpdator
     ############################################################################
 
 
+    def clone_clone_suffix
+      ".local"
+    end
+
+
+    def config_directory
+      File.join Configuration.temporary_directory, "config"
+    end
+
+
     def local_clone_directory repos_name
-      File.join self.class.config_directory, repos_name
+      File.join config_directory, repos_name
     end
 
 
     def local_clone_clone_directory repos_name
-      local_clone_directory( repos_name ) + CLONE_CLONE_SUFFIX
-    end
-
-
-    def scm_name
-      { ".hg" => "Mercurial",
-        ".svn" => "Subversion",
-        ".git" => "Git" }
-    end
-
-
-    def mercurial_repository? repos_name
-      scm_from( repos_name ).is_a? Scm::Mercurial
-    end
-
-
-    def scm_from repos_name
-      Scm.from guess_scm_type( repos_name ), @debug_options
-    end
-
-
-    def guess_scm_type repos_name
-      return @debug_options[ :scm ] if @debug_options[ :scm ]
-      Dir.glob( File.join( local_clone_directory( repos_name ), ".*" ) ).each do | each |
-        name = scm_name[ File.basename( each ) ]
-        return name if name
-      end
-      nil
+      local_clone_directory( repos_name ) + clone_clone_suffix
     end
   end
 end

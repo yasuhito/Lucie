@@ -48,23 +48,6 @@ When /^コンフィグレータが Lucie クライアント "([^\"]*)" の SCM �
 end
 
 
-def server_target
-  File.join Configurator::Server.config_directory, "REPOSITORY"
-end
-
-
-Then /^Lucie サーバの設定リポジトリが更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from server_target } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from server_target } && hg update/ )
-end
-
-
-Then /^Lucie サーバの設定リポジトリ複製が更新される$/ do
-  @messenger.string.should match( /^cd #{ regexp_from( server_target + ".local" ) } && hg pull/ )
-  @messenger.string.should match( /^cd #{ regexp_from( server_target + ".local" ) } && hg update/ )
-end
-
-
 def client_target
   File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, "REPOSITORY_NAME"
 end

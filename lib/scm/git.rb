@@ -1,4 +1,4 @@
-module Scm
+class Scm
   class Git < Common
     def clone url, target
       run "git clone #{ url } #{ target }", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
@@ -6,6 +6,7 @@ module Scm
 
 
     def update target
+      test_installed
       run "cd #{ target } && git pull", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
       run "cd #{ target } && git update", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
     end

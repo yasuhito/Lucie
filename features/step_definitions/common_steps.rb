@@ -109,6 +109,11 @@ Then /^エラー "([^\"]*)"$/ do | message |
 end
 
 
+Then /^エラー$/ do
+  @error.should_not be_nil
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix

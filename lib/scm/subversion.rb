@@ -1,4 +1,4 @@
-module Scm
+class Scm
   class Subversion < Common
     def clone url, target
       run "svn co #{ url } #{ target }", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }

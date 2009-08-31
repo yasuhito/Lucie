@@ -33,7 +33,14 @@ DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 
 # [FIXME] obsolete.
 def options
-  { :dry_run => true, :verbose => @verbose, :messenger => @messenger, :scm => @scm, :nic => [ @if ] }
+  { :dry_run => true,
+    :verbose => @verbose,
+    :messenger => @messenger,
+    :scm => @scm,
+    :dummy_scm => @dummy_scm,
+    :dpkg => @custom_dpkg,
+    :repository_name => @repository_name,
+    :nic => [ @if ] }
 end
 
 

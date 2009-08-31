@@ -3,10 +3,9 @@ require "configuration-updator/server"
 
 
 class ConfigurationUpdator
-  def initialize debug_options
-    @debug_options = debug_options
-    @server = Server.new( @debug_options )
-    @client = Client.new( @debug_options )
+  def initialize debug_options = {}
+    @server = Server.new( debug_options )
+    @client = Client.new( debug_options )
   end
 
 
@@ -24,11 +23,7 @@ class ConfigurationUpdator
 
   def repositories_for nodes
     list = nodes.collect do | each |
-      begin
-        @client.repository_name_for each.ip_address
-      rescue
-        raise "Configuration repository for #{ each.name } not found on Lucie server."
-      end
+      @client.repository_name_for each
     end
     list.uniq
   end

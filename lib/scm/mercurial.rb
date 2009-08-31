@@ -1,4 +1,4 @@
-module Scm
+class Scm
   class Mercurial < Common
     def clone source, dest
       run %{hg clone --ssh "ssh -i #{ SSH::PRIVATE_KEY }" #{ source } #{ dest }}
@@ -20,6 +20,11 @@ module Scm
 
     def install_command target, server_ip, url
       "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ Configurator::Server.clone_clone_directory( url ) } #{ target }"
+    end
+
+
+    def mercurial?
+      true
     end
 
 

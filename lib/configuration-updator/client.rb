@@ -5,8 +5,9 @@ class ConfigurationUpdator
     end
 
 
-    def repository_name_for ip_address
-      return "REPOSITORY" if @debug_options[ :dry_run ]
+    def repository_name_for node
+      return @debug_options[ :repository_name ] if @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
+      raise "Configuration repository for #{ node.name } not found on Lucie server."
     end
   end
 end
