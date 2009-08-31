@@ -26,7 +26,7 @@ end
 
 
 Given /^その SCM がインストールされている$/ do
-  @configurator.custom_dpkg = SuccessfulDpkg.new
+  @custom_dpkg = SuccessfulDpkg.new
 end
 
 
