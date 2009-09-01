@@ -8,6 +8,7 @@ module Command
   module NodeInstallMulti
     class App < Command::App
       def initialize argv = ARGV, messenger = nil, nic = nil
+        @debug_options = {}
         super argv, messenger, nic
       end
 

@@ -20,7 +20,7 @@ module Command
       def main node_names
         start_secret_server
         nodes = load_nodes( node_names )
-        @updator = ConfigurationUpdator.new( @debug_options )
+        @updator = ConfigurationUpdator.new( debug_options )
         @updator.update_server_for nodes
         nodes.collect do | each |
           create_update_thread_for each 
@@ -56,7 +56,7 @@ module Command
 
 
       def resolve name
-        if Nodes.find( name ) and @options.dry_run
+        if Nodes.find( name ) and debug_options[ :dry_run ]
           Nodes.find( name ).ip_address
         else
           Resolv.getaddress( name ) rescue raise( "no address for #{ name }" )
@@ -65,7 +65,7 @@ module Command
 
 
       def netmask_for name
-        return "NETMASK" if @debug_options[ :dry_run ]
+        return "NETMASK" if debug_options[ :dry_run ]
         raise "cannot find network interface for #{ name }" unless nic_for( name )
         nic_for( name ).netmask
       end

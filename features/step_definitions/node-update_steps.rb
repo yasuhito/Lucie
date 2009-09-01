@@ -1,7 +1,7 @@
 When /^I run node update "([^\"]*)"$/ do | nodes |
   @messenger = StringIO.new( "" )
   begin
-    Command::NodeUpdate::App.new( [ "--verbose", "--dry-run" ], debug_options ).main nodes.split( /,\s*/ )
+    Command::NodeUpdate::App.new( [], debug_options ).main nodes.split( /,\s*/ )
   rescue => e
     @error = e
   end
