@@ -1,6 +1,6 @@
 class Scm
   class Common
-    def initialize debug_options
+    def initialize debug_options = {}
       @debug_options = debug_options
     end
 

@@ -1,13 +1,61 @@
+require "ssh"
+require "lucie/server"
+
+
 class ConfigurationUpdator
   class Client
-    def initialize debug_options
+    REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
+
+
+    def initialize debug_options = {}
       @debug_options = debug_options
+      @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
+    end
+
+
+    def update node, server_repository
+      update_commands( node, server_repository ).each do | each |
+        @ssh.sh_a node.ip_address, each
+      end
     end
 
 
     def repository_name_for node
-      return @debug_options[ :repository_name ] if @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
-      raise "Configuration repository for #{ node.name } not found on Lucie server."
+      return @debug_options[ :repository_name ] if dummy_repository?
+      ssh_ls_repository_name node
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def update_commands node, server_repository
+      scm = Scm.new( @debug_options ).from( server_repository )
+      server_ip = Lucie::Server.ip_address_for( [ node ], @debug_options )
+      scm.update_commands_for( repository_directory( node ), server_ip, server_repository )
+    end
+
+
+    def dummy_repository?
+      @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
+    end
+
+
+    def repository_directory node
+      File.join REPOSITORY_BASE_DIRECTORY, repository_name_for( node )
+    end
+
+
+    def ssh_ls_repository_name node
+      begin
+        name = @ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
+        raise if name.empty?
+      rescue
+        raise "Configuration repository for #{ node.name } not found on Lucie server."
+      end
+      name
     end
   end
 end

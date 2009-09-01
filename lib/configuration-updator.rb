@@ -16,6 +16,11 @@ class ConfigurationUpdator
   end
 
 
+  def update_client node
+    @client.update node, @server.local_clone_directory( @client.repository_name_for node )
+  end
+
+
   ##############################################################################
   private
   ##############################################################################

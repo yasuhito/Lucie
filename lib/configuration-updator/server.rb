@@ -17,14 +17,14 @@ class ConfigurationUpdator
     end
 
 
+    def local_clone_directory repos_name
+      File.join config_directory, repos_name
+    end
+
+
     ############################################################################
     private
     ############################################################################
-
-
-    def clone_clone_suffix
-      ".local"
-    end
 
 
     def config_directory
@@ -32,13 +32,13 @@ class ConfigurationUpdator
     end
 
 
-    def local_clone_directory repos_name
-      File.join config_directory, repos_name
+    def local_clone_clone_directory repos_name
+      local_clone_directory( repos_name ) + clone_clone_suffix
     end
 
 
-    def local_clone_clone_directory repos_name
-      local_clone_directory( repos_name ) + clone_clone_suffix
+    def clone_clone_suffix
+      ".local"
     end
   end
 end

@@ -16,7 +16,12 @@ end
 
 
 Given /^コンフィグレータがその設定リポジトリを Lucie サーバ上でローカルに複製$/ do
-  # [???] ここでは何もしない ?
+  # [???] ここでは何もしない？
+end
+
+
+Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" に複製$/ do | name |
+  # [???] ここでは何もしない？
 end
 
 
@@ -27,6 +32,11 @@ end
 
 Given /^([a-zA-Z]+) が Lucie サーバにインストールされていない$/ do | scm |
   @custom_dpkg = FailingDpkg.new
+end
+
+
+Given /^Mercurial が Lucie クライアントにインストールされている$/ do
+  # [???] 何する？
 end
 
 
@@ -55,6 +65,13 @@ When /^コンフィグレーションアップデータが Lucie サーバの更
   rescue
     @error = $!
   end
+end
+
+
+When /^コンフィグレーションアップデータが Lucie クライアント "([^\"]*)" の更新を実行$/ do | name |
+  @messenger = StringIO.new
+  @updator = ConfigurationUpdator.new( debug_options )
+  @updator.update_client Nodes.find( name )
 end
 
 
