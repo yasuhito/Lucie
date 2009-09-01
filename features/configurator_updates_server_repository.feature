@@ -10,8 +10,8 @@
 
   シナリオ: 設定の更新
     前提 Lucie クライアント "yasuhito_node" (IP アドレスは "192.168.0.1")
+    かつ Mercurial がインストールされている
     かつ バックエンド が Mercurial のコンフィグレータ
-    かつ その SCM がインストールされている
     かつ コンフィグレータが Lucie サーバに設定リポジトリ "http://myrepos.org/myconfig" を複製
     かつ コンフィグレータがその複製を Lucie クライアント "yasuhito_node" へ配置した
     もし コンフィグレータがノード "yasuhito_node" の更新のために Lucie サーバの更新を実行した

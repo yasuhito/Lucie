@@ -75,16 +75,7 @@ class Configurator
 
     def check_scm
       raise "scm is not specified" unless @scm
-      raise "#{ @scm } is not installed" unless scm_installed?
-    end
-
-
-    def scm_installed?
-      if @custom_dpkg
-        @custom_dpkg.installed?( @scm.name )
-      else
-        @debug_options[ :dry_run ] || Dpkg.new.installed?( @scm.name )
-      end
+      raise "#{ @scm } is not installed" unless Dpkg.new( @debug_options ).installed?( @scm.name )
     end
 
 

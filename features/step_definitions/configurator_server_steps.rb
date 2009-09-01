@@ -25,13 +25,13 @@ Given /^バックエンドの SCM が指定されていないサーバーコン�
 end
 
 
-Given /^その SCM がインストールされている$/ do
+Given /^([a-zA-Z]+) がインストールされている$/ do | scm |
   @custom_dpkg = SuccessfulDpkg.new
 end
 
 
-Given /^その SCM がインストールされていない$/ do
-  @configurator.custom_dpkg = FailingDpkg.new
+Given /^([a-zA-Z]+) がインストールされていない$/ do | scm |
+  @custom_dpkg = FailingDpkg.new
 end
 
 
