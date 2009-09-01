@@ -1,10 +1,7 @@
 require "command/app"
 require "configuration-updator"
 require "network"
-require "network_interfaces"
 require "node"
-require "nodes"
-require "resolv"
 require "thread"
 
 
@@ -19,14 +16,8 @@ module Command
 
       def main node_names
         start_secret_server
-        nodes = load_nodes( node_names )
         @updator = ConfigurationUpdator.new( debug_options )
-        @updator.update_server_for nodes
-        nodes.collect do | each |
-          create_update_thread_for each 
-        end.each do | each |
-          each.join
-        end
+        update nodes_from( node_names )
       end
 
 
@@ -35,7 +26,17 @@ module Command
       ##########################################################################
 
 
-      def create_update_thread_for node
+      def update nodes
+        @updator.update_server_for nodes
+        nodes.collect do | each |
+          start_update_for each 
+        end.each do | each |
+          each.join
+        end
+      end
+
+
+      def start_update_for node
         Thread.start do
           @updator.update_client node
           @updator.start node
@@ -43,38 +44,17 @@ module Command
       end
 
 
-      def load_nodes node_names
+      def nodes_from node_names
         node_names.collect do | each |
-          load_node each
+          node_from each
         end
       end
 
 
-      def load_node name
-        Node.new name, { :ip_address => resolve( name ), :netmask_address => netmask_for( name ) }
-      end
-
-
-      def resolve name
-        if Nodes.find( name ) and debug_options[ :dry_run ]
-          Nodes.find( name ).ip_address
-        else
-          Resolv.getaddress( name ) rescue raise( "no address for #{ name }" )
-        end
-      end
-
-
-      def netmask_for name
-        return "NETMASK" if debug_options[ :dry_run ]
-        raise "cannot find network interface for #{ name }" unless nic_for( name )
-        nic_for( name ).netmask
-      end
-
-
-      def nic_for name
-        NetworkInterfaces.select do | each |
-          Network.network_address( resolve( name ), each.netmask ) == each.subnet
-        end.first
+      def node_from name
+        opts = { :ip_address => Network.resolve( name, debug_options ),
+          :netmask_address => Network.netmask_address( name, debug_options ) }
+        Node.new name, opts
       end
     end
   end

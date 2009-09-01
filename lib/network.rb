@@ -31,6 +31,25 @@ class Network
       end
     end
   end
+
+
+  def self.resolve name, debug_options
+    if Nodes.find( name ) and debug_options[ :dry_run ]
+      Nodes.find( name ).ip_address
+    else
+      Resolv.getaddress( name ) rescue raise( "no address for #{ name }" )
+    end
+  end
+
+
+  def self.netmask_address name, debug_options
+    nic = NetworkInterfaces.select do | each |
+      Network.network_address( resolve( name, debug_options ), each.netmask ) == each.subnet
+    end.first
+    return "NETMASK" if debug_options[ :dry_run ]
+    raise "cannot find network interface for #{ name }" unless nic
+    nic.netmask
+  end
 end
 
 
