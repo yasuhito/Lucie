@@ -22,6 +22,7 @@ class Network
 
 
   def self.subnet_includes? subnet_a, subnet_b
+    return false unless subnet_a
     [ 0, 1, 2, 3 ].inject( true ) do | result, oidx |
       if subnet_a.split( "." )[ oidx ] == "0"
         result
