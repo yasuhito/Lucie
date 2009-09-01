@@ -26,6 +26,11 @@ class ConfigurationUpdator
     end
 
 
+    def start node, logger
+      @ssh.sh_a node.ip_address, "cd #{ scripts_directory( node ) } && eval \\`#{ ldb_command( node ) } env\\` && make", logger
+    end
+
+
     ############################################################################
     private
     ############################################################################
@@ -45,6 +50,16 @@ class ConfigurationUpdator
 
     def repository_directory node
       File.join REPOSITORY_BASE_DIRECTORY, repository_name_for( node )
+    end
+
+
+    def scripts_directory node
+      File.join repository_directory( node ), "scripts"
+    end
+
+
+    def ldb_command node
+      File.join repository_directory( node ), "bin", "ldb"
     end
 
 

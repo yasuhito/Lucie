@@ -1,13 +1,9 @@
 When /^I run node update "([^\"]*)"$/ do | nodes |
   @messenger = StringIO.new( "" )
-  argv = [ "--verbose", "--dry-run" ]
   begin
-    Command::NodeUpdate::App.new( argv, @messenger,  @if ? [ @if ] : nil ).main nodes.split( /,\s*/ )
+    Command::NodeUpdate::App.new( [ "--verbose", "--dry-run" ], debug_options ).main nodes.split( /,\s*/ )
   rescue => e
     @error = e
-    @error.backtrace.each do | each |
-      $stderr.puts each
-    end
   end
 end
 

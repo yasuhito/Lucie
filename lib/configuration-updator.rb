@@ -1,5 +1,6 @@
 require "configuration-updator/client"
 require "configuration-updator/server"
+require "lucie/logger/null"
 
 
 class ConfigurationUpdator
@@ -18,6 +19,11 @@ class ConfigurationUpdator
 
   def update_client node
     @client.update node, @server.local_clone_directory( @client.repository_name_for node )
+  end
+
+
+  def start node, logger = Lucie::Logger::Null.new
+    @client.start node, logger
   end
 
 

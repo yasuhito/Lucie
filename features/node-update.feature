@@ -10,17 +10,13 @@
     かつ Lucie のテンポラリディレクトリは "/tmp/lucie"
 
   シナリオ: node update
-    前提 Mercurial がインストールされている
-    かつ バックエンドとして Mercurial を指定したサーバーコンフィグレータ
-    かつ サーバーコンフィグレータが Lucie サーバに設定リポジトリ "ssh://my.repository.org//ldb" を複製
-    かつ eth0 "192.168.0.1"
-    かつ a node named "yutaro_node0", with IP address "192.168.0.100"
-    かつ a node named "yutaro_node1", with IP address "192.168.0.101"
-    もし I run node update "yutaro_node0, yutaro_node1"
-    ならば nothing raised
-    かつ ldb on Lucie server updated
-    かつ ldb on "yutaro_node0" executed
-    かつ ldb on "yutaro_node1" executed
+    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (Mercurial)
+      かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
+      かつ コンフィグレータがその設定リポジトリを Lucie サーバ上でローカルに複製
+      かつ Mercurial が Lucie サーバにインストールされている
+   もし I run node update "yasuhito_node"
+   ならば nothing raised
+     かつ ldb on "yasuhito_node" executed
 
 #   Scenario: fail to resolve IP address
 #     Given a node named "no_such_node"
