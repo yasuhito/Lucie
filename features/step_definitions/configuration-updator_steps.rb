@@ -10,6 +10,11 @@ Given /^コンフィグレータがその設定リポジトリを Lucie サー�
 end
 
 
+Given /^コンフィグレータがその設定リポジトリを Lucie サーバの "([^\"]*)" に複製$/ do | repos |
+  @repository_name = repos
+end
+
+
 Given /^その設定リポジトリが Lucie サーバ上に複製されていない$/ do
   @repository_name = nil
 end
@@ -35,19 +40,19 @@ Given /^([a-zA-Z]+) が Lucie サーバにインストールされていない$/
 end
 
 
-Given /^Mercurial が Lucie クライアントにインストールされている$/ do
+Given /^([a-zA-Z]+) が Lucie クライアントにインストールされている$/ do | scm |
   # [???] 何する？
 end
 
 
 class DummySCM
-  def name
-    "DUMMY SCM"
+  def test_installed
+    true
   end
 
 
   def update path
-    raise "Failed with ERROR CODE = 12345"
+    raise "Failed with ERROR_CODE = 12345"
   end
 end
 
@@ -83,13 +88,6 @@ end
 Then /^Lucie サーバの設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   command.split( /,\s*/ ).each do | each |
     @messenger.string.should match( /^cd #{ regexp_from server_target } && #{ each }/ )
-  end
-end
-
-
-Then /^Lucie サーバの設定リポジトリ複製が "([^\"]*)" コマンドで更新される$/ do | command |
-  command.split( /,\s*/ ).each do | each |
-    @messenger.string.should match( /^cd #{ regexp_from( server_target + ".local" ) } && #{ each }/ )
   end
 end
 

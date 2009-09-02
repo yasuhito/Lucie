@@ -13,7 +13,6 @@ class ConfigurationUpdator
       scm = @scm.from( local_clone_directory( repos_name ) )
       scm.test_installed
       scm.update local_clone_directory( repos_name )
-      scm.update local_clone_clone_directory( repos_name ) if scm.mercurial?
     end
 
 

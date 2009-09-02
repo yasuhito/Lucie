@@ -12,7 +12,11 @@ class ConfigurationUpdator
 
   def update_server_for nodes
     repositories_for( nodes ).each do | each |
-      @server.update each
+      begin
+        @server.update each
+      rescue => e
+        raise "Failed to update #{ each }: #{ e.message }"
+      end
     end
   end
 

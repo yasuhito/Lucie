@@ -10,11 +10,6 @@ class Scm
     end
 
 
-    def mercurial?
-      false
-    end
-
-
     def test_installed
       unless Dpkg.new( @debug_options ).installed?( name )
         raise "#{ self } is not installed"

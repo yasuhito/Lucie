@@ -23,11 +23,6 @@ class Scm
     end
 
 
-    def mercurial?
-      true
-    end
-
-
     def to_s
       "Mercurial"
     end

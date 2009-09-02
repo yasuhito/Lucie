@@ -10,7 +10,6 @@ class ConfigurationUpdator
         scm = mock( "scm" ).as_null_object
         Scm.stub!( :new ).and_return( scm )
         scm.should_receive( :update ).with( "/TMP/config/REPOSITORY" )
-        scm.should_receive( :update ).with( "/TMP/config/REPOSITORY.local" )
 
         Server.new.update "REPOSITORY"
       end
