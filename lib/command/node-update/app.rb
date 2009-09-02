@@ -16,7 +16,7 @@ module Command
 
       def main node_names
         start_secret_server
-        @updator = ConfigurationUpdator.new( debug_options )
+        @updator = ConfigurationUpdator.new( argv_options )
         update nodes_from( node_names )
       end
 
@@ -52,8 +52,8 @@ module Command
 
 
       def node_from name
-        opts = { :ip_address => Network.resolve( name, debug_options ),
-          :netmask_address => Network.netmask_address( name, debug_options ) }
+        opts = { :ip_address => Network.resolve( name, argv_options ),
+          :netmask_address => Network.netmask_address( name, argv_options ) }
         Node.new name, opts
       end
     end

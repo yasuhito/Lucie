@@ -215,6 +215,7 @@ module Command
     def debug_options
       { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }.merge( @debug_options )
     end
+    alias argv_options debug_options
 
 
     # Misc. ####################################################################
