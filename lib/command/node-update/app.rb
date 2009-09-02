@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "command/app"
 require "configuration-updator"
 require "network"
@@ -8,6 +9,9 @@ require "thread"
 module Command
   module NodeUpdate
     class App < Command::App
+      # [FIXME] Command::App#initialize の引数を
+      #         Command::App#initialize( argv, debug_options ) に修正し、
+      #         この initialize メソッドを無くすべし
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
         super argv, @debug_options[ :messenger ]
