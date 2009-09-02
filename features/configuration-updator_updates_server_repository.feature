@@ -8,16 +8,7 @@
   背景:
     前提 Lucie のテンポラリディレクトリは "/tmp/lucie"
 
-  シナリオ: サーバ上の設定リポジトリを更新 (Mercurial の場合)
-    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (Mercurial)
-      かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
-      かつ Mercurial が Lucie サーバにインストールされている
-    もし コンフィグレーションアップデータが Lucie サーバの更新を実行 (ノードに "yasuhito_node" を指定)
-    ならば エラーが発生しない
-      かつ Lucie サーバの設定リポジトリが "hg pull, hg update" コマンドで更新される
-
-
-  テンプレ: サーバ上の設定リポジトリを更新 (Subversion, Git の場合)
+  テンプレ: サーバ上の設定リポジトリを更新
     前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)
       かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
       かつ <SCM> が Lucie サーバにインストールされている
@@ -28,6 +19,7 @@
     例:
       | SCM         | COMMANDS             |
       | Subversion  | svn update           |
+      | Mercurial   | hg pull, hg update   |
       | Git         | git pull, git update |
 
 
