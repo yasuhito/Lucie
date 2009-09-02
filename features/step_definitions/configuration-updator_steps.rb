@@ -26,7 +26,7 @@ end
 
 
 Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" に複製$/ do | name |
-  # [???] ここでは何もしない？
+  @repository_name = "CLIENT_REPOSITORY"
 end
 
 
@@ -88,6 +88,13 @@ end
 Then /^Lucie サーバの設定リポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
   command.split( /,\s*/ ).each do | each |
     @messenger.string.should match( /^cd #{ regexp_from server_target } && #{ each }/ )
+  end
+end
+
+
+Then /^Lucie クライアント上のそのリポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
+  command.split( /,\s*/ ).each do | each |
+    @messenger.string.should match( regexp_from each )
   end
 end
 

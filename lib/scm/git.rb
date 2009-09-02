@@ -5,6 +5,11 @@ class Scm
     end
 
 
+    def update_commands_for target, server_ip, repository
+      [ "cd #{ target } && git pull", "cd #{ target } && git update" ]
+    end
+
+
     def update target
       test_installed
       run "cd #{ target } && git pull", { "GIT_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }

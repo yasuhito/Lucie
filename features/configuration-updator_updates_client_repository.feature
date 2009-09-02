@@ -5,30 +5,15 @@
   クライアントの設定を更新するために
   クライアント上の設定リポジトリを更新する
 
-  シナリオ: クライアント上の設定リポジトリを更新 (Mercurial)
-    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (Mercurial)
-      かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
-      かつ コンフィグレータがその設定リポジトリを Lucie サーバ上でローカルに複製
+  テンプレ: クライアント上の設定リポジトリを更新
+    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)
       かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製
-      かつ Mercurial が Lucie クライアントにインストールされている
+      かつ <SCM> が Lucie クライアントにインストールされている
     もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
-    ならば Lucie クライアント上のそのリポジトリが "hg pull" コマンドで更新される
-      かつ Lucie クライアント上のそのリポジトリが "hg update" コマンドで更新される
+    ならば Lucie クライアント上のそのリポジトリが "<COMMANDS>" コマンドで更新される
 
-  シナリオ: クライアント上の設定リポジトリを更新 (Subversion)
-    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (Subversion)
-      かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
-      かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製
-      かつ Subversion が Lucie クライアントにインストールされている
-    もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
-    ならば Lucie クライアント上のそのリポジトリが "scp" コマンドで更新される
-
-  # [TODO] Git のテスト
-  # シナリオ: クライアント上の設定リポジトリを更新 (Git)
-  #   前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (Git)
-  #     かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
-  #     かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製
-  #     かつ Git が Lucie クライアントにインストールされている
-  #   もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
-  #   ならば Lucie クライアント上のそのリポジトリが "git pull" コマンドで更新される
-  #     かつ Lucie クライアント上のそのリポジトリが "git update" コマンドで更新される
+    例:
+      | SCM         | COMMANDS             |
+      | Subversion  | scp                  |
+      | Mercurial   | hg pull, hg update   |
+      | Git         | git pull, git update |

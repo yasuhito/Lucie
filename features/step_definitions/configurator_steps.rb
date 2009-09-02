@@ -61,11 +61,6 @@ Then /^Lucie クライアント "([^\"]*)" の設定リポジトリが更新さ�
 end
 
 
-Then /^Lucie クライアント上のそのリポジトリが "([^\"]*)" コマンドで更新される$/ do | command |
-  @messenger.string.should match( regexp_from( command ) )
-end
-
-
 Then /^バックエンドのコンフィグレータが Lucie クライアント "([^\"]*)" 上で実行される$/ do | name |
   ip = Nodes.find( name ).ip_address
   scripts = File.join( client_target, "scripts" )
