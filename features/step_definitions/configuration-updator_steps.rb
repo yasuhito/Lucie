@@ -1,4 +1,28 @@
 # -*- coding: utf-8 -*-
+class SuccessfulDpkg
+  def installed? scm
+    true
+  end
+
+
+  def installed_on? node, scm
+    true
+  end
+end
+
+
+class FailingDpkg
+  def installed? scm
+    false
+  end
+
+
+  def installed_on? node, scm
+    false
+  end
+end
+
+
 Given /^Lucie クライアント "([^\"]*)" 用の設定リポジトリ \(([a-zA-Z]+)\)$/ do | name, scm |
   Given %{Lucie クライアント "#{ name }"}
   @scm = Scm.from( scm )
@@ -41,7 +65,12 @@ end
 
 
 Given /^([a-zA-Z]+) が Lucie クライアントにインストールされている$/ do | scm |
-  # [???] 何する？
+  @custom_dpkg = SuccessfulDpkg.new
+end
+
+
+Given /^([a-zA-Z]+) が Lucie クライアントにインストールされていない$/ do | scm |
+  @custom_dpkg = FailingDpkg.new
 end
 
 
@@ -74,9 +103,13 @@ end
 
 
 When /^コンフィグレーションアップデータが Lucie クライアント "([^\"]*)" の更新を実行$/ do | name |
-  @messenger = StringIO.new
-  @updator = ConfigurationUpdator.new( debug_options )
-  @updator.update_client Nodes.find( name )
+  begin
+    @messenger = StringIO.new
+    @updator = ConfigurationUpdator.new( debug_options )
+    @updator.update_client Nodes.find( name )
+  rescue
+    @error = $!
+  end
 end
 
 

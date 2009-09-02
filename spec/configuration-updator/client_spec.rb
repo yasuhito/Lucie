@@ -15,7 +15,10 @@ class ConfigurationUpdator
 
         scm = mock( "scm" )
         Scm.stub!( :new ).and_return( scm )
-        scm.stub!( :from ).and_return( Scm::Mercurial.new )
+
+        mercurial = Scm::Mercurial.new
+        scm.stub!( :from ).and_return( mercurial )
+        mercurial.stub!( :test_installed_on )
 
         Lucie::Server.stub!( :ip_address_for ).and_return( "SERVER_IP" )
 

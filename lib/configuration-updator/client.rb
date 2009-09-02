@@ -38,6 +38,7 @@ class ConfigurationUpdator
 
     def update_commands node, server_repository
       scm = Scm.new( @debug_options ).from( server_repository )
+      scm.test_installed_on node
       server_ip = Lucie::Server.ip_address_for( [ node ], @debug_options )
       scm.update_commands_for( repository_directory( node ), server_ip, server_repository )
     end

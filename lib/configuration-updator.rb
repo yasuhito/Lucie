@@ -22,7 +22,11 @@ class ConfigurationUpdator
 
 
   def update_client node
-    @client.update node, @server.local_clone_directory( @client.repository_name_for node )
+    begin
+      @client.update node, @server.local_clone_directory( @client.repository_name_for node )
+    rescue => e
+      raise "Failed to update #{ node.name }: #{ e.message }"
+    end
   end
 
 

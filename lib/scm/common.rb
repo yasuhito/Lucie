@@ -17,6 +17,13 @@ class Scm
     end
 
 
+    def test_installed_on node
+      unless Dpkg.new( @debug_options ).installed_on?( node, name )
+        raise "#{ self } is not installed on #{ node.name }"
+      end
+    end
+
+
     ############################################################################
     private
     ############################################################################

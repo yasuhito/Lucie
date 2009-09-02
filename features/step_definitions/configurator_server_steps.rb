@@ -1,18 +1,4 @@
 # -*- coding: utf-8 -*-
-class SuccessfulDpkg
-  def installed? scm
-    true
-  end
-end
-
-
-class FailingDpkg
-  def installed? scm
-    false
-  end
-end
-
-
 Given /^バックエンドとして ([a-zA-Z]+) を指定したサーバーコンフィグレータ$/ do | scm |
   @messenger = StringIO.new
   @configurator = Configurator::Server.new( scm, options )
