@@ -6,7 +6,7 @@ class Scm
 
 
     def update_commands_for target, server_ip, repository
-      [ "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ repository } #{ File.dirname target }" ]
+      [ "scp #{ SSH::OPTIONS } -p -r #{ whoami }@#{ server_ip }:#{ repository } #{ File.dirname target }" ]
     end
 
 
@@ -16,7 +16,7 @@ class Scm
 
 
     def install_command target, server_ip, url
-      "scp #{ SSH::OPTIONS } -r #{ whoami }@#{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }"
+      "scp #{ SSH::OPTIONS } -p -r #{ whoami }@#{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }"
     end
 
 
