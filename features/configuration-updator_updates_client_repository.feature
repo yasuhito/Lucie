@@ -32,3 +32,16 @@
       | Subversion  | Failed to update yasuhito_node: Subversion is not installed on yasuhito_node |
       | Mercurial   | Failed to update yasuhito_node: Mercurial is not installed on yasuhito_node  |
       | Git         | Failed to update yasuhito_node: Git is not installed on yasuhito_node        |
+
+  テンプレ: エラー「クライアント上に設定リポジトリが複製されていない」
+    前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)
+      かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製していない
+      かつ <SCM> が Lucie クライアントにインストールされている
+    もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
+    ならば エラー "Failed to update yasuhito_node: Configuration repository not found on yasuhito_node:/var/lib/lucie/config"  
+
+    例:
+      | SCM        |
+      | Mercurial  |
+      | Subversion |
+      | Git        |

@@ -10,6 +10,7 @@ class ConfigurationUpdator
 
 
     def update repos_name
+      test_local_clone_exists? repos_name
       scm = @scm.from( local_clone_directory( repos_name ) )
       scm.test_installed
       scm.update local_clone_directory( repos_name )
@@ -38,6 +39,13 @@ class ConfigurationUpdator
 
     def clone_clone_suffix
       ".local"
+    end
+
+
+    def test_local_clone_exists? repos_name
+      unless FileTest.directory?( local_clone_directory( repos_name ) )
+        raise "Configuration repository #{ local_clone_directory repos_name } not found on Lucie server."
+      end
     end
   end
 end

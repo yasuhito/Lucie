@@ -36,17 +36,7 @@ class ConfigurationUpdator
     ############################################################################
 
 
-    def update_commands node, server_repository
-      scm = Scm.new( @debug_options ).from( server_repository )
-      scm.test_installed_on node
-      server_ip = Lucie::Server.ip_address_for( [ node ], @debug_options )
-      scm.update_commands_for( repository_directory( node ), server_ip, server_repository )
-    end
-
-
-    def dummy_repository?
-      @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
-    end
+    # Paths ####################################################################
 
 
     def repository_directory node
@@ -64,14 +54,33 @@ class ConfigurationUpdator
     end
 
 
+    # Utils ####################################################################
+
+
+    def update_commands node, server_repository
+      scm = Scm.new( @debug_options ).from( server_repository )
+      scm.test_installed_on node
+      server_ip = Lucie::Server.ip_address_for( [ node ], @debug_options )
+      scm.update_commands_for( repository_directory( node ), server_ip, server_repository )
+    end
+
+
     def ssh_ls_repository_name node
       begin
         name = @ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
         raise if name.empty?
       rescue
-        raise "Configuration repository for #{ node.name } not found on Lucie server."
+        raise "Configuration repository not found on #{ node.name }:#{ REPOSITORY_BASE_DIRECTORY }"
       end
       name
+    end
+
+
+    # Debug ####################################################################
+
+
+    def dummy_repository?
+      @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
     end
   end
 end

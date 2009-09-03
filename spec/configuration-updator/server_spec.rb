@@ -5,11 +5,12 @@ class ConfigurationUpdator
   describe Server do
     context "updating server repository" do
       it "should update server repository" do
-        Configuration.stub!( :temporary_directory ).and_return( "/TMP" )
+        Configuration.stub!( :temporary_directory ).and_return( "/tmp" )
+        FileTest.stub!( :directory? ).with( "/tmp/config/REPOSITORY" ).and_return( true )
 
         scm = mock( "scm" ).as_null_object
         Scm.stub!( :new ).and_return( scm )
-        scm.should_receive( :update ).with( "/TMP/config/REPOSITORY" )
+        scm.should_receive( :update ).with( "/tmp/config/REPOSITORY" )
 
         Server.new.update "REPOSITORY"
       end

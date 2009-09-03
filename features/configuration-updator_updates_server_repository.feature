@@ -6,7 +6,7 @@
   まずサーバ上の設定リポジトリを更新する
 
   背景:
-    前提 Lucie のテンポラリディレクトリは "/tmp/lucie"
+    前提 Lucie のテンポラリディレクトリは "/tmp/lucie/"
 
   テンプレ: サーバ上の設定リポジトリを更新
     前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)
@@ -25,16 +25,16 @@
 
   テンプレ: エラー 「SCM がインストールされていない」
     前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)
-      かつ コンフィグレータがその設定リポジトリを Lucie サーバの "/repos/yasuhito_repos" に複製
+      かつ コンフィグレータがその設定リポジトリを Lucie サーバに複製
       かつ <SCM> が Lucie サーバにインストールされていない
     もし コンフィグレーションアップデータが Lucie サーバの更新を実行 (ノードに "yasuhito_node" を指定)
     ならば エラー "<ERROR>"
 
     例:
       | SCM        | ERROR                                                               |
-      | Mercurial  | Failed to update /repos/yasuhito_repos: Mercurial is not installed  |
-      | Subversion | Failed to update /repos/yasuhito_repos: Subversion is not installed |
-      | Git        | Failed to update /repos/yasuhito_repos: Git is not installed        |
+      | Mercurial  | Failed to update /tmp/lucie/config/REPOSITORY: Mercurial is not installed  |
+      | Subversion | Failed to update /tmp/lucie/config/REPOSITORY: Subversion is not installed |
+      | Git        | Failed to update /tmp/lucie/config/REPOSITORY: Git is not installed        |
 
 
   テンプレ: エラー 「サーバ上に設定リポジトリが複製されていない」
@@ -42,7 +42,7 @@
       かつ <SCM> が Lucie サーバにインストールされている
       かつ その設定リポジトリが Lucie サーバ上に複製されていない
     もし コンフィグレーションアップデータが Lucie サーバの更新を実行 (ノードに "yasuhito_node" を指定)
-    ならば エラー "Configuration repository for yasuhito_node not found on Lucie server."
+    ならば エラー "Failed to update /tmp/lucie/config/REPOSITORY: Configuration repository /tmp/lucie/config/REPOSITORY not found on Lucie server."
 
     例:
       | SCM        |

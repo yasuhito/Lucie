@@ -23,6 +23,11 @@ class FailingDpkg
 end
 
 
+def server_target
+  File.join Configurator::Server.config_directory, @repository_name
+end
+
+
 Given /^Lucie クライアント "([^\"]*)" 用の設定リポジトリ \(([a-zA-Z]+)\)$/ do | name, scm |
   Given %{Lucie クライアント "#{ name }"}
   @scm = Scm.from( scm )
@@ -31,16 +36,13 @@ end
 
 Given /^コンフィグレータがその設定リポジトリを Lucie サーバに複製$/ do
   @repository_name = "REPOSITORY"
-end
-
-
-Given /^コンフィグレータがその設定リポジトリを Lucie サーバの "([^\"]*)" に複製$/ do | repos |
-  @repository_name = repos
+  FileUtils.mkdir_p server_target
 end
 
 
 Given /^その設定リポジトリが Lucie サーバ上に複製されていない$/ do
-  @repository_name = nil
+  @repository_name = "REPOSITORY"
+  FileUtils.rm_rf server_target
 end
 
 
@@ -51,6 +53,11 @@ end
 
 Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" に複製$/ do | name |
   @repository_name = "CLIENT_REPOSITORY"
+end
+
+
+Given /^コンフィグレータがその設定リポジトリを Lucie クライアント "([^\"]*)" に複製していない$/ do | name |
+  @repository_name = nil
 end
 
 
@@ -110,11 +117,6 @@ When /^コンフィグレーションアップデータが Lucie クライアン
   rescue
     @error = $!
   end
-end
-
-
-def server_target
-  File.join Configurator::Server.config_directory, "REPOSITORY"
 end
 
 

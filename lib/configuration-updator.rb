@@ -15,7 +15,7 @@ class ConfigurationUpdator
       begin
         @server.update each
       rescue => e
-        raise "Failed to update #{ each }: #{ e.message }"
+        raise "Failed to update #{ @server.local_clone_directory each }: #{ e.message }"
       end
     end
   end

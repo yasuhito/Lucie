@@ -12,9 +12,14 @@ describe ConfigurationUpdator do
 
       server = mock( "server" )
       ConfigurationUpdator::Server.stub!( :new ).and_return( server )
+      server.stub!( :local_clone_directory ).with( instance_of( String ) ).and_return do | repos_name | "/tmp/lucie/#{ repos_name }" end
       server.should_receive( :update ).with( "REPOSITORY_A" ).once.ordered
       server.should_receive( :update ).with( "REPOSITORY_B" ).once.ordered
       server.should_receive( :update ).with( "REPOSITORY_C" ).once.ordered
+
+      FileTest.stub!( :directory? ).with( "/tmp/lucie/REPOSITORY_A" ).and_return( true )
+      FileTest.stub!( :directory? ).with( "/tmp/lucie/REPOSITORY_B" ).and_return( true )
+      FileTest.stub!( :directory? ).with( "/tmp/lucie/REPOSITORY_C" ).and_return( true )
 
       ConfigurationUpdator.new.update_server_for [ "NODE_A", "NODE_B", "NODE_C" ]
     end
