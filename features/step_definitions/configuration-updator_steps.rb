@@ -1,28 +1,4 @@
 # -*- coding: utf-8 -*-
-class SuccessfulDpkg
-  def installed? scm
-    true
-  end
-
-
-  def installed_on? node, scm
-    true
-  end
-end
-
-
-class FailingDpkg
-  def installed? scm
-    false
-  end
-
-
-  def installed_on? node, scm
-    false
-  end
-end
-
-
 def server_target
   File.join Configurator::Server.config_directory, @repository_name
 end

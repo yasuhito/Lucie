@@ -22,13 +22,13 @@ module Command
     attr_reader :options
 
 
-    def initialize argv, messenger, nic = nil
+    def initialize argv, options # messenger, nic = nil
       @argv = argv
       @options = parse_argv
       @dry_run = @options.dry_run
       @verbose = @options.verbose
-      @messenger = messenger
-      @nic = nic
+      @messenger = options[ :messenger ]
+      @nic = options[ :nic ]
       usage_and_exit if @options.help
       @options.check_mandatory_options
     end

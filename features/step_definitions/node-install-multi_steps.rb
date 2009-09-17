@@ -7,7 +7,8 @@ end
 When /^I try to run 'node install\-multi', with option "([^\"]*)", and nodes "([^\"]*)"$/ do | options, nodes |
   @messenger = StringIO.new
   begin
-    Command::NodeInstallMulti::App.new( options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], @messenger, [ @if ] ).main( @node_argv )
+    debug_options = { :messenger => @messenger, :nic => [ @if ], :dpkg => SuccessfulDpkg.new }
+    Command::NodeInstallMulti::App.new( options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], debug_options ).main( @node_argv )
   rescue => e
     @error = e
   end

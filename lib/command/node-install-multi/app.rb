@@ -7,9 +7,9 @@ require "nodes"
 module Command
   module NodeInstallMulti
     class App < Command::App
-      def initialize argv = ARGV, messenger = nil, nic = nil
-        @debug_options = {}
-        super argv, messenger, nic
+      def initialize argv = ARGV, debug_options = {}
+        @debug_options = debug_options
+        super argv, @debug_options
       end
 
 

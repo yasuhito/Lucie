@@ -22,6 +22,29 @@ require "secret-server"
 # Helper classes
 ################################################################################
 
+class SuccessfulDpkg
+  def installed? scm
+    true
+  end
+
+
+  def installed_on? node, scm
+    true
+  end
+end
+
+
+class FailingDpkg
+  def installed? scm
+    false
+  end
+
+
+  def installed_on? node, scm
+    false
+  end
+end
+
 
 DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 

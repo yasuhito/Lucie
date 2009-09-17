@@ -14,7 +14,7 @@ module Command
       #         この initialize メソッドを無くすべし
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
-        super argv, @debug_options[ :messenger ]
+        super argv, @debug_options
       end
 
 

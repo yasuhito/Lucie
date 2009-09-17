@@ -6,7 +6,7 @@ class Dpkg
 
   def installed? package
     if @debug_options[ :dpkg ]
-      @debug_options[ :dpkg ].installed?( package )
+      @debug_options[ :dpkg ].installed? package
     else
       FileTest.file? "/var/lib/dpkg/info/#{ package }.md5sums"
     end
