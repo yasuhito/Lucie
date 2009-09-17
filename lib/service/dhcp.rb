@@ -53,7 +53,9 @@ class Service
     #
     def subnets nodes
       subnets = Hash.new( [] )
-      nodes.each do | each |
+      nodes.sort_by do | each |
+        each.name
+      end.each do | each |
         subnets[ each.net_info ] = subnets[ each.net_info ].push( each )
       end
       subnets
