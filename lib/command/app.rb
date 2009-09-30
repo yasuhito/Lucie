@@ -76,7 +76,9 @@ module Command
       Thread.start do
         begin
           node.status.start!
+          run_first_reboot node, logger
           run_first_stage node, logger
+          run_second_reboot node, logger
           run_second_stage node, logger
           node.status.succeed!
         rescue => e
@@ -107,19 +109,22 @@ module Command
     end
 
 
-    def reboot_to_start_first_stage node, logger
+    def run_first_reboot node, logger
+      t = Time.now
       unless @dry_run
         File.open( "/var/log/syslog", "r" ) do | syslog |
           @super_reboot.start_first_stage node, syslog, logger
         end
       end
+      logger.info "The first reboot finished in #{ ( Time.now - t ).to_i } seconds."
       @html_logger.next_step node
     end
 
 
     def run_first_stage node, logger
-      reboot_to_start_first_stage node, logger
+      t = Time.now
       start_installer_for node, logger
+      logger.info "The first stage finished in #{ ( Time.now - t ).to_i } seconds."
     end
 
 
@@ -131,20 +136,24 @@ module Command
     end
 
 
-    def reboot_to_start_second_stage node, logger
+    def run_second_reboot node, logger
+      t = Time.now
+      setup_second_stage_for node
       unless @dry_run
         File.open( "/var/log/syslog", "r" ) do | syslog |
           @super_reboot.start_second_stage node, syslog, logger
         end
       end
+      logger.info "The second reboot finished in #{ ( Time.now - t ).to_i } seconds."
       @html_logger.next_step node
     end
 
 
     def run_second_stage node, logger
-      setup_second_stage_for node
-      reboot_to_start_second_stage node, logger
+      t = Time.now
       start_ldb node, logger
+      logger.info "The second stage finished in #{ ( Time.now - t ).to_i } seconds."
+
       @html_logger.update node, "ok"
       logger.info "Node '#{ node.name }' installed."
       info "Node '#{ node.name }' installed."
