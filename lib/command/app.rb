@@ -10,6 +10,7 @@ require "lucie/server"
 require "lucie/utils"
 require "secret-server"
 require "ssh"
+require "stop-watch"
 require "super-reboot"
 
 
@@ -97,7 +98,7 @@ module Command
     end
 
 
-    # First Stage ##############################################################
+    # First and Second Stage ###################################################
 
 
     def setup_first_stage
@@ -110,49 +111,45 @@ module Command
 
 
     def run_first_reboot node, logger
-      t = Time.now
-      unless @dry_run
-        File.open( "/var/log/syslog", "r" ) do | syslog |
-          @super_reboot.start_first_stage node, syslog, logger
+      time = StopWatch.time_to_run do
+        unless @dry_run
+          File.open( "/var/log/syslog", "r" ) do | syslog |
+            @super_reboot.start_first_stage node, syslog, logger
+          end
         end
+        @html_logger.next_step node
       end
-      logger.info "The first reboot finished in #{ ( Time.now - t ).to_i } seconds."
-      @html_logger.next_step node
+      logger.info "The first reboot finished in #{ time } seconds."
     end
 
 
     def run_first_stage node, logger
-      t = Time.now
-      start_installer_for node, logger
-      logger.info "The first stage finished in #{ ( Time.now - t ).to_i } seconds."
-    end
-
-
-    # Second Stage #############################################################
-
-
-    def setup_second_stage_for node
-      Environment::SecondStage.new( debug_options, @messenger ).start( node )
+      time = StopWatch.time_to_run do
+        start_installer_for node, logger
+      end
+      logger.info "The first stage finished in #{ time } seconds."
     end
 
 
     def run_second_reboot node, logger
-      t = Time.now
-      setup_second_stage_for node
-      unless @dry_run
-        File.open( "/var/log/syslog", "r" ) do | syslog |
-          @super_reboot.start_second_stage node, syslog, logger
+      time = StopWatch.time_to_run do
+        Environment::SecondStage.new( debug_options, @messenger ).start( node )
+        unless @dry_run
+          File.open( "/var/log/syslog", "r" ) do | syslog |
+            @super_reboot.start_second_stage node, syslog, logger
+          end
         end
+        @html_logger.next_step node
       end
-      logger.info "The second reboot finished in #{ ( Time.now - t ).to_i } seconds."
-      @html_logger.next_step node
+      logger.info "The second reboot finished in #{ time } seconds."
     end
 
 
     def run_second_stage node, logger
-      t = Time.now
-      start_ldb node, logger
-      logger.info "The second stage finished in #{ ( Time.now - t ).to_i } seconds."
+      time = StopWatch.time_to_run do
+        start_ldb node, logger
+      end
+      logger.info "The second stage finished in #{ time } seconds."
 
       @html_logger.update node, "ok"
       logger.info "Node '#{ node.name }' installed."
