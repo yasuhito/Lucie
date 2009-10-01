@@ -135,6 +135,9 @@ def parse_file log
       # skip
     end
   end
+  if first_reboot.nil? or first_stage.nil? or second_reboot.nil? or second_stage.nil?
+    raise "failed to parse #{ log }"
+  end
   { :first_reboot => first_reboot, :first_stage => first_stage,
     :second_reboot => second_reboot, :second_stage => second_stage }
 end
@@ -144,7 +147,11 @@ def parse
   result = {}
   node_dirs.each do | each |
     node_name = File.basename( each )
-    result[ node_name ] = parse_file( latest_log( each ) )
+    begin
+      result[ node_name ] = parse_file( latest_log( each ) )
+    rescue
+      $stderr.puts "Warning: failed to parse #{ node_name }'s latest installation log. Skipping ..."
+    end
   end
   result
 end
@@ -181,7 +188,7 @@ set ylabel "node"
 set title "Installation Progress"
 set terminal postscript eps dashed color
 set out "#{ eps_file }"
-plot [0:#{ xrange }] [0:#{ nnodes }] 0 notitle
+plot [0:#{ xrange + 10 }] [0:#{ nnodes }] 0 notitle
 EOF
   end
 end
