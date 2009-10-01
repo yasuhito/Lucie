@@ -91,6 +91,112 @@ Rake::RDocTask.new do | t |
 end
 
 
+# Benchmark Graph ##############################################################
+
+
+task :graph do
+  plot
+end
+
+
+def node_dirs
+  Dir.glob( "./log/*" ).collect do | each |
+    node_dir?( each ) ? each : nil
+  end.compact
+end
+
+
+def node_dir? node_dir
+  FileTest.directory?( node_dir ) and FileTest.exists?( latest_log( node_dir ) )
+end
+
+
+def latest_log node_dir
+  File.join node_dir, "latest", "install.txt"
+end
+
+
+def parse_file log
+  first_reboot = nil
+  first_stage = nil
+  second_reboot = nil
+  second_stage = nil
+  IO.read( log ).each_line do | l |
+    case l
+    when /The first reboot finished in (.*) seconds\.$/
+      first_reboot = $1.to_f
+    when /The first stage finished in (.*) seconds\.$/
+      first_stage = first_reboot + $1.to_f
+    when /The second reboot finished in (.*) seconds\.$/
+      second_reboot = first_stage + $1.to_f
+    when /The second stage finished in (.*) seconds\.$/
+      second_stage = second_reboot + $1.to_f
+    else
+      # skip
+    end
+  end
+  { :first_reboot => first_reboot, :first_stage => first_stage,
+    :second_reboot => second_reboot, :second_stage => second_stage }
+end
+
+
+def parse
+  result = {}
+  node_dirs.each do | each |
+    node_name = File.basename( each )
+    result[ node_name ] = parse_file( latest_log( each ) )
+  end
+  result
+end
+
+
+def gen_plot plot_file, eps_file
+  data = parse
+  File.open( plot_file, "w" ) do | f |
+    f.puts "# arrow styles"
+    f.puts "set style arrow 1 heads size screen 0.002, 90 lt 2 lw 1 front"
+    f.puts "set style arrow 2 heads size screen 0.002, 90 lt 1 lw 1 front"
+    f.puts "set style arrow 3 heads size screen 0.002, 90 lt 3 lw 1 front"
+    f.puts "set style arrow 4 heads size screen 0.002, 90 lt 4 lw 1 front"
+    f.puts
+
+    nnodes = 1
+    arrow = 1
+    xrange = 0
+    data.each do | node, perf |
+      f.puts "# #{ node }"
+      f.puts "set arrow #{ arrow } from 0,#{ nnodes } to #{ perf[ :first_reboot ] },#{ nnodes } as 1"; arrow += 1
+      f.puts "set arrow #{ arrow } from #{ perf[ :first_reboot ] },#{ nnodes } to #{ perf[ :first_stage ] },#{ nnodes } as 2"; arrow += 1
+      f.puts "set arrow #{ arrow } from #{ perf[ :first_stage ] },#{ nnodes } to #{ perf[ :second_reboot ] },#{ nnodes } as 3"; arrow += 1
+      f.puts "set arrow #{ arrow } from #{ perf[ :second_reboot ] },#{ nnodes } to #{ perf[ :second_stage ] },#{ nnodes } as 4"; arrow += 1
+      xrange = perf[ :second_stage ] if perf[ :second_stage ] > xrange
+      nnodes += 1
+    end
+    f.puts
+    
+    f.puts <<-EOF
+# graph definitions
+set xlabel "time"
+set ylabel "node"
+set title "Installation Progress"
+set terminal postscript eps dashed color
+set out "#{ eps_file }"
+plot [0:#{ xrange }] [0:#{ nnodes }] 0 notitle
+EOF
+  end
+end
+
+
+PLOT_FILE = "bench.plot"
+EPS_FILE = "bench.eps"
+
+
+def plot
+  gen_plot PLOT_FILE, EPS_FILE
+  system "gnuplot < #{ PLOT_FILE }"
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8-unix
