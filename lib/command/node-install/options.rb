@@ -14,12 +14,15 @@ module Command
       add_option( :long_option => "--storage-conf",
                   :short_option => "-s",
                   :argument => "[FILE]",
-                  :description => "setup-storage configuration file."
-                  )
+                  :description => "setup-storage configuration file." )
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
                   :argument => "[NETMASK-ADDRESS]",
                   :description => "Netmask address." )
+      add_option( :long_option => "--ip-address",
+                  :short_option => "-I",
+                  :argument => "[IP-ADDRESS]",
+                  :description => "IP address." )
 
       separator
 

@@ -57,7 +57,9 @@ module Command
 
       def ip_address name
         node = Nodes.find( name )
-        node ? node.ip_address : nil
+        return node.ip_address if node
+        return @node_options[ name ].ip_address if @node_options[ name ].ip_address
+        nil
       end
 
 
