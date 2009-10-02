@@ -102,7 +102,7 @@ end
 def node_dirs
   Dir.glob( "./log/*" ).collect do | each |
     node_dir?( each ) ? each : nil
-  end.compact
+  end.compact.sort
 end
 
 
@@ -149,8 +149,9 @@ def parse
     node_name = File.basename( each )
     begin
       result[ node_name ] = parse_file( latest_log( each ) )
+      $stderr.puts "Succeeded in parsing #{ node_name }'s latest log."
     rescue
-      $stderr.puts "Warning: failed to parse #{ node_name }'s latest installation log. Skipping ..."
+      $stderr.puts "Warning: failed to parse #{ node_name }'s latest log. Skipping ..."
     end
   end
   result
