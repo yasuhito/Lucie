@@ -8,7 +8,7 @@ module Command
   module NodeInstall
     class App < Command::App
       def initialize argv = ARGV, messenger = nil
-        super argv, messenger
+        super argv, :messenger => messenger
       end
 
 

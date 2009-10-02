@@ -23,7 +23,7 @@ module Command
     attr_reader :options
 
 
-    def initialize argv, options # messenger, nic = nil
+    def initialize argv, options
       @argv = argv
       @options = parse_argv
       @dry_run = @options.dry_run
