@@ -101,7 +101,12 @@ end
 
 def node_dirs
   Dir.glob( "./log/*" ).collect do | each |
-    node_dir?( each ) ? each : nil
+    if ENV[ "NODES" ]
+      nodes = ENV[ "NODES" ].split( /,/ )
+      ( nodes.include?( File.basename( each ) ) and node_dir?( each ) ) ? each : nil
+    else
+      node_dir?( each ) ? each : nil
+    end
   end.compact.sort
 end
 
