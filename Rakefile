@@ -171,8 +171,9 @@ def gen_plot plot_file, eps_file
     nnodes = 1
     arrow = 1
     xrange = 0
-    data.each do | node, perf |
-      f.puts "# #{ node }"
+    data.keys.sort.each do | each |
+      perf = data[ each ]
+      f.puts "# #{ each }"
       f.puts "set arrow #{ arrow } from 0,#{ nnodes } to #{ perf[ :first_reboot ] },#{ nnodes } as 1"; arrow += 1
       f.puts "set arrow #{ arrow } from #{ perf[ :first_reboot ] },#{ nnodes } to #{ perf[ :first_stage ] },#{ nnodes } as 2"; arrow += 1
       f.puts "set arrow #{ arrow } from #{ perf[ :first_stage ] },#{ nnodes } to #{ perf[ :second_reboot ] },#{ nnodes } as 3"; arrow += 1
