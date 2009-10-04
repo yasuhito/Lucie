@@ -10,10 +10,11 @@ require "tempfile"
 
 
 class FirstStage
-  def initialize node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options = {}, messenger = nil
+  def initialize node, suite, linux_image, base_system, storage_conf, ldb_directory, logger, html_logger, options = {}, messenger = nil
     @node = node
     @suite = suite
     @linux_image = linux_image || "linux-image-686"
+    @base_system = base_system
     @storage_conf = storage_conf
     @ldb_directory = ldb_directory
     @logger = logger
@@ -63,7 +64,9 @@ class FirstStage
 
   def install_base_system
     info 'Setting up Linux base system ...'
-    ssh "tar -C /tmp/target -xzpf /var/tmp/base.tgz"
+    scp @base_system, "/tmp/target/base.tgz"
+    ssh "tar -C /tmp/target -xzpf /tmp/target/base.tgz"
+    # ssh "tar -C /tmp/target -xzpf /var/tmp/base.tgz"
     ssh 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
     ssh 'cp -a /tmp/fstab /tmp/target/etc/fstab'
 

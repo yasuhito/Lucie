@@ -101,7 +101,8 @@ class Installer
 
   def start node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger
     ( messenger || $stdout ).puts "node #{ node.name } is going to be installed using #{ storage_conf }"
-    FirstStage.new( node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger ).run
+    base_system = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ @arch }.tgz" )
+    FirstStage.new( node, suite, linux_image, base_system, storage_conf, ldb_directory, logger, html_logger, options, messenger ).run
   end
 
 
