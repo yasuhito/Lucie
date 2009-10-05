@@ -2,7 +2,7 @@
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
-chroot /tmp/target apt-get -y install ssh
+chroot /tmp/target apt-get -y --force-yes install ssh
 
 mkdir -p /tmp/target/root/.ssh/
 chmod 700 /tmp/target/root/.ssh/

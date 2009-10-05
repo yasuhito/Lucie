@@ -66,7 +66,6 @@ class FirstStage
     info 'Setting up Linux base system ...'
     scp @base_system, "/tmp/target/base.tgz"
     ssh "tar -C /tmp/target -xzpf /tmp/target/base.tgz"
-    # ssh "tar -C /tmp/target -xzpf /var/tmp/base.tgz"
     ssh 'mv /tmp/target/etc/fstab /tmp/target/etc/fstab.old'
     ssh 'cp -a /tmp/fstab /tmp/target/etc/fstab'
 
