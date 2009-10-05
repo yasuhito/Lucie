@@ -118,7 +118,7 @@ module Status
 
 
     def read_latest_status
-      return match_status( File.basename( file ) ).downcase if status_file
+      return match_status( File.basename( status_file ) ).downcase if status_file
       nil
     end
 

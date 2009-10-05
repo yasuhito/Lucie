@@ -34,13 +34,17 @@ class Build
 
 
   def run
-    begin
-      @status.start!
-      rake_with_logging build_command
-      @status.succeed!
-    rescue => e
-      Lucie::Log.error "failed: #{ build_command }"
-      @status.fail!
+    if @status.succeeded?
+      rake_with_logging install_kernel_command
+    else
+      begin
+        @status.start!
+        rake_with_logging build_command
+        @status.succeed!
+      rescue => e
+        Lucie::Log.error "failed: #{ build_command }"
+        @status.fail!
+      end
     end
   end
 
@@ -64,7 +68,12 @@ class Build
 
 
   def build_command
-    %{sudo ruby -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ set_argv }; Rake.application.run"}
+    %{sudo ruby -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ build_argv }; Rake.application.run"}
+  end
+
+
+  def install_kernel_command
+    %{sudo ruby -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ install_kernel_argv }; Rake.application.run"}
   end
 
 
@@ -84,9 +93,15 @@ class Build
   end
 
 
-  def set_argv
+  def build_argv
     trace = %{<< '--trace' } if @options[ :verbose ]
     %{ARGV #{ trace }<< '--rakefile=#{ rakefile }' << 'installer:nfsroot'}
+  end
+
+
+  def install_kernel_argv
+    trace = %{<< '--trace' } if @options[ :verbose ]
+    %{ARGV #{ trace }<< '--rakefile=#{ rakefile }' << 'installer:install_nfsroot_kernel'}
   end
 
 

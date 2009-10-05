@@ -76,8 +76,10 @@ class Nfsroot < Rake::TaskLib
     directory @target_directory
 
     namespace "installer" do
+      task name => [ "installer:build_nfsroot", "installer:install_nfsroot_kernel" ]
+
       desc "Build an nfsroot using #{ @nfsroot_base.target }."
-      task name do
+      task "build_nfsroot" => [ "installer:clobber_nfsroot", @target_directory, "installer:nfsroot_base" ] do
         begin
           extract_nfsroot_base
           copy_nfsroot_base
@@ -87,16 +89,17 @@ class Nfsroot < Rake::TaskLib
           add_packages_nfsroot
           set_root_password
           finish_nfsroot
-          install_kernel_nfsroot
           setup_ssh
-          setup_pxe
           info "nfsroot created on #{ @target_directory }."
         ensure
           umount_dirs
         end
       end
 
-      task name => [ @target_directory, "installer:nfsroot_base" ]
+      task "install_nfsroot_kernel" do
+        install_kernel_nfsroot
+        setup_pxe
+      end
 
       desc "Remove #{ @target_directory }."
       task paste( 'clobber_', name ) do
@@ -277,10 +280,10 @@ class Nfsroot < Rake::TaskLib
 
   def install_kernel_nfsroot
     info "Installing kernel on nfsroot."
-    Dir.glob( target( '/boot/*-' + kernel_version ) ).each do | each |
+    Dir.glob( target( "/boot/*" ) ).each do | each |
       run "rm -rf #{ each }"
     end
-    run "rm -rf #{ target( '/lib/modules/' + kernel_version ) }"
+    run "rm -rf #{ target( '/lib/modules/*' ) }"
 
     run %{echo "do_boot_enable=no" > #{ target( 'etc/kernel-img.conf' ) }}
     run %{dpkg -x #{ kernel_package_file } #{ @target_directory } }
