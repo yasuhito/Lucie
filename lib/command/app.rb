@@ -59,15 +59,36 @@ module Command
           log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
           logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
           each.status = Status::Installer.new( log_directory, debug_options, @messenger )
-          create_installer_thread each, logger
-        end.each do | each |
-          each.join
+          threads << create_installer_thread( each, logger )
+          [ each, threads.last, logger ]
+        end.each do | node, thread, logger |
+          begin
+            thread.join
+          rescue Interrupt
+            raise Interrupt
+          rescue => e
+            node.status.fail!
+            $stderr.puts e.message
+            logger.error e.message
+            @html_logger.update node, "failed (#{ e.message })"
+            if @options.verbose
+              e.backtrace.each do | each |
+                $stderr.puts each
+                logger.debug each
+              end
+            end
+          end
         end
       rescue Interrupt
-        $stderr.puts "Interrupted"
+        threads.each do | each |
+          each.kill
+        end
         Nodes.load_all.each do | each |
-          each.status.fail!
-          @html_logger.update each, "failed (interrupted)"
+          unless each.status.succeeded?
+            $stderr.puts "#{ each.name } interrupted"
+            each.status.fail!
+            @html_logger.update each, "failed (interrupted)"
+          end
         end
       end
     end
