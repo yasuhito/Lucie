@@ -12,6 +12,7 @@ require "secret-server"
 require "ssh"
 require "stop-watch"
 require "super-reboot"
+require "thread_pool"
 
 
 module Command
@@ -30,6 +31,7 @@ module Command
       @verbose = @options.verbose
       @messenger = options[ :messenger ]
       @nic = options[ :nic ]
+      @tp = ThreadPool.new
       usage_and_exit if @options.help
       @options.check_mandatory_options
     end
@@ -52,68 +54,46 @@ module Command
 
 
     def install_parallel
-      threads = []
       begin
         Nodes.load_all.collect do | each |
-          sleep 1
-          log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
-          logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
-          each.status = Status::Installer.new( log_directory, debug_options, @messenger )
-          threads << create_installer_thread( each, logger )
-          [ each, threads.last, logger ]
-        end.each do | node, thread, logger |
-          begin
-            thread.join
-          rescue Interrupt
-            raise
-          rescue Exception => e
-            thread.kill
-            node.status.fail!
-            $stderr.puts e.message
-            logger.error e.message
-            @html_logger.update node, "failed (#{ e.message })"
-            if @options.verbose
-              e.backtrace.each do | each |
-                $stderr.puts each
-                logger.debug each
-              end
-            end
+          @tp.dispatch( each ) do | each |
+            sleep 1
+            log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
+            logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
+            each.status = Status::Installer.new( log_directory, debug_options, @messenger )
+            start_installer each, logger
           end
         end
-      rescue Interrupt
-        threads.each do | each |
-          each.kill
-        end
+        @tp.shutdown
+      rescue Exception => e
+        @tp.killall
         Nodes.load_all.each do | each |
-          unless each.status.succeeded?
-            $stderr.puts "#{ each.name } interrupted"
+          if each.status.incomplete?
             each.status.fail!
-            @html_logger.update each, "failed (interrupted)"
+            @html_logger.update each, "failed (#{ e.message })"
           end
         end
       end
     end
 
 
-    def create_installer_thread node, logger
-      Thread.start do
-        begin
-          node.status.start!
-          run_first_reboot node, logger
-          run_first_stage node, logger
-          run_second_reboot node, logger
-          run_second_stage node, logger
-          node.status.succeed!
-        rescue => e
-          node.status.fail!
-          $stderr.puts e.message
-          logger.error e.message
-          @html_logger.update node, "failed (#{ e.message })"
-          if @options.verbose
-            e.backtrace.each do | each |
-              $stderr.puts each
-              logger.debug each
-            end
+    def start_installer node, logger
+      begin
+        node.status.start!
+        run_first_reboot node, logger
+        run_first_stage node, logger
+        run_second_reboot node, logger
+        run_second_stage node, logger
+        node.status.succeed!
+      rescue Exception => e
+        node.status.fail!
+        $stderr.puts e.message
+        logger.error e.message
+        @html_logger.update node, "failed (#{ e.message })"
+        if @options.verbose
+          e.backtrace.each do | each |
+            $stderr.puts each
+            logger.debug each
           end
         end
       end
