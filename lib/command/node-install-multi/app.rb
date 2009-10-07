@@ -51,7 +51,7 @@ module Command
 
 
       def node_options name
-        { :netmask_address => @options.netmask, :mac_address => @node_options[ name ].mac, :ip_address => ip_address( name ) }
+        { :netmask_address => @node_options[ name ].netmask, :mac_address => @node_options[ name ].mac, :ip_address => ip_address( name ) }
       end
 
 
@@ -69,6 +69,7 @@ module Command
           @node_options[ name ] = Command::NodeInstall::Options.new.parse( argv )
           @node_options[ name ].storage_conf ||= @options.storage_conf
           @node_options[ name ].linux_image ||= @options.linux_image
+          @node_options[ name ].netmask ||= @options.netmask
           @node_options[ name ].check_mandatory_options
         end
       end
