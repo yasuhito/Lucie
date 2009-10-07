@@ -65,8 +65,9 @@ module Command
           begin
             thread.join
           rescue Interrupt
-            raise Interrupt
-          rescue => e
+            raise
+          rescue Exception => e
+            thread.kill
             node.status.fail!
             $stderr.puts e.message
             logger.error e.message
