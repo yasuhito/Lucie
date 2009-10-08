@@ -122,42 +122,60 @@ class RebootWatchDog
 
 
   def regexp_tftp_kernel
-    /in\.tftpd\[\d+\]: RRQ from #{ Regexp.escape( @node.ip_address ) } filename lucie/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename lucie/
   end
 
 
   def regexp_tftp_pxelinux
-    /in\.tftpd\[\d+\]: RRQ from #{ Regexp.escape( @node.ip_address ) } filename pxelinux\.0/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename pxelinux\.0/
   end
 
 
   def regexp_tftp_pxelinux_cfg
-    /in\.tftpd\[\d+\]: RRQ from #{ Regexp.escape( @node.ip_address ) } filename pxelinux\.cfg\/01\-#{ Regexp.escape( @node.mac_address.downcase.gsub( ":", "-" ) ) }/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename pxelinux\.cfg\/01\-#{ regexp( mac.gsub( ":", "-" ) ) }/
   end
 
 
   def regexp_dhcp_discover
-    /dhcpd: DHCPDISCOVER from #{ @node.mac_address.downcase }/
+    /dhcpd: DHCPDISCOVER from #{ mac }/
   end
 
 
   def regexp_dhcp_offer
-    /dhcpd: DHCPOFFER on #{ Regexp.escape( @node.ip_address ) } to #{ @node.mac_address.downcase }/
+    /dhcpd: DHCPOFFER on #{ regexp( ip ) } to #{ mac }/
   end
 
 
   def regexp_dhcp_request
-    /dhcpd: DHCPREQUEST for #{ Regexp.escape( @node.ip_address ) } .* from #{ @node.mac_address.downcase }/
+    /dhcpd: DHCPREQUEST for #{ regexp( ip ) } .* from #{ mac }/
   end
 
 
   def regexp_dhcp_ack
-    /dhcpd: DHCPACK on #{ Regexp.escape( @node.ip_address ) } to #{ @node.mac_address.downcase }/
+    /dhcpd: DHCPACK on #{ regexp( ip ) } to #{ mac }/
   end
 
 
   def regexp_nfs_mount
-    /mountd\[\d+\]: authenticated mount request from #{ Regexp.escape( @node.ip_address ) }/
+    /mountd\[\d+\]: authenticated mount request from #{ regexp( ip ) }/
+  end
+
+
+  # Utils ######################################################################
+
+
+  def ip
+    @node.ip_address
+  end
+
+
+  def mac
+    @node.mac_address.downcase
+  end
+
+
+  def regexp str
+    Regexp.escape str
   end
 end
 
