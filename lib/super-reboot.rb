@@ -1,16 +1,16 @@
+require "lucie/debug"
 require "lucie/utils"
 require "reboot-watch-dog"
 require "ssh"
 
 
 class SuperReboot
+  include Lucie::Debug
   include Lucie::Utils
 
 
-  def initialize html_logger, options = {}, messenger = nil
-    @html_logger = html_logger
-    @options = options
-    @messenger = messenger
+  def initialize debug_options = {}
+    @debug_options = debug_options
   end
 
 
@@ -78,13 +78,13 @@ class SuperReboot
 
   def ssh_reboot node
     info "Rebooting #{ node.name } via ssh ..."
-    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ node.name } "swapoff -a"}, @options, @messenger
-    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ node.name } "shutdown -r now"}, @options, @messenger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ node.name } "swapoff -a"}, @debug_options, messenger
+    run %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ node.name } "shutdown -r now"}, @debug_options, messenger
   end
 
 
   def start_watchdog node, logger, syslog
-    watchdog = RebootWatchDog.new( node, logger, @options.merge( :messenger => @messenger ) )
+    watchdog = RebootWatchDog.new( node, logger, @debug_options )
     watchdog.syslog = syslog
     yield watchdog
   end
@@ -94,7 +94,7 @@ class SuperReboot
     command = "#{ script } #{ node_name }"
     info "Executing '#{ command }' to reboot #{ node_name } ..."
     begin
-      run command, @options, @messenger
+      run command, @debug_options, messenger
     rescue => e
       error "Reboot script '#{ command }' failed."
       return false
@@ -108,26 +108,13 @@ class SuperReboot
     info "Rebooting #{ node_name } via ssh ..."
     command = %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ node_name } "reboot"}
     begin
-      run command, @options, @messenger
+      run command, @debug_options, messenger
     rescue
       error "Rebooting #{ node_name } via ssh failed."
       return false
     end
     info "Succeeded in rebooting #{ node_name } via ssh. Now rebooting ..."
     true
-  end
-
-
-  # Messaging ##################################################################
-
-
-  def info message
-    ( @messenger || $stdout ).puts message
-  end
-
-
-  def error message
-    ( @messenger || $stderr ).puts message
   end
 end
 

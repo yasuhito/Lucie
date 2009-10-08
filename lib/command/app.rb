@@ -274,7 +274,7 @@ module Command
 
 
     def start_super_reboot
-      @super_reboot = SuperReboot.new( @html_logger, debug_options, @messenger )
+      @super_reboot = SuperReboot.new( debug_options )
     end
 
 
