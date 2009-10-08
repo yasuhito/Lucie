@@ -117,7 +117,15 @@ module Command
       time = StopWatch.time_to_run do
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
-            @super_reboot.start_first_stage node, syslog, logger
+            begin
+              @html_logger.update node, "Rebooting"
+              logger.info "Rebooting"
+              @super_reboot.start_first_stage node, syslog, logger
+            rescue
+              @html_logger.update node, "Requesting manual reboot"
+              logger.info "Requesting manual reboot"
+              @super_reboot.wait_manual_reboot node, syslog, logger
+            end
           end
         end
         @html_logger.next_step node
@@ -139,6 +147,8 @@ module Command
         Environment::SecondStage.new( debug_options, @messenger ).start( node )
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
+            @html_logger.update node, "Rebooting"
+            logger.info "Rebooting"
             @super_reboot.start_second_stage node, syslog, logger
           end
         end

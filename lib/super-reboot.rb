@@ -26,8 +26,16 @@ class SuperReboot
   end
 
 
+  def wait_manual_reboot node, syslog, logger
+    start_watchdog( node, logger, syslog ) do | watchdog |
+      t = start_manual_reboot_prompt( node )
+      watchdog.wait_dhcpack
+      t.kill
+    end
+  end
+
+
   def start_second_stage node, syslog, logger
-    log node, "Rebooting", logger
     start_watchdog( node, logger, syslog ) do | watchdog |
       ssh_reboot node
       watchdog.wait_no_pong
@@ -45,22 +53,9 @@ class SuperReboot
 
 
   def reboot_and_wait node, watchdog, logger, script
-    begin
-      log node, "Rebooting", logger
-      reboot node, script
-      watchdog.wait_no_pong
-      watchdog.wait_dhcpack
-    rescue
-      log node, "Requesting manual reboot", logger
-      wait_manual_reboot node, watchdog
-    end
-  end
-
-
-  def wait_manual_reboot node, watchdog
-    t = start_manual_reboot_prompt( node )
+    reboot node, script
+    watchdog.wait_no_pong
     watchdog.wait_dhcpack
-    t.kill
   end
 
 
@@ -124,12 +119,6 @@ class SuperReboot
 
 
   # Messaging ##################################################################
-
-
-  def log node, message, logger
-    @html_logger.update node, message
-    logger.info message
-  end
 
 
   def info message
