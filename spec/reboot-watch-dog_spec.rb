@@ -4,7 +4,8 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 describe RebootWatchDog do
   before :each do
     node = mock( "node", :name => "yutaro", :ip_address => "192.168.0.1", :mac_address => "11:22:33:44:55:66" )
-    @watch_dog = RebootWatchDog.new( node, { :verbose => false, :retry_interval => 0.001 } )
+    logger = mock( "logger", :debug => nil )
+    @watch_dog = RebootWatchDog.new( node, logger, { :verbose => false, :retry_interval => 0.001 } )
   end
 
 

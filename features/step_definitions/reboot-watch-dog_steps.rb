@@ -1,6 +1,6 @@
 Given /^reboot\-watchdog started for node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
-  @reboot_watch_dog = RebootWatchDog.new( Nodes.find( name ), { :dry_run => true, :verbose => true }, @messenger )
+  @reboot_watch_dog = RebootWatchDog.new( Nodes.find( name ), "LOGGER", { :dry_run => true, :verbose => true, :messenger => @messenger } )
 end
 
 

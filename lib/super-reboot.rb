@@ -15,7 +15,7 @@ class SuperReboot
 
 
   def start_first_stage node, syslog, logger, script = nil
-    start_watchdog( node, syslog ) do | watchdog |
+    start_watchdog( node, logger, syslog ) do | watchdog |
       reboot_and_wait node, watchdog, logger, script
       watchdog.wait_pxe
       watchdog.wait_dhcpack
@@ -28,7 +28,7 @@ class SuperReboot
 
   def start_second_stage node, syslog, logger
     log node, "Rebooting", logger
-    start_watchdog( node, syslog ) do | watchdog |
+    start_watchdog( node, logger, syslog ) do | watchdog |
       ssh_reboot node
       watchdog.wait_no_pong
       watchdog.wait_dhcpack
@@ -88,8 +88,8 @@ class SuperReboot
   end
 
 
-  def start_watchdog node, syslog
-    watchdog = RebootWatchDog.new( node, @options, @messenger )
+  def start_watchdog node, logger, syslog
+    watchdog = RebootWatchDog.new( node, logger, @options.merge( :messenger => @messenger ) )
     watchdog.syslog = syslog
     yield watchdog
   end

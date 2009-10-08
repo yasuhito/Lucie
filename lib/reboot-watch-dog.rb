@@ -1,18 +1,19 @@
+require "lucie/debug"
 require "ping"
 require "socket"
 
 
-#--
-# [TODO] raise if waiting method timeouted. (then rescued and retried by SuperReboot)
-#++
 class RebootWatchDog
+  include Lucie::Debug
+
+
   DEFAULT_RETRY_INTERVAL = 2
 
 
-  def initialize node, options = {}, messenger = nil
+  def initialize node, logger, debug_options = {}
     @node = node
-    @options = options
-    @messenger = messenger
+    @logger = logger
+    @debug_options = debug_options
   end
 
 
@@ -113,18 +114,7 @@ class RebootWatchDog
 
 
   def retry_interval
-    @options[ :retry_interval ] || DEFAULT_RETRY_INTERVAL
-  end
-
-
-  def dry_run
-    @options[ :dry_run ]
-  end
-
-
-  def debug message
-    return unless @options[ :verbose ]
-    ( @messenger || $stderr ).puts message
+    @debug_options[ :retry_interval ] || DEFAULT_RETRY_INTERVAL
   end
 
 
