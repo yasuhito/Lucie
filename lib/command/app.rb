@@ -70,8 +70,8 @@ module Command
         Nodes.load_all.each do | each |
           if each.status.incomplete?
             each.status.fail!
-            message = e.message.empty? ? e.inspect : e.message
-            @html_logger.update each, "failed (#{ e.message })"
+            emsg= e.message.empty? ? e.inspect : e.message
+            @html_logger.update each, "failed (#{ emsg })"
           end
         end
       end
