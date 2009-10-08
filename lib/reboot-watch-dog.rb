@@ -17,41 +17,41 @@ class RebootWatchDog
   end
 
 
-  def syslog= syslog
-    @syslog = syslog
+  def syslog= io
+    @syslog = io
     @syslog.seek 0, IO::SEEK_END unless dry_run
   end
 
 
   def wait_pxe
-    block_until_syslog_matches_with regexp_tftp_pxelinux, "waiting for #{ @node.name } to request PXE boot loader ..."
-    block_until_syslog_matches_with regexp_tftp_pxelinux_cfg, "waiting for #{ @node.name } to request PXE boot loader configuration file ..."
-    block_until_syslog_matches_with regexp_tftp_kernel, "waiting for #{ @node.name } to request Lucie kernel ..."
+    block_until_match regexp_tftp_pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
+    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
+    block_until_match regexp_tftp_kernel, "Waiting for #{ name } to request Lucie kernel ..."
   end
 
 
   def wait_pxe_localboot
-    block_until_syslog_matches_with regexp_tftp_pxelinux, "waiting for #{ @node.name } to request PXE boot loader ..."
-    block_until_syslog_matches_with regexp_tftp_pxelinux_cfg, "waiting for #{ @node.name } to request PXE boot loader configuration file ..."
+    block_until_match regexp_tftp_pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
+    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
   end
 
 
   def wait_dhcpack
-    block_until_syslog_matches_with regexp_dhcp_discover, "waiting for #{ @node.name } to send DHCPDISCOVER ..."
-    block_until_syslog_matches_with regexp_dhcp_offer, "waiting for #{ @node.name } to receive DHCPOFFER ..."
-    block_until_syslog_matches_with regexp_dhcp_request, "waiting for #{ @node.name } to send DHCPREQUEST ..."
-    block_until_syslog_matches_with regexp_dhcp_ack, "waiting for #{ @node.name } to receive DHCPACK ..."
+    block_until_match regexp_dhcp_discover, "Waiting for #{ name } to send DHCPDISCOVER ..."
+    block_until_match regexp_dhcp_offer, "Waiting for #{ name } to receive DHCPOFFER ..."
+    block_until_match regexp_dhcp_request, "Waiting for #{ name } to send DHCPREQUEST ..."
+    block_until_match regexp_dhcp_ack, "Waiting for #{ name } to receive DHCPACK ..."
   end
 
 
   def wait_nfsroot
-    block_until_syslog_matches_with regexp_nfs_mount, "waiting for #{ @node.name } to mount nfsroot ..."
+    block_until_match regexp_nfs_mount, "Waiting for #{ name } to mount nfsroot ..."
   end
 
 
   def wait_pong
     wait_loop do
-      debug "waiting for #{ @node.name } to respond to ping ..."
+      debug "Waiting for #{ name } to respond to ping ..."
       dry_run || ping
     end
   end
@@ -59,7 +59,7 @@ class RebootWatchDog
 
   def wait_no_pong
     wait_loop do
-      debug "waiting for #{ @node.name } to stop responding to ping ..."
+      debug "Waiting for #{ name } to stop responding to ping ..."
       dry_run || ( not ping )
     end
   end
@@ -67,9 +67,9 @@ class RebootWatchDog
 
   def wait_sshd
     wait_loop do
-      debug "waiting for sshd to start on #{ @node.name } ..."
+      debug "Waiting for sshd to start on #{ name } ..."
       begin
-        TCPSocket.open( @node.ip_address, 22 ) unless dry_run
+        TCPSocket.open( ip, 22 ) unless dry_run
         true
       rescue Errno::EHOSTUNREACH, Errno::ECONNREFUSED
         false
@@ -92,11 +92,11 @@ class RebootWatchDog
 
 
   def ping
-    Ping.pingecho @node.ip_address, retry_interval
+    Ping.pingecho ip, retry_interval
   end
 
 
-  def block_until_syslog_matches_with regexp, message
+  def block_until_match regexp, message
     raise "syslog is not set" unless @syslog
     wait_loop do
       debug message
@@ -122,46 +122,61 @@ class RebootWatchDog
 
 
   def regexp_tftp_kernel
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename lucie/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename lucie/
   end
 
 
   def regexp_tftp_pxelinux
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename pxelinux\.0/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename pxelinux\.0/
   end
-
+  
 
   def regexp_tftp_pxelinux_cfg
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp( ip ) } filename pxelinux\.cfg\/01\-#{ regexp( mac.gsub( ":", "-" ) ) }/
+    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename pxelinux\.cfg\/01\-#{ regexp_from mac.gsub( ":", "-" ) }/
   end
 
 
   def regexp_dhcp_discover
-    /dhcpd: DHCPDISCOVER from #{ mac }/
+    /dhcpd: DHCPDISCOVER from #{ regexp_mac }/
   end
 
 
   def regexp_dhcp_offer
-    /dhcpd: DHCPOFFER on #{ regexp( ip ) } to #{ mac }/
+    /dhcpd: DHCPOFFER on #{ regexp_ip } to #{ regexp_mac }/
   end
 
 
   def regexp_dhcp_request
-    /dhcpd: DHCPREQUEST for #{ regexp( ip ) } .* from #{ mac }/
+    /dhcpd: DHCPREQUEST for #{ regexp_ip } .* from #{ regexp_mac }/
   end
 
 
   def regexp_dhcp_ack
-    /dhcpd: DHCPACK on #{ regexp( ip ) } to #{ mac }/
+    /dhcpd: DHCPACK on #{ regexp_ip } to #{ regexp_mac }/
   end
 
 
   def regexp_nfs_mount
-    /mountd\[\d+\]: authenticated mount request from #{ regexp( ip ) }/
+    /mountd\[\d+\]: authenticated mount request from #{ regexp_ip }/
+  end
+
+
+  def regexp_ip
+    regexp_from ip
+  end
+
+
+  def regexp_mac
+    regexp_from mac 
   end
 
 
   # Utils ######################################################################
+
+
+  def name
+    @node.name
+  end
 
 
   def ip
@@ -174,7 +189,7 @@ class RebootWatchDog
   end
 
 
-  def regexp str
+  def regexp_from str
     Regexp.escape str
   end
 end

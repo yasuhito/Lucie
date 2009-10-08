@@ -10,40 +10,40 @@ Feature: reboot-watchdog tracks reboot process
   Scenario: wait until PXE boot
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until node "yutaro" boots with PXE
-    Then "waiting for yutaro to request PXE boot loader ..." displayed
-    Then "waiting for yutaro to request PXE boot loader configuration file ..." displayed
-    Then "waiting for yutaro to request Lucie kernel ..." displayed
+    Then "Waiting for yutaro to request PXE boot loader ..." displayed
+    Then "Waiting for yutaro to request PXE boot loader configuration file ..." displayed
+    Then "Waiting for yutaro to request Lucie kernel ..." displayed
 
   Scenario: wait until PXE local boot
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until node "yutaro" boots from local hard disk with PXE
-    Then "waiting for yutaro to request PXE boot loader ..." displayed
-    Then "waiting for yutaro to request PXE boot loader configuration file ..." displayed
+    Then "Waiting for yutaro to request PXE boot loader ..." displayed
+    Then "Waiting for yutaro to request PXE boot loader configuration file ..." displayed
 
   Scenario: wait until DHCPACK
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until dhcpd sends DCHPACK to node "yutaro"
-    Then "waiting for yutaro to send DHCPDISCOVER ..." displayed
-    Then "waiting for yutaro to receive DHCPOFFER ..." displayed
-    Then "waiting for yutaro to send DHCPREQUEST ..." displayed
-    Then "waiting for yutaro to receive DHCPACK ..." displayed
+    Then "Waiting for yutaro to send DHCPDISCOVER ..." displayed
+    Then "Waiting for yutaro to receive DHCPOFFER ..." displayed
+    Then "Waiting for yutaro to send DHCPREQUEST ..." displayed
+    Then "Waiting for yutaro to receive DHCPACK ..." displayed
 
   Scenario: wait until nfsroot mount
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until nfsroot mounted from node "yutaro"
-    Then "waiting for yutaro to mount nfsroot ..." displayed
+    Then "Waiting for yutaro to mount nfsroot ..." displayed
 
   Scenario: wait until remote node responds to ping
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until node responds to ping
-    Then "waiting for yutaro to respond to ping ..." displayed
+    Then "Waiting for yutaro to respond to ping ..." displayed
 
   Scenario: wait until remote node not responds to ping
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until node not responds to ping
-    Then "waiting for yutaro to stop responding to ping ..." displayed
+    Then "Waiting for yutaro to stop responding to ping ..." displayed
 
   Scenario: wait until sshd is up
     Given reboot-watchdog started for node "yutaro"
     When I try to wait until sshd is up
-    Then "waiting for sshd to start on yutaro ..." displayed
+    Then "Waiting for sshd to start on yutaro ..." displayed
