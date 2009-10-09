@@ -1,7 +1,6 @@
 require "configuration"
 require "installer"
 require "lucie/io"
-require "lucie/mutex"
 require "lucie/utils"
 require "lucie/version"
 
@@ -43,18 +42,14 @@ module Lucie
 
 
       def update node, status
-        Lucie::Mutex.synchronize do
-          @@status[ node ] = status
-          update_html
-        end
+        @@status[ node ] = status
+        update_html
       end
 
 
       def next_step node
-        Lucie::Mutex.synchronize do
-          @current_step[ node ] += 1
-          update_html
-        end
+        @current_step[ node ] += 1
+        update_html
       end
 
 
