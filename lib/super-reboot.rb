@@ -38,7 +38,6 @@ class SuperReboot
   def start_second_stage node, syslog, logger
     start_watchdog( node, logger, syslog ) do | watchdog |
       ssh_reboot node
-      watchdog.wait_no_pong
       watchdog.wait_dhcpack
       watchdog.wait_pxe_localboot
       watchdog.wait_pong
@@ -54,7 +53,6 @@ class SuperReboot
 
   def reboot_and_wait node, watchdog, logger, script
     reboot node, script
-    watchdog.wait_no_pong
     watchdog.wait_dhcpack
   end
 
@@ -63,7 +61,7 @@ class SuperReboot
     Thread.start do
       loop do
         error "Please reboot #{ node.name } manually."
-        sleep 2
+        sleep 60
       end
     end
   end

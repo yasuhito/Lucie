@@ -7,7 +7,7 @@ class RebootWatchDog
   include Lucie::Debug
 
 
-  DEFAULT_RETRY_INTERVAL = 2
+  DEFAULT_RETRY_INTERVAL = 30
 
 
   def initialize node, logger, debug_options = {}
@@ -92,7 +92,7 @@ class RebootWatchDog
 
 
   def ping
-    Ping.pingecho ip, retry_interval
+    Ping.pingecho ip
   end
 
 

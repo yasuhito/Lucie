@@ -26,7 +26,7 @@ describe RebootWatchDog do
 
 
   it "should wait until pong" do
-    Ping.should_receive( :pingecho ).with( "192.168.0.1", kind_of( Numeric ) ).once.and_return( true )
+    Ping.should_receive( :pingecho ).with( "192.168.0.1" ).once.and_return( true )
     @watch_dog.wait_pong
   end
 
