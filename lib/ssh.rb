@@ -63,26 +63,31 @@ class SSH
 
 
   def sh_a ip, command, logger = Lucie::Logger::Null.new
-    output = ""
-    real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
-    Popen3::Shell.open do | shell |
-      shell.on_stdout do | line |
-        $stdout.puts line
-        logger.debug line
-        output << line
+    agent_pid = nil
+    begin
+      real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
+      Popen3::Shell.open do | shell |
+        shell.on_stdout do | line |
+          agent_pid = $1 if /^Agent pid (\d+)/=~ line
+          $stdout.puts line
+          logger.debug line
+        end
+        shell.on_stderr do | line |
+          $stderr.puts line
+          logger.debug line
+        end
+        shell.on_failure do
+          raise "command #{ command } failed on #{ ip }"
+        end
+        logger.debug real_command
+        debug real_command if @verbose || @dry_run
+        shell.exec real_command unless @dry_run
       end
-      shell.on_stderr do | line |
-        $stderr.puts line
-        logger.debug line
+    ensure
+      Popen3::Shell.open do | shell |
+        shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid } unless @dry_run
       end
-      shell.on_failure do
-        raise "command #{ command } failed on #{ ip }"
-      end
-      logger.debug real_command
-      debug real_command if @verbose || @dry_run
-      shell.exec real_command unless @dry_run
     end
-    output
   end
 
 
@@ -110,7 +115,7 @@ class SSH
 
 
   def ssh_agent command
-    "eval `ssh-agent`; ssh-add #{ PRIVATE_KEY }; #{ command }; ssh-agent -k"
+    "eval `ssh-agent`; ssh-add #{ PRIVATE_KEY }; #{ command }"
   end
 
 
