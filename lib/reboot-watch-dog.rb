@@ -30,6 +30,13 @@ class RebootWatchDog
   end
 
 
+  def wait_manual_reboot
+    block_until_match regexp_tftp_pxelinux, "Please reboot #{ name } manually."
+    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
+    block_until_match regexp_tftp_kernel, "Waiting for #{ name } to request Lucie kernel ..."
+  end
+
+
   def wait_pxe_localboot
     block_until_match regexp_tftp_pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
     block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."

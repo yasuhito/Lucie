@@ -28,9 +28,11 @@ class SuperReboot
 
   def wait_manual_reboot node, syslog, logger
     start_watchdog( node, logger, syslog ) do | watchdog |
-      t = start_manual_reboot_prompt( node )
+      watchdog.wait_manual_reboot
       watchdog.wait_dhcpack
-      t.kill
+      watchdog.wait_nfsroot
+      watchdog.wait_pong
+      watchdog.wait_sshd
     end
   end
 
@@ -54,16 +56,6 @@ class SuperReboot
   def reboot_and_wait node, watchdog, logger, script
     reboot node, script
     watchdog.wait_dhcpack
-  end
-
-
-  def start_manual_reboot_prompt node
-    Thread.start do
-      loop do
-        error "Please reboot #{ node.name } manually."
-        sleep 60
-      end
-    end
   end
 
 
