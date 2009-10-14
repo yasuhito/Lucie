@@ -3,15 +3,6 @@ require "English"
 
 module Popen3
   class Shell
-    def initialize
-      @on_stdout = nil
-      @on_stderr = nil
-      @on_success = nil
-      @on_failure = nil
-      @on_exit = nil
-    end
-
-
     def self.open
       shell = self.new
       if block_given?
@@ -50,15 +41,14 @@ module Popen3
     end
 
 
-    def exec command, options = {}
-      process = Popen3.new( command, options )
-      process.popen3 do | tochild, fromchild, childerr |
-        @tochild, @fromchild, @childerr = tochild, fromchild, childerr
+    def exec command, env = {}
+      process = Popen3.new( command, env )
+      process.popen3 do | stdin, stdout, stderr |
+        @stdout, @stderr = stdout, stderr
         handle_child_output
       end
       process.wait
       do_exit
-
       handle_exitstatus
     end
 
@@ -69,23 +59,34 @@ module Popen3
 
 
     def handle_child_output
-      stdout_thread = Thread.new do
-        while line = @fromchild.gets do
-          do_stdout line.chomp
-        end
-      end
-      stdout_thread.priority = -10
-
-      stderr_thread = Thread.new do
-        while line = @childerr.gets do
-          do_stderr line.chomp
-        end
-      end
-      stderr_thread.priority = -10
-
       stdout_thread.join
       stderr_thread.join
     end
+
+
+    def stdout_thread
+      t = Thread.new do
+        while line = @stdout.gets do
+          do_stdout line.chomp
+        end
+      end
+      t.priority = -10
+      t
+    end
+
+
+    def stderr_thread
+      t = Thread.new do
+        while line = @stderr.gets do
+          do_stderr line.chomp
+        end
+      end
+      t.priority = -10
+      t
+    end
+
+
+    # run hooks ################################################################
 
 
     def handle_exitstatus
