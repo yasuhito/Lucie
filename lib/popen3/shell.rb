@@ -50,13 +50,6 @@ module Popen3
     end
 
 
-    def puts data = ''
-      if @tochild
-        @tochild.puts data
-      end
-    end
-
-
     def exec command, options = {}
       process = Popen3.new( command, options )
       process.popen3 do | tochild, fromchild, childerr |
