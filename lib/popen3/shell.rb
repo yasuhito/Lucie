@@ -43,12 +43,10 @@ module Popen3
 
     def exec command, env = {}
       process = Popen3.new( command, env )
-      process.popen3 do | stdin, stdout, stderr |
-        @stdout, @stderr = stdout, stderr
-        handle_child_output
+      process.popen3 do | stdout, stderr |
+        handle_child_output stdout, stderr
       end
       process.wait
-      do_exit
       handle_exitstatus
     end
 
@@ -58,15 +56,15 @@ module Popen3
     ############################################################################
 
 
-    def handle_child_output
-      stdout_thread.join
-      stderr_thread.join
+    def handle_child_output stdout, stderr
+      stdout_thread( stdout ).join
+      stderr_thread( stderr ).join
     end
 
 
-    def stdout_thread
+    def stdout_thread stdout
       t = Thread.new do
-        while line = @stdout.gets do
+        while line = stdout.gets do
           do_stdout line.chomp
         end
       end
@@ -75,9 +73,9 @@ module Popen3
     end
 
 
-    def stderr_thread
+    def stderr_thread stderr
       t = Thread.new do
-        while line = @stderr.gets do
+        while line = stderr.gets do
           do_stderr line.chomp
         end
       end
@@ -90,6 +88,7 @@ module Popen3
 
 
     def handle_exitstatus
+      do_exit
       if child_status.exitstatus == 0
         do_success
       else

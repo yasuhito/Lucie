@@ -33,23 +33,17 @@ module Popen3
 
       if block_given?
         begin
-          return yield( child_stdin, child_stdout, child_stderr )
+          return yield( child_stdout, child_stderr )
         ensure
           close @child
         end
       end
-      return [ child_stdin, child_stdout, child_stderr ]
     end
 
 
     ############################################################################
     private
     ############################################################################
-
-
-    def child_stdin
-      @child[ :stdin ]
-    end
 
 
     def child_stdout
