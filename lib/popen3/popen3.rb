@@ -1,16 +1,9 @@
 module Popen3
   class Popen3
-    attr_reader :pid
-    attr_reader :fromchild
-    attr_reader :tochild
-    attr_reader :childerr
-
-
     def initialize command, env = nil
       @command = command
       @env = env ? env : { "LC_ALL" => "C" }
-      @parent_pipe, @child_pipe = init_pipe
-      @tochild, @fromchild, @childerr = @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ]
+      @child, @parent = init_pipes
     end
 
 
@@ -22,33 +15,30 @@ module Popen3
     def popen3
       # Child process
       @pid = Kernel.fork do
-        close_end_of @parent_pipe
+        close @child
 
-        STDIN.reopen @child_pipe[ :stdin ]
-        STDOUT.reopen @child_pipe[ :stdout ]
-        STDERR.reopen @child_pipe[ :stderr ]
-
-        close_end_of @child_pipe
+        STDIN.reopen @parent[ :stdin ]
+        STDOUT.reopen @parent[ :stdout ]
+        STDERR.reopen @parent[ :stderr ]
+        close @parent
 
         @env.each_pair do | key, value |
           ENV[ key ]= value
         end
-
         Kernel.exec @command
       end
 
       # Parent process
-      close_end_of @child_pipe
-      @parent_pipe[ :tochild ].sync = true
+      close @parent
 
       if block_given?
         begin
-          return yield( @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ] )
+          return yield( child_stdin, child_stdout, child_stderr )
         ensure
-          close_end_of @parent_pipe
+          close @child
         end
       end
-      return [ @parent_pipe[ :tochild ], @parent_pipe[ :fromchild ], @parent_pipe[ :childerr ] ]
+      return [ child_stdin, child_stdout, child_stderr ]
     end
 
 
@@ -57,8 +47,23 @@ module Popen3
     ############################################################################
 
 
-    def close_end_of pipe
-      pipe.each do | name, pipe |
+    def child_stdin
+      @child[ :stdin ]
+    end
+
+
+    def child_stdout
+      @child[ :stdout ]
+    end
+
+
+    def child_stderr
+      @child[ :stderr ]
+    end
+
+
+    def close pipes
+      pipes.each do | name, pipe |
         unless pipe.closed?
           pipe.close
         end
@@ -66,12 +71,12 @@ module Popen3
     end
 
 
-    def init_pipe
-      child_stdin, tochild = IO.pipe
-      fromchild, child_stdout = IO.pipe
-      childerr, child_stderr = IO.pipe
-
-      return [ { :tochild => tochild, :fromchild => fromchild, :childerr => childerr }, { :stdin => child_stdin, :stdout => child_stdout, :stderr => child_stderr } ]
+    def init_pipes
+      rd_stdin, wr_stdin = IO.pipe
+      rd_stdout, wr_stdout = IO.pipe
+      rd_stderr, wr_stderr = IO.pipe
+      return [ { :stdin => wr_stdin, :stdout => rd_stdout, :stderr => rd_stderr },
+               { :stdin => rd_stdin, :stdout => wr_stdout, :stderr => wr_stderr } ]
     end
   end
 end
