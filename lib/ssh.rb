@@ -2,7 +2,7 @@ require "lucie"
 require "lucie/io"
 require "lucie/logger/null"
 require "lucie/utils"
-require "popen3/shell"
+require "popen3"
 
 
 class SSH

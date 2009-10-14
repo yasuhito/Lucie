@@ -82,7 +82,6 @@ class Nfsroot < Rake::TaskLib
       task "build_nfsroot" => [ "installer:clobber_nfsroot", @target_directory, "installer:nfsroot_base" ] do
         begin
           extract_nfsroot_base
-          copy_nfsroot_base
           hoaks_packages
           generate_etc_hosts
           upgrade_nfsroot
@@ -144,11 +143,6 @@ class Nfsroot < Rake::TaskLib
   def extract_nfsroot_base
     info "Extracting installer base tarball (#{ @nfsroot_base.target }) to #{ @target_directory }."
     run "tar -C #{ @target_directory } -xzf #{ @nfsroot_base.target }"
-  end
-
-
-  def copy_nfsroot_base
-    run "cp #{ @nfsroot_base.target } #{ target( '/var/tmp/base.tgz' ) }"
   end
 
 

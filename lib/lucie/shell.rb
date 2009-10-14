@@ -1,5 +1,5 @@
 require 'lucie/log'
-require 'popen3/shell'
+require 'popen3'
 
 
 module Lucie

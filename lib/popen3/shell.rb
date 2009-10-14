@@ -1,5 +1,4 @@
-require 'English'
-require 'popen3'
+require "English"
 
 
 module Popen3
@@ -71,7 +70,9 @@ module Popen3
     end
 
 
+    ############################################################################
     private
+    ############################################################################
 
 
     def handle_child_output
@@ -80,12 +81,14 @@ module Popen3
           do_stdout line.chomp
         end
       end
+      stdout_thread.priority = -10
 
       stderr_thread = Thread.new do
         while line = @childerr.gets do
           do_stderr line.chomp
         end
       end
+      stderr_thread.priority = -10
 
       stdout_thread.join
       stderr_thread.join

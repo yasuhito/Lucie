@@ -1,6 +1,6 @@
 require "lucie/io"
 require "lucie/log"
-require "popen3/shell"
+require "popen3"
 
 
 class Debootstrap
