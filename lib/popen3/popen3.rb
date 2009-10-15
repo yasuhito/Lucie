@@ -13,30 +13,15 @@ module Popen3
 
 
     def popen3
-      # Child process
-      @pid = Kernel.fork do
-        close @child
-
-        STDIN.reopen @parent[ :stdin ]
-        STDOUT.reopen @parent[ :stdout ]
-        STDERR.reopen @parent[ :stderr ]
-        close @parent
-
-        @env.each_pair do | key, value |
-          ENV[ key ]= value
-        end
-        Kernel.exec @command
-      end
+      raise unless block_given?
+      @pid = fork_child
 
       # Parent process
       close @parent
-
-      if block_given?
-        begin
-          return yield( child_stdout, child_stderr )
-        ensure
-          close @child
-        end
+      begin
+        yield child_stdout, child_stderr
+      ensure
+        close @child
       end
     end
 
@@ -44,6 +29,31 @@ module Popen3
     ############################################################################
     private
     ############################################################################
+
+
+    def fork_child
+      Kernel.fork do
+        close @child
+        redirect_child_io
+        start_child
+      end
+    end
+
+
+    def redirect_child_io
+      STDIN.reopen @parent[ :stdin ]
+      STDOUT.reopen @parent[ :stdout ]
+      STDERR.reopen @parent[ :stderr ]
+      close @parent
+    end
+
+
+    def start_child
+      @env.each_pair do | key, value |
+        ENV[ key ]= value
+      end
+      Kernel.exec @command
+    end
 
 
     def child_stdout
@@ -69,8 +79,8 @@ module Popen3
       rd_stdin, wr_stdin = IO.pipe
       rd_stdout, wr_stdout = IO.pipe
       rd_stderr, wr_stderr = IO.pipe
-      return [ { :stdin => wr_stdin, :stdout => rd_stdout, :stderr => rd_stderr },
-               { :stdin => rd_stdin, :stdout => wr_stdout, :stderr => wr_stderr } ]
+      [ { :stdin => wr_stdin, :stdout => rd_stdout, :stderr => rd_stderr },
+        { :stdin => rd_stdin, :stdout => wr_stdout, :stderr => wr_stderr } ]
     end
   end
 end
