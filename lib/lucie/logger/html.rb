@@ -29,7 +29,7 @@ module Lucie
       #
       def start install_options
         @install_options = install_options
-        @@status = {}
+        @status = {}
         @current_step = Hash.new( -1 )
         info "HTML log file: #{ HTML.log_file }"
         make_log_directory
@@ -44,7 +44,7 @@ module Lucie
 
       def update_status node, status
         synchronize do
-          @@status[ node ] = status
+          @status[ node ] = status
           update_html
         end
       end
@@ -53,7 +53,7 @@ module Lucie
       def proceed_to_next_step node, status
         synchronize do
           @current_step[ node ] += 1
-          @@status[ node ] = status
+          @status[ node ] = status
           update_html
         end
       end
@@ -91,7 +91,7 @@ EOF
 
       
       def nodes_sorted_by_name
-        @@status.keys.sort_by do | each |
+        @status.keys.sort_by do | each |
           each.name
         end
       end
@@ -116,8 +116,8 @@ HTML
 
 
       def spinner_html node
-        status = %{<span class="status">#{ @@status[ node ] }</span>}
-        case @@status[ node ]
+        status = %{<span class="status">#{ @status[ node ] }</span>}
+        case @status[ node ]
         when /\Afailed/
           %{<img src="./images/spinner_error.gif"/> #{ status }}
         when /\Aok\Z/
@@ -146,7 +146,7 @@ HTML
 
 
       def status_div_class_of node
-        case @@status[ node ]
+        case @status[ node ]
         when /\Afailed/
           "fail"
         when /manual reboot/
