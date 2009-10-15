@@ -205,7 +205,7 @@ module Command
     def start_html_logger
       @html_logger = Lucie::Logger::HTML.new( :dry_run => @dry_run, :messenger => @messenger )
       install_options = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
-        :package_repository => @installer.package_repository, :netmask => @options.netmask, :http_proxy => @installer.http_proxy }
+        :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
       @html_logger.start install_options
       Nodes.load_all.each do | each |
         @html_logger.update_status each, "started"

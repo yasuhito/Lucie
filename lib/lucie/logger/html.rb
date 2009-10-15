@@ -103,13 +103,30 @@ EOF
       def install_options_html
         return <<-HTML
     <div class="header">
-      <table><tr><td>
-	    <b>Debian Release:</b> <a href="http://www.debian.org/releases/#{ @install_options[ :suite ] }/">#{ @install_options[ :suite ] }</a><br/>
-            #{ @install_options[ :ldb_repository ] ? "<b>LDB Repository:</b> #{ @install_options[ :ldb_repository ] }<br/>" : "" }
-	    <b>Package Repository:</b> <a href="#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }">#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }</a><br/>
-	    <b>Netmask Address:</b> #{ @install_options[ :netmask ] }<br/>
-            #{ @install_options[ :http_proxy ] ? %{<b>HTTP Proxy:</b> <a href="#{ @install_options[ :http_proxy ] }">#{ @install_options[ :http_proxy ] }</a><br/>} : "" }
-      </td></tr></table>
+
+    <div class="config">
+      <span class="config_item">
+        <b>Debian Release:</b> <a href="http://www.debian.org/releases/#{ @install_options[ :suite ] }/">#{ @install_options[ :suite ] }</a>
+      </span>
+      #{ @install_options[ :ldb_repository ] ? "<span class=\"config_item\"><b>LDB Repository:</b> #{ @install_options[ :ldb_repository ] }</span>" : "" }
+      <span class="config_item">
+        <b>Package Repository:</b> <a href="#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }">#{ ::Installer::DEFAULT_PACKAGE_REPOSITORY }</a>
+      </span>
+      #{ @install_options[ :http_proxy ] ? %{<span class="config_item"><b>HTTP Proxy:</b> <a href="#{ @install_options[ :http_proxy ] }">#{ @install_options[ :http_proxy ] }</a></span>} : "" }
+    </div>
+
+    <div class="hstatus">
+      <span class="hstatus_item">
+        <b>Incomplete Nodes:</b> 
+      </span>
+      <span class="hstatus_item">
+        <b>Success Nodes:</b> 
+      </span>
+      <span class="hstatus_item">
+        <b>Failure Nodes:</b>
+      </span>
+    </div>
+
     </div>
 HTML
       end
@@ -213,9 +230,10 @@ HTML
 /******************************************************************************/
 
 .header {
-  background-position: bottom;
+  background-position: top;
   background-repeat: repeat-x;
   background-image: url(images/top_gradient.png);
+  clear: both;
 }
 
 .header a {
@@ -223,8 +241,31 @@ HTML
   text-decoration: none;
 }
 
-.header table {
-  margin: 15px 0 15px 1.5em;
+.hstatus { 
+  color: #507ec0;
+  padding: 0.5em 0 0.5em 1.5em;
+}
+
+.hstatus .hstatus_item {
+  color: #666;
+  display: block;
+  font-size: 0.8em;
+  text-align: left;
+  padding: 0 0.2em 0 0.35em;
+}
+
+.config {
+  color: #507ec0;
+  padding: 0.5em 1.5em 0.5em 0.5em;
+  float: right;
+}
+
+.config .config_item {
+  color: #666;
+  display: block;
+  font-size: 0.8em;
+  text-align: right;
+  padding: 0 0.35em 0.2em 0;
 }
 
 /******************************************************************************/
