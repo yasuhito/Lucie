@@ -12,6 +12,9 @@ module Lucie
       include Lucie::Utils
 
 
+      @@mutex = Mutex.new
+
+
       REFRESH_INTERVAL = 10
 
 
@@ -28,7 +31,7 @@ module Lucie
       def start install_options
         @install_options = install_options
         @@status = {}
-        @current_step = Hash.new( 0 )
+        @current_step = Hash.new( -1 )
         info "HTML log file: #{ HTML.log_file }"
         make_log_directory
         update_html
@@ -42,14 +45,19 @@ module Lucie
 
 
       def update node, status
-        @@status[ node ] = status
-        update_html
+        @@mutex.synchronize do
+          @@status[ node ] = status
+          update_html
+        end
       end
 
 
-      def next_step node
-        @current_step[ node ] += 1
-        update_html
+      def new_step node, status
+        @@mutex.synchronize do
+          @current_step[ node ] += 1
+          @@status[ node ] = status
+          update_html
+        end
       end
 
 

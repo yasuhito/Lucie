@@ -54,15 +54,16 @@ class FirstStage
 
 
   def partition_disk
+    @html_logger.new_step @node, "Setting up hard disk partitions ..."
     info "Setting up hard disk partitions ..."
     scp @storage_conf, "/tmp/storage.conf"
     ssh "setup-storage -X -f /tmp/storage.conf"
     ssh 'mount2dir /tmp/target /tmp/fstab'
-    @html_logger.next_step @node
   end
 
 
   def install_base_system
+    @html_logger.new_step @node, 'Setting up Linux base system ...'
     info 'Setting up Linux base system ...'
     scp @base_system, "/tmp/target/base.tgz"
     ssh "tar -C /tmp/target -xzpf /tmp/target/base.tgz"
@@ -77,28 +78,28 @@ class FirstStage
     ssh 'mount -t proc proc /tmp/target/proc'
     ssh 'mount -t sysfs sysfs /tmp/target/sys'
     ssh '[ -f /etc/init.d/udev ] && mount --bind /dev/ /tmp/target/dev'
-    @html_logger.next_step @node
   end
 
 
   def install_kernel
+    @html_logger.new_step @node, "Installing a kernel package ..."
     info "Installing a kernel package ..."
     scp "#{ Lucie::ROOT }/config/kernel-img.conf", "/tmp/target/etc/"
     apt_option = '-y --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
     ssh "chroot /tmp/target apt-get #{ apt_option } update"
     ssh "chroot /tmp/target apt-get #{ apt_option } install #{ @linux_image }"
-    @html_logger.next_step @node
   end
 
 
   def setup_grub
+    @html_logger.new_step @node, "Setting up grub ..."
     info "Setting up grub ..."
     ssh "setup_grub"
-    @html_logger.next_step @node
   end
 
 
   def setup_misc
+    @html_logger.new_step @node, "Generating misc configurations ..."
     info "Generating misc configurations ..."
     ssh "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ Network.network_address( @node.ip_address, @node.netmask_address ) } #{ Network.broadcast_address( @node.ip_address, @node.netmask_address ) } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
     ssh "setup_password"
@@ -107,11 +108,11 @@ class FirstStage
       scp "#{ Lucie::ROOT }/script/run-hooks", "/tmp/target/usr/sbin"
       ssh %{chroot /tmp/target run-hooks}
     end
-    @html_logger.next_step @node
   end
 
 
   def setup_ssh
+    @html_logger.new_step @node, "Setting up ssh ..."
     info "Setting up ssh ..."
     ssh "setup_ssh"
     [ "ssh_host_dsa_key", "ssh_host_rsa_key", "ssh_host_dsa_key.pub", "ssh_host_rsa_key.pub" ].each do | each |
@@ -128,7 +129,6 @@ class FirstStage
         do_ssh "scp -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ @node.name }:#{ from } #{ local_file }"
       end
     end
-    @html_logger.next_step @node
   end
 
 
@@ -183,7 +183,6 @@ class FirstStage
 
   def info message
     stdout.puts message
-    @html_logger.update @node, message
     @logger.info message unless dry_run
   end
 

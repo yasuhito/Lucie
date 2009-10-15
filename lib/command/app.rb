@@ -118,17 +118,16 @@ module Command
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
-              @html_logger.update node, "Rebooting"
+              @html_logger.new_step node, "Rebooting"
               logger.info "Rebooting"
               @super_reboot.start_first_stage node, syslog, logger
             rescue
-              @html_logger.update node, "Requesting manual reboot"
+              @html_logger.new_step node, "Requesting manual reboot"
               logger.info "Requesting manual reboot"
               @super_reboot.wait_manual_reboot node, syslog, logger
             end
           end
         end
-        @html_logger.next_step node
       end
       logger.info "The first reboot finished in #{ time } seconds."
     end
@@ -147,12 +146,11 @@ module Command
         Environment::SecondStage.new( debug_options, @messenger ).start( node )
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
-            @html_logger.update node, "Rebooting"
+            @html_logger.new_step node, "Rebooting"
             logger.info "Rebooting"
             @super_reboot.start_second_stage node, syslog, logger
           end
         end
-        @html_logger.next_step node
       end
       logger.info "The second reboot finished in #{ time } seconds."
     end
@@ -164,7 +162,7 @@ module Command
       end
       logger.info "The second stage finished in #{ time } seconds."
 
-      @html_logger.update node, "ok"
+      @html_logger.new_step node, "ok"
       logger.info "Node '#{ node.name }' installed."
       info "Node '#{ node.name }' installed."
     end
@@ -185,13 +183,12 @@ module Command
 
 
     def start_ldb node, logger
+      @html_logger.new_step node, "Starting LDB ..."
+      logger.info "Starting LDB ..."
       if @options.ldb_repository
-        @html_logger.update node, "Starting LDB ..."
-        logger.info "Starting LDB ..."
         @configurator.clone_to_client @options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
       end
-      @html_logger.next_step node
     end
 
 
