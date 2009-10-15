@@ -71,7 +71,7 @@ module Command
           if each.status.incomplete?
             each.status.fail!
             emsg= e.message.empty? ? e.inspect : e.message
-            @html_logger.update each, "failed (#{ emsg })"
+            @html_logger.update_status each, "failed (#{ emsg })"
           end
         end
       end
@@ -90,7 +90,7 @@ module Command
         node.status.fail!
         $stderr.puts e.message
         logger.error e.message
-        @html_logger.update node, "failed (#{ e.message })"
+        @html_logger.update_status node, "failed (#{ e.message })"
         if @options.verbose
           e.backtrace.each do | each |
             $stderr.puts each
@@ -118,11 +118,11 @@ module Command
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
-              @html_logger.new_step node, "Rebooting"
+              @html_logger.proceed_to_next_step node, "Rebooting"
               logger.info "Rebooting"
               @super_reboot.start_first_stage node, syslog, logger
             rescue
-              @html_logger.new_step node, "Requesting manual reboot"
+              @html_logger.proceed_to_next_step node, "Requesting manual reboot"
               logger.info "Requesting manual reboot"
               @super_reboot.wait_manual_reboot node, syslog, logger
             end
@@ -146,7 +146,7 @@ module Command
         Environment::SecondStage.new( debug_options, @messenger ).start( node )
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
-            @html_logger.new_step node, "Rebooting"
+            @html_logger.proceed_to_next_step node, "Rebooting"
             logger.info "Rebooting"
             @super_reboot.start_second_stage node, syslog, logger
           end
@@ -162,7 +162,7 @@ module Command
       end
       logger.info "The second stage finished in #{ time } seconds."
 
-      @html_logger.new_step node, "ok"
+      @html_logger.proceed_to_next_step node, "ok"
       logger.info "Node '#{ node.name }' installed."
       info "Node '#{ node.name }' installed."
     end
@@ -183,7 +183,7 @@ module Command
 
 
     def start_ldb node, logger
-      @html_logger.new_step node, "Starting LDB ..."
+      @html_logger.proceed_to_next_step node, "Starting LDB ..."
       logger.info "Starting LDB ..."
       if @options.ldb_repository
         @configurator.clone_to_client @options.ldb_repository, node, lucie_server_ip_address, logger
@@ -203,12 +203,12 @@ module Command
 
 
     def start_html_logger
-      @html_logger = Lucie::Logger::HTML.new( { :dry_run => @dry_run }, @messenger )
+      @html_logger = Lucie::Logger::HTML.new( :dry_run => @dry_run, :messenger => @messenger )
       install_options = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
         :package_repository => @installer.package_repository, :netmask => @options.netmask, :http_proxy => @installer.http_proxy }
       @html_logger.start install_options
       Nodes.load_all.each do | each |
-        @html_logger.update each, "started"
+        @html_logger.update_status each, "started"
       end
     end
 

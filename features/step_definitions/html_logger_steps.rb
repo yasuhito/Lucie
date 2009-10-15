@@ -1,7 +1,7 @@
 Given /^html logger started$/ do
   @messenger = StringIO.new( "" )
   install_options = { :suite => "lenny", :ldb_repository => "http://ldb.repository.org/", :package_repository => "http://cdn.debian.org/", :http_proxy => "http://proxy.org:3128/" }
-  @html_logger = Lucie::Logger::HTML.new( { :verbose => true, :dry_run => true }, @messenger )
+  @html_logger = Lucie::Logger::HTML.new( :verbose => true, :dry_run => true, :messenger => @messenger )
   @html_logger.start install_options
 end
 
@@ -13,7 +13,7 @@ end
 
 
 When /^the node "([^\"]*)" updated its status "([^\"]*)"$/ do | name, status |
-  @html_logger.update Nodes.find( name ), status
+  @html_logger.update_status Nodes.find( name ), status
 end
 
 

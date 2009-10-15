@@ -54,7 +54,7 @@ class FirstStage
 
 
   def partition_disk
-    @html_logger.new_step @node, "Setting up hard disk partitions ..."
+    @html_logger.proceed_to_next_step @node, "Setting up hard disk partitions ..."
     info "Setting up hard disk partitions ..."
     scp @storage_conf, "/tmp/storage.conf"
     ssh "setup-storage -X -f /tmp/storage.conf"
@@ -63,7 +63,7 @@ class FirstStage
 
 
   def install_base_system
-    @html_logger.new_step @node, 'Setting up Linux base system ...'
+    @html_logger.proceed_to_next_step @node, 'Setting up Linux base system ...'
     info 'Setting up Linux base system ...'
     scp @base_system, "/tmp/target/base.tgz"
     ssh "tar -C /tmp/target -xzpf /tmp/target/base.tgz"
@@ -82,7 +82,7 @@ class FirstStage
 
 
   def install_kernel
-    @html_logger.new_step @node, "Installing a kernel package ..."
+    @html_logger.proceed_to_next_step @node, "Installing a kernel package ..."
     info "Installing a kernel package ..."
     scp "#{ Lucie::ROOT }/config/kernel-img.conf", "/tmp/target/etc/"
     apt_option = '-y --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
@@ -92,14 +92,14 @@ class FirstStage
 
 
   def setup_grub
-    @html_logger.new_step @node, "Setting up grub ..."
+    @html_logger.proceed_to_next_step @node, "Setting up grub ..."
     info "Setting up grub ..."
     ssh "setup_grub"
   end
 
 
   def setup_misc
-    @html_logger.new_step @node, "Generating misc configurations ..."
+    @html_logger.proceed_to_next_step @node, "Generating misc configurations ..."
     info "Generating misc configurations ..."
     ssh "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ Network.network_address( @node.ip_address, @node.netmask_address ) } #{ Network.broadcast_address( @node.ip_address, @node.netmask_address ) } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
     ssh "setup_password"
@@ -112,7 +112,7 @@ class FirstStage
 
 
   def setup_ssh
-    @html_logger.new_step @node, "Setting up ssh ..."
+    @html_logger.proceed_to_next_step @node, "Setting up ssh ..."
     info "Setting up ssh ..."
     ssh "setup_ssh"
     [ "ssh_host_dsa_key", "ssh_host_rsa_key", "ssh_host_dsa_key.pub", "ssh_host_rsa_key.pub" ].each do | each |

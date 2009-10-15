@@ -37,13 +37,12 @@ module Lucie
       end
 
 
-      def initialize options, messenger = nil
-        @options = options
-        @messenger = messenger
+      def initialize debug_options
+        @debug_options = debug_options
       end
 
 
-      def update node, status
+      def update_status node, status
         synchronize do
           @@status[ node ] = status
           update_html
@@ -51,7 +50,7 @@ module Lucie
       end
 
 
-      def new_step node, status
+      def proceed_to_next_step node, status
         synchronize do
           @current_step[ node ] += 1
           @@status[ node ] = status
@@ -66,7 +65,7 @@ module Lucie
 
 
       def update_html
-        write_file HTML.log_file, <<-EOF, @options, @messenger
+        write_file HTML.log_file, <<-EOF, @debug_options, @debug_options[ :messenger ]
 <html>
   <head>
     <meta http-equiv="Refresh" content="#{ REFRESH_INTERVAL }">
@@ -86,7 +85,7 @@ EOF
 
       def make_log_directory
         unless FileTest.directory?( Configuration.log_directory )
-          mkdir_p Configuration.log_directory, @options.merge( :messenger => @messenger )
+          mkdir_p Configuration.log_directory, @debug_options
         end
       end
 
