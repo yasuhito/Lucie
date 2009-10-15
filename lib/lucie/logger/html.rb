@@ -4,6 +4,7 @@ require "lucie/io"
 require "lucie/mutex"
 require "lucie/utils"
 require "lucie/version"
+require "nodes"
 
 
 module Lucie
@@ -117,18 +118,45 @@ EOF
 
     <div class="hstatus">
       <span class="hstatus_item">
-        <b>Incomplete Nodes:</b> 
+        <b>Incomplete Nodes:</b> #{ incomplete_nodes.join( ", " ) }
       </span>
       <span class="hstatus_item">
-        <b>Success Nodes:</b> 
+        <b>Success Nodes:</b> #{ success_nodes.join( ", " ) }
       </span>
       <span class="hstatus_item">
-        <b>Failure Nodes:</b>
+        <b>Failure Nodes:</b> #{ failure_nodes.join( ", " ) }
       </span>
     </div>
 
     </div>
 HTML
+      end
+
+
+      def incomplete_nodes
+        Nodes.load_all.select do | each |
+          each.status and each.status.incomplete?
+        end.collect do | each |
+          each.name
+        end.sort
+      end
+
+
+      def success_nodes
+        Nodes.load_all.select do | each |
+          each.status and each.status.succeeded?
+        end.collect do | each |
+          each.name
+        end.sort
+      end
+
+
+      def failure_nodes
+        Nodes.load_all.select do | each |
+          each.status and each.status.failed?
+        end.collect do | each |
+          each.name
+        end.sort
       end
 
 
