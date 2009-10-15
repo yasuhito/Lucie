@@ -1,6 +1,7 @@
 require "configuration"
 require "installer"
 require "lucie/io"
+require "lucie/mutex"
 require "lucie/utils"
 require "lucie/version"
 
@@ -9,10 +10,8 @@ module Lucie
   module Logger
     class HTML
       include Lucie::IO
+      include Lucie::Mutex
       include Lucie::Utils
-
-
-      @@mutex = Mutex.new
 
 
       REFRESH_INTERVAL = 10
@@ -45,7 +44,7 @@ module Lucie
 
 
       def update node, status
-        @@mutex.synchronize do
+        synchronize do
           @@status[ node ] = status
           update_html
         end
@@ -53,7 +52,7 @@ module Lucie
 
 
       def new_step node, status
-        @@mutex.synchronize do
+        synchronize do
           @current_step[ node ] += 1
           @@status[ node ] = status
           update_html
