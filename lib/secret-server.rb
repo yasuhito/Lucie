@@ -1,17 +1,22 @@
+require "lucie/debug"
 require "socket"
 require "tempfile"
 
 
 class SecretServer
-  def initialize encrypted, password, options = {}
+  include Lucie::Debug
+
+
+  def initialize encrypted, password, debug_options = {}
     @decrypted = decrypt( encrypted, password )
-    @options = options
+    @debug_options = debug_options
   end
 
 
   def start
-    return if @options[ :dry_run ]
-    @server = TCPServer.open( "localhost", 58243 )
+    return if @debug_options[ :dry_run ]
+    @server = TCPServer.open( "localhost", port )
+    debug "Secret server started on port = #{ port }"
     main_loop
   end
 
@@ -19,6 +24,11 @@ class SecretServer
   ##############################################################################
   private
   ##############################################################################
+
+
+  def port
+    58243
+  end
 
 
   def main_loop
