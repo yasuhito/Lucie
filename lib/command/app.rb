@@ -8,7 +8,6 @@ require "lucie/io"
 require "lucie/logger/html"
 require "lucie/server"
 require "lucie/utils"
-require "secret-server"
 require "ssh"
 require "stop-watch"
 require "super-reboot"
@@ -66,6 +65,7 @@ module Command
         end
         @tp.shutdown
       rescue Exception => e
+        Process.kill @sspid if @sspid
         @tp.killall
         Nodes.load_all.each do | each |
           if each.status.incomplete?
@@ -252,10 +252,18 @@ module Command
         password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
           q.echo = "*"
         end
-        secret_server = SecretServer.new( @options.secret, password, debug_options )
-        @secret_server = Thread.start do
-          secret_server.start
+
+        @sspid = fork do
+          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/secret-server' ) } --secret #{ @options.secret } #{ @verbose ? '--verbose' : '' }"
+          ENV[ "LUCIE_PASSWORD" ] = password
+          exec cmd
         end
+
+        t = Thread.new( @sspid ) do | pid |
+          Process.waitpid pid
+          Thread.main.raise "Secret server exitted abnormally"
+        end
+        t.priority = -10
       end
     end
 

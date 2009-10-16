@@ -14,21 +14,31 @@ module Command
 
 
       def main node_argv
-        parse node_argv
-        generate_ssh_keypair
-        update_sudo_timestamp
-        start_main_logger
-        check_prerequisites
-        create_nodes
-        start_secret_server
-        setup_ldb
-        create_installer
-        start_html_logger
-        start_super_reboot
-        setup_ssh
-        setup_first_stage
-        install_parallel
+        begin
+          parse node_argv
+          generate_ssh_keypair
+          update_sudo_timestamp
+          start_main_logger
+          check_prerequisites
+          create_nodes
+          start_secret_server
+          setup_ldb
+          create_installer
+          start_html_logger
+          start_super_reboot
+          setup_ssh
+          setup_first_stage
+          install_parallel
+        rescue
+          @tp.killall
+          Nodes.load_all.each do | each |
+            if each.status.nil? or each.status.incomplete?
+              @html_logger.update_status( each, "failed" ) if @html_logger
+            end
+          end
+        end
       end
+
 
 
       ##########################################################################
