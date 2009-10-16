@@ -87,6 +87,7 @@ module Command
         run_second_reboot node, logger
         run_second_stage node, logger
         node.status.succeed!
+        @html_logger.proceed_to_next_step node, "ok"
       rescue Exception => e
         node.status.fail!
         $stderr.puts e.message
@@ -162,8 +163,6 @@ module Command
         start_ldb node, logger
       end
       logger.info "The second stage finished in #{ time } seconds."
-
-      @html_logger.proceed_to_next_step node, "ok"
       logger.info "Node '#{ node.name }' installed."
       info "Node '#{ node.name }' installed."
     end
