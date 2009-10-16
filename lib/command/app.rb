@@ -65,7 +65,6 @@ module Command
         end
         @tp.shutdown
       rescue Exception => e
-        Process.kill @sspid if @sspid
         @tp.killall
         Nodes.load_all.each do | each |
           if each.status.incomplete?
@@ -74,6 +73,8 @@ module Command
             @html_logger.update_status each, "failed (#{ emsg })"
           end
         end
+      ensure
+        Process.kill( "TERM", @sspid ) if @sspid
       end
     end
 
