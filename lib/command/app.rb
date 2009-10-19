@@ -248,14 +248,15 @@ module Command
 
     def start_secret_server
       if @options.secret
-        IO.read @options.secret
-        password = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
-          q.echo = "*"
+        unless ENV[ "LUCIE_PASSWORD" ]
+          IO.read @options.secret
+          ENV[ "LUCIE_PASSWORD" ] = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
+            q.echo = "*"
+          end
         end
 
         @sspid = fork do
           cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/secret-server' ) } --secret #{ @options.secret } #{ @verbose ? '--verbose' : '' }"
-          ENV[ "LUCIE_PASSWORD" ] = password
           exec cmd
         end
 
