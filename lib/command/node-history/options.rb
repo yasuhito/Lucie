@@ -2,16 +2,9 @@ require "command/option"
 
 
 module Command
-  module NodeUpdate
+  module NodeHistory
     class Options < Command::Option
-      usage "node update <NODES ...> [OPTIONS ...]"
-
-      add_option( :long_option => "--secret",
-                  :short_option => "-X",
-                  :argument => "[FILE]",
-                  :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
-
-      separator
+      usage "node history <NODE> [OPTIONS ...]"
 
       add_option( :long_option => "--help",
                   :short_option => "-h",

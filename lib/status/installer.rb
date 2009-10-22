@@ -3,6 +3,8 @@ require "status/common"
 
 module Status
   class Installer < Common
+    attr_reader :path
+
     base_name "installer_status"
   end
 end

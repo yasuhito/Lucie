@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
+
+
+require "command/node-history"
+require "configuration"
+require "lucie"
+require "lucie/log"
+
+
+Lucie::Log.path = File.join( Configuration.log_directory, "node-history.log" )
+
+
+def target_node
+  ARGV.each do | each |
+    return each unless /\A\-/=~ each
+  end
+end
+
+
+begin
+  app = Command::NodeHistory::App.new
+  app.usage_and_exit if target_node.empty?
+  app.main target_node
+rescue => e
+  $stderr.puts "ERROR: " + e.message
+  if app and app.options.verbose
+    e.backtrace.each do | each |
+      $stderr.puts each
+    end
+  end
+  exit -1
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
+
