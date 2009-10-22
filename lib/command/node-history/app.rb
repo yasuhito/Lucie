@@ -16,9 +16,16 @@ module Command
         dir = Lucie::Logger::Installer.log_directory( node )
         hist = Dir[ "#{ dir }/install-*" ].collect do | each |
           Status::Installer.new each, @debug_options, @debug_options[ :messenger ]
+        end.sort_by do | each |
+          /install-(\d+)/=~ File.basename( each.path )
+          $1.to_i
         end
         hist.each do | each |
-          puts "#{ File.basename( each.path ) }: #{ each.to_s } in #{ each.elapsed_time } sec."
+          if each.incomplete?
+            puts "#{ File.basename( each.path ) }: #{ each.to_s }."
+          else
+            puts "#{ File.basename( each.path ) }: #{ each.to_s } in #{ each.elapsed_time } sec."
+          end
         end
       end
     end
