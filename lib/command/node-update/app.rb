@@ -29,8 +29,8 @@ module Command
             @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( nodes )
           end
           nodes.collect do | each |
-            Thread.start( each ) do node
-              @configurator.clone_to_client @options.ldb_repository, node, Lucie::Server.ip_address_for( nodes )
+            Thread.start( each, Lucie::Server.ip_address_for( nodes ) ) do | node, lucie_ip |
+              @configurator.clone_to_client @options.ldb_repository, node, lucie_ip
             end
           end.each do | each |
             each.join
