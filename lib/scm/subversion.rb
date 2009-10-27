@@ -6,7 +6,7 @@ class Scm
 
 
     def update_commands_for target, server_ip, repository
-      [ "scp #{ SSH::OPTIONS } -p -r #{ whoami }@#{ server_ip }:#{ repository } #{ File.dirname target }" ]
+      [ "scp #{ SSH::OPTIONS } -p -r #{ whoami }@#{ server_ip }:#{ repository } #{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }" ]
     end
 
 

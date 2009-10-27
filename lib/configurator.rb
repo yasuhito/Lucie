@@ -31,6 +31,7 @@ class Configurator
 
   def clone_to_client url, node, lucie_ip, logger = Lucie::Logger::Null.new
     @client.install lucie_ip, node.ip_address, url, logger
+    @client.update_symlink url, node.ip_address
   end
 
 
@@ -47,8 +48,7 @@ class Configurator
 
 
   def update_client node
-    server_repository = File.join( Server.config_directory, @client.repository_name( node.ip_address ) )
-    @client.update node.ip_address, lucie_server_ip_address_for( [ node ] ), server_repository
+    @client.update node.ip_address, lucie_server_ip_address_for( [ node ] )
   end
 
 

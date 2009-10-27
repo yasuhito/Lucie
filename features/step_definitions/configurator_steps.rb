@@ -49,7 +49,7 @@ end
 
 
 def client_target
-  File.join Configurator::Client::REPOSITORY_BASE_DIRECTORY, "REPOSITORY_NAME"
+  Configurator::Client::REPOSITORY
 end
 
 

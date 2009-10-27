@@ -22,7 +22,7 @@ class ConfigurationUpdator
 
     def repository_name_for node
       return @debug_options[ :repository_name ] if dummy_repository?
-      ssh_ls_repository_name node
+      ssh_repository_name node
     end
 
 
@@ -40,7 +40,7 @@ class ConfigurationUpdator
 
 
     def repository_directory node
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name_for( node )
+      Configurator::Client::REPOSITORY
     end
 
 
@@ -65,9 +65,10 @@ class ConfigurationUpdator
     end
 
 
-    def ssh_ls_repository_name node
+    def ssh_repository_name node
       begin
-        name = @ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
+        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -lh /var/lib/lucie/" ).chomp
+        name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue
         raise "Configuration repository not found on #{ node.name }:#{ REPOSITORY_BASE_DIRECTORY }"

@@ -71,7 +71,7 @@ end
 
 
 When /^クライアントコンフィグレータがその Lucie クライアント上のリポジトリを更新した$/ do
-  @configurator.update @ip, @lucie_ip, Configurator::Server.clone_directory( @url )
+  @configurator.update @ip, @lucie_ip
 end
 
 

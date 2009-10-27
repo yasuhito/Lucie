@@ -7,14 +7,14 @@ class Configurator
     attr_writer :ssh
 
 
+    REPOSITORY = "/var/lib/lucie/ldb"
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 
 
     def self.guess_scm node, debug_options = {}
       return "DUMMY_SCM" if debug_options[ :dry_run ]
       ssh = SSH.new( debug_options, debug_options[ :messenger ] )
-      repository_dir = File.join( REPOSITORY_BASE_DIRECTORY, ssh.sh( node.ip_address, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp )
-      ssh.sh( node.ip_address, "ls -1 -d #{ File.join( repository_dir, '.*' ) }" ).split( "\n" ).each do | each |
+      ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
         when ".hg"
           return "Mercurial"
@@ -24,7 +24,7 @@ class Configurator
           return "Git"
         end
       end
-      raise "Cannot determine SCM used on #{ node.name }:#{ repository_dir }"
+      raise "Cannot determine SCM used on #{ node.name }:#{ REPOSITORY }"
     end
 
 
@@ -42,21 +42,21 @@ class Configurator
     end
 
 
-    def update client_ip, server_ip, repository
-      update_commands( client_ip, server_ip, repository ).each do | each |
+    def update client_ip, server_ip
+      update_commands( client_ip, server_ip, REPOSITORY ).each do | each |
         @ssh.sh_a client_ip, each
       end
     end
 
 
-    def start ip, logger = Lucie::Logger::Null.new    
-      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval \\`#{ ldb_command( ip ) } env\\` && make", logger
+    def update_symlink url, client_ip
+      @ssh.sh client_ip, "rm -f /var/lib/lucie/ldb"
+      @ssh.sh client_ip, "ln -s #{ repository_directory_from( url ) } /var/lib/lucie/ldb"
     end
 
 
-    def repository_name client_ip
-      return "REPOSITORY_NAME" if @debug_options[ :dry_run ]
-      @ssh.sh( client_ip, "ls -1 #{ REPOSITORY_BASE_DIRECTORY }" ).chomp
+    def start ip, logger = Lucie::Logger::Null.new    
+      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval \\`#{ ldb_command( ip ) } env\\` && make", logger
     end
 
 
@@ -68,18 +68,13 @@ class Configurator
     # Paths ####################################################################
 
 
-    def repository_directory client_ip
-      File.join REPOSITORY_BASE_DIRECTORY, repository_name( client_ip )
-    end
-
-
     def repository_directory_from url
       File.join REPOSITORY_BASE_DIRECTORY, Configurator.repository_name_from( url )
     end
 
 
     def scripts_directory ip
-      File.join repository_directory( ip ), "scripts"
+      File.join REPOSITORY, "scripts"
     end
 
 
@@ -89,7 +84,7 @@ class Configurator
 
 
     def ldb_command ip
-      File.join repository_directory( ip ), "bin", "ldb"
+      File.join REPOSITORY, "bin", "ldb"
     end
 
 
@@ -136,7 +131,7 @@ class Configurator
 
 
     def update_commands client_ip, server_ip, repository
-      @scm.update_commands_for repository_directory( client_ip ), server_ip, repository
+      @scm.update_commands_for REPOSITORY, server_ip, repository
     end
 
 

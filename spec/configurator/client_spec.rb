@@ -13,34 +13,33 @@ class Configurator
         @node.stub!( :ip_address ).and_return( @ip )
 
         @ssh = mock( "ssh" )
-        @ssh.should_receive( :sh ).with( @ip, "ls -1 #{ @basedir }" ).once.and_return( "REPOSITORY_NAME" )
         SSH.stub!( :new ).and_return( @ssh )
       end
 
 
       it "should determine that SCM is Mercurial" do
-        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d #{ @basedir }/REPOSITORY_NAME/.*" ).and_return( "#{ @basedir }/REPOSITORY_NAME/.hg" )
+        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d /var/lib/lucie/ldb/.*" ).and_return( "/var/lib/lucie/ldb/.hg" )
         Client.guess_scm( @node ).should == "Mercurial"
       end
 
 
       it "should determine that SCM is Git" do
-        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d #{ @basedir }/REPOSITORY_NAME/.*" ).and_return( "#{ @basedir }/REPOSITORY_NAME/.git" )
+        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d /var/lib/lucie/ldb/.*" ).and_return( "/var/lib/lucie/ldb/.git" )
         Client.guess_scm( @node ).should == "Git"
       end
 
 
       it "should determine that SCM is Subversion" do
-        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d #{ @basedir }/REPOSITORY_NAME/.*" ).and_return( "#{ @basedir }/REPOSITORY_NAME/.svn" )
+        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d /var/lib/lucie/ldb/.*" ).and_return( "/var/lib/lucie/ldb/.svn" )
         Client.guess_scm( @node ).should == "Subversion"
       end
 
 
       it "should raise if failed to determine SCM" do
-        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d #{ @basedir }/REPOSITORY_NAME/.*" ).and_return( "#{ @basedir }/REPOSITORY_NAME/.unknown" )
+        @ssh.should_receive( :sh ).with( @ip, "ls -1 -d /var/lib/lucie/ldb/.*" ).and_return( "/var/lib/lucie/ldb/.unknown" )
         lambda do
           Client.guess_scm( @node )
-        end.should raise_error( "Cannot determine SCM used on NODE_NAME:#{ @basedir }/REPOSITORY_NAME" )
+        end.should raise_error( "Cannot determine SCM used on NODE_NAME:/var/lib/lucie/ldb" )
       end
     end
 
@@ -86,7 +85,7 @@ class Configurator
         ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg pull/ )
         ssh.should_receive( :sh_a ).with( "DUMMY_IP_ADDRESS", /hg update/ )
 
-        Client.new( :mercurial ).update "DUMMY_IP_ADDRESS", "SERVER_IP", "REPOSITORY"
+        Client.new( :mercurial ).update "DUMMY_IP_ADDRESS", "SERVER_IP"
       end
     end
 
