@@ -4,8 +4,9 @@
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
 
 
-require "lucie"
+require "blocker"
 require "command/node-install-multi"
+require "lucie"
 
 
 def target_nodes
@@ -21,6 +22,7 @@ end
 
 
 begin
+  Blocker.block
   app = Command::NodeInstallMulti::App.new
   app.usage_and_exit if target_nodes.empty?
   app.main target_nodes
@@ -32,6 +34,8 @@ rescue => e
     end
   end
   exit -1
+ensure
+  Blocker.release
 end
 
 

@@ -4,6 +4,7 @@
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
 
 
+require "blocker"
 require "lucie"
 require "command/node-install"
 
@@ -17,6 +18,7 @@ end
 
 
 begin
+  Blocker.block
   app = Command::NodeInstall::App.new
   app.usage_and_exit if target_node.nil?
   app.main target_node
@@ -28,6 +30,8 @@ rescue => e
     end
   end
   exit -1
+ensure
+  Blocker.release
 end
 
 

@@ -4,6 +4,7 @@
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
 
 
+require "blocker"
 require "lucie"
 require "command/node-update"
 
@@ -22,6 +23,7 @@ end
 
 
 begin
+  Blocker.block
   app = Command::NodeUpdate::App.new
   app.usage_and_exit if target_nodes.empty?
   app.main target_nodes
@@ -33,6 +35,8 @@ rescue => e
     end
   end
   exit -1
+ensure
+  Blocker.release
 end
 
 
