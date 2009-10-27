@@ -1,10 +1,14 @@
 require "command/app"
+require "lucie/debug"
 require "lucie/logger/installer"
 
 
 module Command
   module NodeHistory
     class App < Command::App
+      include Lucie::Debug
+
+
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
         super argv, @debug_options
@@ -12,20 +16,32 @@ module Command
 
 
       def main node_name
-        node = Node.new( node_name )
-        dir = Lucie::Logger::Installer.log_directory( node )
-        hist = Dir[ "#{ dir }/install-*" ].collect do | each |
-          Status::Installer.new each, @debug_options, @debug_options[ :messenger ]
-        end.sort_by do | each |
-          /install-(\d+)/=~ File.basename( each.path )
-          $1.to_i
+        install_history_sorted_by_id( node_name ).each do | each |
+          show each
         end
-        hist.each do | each |
-          if each.incomplete?
-            puts "#{ File.basename( each.path ) }: #{ each.to_s }."
-          else
-            puts "#{ File.basename( each.path ) }: #{ each.to_s } in #{ each.elapsed_time } sec."
-          end
+      end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
+
+
+      def show status
+        if status.broken?
+          error "Failed to parse #{ status.label }. skipping ..."
+        elsif status.incomplete?
+          stdout.puts "#{ status.label }: #{ status.to_s }."
+        else
+          # success or fail
+          stdout.puts "#{ status.label }: #{ status.to_s } in #{ status.elapsed_time } sec."
+        end
+      end
+
+
+      def install_history_sorted_by_id node_name
+        Node.load_install_history_of( node_name, @debug_options ).sort_by do | each |
+          each.install_id
         end
       end
     end

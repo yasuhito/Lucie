@@ -6,6 +6,22 @@ module Status
     attr_reader :path
 
     base_name "installer_status"
+
+
+    def install_id
+      /install-(\d+)/=~ File.basename( @path )
+      $1.to_i
+    end
+
+
+    def label
+      File.basename @path
+    end
+
+
+    def broken?
+      to_s.empty?
+    end
   end
 end
 

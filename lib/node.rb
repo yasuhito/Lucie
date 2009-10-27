@@ -26,6 +26,15 @@ class Node
   end
 
 
+  def self.load_install_history_of name, debug_options
+    node = self.new( name )
+    dir = Lucie::Logger::Installer.log_directory( node )
+    hist = Dir[ "#{ dir }/install-*" ].collect do | each |
+      Status::Installer.new each, debug_options, debug_options[ :messenger ]
+    end
+  end
+
+
   def initialize name, attributes = {}
     @name = name
     @mac_address = attributes[ :mac_address ]
