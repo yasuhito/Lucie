@@ -20,8 +20,24 @@ module Command
 
       def main node_names
         start_secret_server
+        nodes = nodes_from( node_names )
+        if @options.ldb_repository
+          @configurator = Configurator.new( @options.source_control || "Mercurial", debug_options )
+          if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
+            @configurator.update_server @options.ldb_repository
+          else
+            @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( nodes )
+          end
+          nodes.collect do | each |
+            Thread.start( each ) do node
+              @configurator.clone_to_client @options.ldb_repository, node, Lucie::Server.ip_address_for( nodes )
+            end
+          end.each do | each |
+            each.join
+          end
+        end
         @updator = ConfigurationUpdator.new( argv_options )
-        update nodes_from( node_names )
+        update nodes
       end
 
 
