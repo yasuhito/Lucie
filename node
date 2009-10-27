@@ -25,6 +25,11 @@ def history
 end
 
 
+def reset
+  load "./script/node/reset"
+end
+
+
 def version
   puts <<-EOL
 Lucie, version #{ Lucie::VERSION::STRING }
@@ -49,7 +54,8 @@ Available commands:
   install        - installs a node
   install-multi  - installs nodes
   update         - updates the ldb repository and reconfigure
-  history        - shows installation history.
+  history        - shows installation history
+  reset          - disable installation services
 
 Lucie is an Automatic Cluster Installer.
 For additional information, see http://lucie.is.titech.ac.jp/
@@ -73,6 +79,8 @@ def method_for command
     return :update
   when "history", "hist"
     return :history
+  when "reset"
+    return :reset
   when "version", "-v", "--version"
     return :version
   when "help", "-h", "--help", "/?", "-?"

@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" ) )
+
+
+require "blocker"
+require "command/node-reset"
+require "configuration"
+require "lucie"
+require "lucie/log"
+
+
+Lucie::Log.path = File.join( Configuration.log_directory, "node-reset.log" )
+
+
+begin
+  Blocker.block
+  app = Command::NodeReset::App.new
+  app.main
+rescue => e
+  $stderr.puts "ERROR: " + e.message
+  if app and app.options.verbose
+    e.backtrace.each do | each |
+      $stderr.puts each
+    end
+  end
+  exit -1
+ensure
+  Blocker.release
+end
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:

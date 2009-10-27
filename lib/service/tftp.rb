@@ -40,6 +40,13 @@ class Service
     end
 
 
+    def reset_all
+      Dir.glob( Tftp.pxe_directory + "/*" ).each do | each |
+        write_file each, pxe_local_boot_config, @options.merge( :sudo => true ), @messenger
+      end
+    end
+
+
     ############################################################################
     private
     ############################################################################
