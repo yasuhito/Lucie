@@ -40,13 +40,6 @@ class Configurator
   end
 
 
-  def update_server_for nodes
-    repositories_for( nodes ).each do | each |
-      @server.update each
-    end
-  end
-
-
   def update_client node
     @client.update node.ip_address, lucie_server_ip_address_for( [ node ] )
   end
@@ -73,36 +66,6 @@ class Configurator
     else
       Lucie::Server.ip_address_for nodes
     end
-  end
-
-
-  def repositories_for nodes
-    list = nodes.collect do | each |
-      begin
-        repository_name each.ip_address
-      rescue
-        raise "Configuration repository for #{ each.name } not found on Lucie server."
-      end
-    end
-    list.uniq
-  end
-
-
-  #
-  # Returns a basename of the file referenced by ldb symbolic link
-  # (/var/lib/lucie/ldb). 
-  #
-  # Example:
-  #   Given that /var/lib/lucie/ldb on 192.168.0.100 refers to
-  #   /var/lib/lucie/config/svn+ssh___intri_www.intrigger.jp_home_intri_SVN_L4,
-  # 
-  #   Then,
-  #   Configurator#repository_name( "192.168.0.100" )
-  #     #=> "svn+ssh___intri_www.intrigger.jp_home_intri_SVN_L4"
-  #
-  def repository_name ip_address
-    return "REPOSITORY" if @options[ :dry_run ]
-    @client.repository_name ip_address
   end
 end
 
