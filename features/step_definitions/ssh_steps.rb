@@ -31,14 +31,14 @@ end
 
 When /^I try to generate ssh keypair$/ do
   @messenger = StringIO.new( "" )
-  ssh = SSH.new( { :verbose => true }, @messenger )
+  ssh = SSH.new( :verbose => true, :messenger => @messenger )
   ssh.generate_keypair @ssh_home
 end
 
 
 When /^I try to setup ssh$/ do
   @messenger = StringIO.new( "" )
-  ssh = SSH.new( { :dry_run => true, :verbose => true }, @messenger )
+  ssh = SSH.new( :dry_run => true, :verbose => true, :messenger => @messenger )
   ssh.setup_nfsroot @target_directory
 end
 

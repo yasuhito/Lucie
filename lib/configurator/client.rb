@@ -14,7 +14,7 @@ class Configurator
 
     def self.guess_scm node, debug_options = {}
       return "DUMMY_SCM" if debug_options[ :dry_run ]
-      ssh = SSH.new( debug_options, debug_options[ :messenger ] )
+      ssh = SSH.new( debug_options )
       ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
         when ".hg"
@@ -31,7 +31,7 @@ class Configurator
 
     def initialize scm = nil, debug_options = {}
       @debug_options = debug_options
-      @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
+      @ssh = SSH.new( @debug_options )
       @scm = Scm.from( scm, @debug_options ) if scm
     end
 

@@ -6,8 +6,8 @@ class ConfigurationUpdator
   class Client
     def initialize debug_options = {}
       @debug_options = debug_options
+      @ssh = SSH.new( @debug_options )
       @client = Configurator::Client.new( nil, @debug_options )
-      @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
     end
 
 

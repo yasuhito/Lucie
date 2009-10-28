@@ -287,7 +287,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def setup_ssh
-    ssh = SSH.new( { :dry_run => @dry_run, :verbose => @verbose }, @messenger )
+    ssh = SSH.new( :dry_run => @dry_run, :verbose => @verbose, :messenger => @messenger )
     ssh.setup_nfsroot @target_directory
   end
 

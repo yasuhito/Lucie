@@ -21,10 +21,10 @@ class SSH
   attr_accessor :verbose # :nodoc:
 
 
-  def initialize options = {}, messenger = nil
-    @verbose = options[ :verbose ]
-    @dry_run = options[ :dry_run ]
-    @messenger = messenger
+  def initialize debug_options = {}
+    @verbose = debug_options[ :verbose ]
+    @dry_run = debug_options[ :dry_run ]
+    @messenger = debug_options[ :messenger ]
   end
 
 

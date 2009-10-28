@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 class DummySSH
   def initialize client_initialized, options
-    @ssh = SSH.new( options, options[ :messenger ] )
+    @ssh = SSH.new( options )
     @client_initialized = client_initialized
   end
 
