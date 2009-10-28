@@ -10,9 +10,9 @@ describe ConfigurationUpdator do
 
       client = mock( "client" )
       ConfigurationUpdator::Client.stub!( :new ).and_return( client )
-      client.stub!( :repository_name_for ).with( node_a ).and_return( "REPOSITORY_A" )
-      client.stub!( :repository_name_for ).with( node_b ).and_return( "REPOSITORY_B" )
-      client.stub!( :repository_name_for ).with( node_c ).and_return( "REPOSITORY_C" )
+      client.stub!( :repository_name_of ).with( node_a ).and_return( "REPOSITORY_A" )
+      client.stub!( :repository_name_of ).with( node_b ).and_return( "REPOSITORY_B" )
+      client.stub!( :repository_name_of ).with( node_c ).and_return( "REPOSITORY_C" )
 
       server = mock( "server" )
       ConfigurationUpdator::Server.stub!( :new ).and_return( server )

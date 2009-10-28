@@ -22,9 +22,9 @@ class ConfigurationUpdator
     end
 
 
-    def repository_name_for node
+    def repository_name_of node
       return @debug_options[ :repository_name ] if dummy_repository?
-      ssh_repository_name node
+      follow_repository_symlink_of node
     end
 
 
@@ -46,9 +46,9 @@ class ConfigurationUpdator
     end
 
 
-    def ssh_repository_name node
+    def follow_repository_symlink_of node
       begin
-        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -l /var/lib/lucie/" ).chomp
+        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -l #{ Configurator::Client::BASE_DIRECTORY }" ).chomp
         name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue

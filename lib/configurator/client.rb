@@ -7,6 +7,7 @@ class Configurator
     attr_writer :ssh
 
 
+    BASE_DIRECTORY = "/var/lib/lucie"
     REPOSITORY = "/var/lib/lucie/ldb"
     REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
 

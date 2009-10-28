@@ -41,14 +41,14 @@ class ConfigurationUpdator
 
 
   def server_repository_path node
-    @server.local_clone_directory @client.repository_name_for( node )
+    @server.local_clone_directory @client.repository_name_of( node )
   end
 
 
   def repositories_for nodes
     list = nodes.collect do | each |
       debug "Searching current configuration repository on node #{ each.name } ..."
-      repos = @client.repository_name_for( each )
+      repos = @client.repository_name_of( each )
       debug "Current configuration repository on node #{ each.name } is #{ repos }"
       repos
     end
