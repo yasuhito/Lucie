@@ -22,28 +22,13 @@ class ConfigurationUpdator
 
 
     def local_clone_directory repos_name
-      File.join config_directory, repos_name
+      File.join Configurator::Server.config_directory, repos_name
     end
 
 
     ############################################################################
     private
     ############################################################################
-
-
-    def config_directory
-      File.join Configuration.temporary_directory, "config"
-    end
-
-
-    def local_clone_clone_directory repos_name
-      local_clone_directory( repos_name ) + clone_clone_suffix
-    end
-
-
-    def clone_clone_suffix
-      ".local"
-    end
 
 
     def test_local_clone_exists? repos_name

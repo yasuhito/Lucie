@@ -23,7 +23,7 @@ class ConfigurationUpdator
 
 
     def repository_name_of node
-      return @debug_options[ :repository_name ] if dummy_repository?
+      return @debug_options[ :repository_name ] if @debug_options[ :repository_name ]
       follow_repository_symlink_of node
     end
 
@@ -55,11 +55,6 @@ class ConfigurationUpdator
         raise "Configuration repository not found on #{ node.name }:#{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }"
       end
       name
-    end
-
-
-    def dummy_repository?
-      @debug_options[ :dry_run ] and @debug_options[ :repository_name ]
     end
   end
 end
