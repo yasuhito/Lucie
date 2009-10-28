@@ -31,7 +31,7 @@ class ConfigurationUpdator
 
 
     def start node, logger
-      @ssh.sh_a node.ip_address, "cd #{ scripts_directory( node ) } && eval \\`#{ ldb_command( node ) } env\\` && make", logger
+      @ssh.sh_a node.ip_address, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make", logger
     end
 
 
@@ -40,32 +40,21 @@ class ConfigurationUpdator
     ############################################################################
 
 
-    # Paths ####################################################################
-
-
-    def repository_directory node
-      Configurator::Client::REPOSITORY
+    def scripts_directory
+      File.join Configurator::Client::REPOSITORY, "scripts"
     end
 
 
-    def scripts_directory node
-      File.join repository_directory( node ), "scripts"
+    def ldb_command
+      File.join Configurator::Client::REPOSITORY, "bin", "ldb"
     end
-
-
-    def ldb_command node
-      File.join repository_directory( node ), "bin", "ldb"
-    end
-
-
-    # Utils ####################################################################
 
 
     def update_commands node, server_repository
       scm = Scm.new( @debug_options ).from( server_repository )
       scm.test_installed_on node
       server_ip = Lucie::Server.ip_address_for( [ node ], @debug_options )
-      scm.update_commands_for( repository_directory( node ), server_ip, server_repository )
+      scm.update_commands_for( Configurator::Client::REPOSITORY, server_ip, server_repository )
     end
 
 
@@ -79,9 +68,6 @@ class ConfigurationUpdator
       end
       name
     end
-
-
-    # Debug ####################################################################
 
 
     def dummy_repository?
