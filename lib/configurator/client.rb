@@ -56,7 +56,7 @@ class Configurator
 
 
     def start ip, logger = Lucie::Logger::Null.new    
-      @ssh.sh_a ip, "cd #{ scripts_directory( ip ) } && eval \\`#{ ldb_command( ip ) } env\\` && make", logger
+      @ssh.sh_a ip, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make", logger
     end
 
 
@@ -73,7 +73,7 @@ class Configurator
     end
 
 
-    def scripts_directory ip
+    def scripts_directory
       File.join REPOSITORY, "scripts"
     end
 
@@ -83,7 +83,7 @@ class Configurator
     end
 
 
-    def ldb_command ip
+    def ldb_command
       File.join REPOSITORY, "bin", "ldb"
     end
 

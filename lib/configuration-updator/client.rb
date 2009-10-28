@@ -6,6 +6,7 @@ class ConfigurationUpdator
   class Client
     def initialize debug_options = {}
       @debug_options = debug_options
+      @client = Configurator::Client.new( nil, @debug_options )
       @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
     end
 
@@ -28,23 +29,13 @@ class ConfigurationUpdator
 
 
     def start node, logger
-      @ssh.sh_a node.ip_address, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make", logger
+      @client.start node.ip_address, logger
     end
 
 
     ############################################################################
     private
     ############################################################################
-
-
-    def scripts_directory
-      File.join Configurator::Client::REPOSITORY, "scripts"
-    end
-
-
-    def ldb_command
-      File.join Configurator::Client::REPOSITORY, "bin", "ldb"
-    end
 
 
     def update_commands node, server_repository
