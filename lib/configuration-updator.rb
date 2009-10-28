@@ -25,7 +25,7 @@ class ConfigurationUpdator
 
   def update_client node
     debug "Updating client repository on node #{ node.name } ..."
-    @client.update node, @server.local_clone_directory( @client.repository_name_for node )
+    @client.update node, server_repository_path( node )
   end
 
 
@@ -38,6 +38,11 @@ class ConfigurationUpdator
   ##############################################################################
   private
   ##############################################################################
+
+
+  def server_repository_path node
+    @server.local_clone_directory @client.repository_name_for( node )
+  end
 
 
   def repositories_for nodes
