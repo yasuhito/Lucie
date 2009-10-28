@@ -4,9 +4,6 @@ require "lucie/server"
 
 class ConfigurationUpdator
   class Client
-    REPOSITORY_BASE_DIRECTORY = "/var/lib/lucie/config"
-
-
     def initialize debug_options = {}
       @debug_options = debug_options
       @ssh = SSH.new( @debug_options, @debug_options[ :messenger ] )
@@ -64,7 +61,7 @@ class ConfigurationUpdator
         name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue
-        raise "Configuration repository not found on #{ node.name }:#{ REPOSITORY_BASE_DIRECTORY }"
+        raise "Configuration repository not found on #{ node.name }:#{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }"
       end
       name
     end
