@@ -67,7 +67,7 @@ class ConfigurationUpdator
 
     def ssh_repository_name node
       begin
-        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -lh /var/lib/lucie/" ).chomp
+        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -l /var/lib/lucie/" ).chomp
         name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue

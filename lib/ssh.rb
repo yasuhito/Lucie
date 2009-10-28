@@ -46,7 +46,7 @@ class SSH
 
 
   def sh ip, command
-    output = ""
+    output = []
     real_command = %{ssh -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"}
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
@@ -58,7 +58,7 @@ class SSH
       debug real_command if @verbose || @dry_run
       shell.exec real_command unless @dry_run
     end
-    output
+    output.join "\n"
   end
 
 

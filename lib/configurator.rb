@@ -88,6 +88,18 @@ class Configurator
   end
 
 
+  #
+  # Returns a basename of the file referenced by ldb symbolic link
+  # (/var/lib/lucie/ldb). 
+  #
+  # Example:
+  #   Given that /var/lib/lucie/ldb on 192.168.0.100 refers to
+  #   /var/lib/lucie/config/svn+ssh___intri_www.intrigger.jp_home_intri_SVN_L4,
+  # 
+  #   Then,
+  #   Configurator#repository_name( "192.168.0.100" )
+  #     #=> "svn+ssh___intri_www.intrigger.jp_home_intri_SVN_L4"
+  #
   def repository_name ip_address
     return "REPOSITORY" if @options[ :dry_run ]
     @client.repository_name ip_address
