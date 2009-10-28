@@ -10,10 +10,14 @@ class ConfigurationUpdator
 
 
     def update repos_name
-      test_local_clone_exists? repos_name
-      scm = @scm.from( local_clone_directory( repos_name ) )
-      scm.test_installed
-      scm.update local_clone_directory( repos_name )
+      begin
+        test_local_clone_exists? repos_name
+        scm = @scm.from( local_clone_directory( repos_name ) )
+        scm.test_installed
+        scm.update local_clone_directory( repos_name )
+      rescue => e
+        raise "Failed to update #{ local_clone_directory repos_name }: #{ e.message }"
+      end
     end
 
 

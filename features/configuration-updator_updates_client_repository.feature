@@ -38,7 +38,7 @@
       かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製していない
       かつ <SCM> が Lucie クライアントにインストールされている
     もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
-    ならば エラー "Failed to update yasuhito_node: Configuration repository not found on yasuhito_node:/var/lib/lucie/config"  
+    ならば エラー "Configuration repository not found on yasuhito_node:/var/lib/lucie/config"  
 
     例:
       | SCM        |

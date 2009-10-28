@@ -14,8 +14,12 @@ class ConfigurationUpdator
 
 
     def update node, server_repository
-      update_commands( node, server_repository ).each do | each |
-        @ssh.sh_a node.ip_address, each
+      begin
+        update_commands( node, server_repository ).each do | each |
+          @ssh.sh_a node.ip_address, each
+        end
+      rescue => e
+        raise "Failed to update #{ node.name }: #{ e.message }"
       end
     end
 

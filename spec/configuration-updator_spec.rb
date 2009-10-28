@@ -4,11 +4,15 @@ require File.join( File.dirname( __FILE__ ), "spec_helper" )
 describe ConfigurationUpdator do
   context "updating server repositories" do
     it "should update server repositories" do
+      node_a = mock( "NODE_A", :name => "NODE_A" )
+      node_b = mock( "NODE_B", :name => "NODE_B" )
+      node_c = mock( "NODE_C", :name => "NODE_C" )
+
       client = mock( "client" )
       ConfigurationUpdator::Client.stub!( :new ).and_return( client )
-      client.stub!( :repository_name_for ).with( "NODE_A" ).and_return( "REPOSITORY_A" )
-      client.stub!( :repository_name_for ).with( "NODE_B" ).and_return( "REPOSITORY_B" )
-      client.stub!( :repository_name_for ).with( "NODE_C" ).and_return( "REPOSITORY_C" )
+      client.stub!( :repository_name_for ).with( node_a ).and_return( "REPOSITORY_A" )
+      client.stub!( :repository_name_for ).with( node_b ).and_return( "REPOSITORY_B" )
+      client.stub!( :repository_name_for ).with( node_c ).and_return( "REPOSITORY_C" )
 
       server = mock( "server" )
       ConfigurationUpdator::Server.stub!( :new ).and_return( server )
@@ -21,7 +25,7 @@ describe ConfigurationUpdator do
       FileTest.stub!( :directory? ).with( "/tmp/lucie/REPOSITORY_B" ).and_return( true )
       FileTest.stub!( :directory? ).with( "/tmp/lucie/REPOSITORY_C" ).and_return( true )
 
-      ConfigurationUpdator.new.update_server_for [ "NODE_A", "NODE_B", "NODE_C" ]
+      ConfigurationUpdator.new.update_server_for [ node_a, node_b, node_c ]
     end
   end
 end
