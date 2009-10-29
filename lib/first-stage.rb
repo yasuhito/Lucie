@@ -126,7 +126,7 @@ class FirstStage
         end
       else
         from = File.join( "/tmp/target/etc/ssh", each )
-        do_ssh "scp -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ @node.name }:#{ from } #{ local_file }"
+        do_ssh "scp -i #{ SSH.private_key } #{ SSH::OPTIONS } root@#{ @node.name }:#{ from } #{ local_file }"
       end
     end
   end
@@ -136,17 +136,17 @@ class FirstStage
 
 
   def ssh command
-    do_ssh %{ssh -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } root@#{ @node.name } "#{ command }"}
+    do_ssh %{ssh -i #{ SSH.private_key } #{ SSH::OPTIONS } root@#{ @node.name } "#{ command }"}
   end
 
 
   def scp from, to
-    do_ssh %{scp -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } #{ from } root@#{ @node.name }:#{ to }}
+    do_ssh %{scp -i #{ SSH.private_key } #{ SSH::OPTIONS } #{ from } root@#{ @node.name }:#{ to }}
   end
 
 
   def scp_r from, to
-    do_ssh %{scp -i #{ SSH::PRIVATE_KEY } #{ SSH::OPTIONS } -r #{ from } root@#{ @node.name }:#{ to }}
+    do_ssh %{scp -i #{ SSH.private_key } #{ SSH::OPTIONS } -r #{ from } root@#{ @node.name }:#{ to }}
   end
 
 

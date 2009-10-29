@@ -1,3 +1,64 @@
+# -*- coding: utf-8 -*-
+Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアがすでに存在$/ do | home |
+  @home = home
+  ssh_home = File.join( @home, ".ssh" )
+  FileUtils.rm_rf ssh_home
+  FileUtils.mkdir_p ssh_home
+  FileUtils.touch File.join( ssh_home, "id_rsa" )
+  FileUtils.touch File.join( ssh_home, "id_rsa.pub" )
+end
+
+
+Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアが存在しない$/ do | home |
+  @home = home
+  ssh_home = File.join( home, ".ssh" )
+  FileUtils.rm_rf ssh_home
+  FileUtils.mkdir_p ssh_home
+end
+
+
+Given /^authorized_keys が存在しない$/ do
+  FileUtils.rm_f File.join( @home, ".ssh", "authorized_keys" )
+end
+
+
+Given /^空の authorized_keys が存在$/ do
+  FileUtils.mkdir_p File.join( @home, ".ssh" )
+  FileUtils.rm_f File.join( @home, ".ssh", "authorized_keys" )
+  FileUtils.touch File.join( @home, ".ssh", "authorized_keys" )
+end
+
+
+When /^SSH のキーペアを生成しようとした$/ do
+  @messenger = StringIO.new( "" )
+  SSH.new( debug_options ).generate_keypair @home
+end
+
+
+Then /^SSH のキーペアは生成されない$/ do
+  private_key = File.join( @home, ".ssh", "id_rsa" )
+  history.should_not include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
+end
+
+
+Then /^Lucie ディレクトリ以下に SSH のキーペアが生成される$/ do
+  lucie_private_key = File.join( Lucie::ROOT, ".ssh", "id_rsa" )
+  history.should include( %{ssh-keygen -t rsa -N "" -f #{ lucie_private_key }} )
+end
+
+
+Then /^公開鍵が authorized_keys にコピーされる$/ do
+  public_key = File.join( @home, ".ssh", "id_rsa.pub" )
+  authorized_keys = File.expand_path( File.join( "~", ".ssh", "authorized_keys" ) )
+  history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
+end
+
+
+Then /^公開鍵が authorized_keys に追加される$/ do
+  Then "公開鍵が authorized_keys にコピーされる"
+end
+
+
 Given /^ssh home directory "([^\"]*)" is empty$/ do | path |
   @ssh_home = path
   FileUtils.rm_rf @ssh_home

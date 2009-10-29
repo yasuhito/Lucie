@@ -1,29 +1,28 @@
-Feature: generate ssh keypair
+# language: ja
+機能: SSH のキーペアの自動的な管理
 
-  As a Lucie install command
-  I want to generage ssh keypair and append public key to authorized_keys
-  So that users don't have to do that by hand
+  Lucie のインストールコマンドは
+  ユーザが SSH キーの生成や登録を手動で行わなくても済むように
+  SSH のキーペアを必要に応じて生成し、authorized_keys に登録する
 
-  Scenario: generate ssh keypair
-    Given ssh home directory "/tmp/ssh" is empty
-    When I try to generate ssh keypair
-    Then ssh keypair generated
+  シナリオ: すでに $HOME/.ssh/{id_rsa,id_rsa.pub} がある場合、生成しない
+    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
+    もし SSH のキーペアを生成しようとした
+    ならば SSH のキーペアは生成されない
 
-  Scenario: don't generate ssh keypair if already exists
-    Given ssh home directory "/tmp/ssh" is empty
-    And ssh keypair already generated
-    When I try to generate ssh keypair
-    Then ssh keypair not generated
+  シナリオ: $HOME/.ssh/{id_rsa,id_rsa.pub} が無い場合、生成する
+    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアが存在しない
+    もし SSH のキーペアを生成しようとした
+    ならば Lucie ディレクトリ以下に SSH のキーペアが生成される
 
-  Scenario: cp public key to authorized_keys
-    Given ssh home directory "/tmp/ssh" is empty
-    And authorized_keys does not exist
-    When I try to generate ssh keypair
-    Then generated public key copied to authorized_keys
+  シナリオ: authorized_keys が無い場合、公開鍵をコピー
+    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
+    かつ authorized_keys が存在しない
+    もし SSH のキーペアを生成しようとした
+    ならば 公開鍵が authorized_keys にコピーされる
 
-  Scenario: append public key to autherized_keys
-    Given ssh home directory "/tmp/ssh" is empty
-    And empty authorized_keys already exists
-    When I try to generate ssh keypair
-    Then generated public key appended to authorized_keys
-
+  シナリオ: authorized_keys があるけど公開鍵が登録されていない場合、公開鍵を追加
+    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
+    かつ 空の authorized_keys が存在
+    もし SSH のキーペアを生成しようとした
+    ならば 公開鍵が authorized_keys に追加される

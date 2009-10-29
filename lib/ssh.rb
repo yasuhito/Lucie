@@ -9,10 +9,6 @@ class SSH
   include Lucie::IO
 
 
-  SSH_HOME = File.join( Lucie::ROOT, ".ssh" )
-  PUBLIC_KEY = File.join( SSH_HOME, "id_rsa.pub" )
-  PRIVATE_KEY = File.join( SSH_HOME, "id_rsa" )
-
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
@@ -21,15 +17,29 @@ class SSH
   attr_accessor :verbose # :nodoc:
 
 
-  def initialize debug_options = {}
-    @verbose = debug_options[ :verbose ]
-    @dry_run = debug_options[ :dry_run ]
-    @messenger = debug_options[ :messenger ]
+  def self.private_key
+    lucie_priv_key = File.join( Lucie::ROOT, ".ssh", "id_rsa" )
+    user_priv_key = File.expand_path( File.join( "~", ".ssh", "id_rsa" ) )
+    if FileTest.exists?( lucie_priv_key )
+      lucie_priv_key
+    elsif FileTest.exists?( user_priv_key )
+      user_priv_key
+    else
+      raise "SSH private key not found."
+    end
   end
 
 
-  def generate_keypair ssh_home = nil
-    @ssh_home = ssh_home
+  def initialize debug_options = {}
+    @debug_options = debug_options
+    @verbose = @debug_options[ :verbose ]
+    @dry_run = @debug_options[ :dry_run ]
+    @messenger = @debug_options[ :messenger ]
+  end
+
+
+  def generate_keypair home = File.expand_path( "~" )
+    @home = home
     setup_local_ssh_home
     ssh_keygen
     update_authorized_keys
@@ -47,7 +57,7 @@ class SSH
 
   def sh ip, command
     output = []
-    real_command = %{ssh -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"}
+    real_command = %{ssh -i #{ SSH.private_key } #{ OPTIONS } root@#{ ip } "#{ command }"}
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
         output << line
@@ -65,7 +75,7 @@ class SSH
   def sh_a ip, command, logger = Lucie::Logger::Null.new
     agent_pid = nil
     begin
-      real_command = ssh_agent( %{ssh -A -i #{ PRIVATE_KEY } #{ OPTIONS } root@#{ ip } "#{ command }"} )
+      real_command = ssh_agent( %{ssh -A -i #{ SSH.private_key } #{ OPTIONS } root@#{ ip } "#{ command }"} )
       Popen3::Shell.open do | shell |
         shell.on_stdout do | line |
           agent_pid = $1 if /^Agent pid (\d+)/=~ line
@@ -92,7 +102,7 @@ class SSH
 
 
   def cp ip, from, to
-    command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no #{ from } root@#{ ip }:#{ to }"
+    command = "scp -i #{ SSH.private_key } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no #{ from } root@#{ ip }:#{ to }"
     Popen3::Shell.open do | shell |
       debug command if @verbose
       shell.exec command unless @dry_run
@@ -101,7 +111,7 @@ class SSH
 
 
   def cp_r ip, from, to
-    command = "scp -i #{ PRIVATE_KEY } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r #{ from } root@#{ ip }:#{ to }"
+    command = "scp -i #{ SSH.private_key } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r #{ from } root@#{ ip }:#{ to }"
     Popen3::Shell.open do | shell |
       debug command if @verbose
       shell.exec command unless @dry_run
@@ -115,7 +125,7 @@ class SSH
 
 
   def ssh_agent command
-    "eval `ssh-agent`; ssh-add #{ PRIVATE_KEY }; #{ command }"
+    "eval `ssh-agent`; ssh-add #{ SSH.private_key }; #{ command }"
   end
 
 
@@ -152,22 +162,29 @@ COMMANDS
 
   def setup_local_ssh_home
     unless FileTest.directory?( ssh_home )
-      Lucie::Utils.mkdir_p ssh_home, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
+      Lucie::Utils.mkdir_p ssh_home, @debug_options
     end
     run "chmod 0700 #{ ssh_home }"
   end
 
 
   def ssh_keygen
-    unless FileTest.exists?( private_key_path ) and FileTest.exists?( private_key_path )
-      run %{ssh-keygen -t rsa -N "" -f #{ private_key_path }}
+    unless FileTest.exists?( public_key_path ) or FileTest.exists?( private_key_path )
+      @home = Lucie::ROOT
+      run %{ssh-keygen -t rsa -N "" -f #{ lucie_private_key_path }}
     end
   end
 
 
   def update_authorized_keys
-    return if @dry_run || authorized_keys.include?( public_key )
+    return if authorized?
     authorize_public_key
+  end
+
+
+  def authorized?
+    return false unless FileTest.exists?( authorized_keys_path )
+    authorized_keys.include? public_key
   end
 
 
@@ -181,12 +198,12 @@ COMMANDS
 
 
   def public_key
-    IO.read( public_key_path ).chomp
+    IO.read( public_key_path ).chomp unless @debug_options[ :dry_run ]
   end
 
 
   def authorized_keys
-    IO.read( authorized_keys_path ).split( "\n" ) rescue []
+    IO.read( authorized_keys_path ).split( "\n" )
   end
 
 
@@ -203,8 +220,13 @@ COMMANDS
   end
 
 
+  def lucie_private_key_path
+    File.join Lucie::ROOT, ".ssh", "id_rsa"
+  end
+
+
   def ssh_home
-    @ssh_home || SSH_HOME
+    File.join @home || File.expand_path( "~" ), ".ssh"
   end
 
 

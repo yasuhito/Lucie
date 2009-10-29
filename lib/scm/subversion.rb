@@ -1,7 +1,7 @@
 class Scm
   class Subversion < Common
     def clone url, target
-      run "svn co #{ url } #{ target }", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "svn co #{ url } #{ target }", { "SVN_SSH" => "ssh -i #{ SSH.private_key }" }
     end
 
 
@@ -11,7 +11,7 @@ class Scm
 
 
     def update target
-      run "cd #{ target } && svn update", { "SVN_SSH" => "ssh -i #{ SSH::PRIVATE_KEY }" }
+      run "cd #{ target } && svn update", { "SVN_SSH" => "ssh -i #{ SSH.private_key }" }
     end
 
 
