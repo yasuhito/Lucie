@@ -296,40 +296,40 @@ sub get_current_disks {
 # @brief Collect the current LVM configuration
 #
 ################################################################################
-sub get_current_lvm {
+# sub get_current_lvm {
 
-  use Linux::LVM;
+#   use Linux::LVM;
 
-  # get the existing volume groups
-  foreach my $vg (get_volume_group_list()) {
-    # initialise the hash entry
-    $FAI::current_lvm_config{$vg}{physical_volumes} = ();
-    &FAI::push_command( "true", "", "vg_created_$vg" );
+#   # get the existing volume groups
+#   foreach my $vg (get_volume_group_list()) {
+#     # initialise the hash entry
+#     $FAI::current_lvm_config{$vg}{physical_volumes} = ();
+#     &FAI::push_command( "true", "", "vg_created_$vg" );
 
-    # store the vg size in MB
-    my %vg_info = get_volume_group_information($vg);
-    $FAI::current_lvm_config{$vg}{size} =
-      &FAI::convert_unit( $vg_info{alloc_pe_size} .
-        $vg_info{alloc_pe_size_unit} );
+#     # store the vg size in MB
+#     my %vg_info = get_volume_group_information($vg);
+#     $FAI::current_lvm_config{$vg}{size} =
+#       &FAI::convert_unit( $vg_info{alloc_pe_size} .
+#         $vg_info{alloc_pe_size_unit} );
 
-      # store the logical volumes and their sizes
-    my %lv_info = get_logical_volume_information($vg);
-    foreach my $lv_name (sort keys %lv_info) {
-      my $short_name = $lv_name;
-      $short_name =~ "s{/dev/\Q$vg\E/}{}";
-      $FAI::current_lvm_config{$vg}{volumes}{$short_name}{size} =
-        &FAI::convert_unit($lv_info{$lv_name}->{lv_size} .
-          $lv_info{$lv_name}->{lv_size_unit});
-      &FAI::push_command( "true", "", "exist_/dev/$vg/$short_name" );
-    }
+#       # store the logical volumes and their sizes
+#     my %lv_info = get_logical_volume_information($vg);
+#     foreach my $lv_name (sort keys %lv_info) {
+#       my $short_name = $lv_name;
+#       $short_name =~ "s{/dev/\Q$vg\E/}{}";
+#       $FAI::current_lvm_config{$vg}{volumes}{$short_name}{size} =
+#         &FAI::convert_unit($lv_info{$lv_name}->{lv_size} .
+#           $lv_info{$lv_name}->{lv_size_unit});
+#       &FAI::push_command( "true", "", "exist_/dev/$vg/$short_name" );
+#     }
 
-    # store the physical volumes
-    my %pv_info = get_physical_volume_information($vg);
-    @{ $FAI::current_lvm_config{$vg}{physical_volumes} } =
-      sort keys %pv_info;
-  }
+#     # store the physical volumes
+#     my %pv_info = get_physical_volume_information($vg);
+#     @{ $FAI::current_lvm_config{$vg}{physical_volumes} } =
+#       sort keys %pv_info;
+#   }
 
-}
+# }
 
 ################################################################################
 #

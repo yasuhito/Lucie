@@ -77,6 +77,7 @@ module Command
         @node_options = {}
         node_argv.each do | name, argv |
           @node_options[ name ] = Command::NodeInstall::Options.new.parse( argv )
+          @node_options[ name ].suite ||= @options.suite
           @node_options[ name ].storage_conf ||= @options.storage_conf
           @node_options[ name ].linux_image ||= @options.linux_image
           @node_options[ name ].netmask ||= @options.netmask

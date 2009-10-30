@@ -123,7 +123,7 @@ print "Using config file: $opt_f\n";
 &FAI::get_current_disks;
 
 # see whether there are any existing LVMs
-&FAI::get_current_lvm;
+# &FAI::get_current_lvm;
 
 # see whether there are any existing RAID devices
 &FAI::get_current_raid;
