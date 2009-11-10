@@ -1,21 +1,27 @@
 module Popen3
   class Popen3
-    def initialize command, env = nil
-      @command = command
-      @env = env ? env : { "LC_ALL" => "C" }
+    #
+    # Creates a new Popen3::Popen3 object.
+    #
+    def initialize
       @child, @parent = init_pipes
     end
 
 
+    #
+    # Waits for and returns the pid of the subprocess.
+    #
     def wait
       Process.wait @pid
     end
 
 
-    def popen3
-      raise unless block_given?
-      @pid = fork_child
-
+    #
+    # Executes command as subprocess. Standard out and error from
+    # the subprocess are passed as block arguments.
+    #
+    def popen3 command, env = {}, &block
+      @pid = fork_child( command, env )
       # Parent process
       close @parent
       begin
@@ -31,11 +37,11 @@ module Popen3
     ############################################################################
 
 
-    def fork_child
+    def fork_child command, env
       Kernel.fork do
         close @child
         redirect_child_io
-        start_child
+        start_child command, env
       end
     end
 
@@ -48,11 +54,11 @@ module Popen3
     end
 
 
-    def start_child
-      @env.each_pair do | key, value |
+    def start_child command, env
+      env.each_pair do | key, value |
         ENV[ key ]= value
       end
-      Kernel.exec @command
+      Kernel.exec command
     end
 
 

@@ -3,47 +3,87 @@ require "English"
 
 module Popen3
   class Shell
-    def self.open
-      shell = self.new
-      if block_given?
-        yield shell
-      end
+    #
+    # Calls the block passed as an argument with a new Popen3::Shell object.
+    #
+    # _Example:_
+    #  Popen3::Shell.open do | shell |
+    #    # Add some hooks here
+    #    shell.on_...
+    #    shell.on_...
+    #      ...
+    #
+    #    # Finally spawn a subprocess
+    #    shell.exec command
+    #  end
+    #
+    def self.open &block
+      block.call self.new
     end
 
 
+    #
+    # Returns the status code of the subprocess. The status code
+    # encodes both the return code of the process and information
+    # about whether it exited using the exit() or died due to a
+    # signal. Functions to help interpret the status code are defined
+    # in Process::Status class.
+    #
     def child_status
       $CHILD_STATUS
     end
 
 
-    def on_exit &block
-      @on_exit = block
-    end
-
-
+    #
+    # Registers a block that is called when the subprocess outputs a
+    # line to standard out.
+    #
     def on_stdout &block
       @on_stdout = block
     end
 
 
+    #
+    # Registers a block that is called when the subprocess outputs a
+    # line to standard error.
+    #
     def on_stderr &block
       @on_stderr = block
     end
 
 
+    #
+    # Registers a block that is called when the subprocess exits.
+    #
+    def on_exit &block
+      @on_exit = block
+    end
+
+
+    #
+    # Registers a block that is called when the subprocess exits
+    # successfully.
+    #
     def on_success &block
       @on_success = block
     end
 
 
+    #
+    # Registers a block that is called when the subprocess exits
+    # abnormally.
+    #
     def on_failure &block
       @on_failure = block
     end
 
 
+    #
+    # Spawns a subprocess with specified environment variables.
+    #
     def exec command, env = {}
-      process = Popen3.new( command, env )
-      process.popen3 do | stdout, stderr |
+      process = Popen3.new
+      process.popen3( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end
       process.wait
@@ -57,26 +97,21 @@ module Popen3
 
 
     def handle_child_output stdout, stderr
-      stdout_thread( stdout ).join
-      stderr_thread( stderr ).join
-    end
-
-
-    def stdout_thread stdout
-      t = Thread.new do
-        while line = stdout.gets do
-          do_stdout line.chomp
-        end
+      tout = create_output_handler_thread_for( stdout ) do | line |
+        do_stdout line
       end
-      t.priority = -10
-      t
+      terr = create_output_handler_thread_for( stderr ) do | line |
+        do_stderr line
+      end
+      tout.join
+      terr.join
     end
 
 
-    def stderr_thread stderr
+    def create_output_handler_thread_for io, &block
       t = Thread.new do
-        while line = stderr.gets do
-          do_stderr line.chomp
+        while line = io.gets do
+          block.call line.chomp
         end
       end
       t.priority = -10

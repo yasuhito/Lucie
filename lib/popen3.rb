@@ -1,6 +1,6 @@
 #
 # Popen3 module allows you to spawn processes and connect to their
-# input/output/error pipes and obtain their return codes.
+# output/error pipes and obtain their return codes.
 #
 # If you need to spawn subprocesses in your code, require this file
 # with:
