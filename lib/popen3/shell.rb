@@ -82,7 +82,7 @@ module Popen3
     # Spawns a subprocess with specified environment variables.
     #
     def exec command, env = {}
-      process = Popen3.new
+      process = Process.new
       process.popen3( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end

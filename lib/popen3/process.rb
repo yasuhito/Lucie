@@ -1,5 +1,5 @@
 module Popen3
-  class Popen3
+  class Process
     #
     # Creates a new Popen3::Popen3 object.
     #
@@ -12,7 +12,7 @@ module Popen3
     # Waits for and returns the pid of the subprocess.
     #
     def wait
-      Process.wait @pid
+      ::Process.wait @pid
     end
 
 

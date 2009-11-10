@@ -14,7 +14,7 @@
 module Popen3; end
 
 
-require "popen3/popen3"
+require "popen3/process"
 require "popen3/shell"
 
 

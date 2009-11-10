@@ -2,7 +2,7 @@ require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 
 module Popen3
-  describe Popen3 do
+  describe Process do
     it "should spawn a subprocess and redirect its stdout and stderr" do
       Kernel.stub!( :fork ).and_yield
 
@@ -11,7 +11,7 @@ module Popen3
       STDERR.should_receive( :reopen ).once.with( an_instance_of( IO ) )
       Kernel.should_receive( :exec ).once.with( "DUMMY COMMAND" )
 
-      process = Popen3.new
+      process = Process.new
       process.popen3( "DUMMY COMMAND", "LC_ALL" => "C" ) do | stdout, stderr |
         stdout.should be_a_kind_of( IO )
         stderr.should be_a_kind_of( IO )
