@@ -36,6 +36,7 @@ module Command
               @html_logger.update_status( each, "failed" ) if @html_logger
             end
           end
+          raise $!
         end
       end
 
