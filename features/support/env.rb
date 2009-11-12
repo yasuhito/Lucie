@@ -63,6 +63,8 @@ def options
     :dummy_scm => @dummy_scm,
     :dpkg => @custom_dpkg,
     :repository_name => @repository_name,
+    :home => @home,
+    :lucie_home => @lucie_home || Lucie::ROOT,
     :nic => [ @if ] }
 end
 

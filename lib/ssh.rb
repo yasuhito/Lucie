@@ -32,14 +32,15 @@ class SSH
 
   def initialize debug_options = {}
     @debug_options = debug_options
+    @home = @debug_options[ :home ] || File.expand_path( "~" )
+    @lucie_home = @debug_options[ :lucie_home ] || Lucie::ROOT
     @verbose = @debug_options[ :verbose ]
     @dry_run = @debug_options[ :dry_run ]
     @messenger = @debug_options[ :messenger ]
   end
 
 
-  def generate_keypair home = File.expand_path( "~" )
-    @home = home
+  def generate_keypair
     setup_local_ssh_home
     ssh_keygen
     update_authorized_keys
@@ -157,7 +158,7 @@ COMMANDS
 
   def setup_nfsroot_ssh_home
     unless FileTest.directory?( nfsroot_ssh_home )
-      Lucie::Utils.mkdir_p nfsroot_ssh_home, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
+      Lucie::Utils.mkdir_p nfsroot_ssh_home, @debug_options
     end
     run "chmod 0700 #{ nfsroot_ssh_home }"
   end
@@ -170,17 +171,18 @@ COMMANDS
 
 
   def setup_local_ssh_home
-    unless FileTest.directory?( ssh_home )
-      Lucie::Utils.mkdir_p ssh_home, @debug_options
+    unless FileTest.directory?( local_ssh_home )
+      Lucie::Utils.mkdir_p local_ssh_home, @debug_options
     end
-    run "chmod 0700 #{ ssh_home }"
+    run "chmod 0700 #{ local_ssh_home }"
   end
 
 
   def ssh_keygen
-    unless FileTest.exists?( public_key_path ) or FileTest.exists?( private_key_path )
-      @home = Lucie::ROOT
-      run %{ssh-keygen -t rsa -N "" -f #{ lucie_private_key_path }}
+    if ( not FileTest.exists?( public_key_path ) ) or ( not FileTest.exists?( private_key_path ) )
+      run "rm -f #{ public_key_path }"
+      run "rm -f #{ private_key_path }"
+      run %{ssh-keygen -t rsa -N "" -f #{ private_key_path }}
     end
   end
 
@@ -193,7 +195,7 @@ COMMANDS
 
   def authorized?
     return false unless FileTest.exists?( authorized_keys_path )
-    authorized_keys.include? public_key
+    authorized_keys.include?( public_key ) unless @debug_options[ :dry_run ]
   end
 
 
@@ -203,49 +205,53 @@ COMMANDS
   end
 
 
-  # keys #######################################################################
+  # public and private key paths ###############################################
 
 
   def public_key
-    IO.read( public_key_path ).chomp unless @debug_options[ :dry_run ]
+    IO.read( public_key_path ).chomp
   end
-
-
-  def authorized_keys
-    IO.read( authorized_keys_path ).split( "\n" )
-  end
-
-
-  # targets ####################################################################
 
 
   def public_key_path
-    File.join ssh_home, "id_rsa.pub"
+    File.join local_ssh_home, "id_rsa.pub"
   end
 
 
   def private_key_path
-    File.join ssh_home, "id_rsa"
+    File.join local_ssh_home, "id_rsa"
+  end
+
+
+  def lucie_public_key_path
+    File.join lucie_ssh_home, "id_rsa.pub"
   end
 
 
   def lucie_private_key_path
-    File.join Lucie::ROOT, ".ssh", "id_rsa"
+    File.join lucie_ssh_home, "id_rsa"
   end
+
+
+  # ssh paths ##################################################################
 
 
   def ssh_home
-    File.join @home || File.expand_path( "~" ), ".ssh"
+    File.join @home, ".ssh"
   end
 
 
-  def authorized_keys_path
-    File.expand_path "~/.ssh/authorized_keys"
+  def lucie_ssh_home
+    File.join @lucie_home, ".ssh"
   end
 
 
-  def nfsroot_authorized_keys_path
-    File.join nfsroot_ssh_home, "authorized_keys"
+  def local_ssh_home
+    if FileTest.exists?( lucie_public_key_path ) and FileTest.exists?( lucie_private_key_path )
+      lucie_ssh_home
+    else
+      ssh_home
+    end
   end
 
 
@@ -256,6 +262,24 @@ COMMANDS
 
   def nfsroot path
     File.join( @nfsroot_directory, path ).gsub( /\/+/, "/" )
+  end
+
+
+  # authorized keys ############################################################
+
+
+  def authorized_keys
+    IO.read( authorized_keys_path ).split( "\n" )
+  end
+
+
+  def authorized_keys_path
+    File.expand_path "~/.ssh/authorized_keys"
+  end
+
+
+  def nfsroot_authorized_keys_path
+    File.join nfsroot_ssh_home, "authorized_keys"
   end
 end
 
