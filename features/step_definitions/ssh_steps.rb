@@ -63,20 +63,20 @@ Then /^ホームディレクトリの公開鍵が authorized_keys に追加さ�
 end
 
 
-Given /^nfsroot directory is "([^\"]*)"$/ do | path |
-  @target_directory = path
-  FileUtils.rm_rf @target_directory
+Given /^nfsroot のパスは "([^\"]*)"$/ do | path |
+  @nfsroot_directory = path
+  FileUtils.rm_rf @nfsroot_directory
+  FileUtils.mkdir_p @nfsroot_directory
 end
 
 
-When /^I try to setup ssh$/ do
+When /^nfsroot に SSH の鍵を仕込もうとした$/ do
   @messenger = StringIO.new( "" )
-  ssh = SSH.new( :dry_run => true, :verbose => true, :messenger => @messenger )
-  ssh.setup_nfsroot @target_directory
+  SSH.new( debug_options ).setup_ssh_access_to @nfsroot_directory
 end
 
 
-Then /^ssh access to nfsroot configured$/ do
+Then /^nfsroot への SSH ログインができるようになる$/ do
   history.should include( "ssh access to nfsroot configured." )
 end
 

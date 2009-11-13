@@ -1,11 +1,12 @@
-Feature: setup nfsroot
+# language: ja
+機能: nfsroot への SSH ログインのセットアップ
 
-  As a Lucie install command
-  I want to setup ssh access to nfsroot
-  So that I can spawn installation jobs to Lucie clients
+  Lucie のインストールコマンドは
+  SSH 経由で Lucie クライアントのインストールを実行できるようにするために
+  nfsroot に SSH の鍵を仕込んで、SSH ログインできるようにしておく
 
-  Scenario: setup ssh
-    Given nfsroot directory is "/tmp/nfsroot"
-    When I try to setup ssh
-    Then ssh access to nfsroot configured
+  シナリオ: SSH の鍵を仕込む
+    前提 nfsroot のパスは "/tmp/nfsroot"
+    もし nfsroot に SSH の鍵を仕込もうとした
+    ならば nfsroot への SSH ログインができるようになる
 

@@ -47,19 +47,10 @@ class SSH
   end
 
 
-  def setup_nfsroot path
+  def setup_ssh_access_to path
     @nfsroot_directory = path
     setup_sshd
     setup_nfsroot_ssh_home
-    lucie_ssh_home = File.join( Lucie::ROOT, ".ssh" )
-    ssh_home = File.join( File.expand_path( "~" ), ".ssh" )
-    if FileTest.directory?( lucie_ssh_home )
-      @home = lucie_ssh_home
-    elsif FileTest.directory?( ssh_home )
-      @home = ssh_home
-    else
-      raise "SSH home directory not found."
-    end
     install_public_key_to_nfsroot
     info "ssh access to nfsroot configured."
   end
