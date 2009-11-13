@@ -1,55 +1,40 @@
 # -*- coding: utf-8 -*-
 Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアがすでに存在$/ do | home |
   @home = home
-  ssh_home = File.join( @home, ".ssh" )
   FileUtils.rm_rf ssh_home
-  FileUtils.mkdir_p ssh_home
-  FileUtils.touch File.join( ssh_home, "id_rsa" )
-  FileUtils.touch File.join( ssh_home, "id_rsa.pub" )
+  touch_ssh_keypair_on ssh_home
 end
 
 
 Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | home, flag |
   @home = home
-  ssh_home = File.join( @home, ".ssh" )
   FileUtils.rm_rf ssh_home
-  FileUtils.mkdir_p ssh_home
-  if flag == "存在する"
-    FileUtils.touch File.join( ssh_home, "id_rsa" )
-    FileUtils.touch File.join( ssh_home, "id_rsa.pub" )
-  end
+  touch_ssh_keypair_on ssh_home if flag == "存在する"
 end
 
 
 Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | lucie_home,  flag |
   @lucie_home = lucie_home
-  lucie_ssh_home = File.join( @lucie_home, ".ssh" )
   FileUtils.rm_rf lucie_ssh_home
-  FileUtils.mkdir_p lucie_ssh_home
-  if flag == "存在する"
-    FileUtils.touch File.join( lucie_ssh_home, "id_rsa" )
-    FileUtils.touch File.join( lucie_ssh_home, "id_rsa.pub" )
-  end
+  touch_ssh_keypair_on lucie_ssh_home if flag == "存在する"
 end
 
 
 Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアが存在しない$/ do | lucie_home |
   @lucie_home = lucie_home
-  lucie_ssh_home = File.join( @lucie_home, ".ssh" )
   FileUtils.rm_rf lucie_ssh_home
-  FileUtils.mkdir_p lucie_ssh_home
 end
 
 
 Given /^authorized_keys が存在しない$/ do
-  FileUtils.rm_f File.join( @home, ".ssh", "authorized_keys" )
+  FileUtils.rm_f authorized_keys
 end
 
 
 Given /^空の authorized_keys が存在$/ do
-  FileUtils.mkdir_p File.join( @home, ".ssh" )
-  FileUtils.rm_f File.join( @home, ".ssh", "authorized_keys" )
-  FileUtils.touch File.join( @home, ".ssh", "authorized_keys" )
+  FileUtils.mkdir_p ssh_home
+  FileUtils.rm_f authorized_keys
+  FileUtils.touch authorized_keys
 end
 
 
@@ -61,7 +46,6 @@ end
 
 Then /^SSH のキーペアは "([^\"]*)"$/ do | flag |
   if flag == "生成される"
-    private_key = File.join( @home, ".ssh", "id_rsa" )
     history.should include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
   else
     history.join( "\n" ).should_not match( /^ssh\-keygen/ )
@@ -70,8 +54,6 @@ end
 
 
 Then /^ホームディレクトリの公開鍵が authorized_keys にコピーされる$/ do
-  public_key = File.join( @home, ".ssh", "id_rsa.pub" )
-  authorized_keys = File.expand_path( File.join( "~", ".ssh", "authorized_keys" ) )
   history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
 
@@ -96,6 +78,43 @@ end
 
 Then /^ssh access to nfsroot configured$/ do
   history.should include( "ssh access to nfsroot configured." )
+end
+
+
+################################################################################
+# Utils
+################################################################################
+
+
+def touch_ssh_keypair_on base_dir
+  FileUtils.mkdir_p base_dir
+  FileUtils.touch File.join( base_dir, "id_rsa" )
+  FileUtils.touch File.join( base_dir, "id_rsa.pub" )
+end
+
+
+def ssh_home
+  File.join @home, ".ssh"
+end
+
+
+def lucie_ssh_home
+  File.join @lucie_home, ".ssh"
+end
+
+
+def public_key
+  File.join @home, ".ssh", "id_rsa.pub"
+end
+
+
+def private_key
+  File.join @home, ".ssh", "id_rsa"
+end
+
+
+def authorized_keys
+  File.join @home, ".ssh", "authorized_keys"
 end
 
 

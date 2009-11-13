@@ -274,7 +274,7 @@ COMMANDS
 
 
   def authorized_keys_path
-    File.expand_path "~/.ssh/authorized_keys"
+    File.join local_ssh_home, "authorized_keys"
   end
 
 
