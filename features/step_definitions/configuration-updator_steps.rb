@@ -88,6 +88,7 @@ end
 When /^コンフィグレーションアップデータが Lucie クライアント "([^\"]*)" の更新を実行$/ do | name |
   begin
     @messenger = StringIO.new
+    @verbose = true
     @updator = ConfigurationUpdator.new( debug_options )
     @updator.update_client Nodes.find( name )
   rescue

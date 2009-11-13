@@ -27,6 +27,7 @@ end
 
 Given /^クライアントコンフィグレータ$/ do
   @messenger = StringIO.new
+  @verbose = true
   @configurator = Configurator::Client.new( @scm, options )
 end
 
@@ -54,6 +55,7 @@ end
 Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
   @ip = ip
   @messenger = StringIO.new
+  @verbose = true
   @configurator = Configurator::Client.new( :mercurial, options )
   @configurator.install "DUMMY_SERVER_IP", @ip, "DUMMY_REPOSITORY_URL"
 end

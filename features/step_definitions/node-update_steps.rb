@@ -1,5 +1,6 @@
 When /^I run node update "([^\"]*)"$/ do | nodes |
   @messenger = StringIO.new( "" )
+  @verbose = true
   begin
     Command::NodeUpdate::App.new( [], debug_options ).main nodes.split( /,\s*/ )
   rescue => e

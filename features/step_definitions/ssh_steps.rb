@@ -38,9 +38,57 @@ Given /^空の authorized_keys が存在$/ do
 end
 
 
+When /^SSH でノード "([^\"]*)" にコマンド "([^\"]*)" を実行$/ do | node, command |
+  @messenger = StringIO.new
+  @verbose = true
+  SSH.new( debug_options ).sh( node, command )
+end
+
+
+When /^SSH \-A でノード "([^\"]*)" にコマンド "([^\"]*)" を実行$/ do | node, command |
+  @messenger = StringIO.new
+  @verbose = true
+  SSH.new( debug_options ).sh_a( node, command )
+end
+
+
+When /^ファイル "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP でコピー$/ do | from, node, to |
+  @messenger = StringIO.new
+  @verbose = true
+  SSH.new( debug_options ).cp( node, from, to )
+end
+
+
+When /^ディレクトリ "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピー$/ do | from, node, to |
+  @messenger = StringIO.new
+  @verbose = true
+  SSH.new( debug_options ).cp_r( node, from, to )
+end
+
+
 When /^SSH のキーペアを生成し、認証しようとした$/ do
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   SSH.new( debug_options ).maybe_generate_and_authorize_keypair
+end
+
+
+Then /^ノード "([^\"]*)" 上でコマンド "([^\"]*)" が root 権限で実行される$/ do | node, command |
+  @messenger.string.should match( /^ssh .* root@#{ node } "#{ command }"$/ )
+end
+
+
+Then /^エージェントフォワーディングを有効にした上で、ノード "([^\"]*)" 上でコマンド "([^\"]*)" が root 権限で実行される$/ do | node, command |
+  @messenger.string.should match( /^eval `ssh\-agent`; ssh\-add .*; ssh \-A .* root@#{ node } "#{ command }"$/ )
+end
+
+
+Then /^ファイル "([^\"]*)" がノード "([^\"]*)" の "([^\"]*)" に SCP でコピーされる$/ do | from, node, to |
+  @messenger.string.should match( /^scp .* #{ Regexp.escape from } root@#{ node }:#{ Regexp.escape to }$/ )
+end
+
+
+Then /^ディレクトリ "([^\"]*)" がノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピーされる$/ do | from, node, to |
+  @messenger.string.should match( /^scp .* \-r #{ Regexp.escape from } root@#{ node }:#{ Regexp.escape to }$/ )
 end
 
 
@@ -71,7 +119,7 @@ end
 
 
 When /^nfsroot に SSH の鍵を仕込もうとした$/ do
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   SSH.new( debug_options ).setup_ssh_access_to @nfsroot_directory
 end
 

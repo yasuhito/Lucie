@@ -1,12 +1,12 @@
 require "lucie"
-require "lucie/io"
+require "lucie/debug"
 require "lucie/logger/null"
 require "lucie/utils"
 require "popen3"
 
 
 class SSH
-  include Lucie::IO
+  include Lucie::Debug
 
 
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
@@ -57,7 +57,7 @@ class SSH
 
   def sh ip, command
     output = []
-    real_command = %{ssh -i #{ SSH.private_key } #{ OPTIONS } root@#{ ip } "#{ command }"}
+    real_command = %{ssh -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"}
     Popen3::Shell.open do | shell |
       shell.on_stdout do | line |
         output << line
@@ -65,7 +65,7 @@ class SSH
       shell.on_failure do
         raise "command #{ command } failed on #{ ip }"
       end
-      debug real_command if @verbose || @dry_run
+      debug real_command
       shell.exec real_command unless @dry_run
     end
     output.join "\n"
@@ -75,22 +75,22 @@ class SSH
   def sh_a ip, command, logger = Lucie::Logger::Null.new
     agent_pid = nil
     begin
-      real_command = ssh_agent( %{ssh -A -i #{ SSH.private_key } #{ OPTIONS } root@#{ ip } "#{ command }"} )
+      real_command = ssh_agent( %{ssh -A -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"} )
       Popen3::Shell.open do | shell |
         shell.on_stdout do | line |
           agent_pid = $1 if /^Agent pid (\d+)/=~ line
-          $stdout.puts line
+          stdout.puts line
           logger.debug line
         end
         shell.on_stderr do | line |
-          $stderr.puts line
+          stderr.puts line
           logger.debug line
         end
         shell.on_failure do
           raise "command #{ command } failed on #{ ip }"
         end
         logger.debug real_command
-        debug real_command if @verbose || @dry_run
+        debug real_command
         shell.exec real_command unless @dry_run
       end
     ensure
@@ -102,20 +102,12 @@ class SSH
 
 
   def cp ip, from, to
-    command = "scp -i #{ SSH.private_key } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no #{ from } root@#{ ip }:#{ to }"
-    Popen3::Shell.open do | shell |
-      debug command if @verbose
-      shell.exec command unless @dry_run
-    end
+    popen3_shell "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
   end
 
 
   def cp_r ip, from, to
-    command = "scp -i #{ SSH.private_key } -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r #{ from } root@#{ ip }:#{ to }"
-    Popen3::Shell.open do | shell |
-      debug command if @verbose
-      shell.exec command unless @dry_run
-    end
+    popen3_shell "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
   end
 
 
@@ -124,17 +116,22 @@ class SSH
   ##############################################################################
 
 
+  def popen3_shell command
+    Popen3::Shell.open do | shell |
+      debug command
+      shell.exec command unless @dry_run
+    end
+  end
+
+
   def ssh_agent command
-    "eval `ssh-agent`; ssh-add #{ SSH.private_key }; #{ command }"
+    "eval `ssh-agent`; ssh-add #{ private_key_path }; #{ command }"
   end
 
 
   def run command
     Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger      
   end
-
-
-  # Misc. ######################################################################
 
 
   def setup_sshd_on nfsroot_dir
