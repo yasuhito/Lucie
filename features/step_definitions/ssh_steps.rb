@@ -9,21 +9,27 @@ Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアがすで�
 end
 
 
-Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアがすでに存在$/ do | lucie_home |
+Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | home, flag |
+  @home = home
+  ssh_home = File.join( @home, ".ssh" )
+  FileUtils.rm_rf ssh_home
+  FileUtils.mkdir_p ssh_home
+  if flag == "存在する"
+    FileUtils.touch File.join( ssh_home, "id_rsa" )
+    FileUtils.touch File.join( ssh_home, "id_rsa.pub" )
+  end
+end
+
+
+Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | lucie_home,  flag |
   @lucie_home = lucie_home
   lucie_ssh_home = File.join( @lucie_home, ".ssh" )
   FileUtils.rm_rf lucie_ssh_home
   FileUtils.mkdir_p lucie_ssh_home
-  FileUtils.touch File.join( lucie_ssh_home, "id_rsa" )
-  FileUtils.touch File.join( lucie_ssh_home, "id_rsa.pub" )
-end
-
-
-Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアが存在しない$/ do | home |
-  @home = home
-  ssh_home = File.join( home, ".ssh" )
-  FileUtils.rm_rf ssh_home
-  FileUtils.mkdir_p ssh_home
+  if flag == "存在する"
+    FileUtils.touch File.join( lucie_ssh_home, "id_rsa" )
+    FileUtils.touch File.join( lucie_ssh_home, "id_rsa.pub" )
+  end
 end
 
 
@@ -53,14 +59,13 @@ When /^SSH のキーペアを生成しようとした$/ do
 end
 
 
-Then /^SSH のキーペアは生成されない$/ do
-  history.join( "\n" ).should_not match( /^ssh\-keygen/ )
-end
-
-
-Then /^ホームディレクトリ以下に SSH のキーペアが生成される$/ do
-  private_key = File.join( @home, ".ssh", "id_rsa" )
-  history.should include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
+Then /^SSH のキーペアは "([^\"]*)"$/ do | flag |
+  if flag == "生成される"
+    private_key = File.join( @home, ".ssh", "id_rsa" )
+    history.should include( %{ssh-keygen -t rsa -N "" -f #{ private_key }} )
+  else
+    history.join( "\n" ).should_not match( /^ssh\-keygen/ )
+  end
 end
 
 

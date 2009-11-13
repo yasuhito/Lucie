@@ -5,29 +5,18 @@
   ユーザが SSH キーの生成や authorized_keys への登録を手動で行わなくても済むように
   SSH のキーペアを必要に応じて生成し、authorized_keys に登録する
 
-  シナリオ: $HOME と $LUCIE に .ssh/{id_rsa,id_rsa.pub} がある場合
-    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
-    かつ Lucie ディレクトリ "/tmp/lucie" に SSH のキーペアがすでに存在
+  テンプレ: SSH キーペアの自動生成
+    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアが "<ホームディレクトリのキーペア>"
+    かつ Lucie ディレクトリ "/tmp/lucie" に SSH のキーペアが "<Lucie ディレクトリのキーペア>"
     もし SSH のキーペアを生成しようとした
-    ならば SSH のキーペアは生成されない
+    ならば SSH のキーペアは "<キーペアの生成>"
 
-  シナリオ: $LUCIE だけに .ssh/{id_rsa,id_rsa.pub} がある場合
-    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアが存在しない
-    かつ Lucie ディレクトリ "/tmp/lucie" に SSH のキーペアがすでに存在
-    もし SSH のキーペアを生成しようとした
-    ならば SSH のキーペアは生成されない
-
-  シナリオ: $HOME だけに .ssh/{id_rsa,id_rsa.pub} がある場合
-    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
-    かつ Lucie ディレクトリ "/tmp/lucie" に SSH のキーペアが存在しない
-    もし SSH のキーペアを生成しようとした
-    ならば SSH のキーペアは生成されない
-
-  シナリオ: $HOME と $LUCIE に .ssh/{id_rsa,id_rsa.pub} が無い場合
-    前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアが存在しない
-    かつ Lucie ディレクトリ "/tmp/lucie" に SSH のキーペアが存在しない
-    もし SSH のキーペアを生成しようとした
-    ならばホームディレクトリ以下に SSH のキーペアが生成される
+  サンプル:
+    | ホームディレクトリのキーペア | Lucie ディレクトリのキーペア | キーペアの生成 |
+    | 存在する                     | 存在する                     | 生成されない   |
+    | 存在しない                   | 存在する                     | 生成されない   |
+    | 存在する                     | 存在しない                   | 生成されない   |
+    | 存在しない                   | 存在しない                   | 生成される     |
 
   シナリオ: authorized_keys が無い場合、公開鍵をコピー
     前提 ホームディレクトリ "/tmp/yasuhito" に SSH のキーペアがすでに存在
