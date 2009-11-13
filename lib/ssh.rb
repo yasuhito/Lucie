@@ -47,11 +47,10 @@ class SSH
   end
 
 
-  def setup_ssh_access_to path
-    @nfsroot_directory = path
-    setup_sshd
-    setup_nfsroot_ssh_home
-    install_public_key_to_nfsroot
+  def setup_ssh_access_to nfsroot_dir
+    setup_sshd_on nfsroot_dir
+    setup_ssh_home_on nfsroot_dir
+    install_public_key_to nfsroot_dir
     info "ssh access to nfsroot configured."
   end
 
@@ -135,37 +134,22 @@ class SSH
   end
 
 
-  # tasks ######################################################################
+  # Misc. ######################################################################
 
 
-  def setup_sshd
+  def setup_sshd_on nfsroot_dir
     run <<-COMMANDS
-ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ nfsroot( "/etc/ssh/sshd_config" ) }
-ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ nfsroot( "/etc/ssh/sshd_config" ) }
-echo "UseDNS no" >> #{ nfsroot( "/etc/ssh/sshd_config" ) }
+ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ nfsroot( nfsroot_dir, "/etc/ssh/sshd_config" ) }
+ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ nfsroot( nfsroot_dir, "/etc/ssh/sshd_config" ) }
+echo "UseDNS no" >> #{ nfsroot( nfsroot_dir, "/etc/ssh/sshd_config" ) }
 COMMANDS
   end
 
 
-  def setup_nfsroot_ssh_home
-    unless FileTest.directory?( nfsroot_ssh_home )
-      Lucie::Utils.mkdir_p nfsroot_ssh_home, @debug_options
-    end
-    run "chmod 0700 #{ nfsroot_ssh_home }"
-  end
-
-
-  def install_public_key_to_nfsroot
-    run "cp #{ public_key_path } #{ nfsroot_authorized_keys_path }"
-    run "chmod 0644 #{ nfsroot_authorized_keys_path }"
-  end
-
-
-  def setup_local_ssh_home
-    unless FileTest.directory?( local_ssh_home )
-      Lucie::Utils.mkdir_p local_ssh_home, @debug_options
-    end
-    run "chmod 0700 #{ local_ssh_home }"
+  def install_public_key_to nfsroot_dir
+    target = nfsroot_authorized_keys_path( nfsroot_dir )
+    run "cp #{ public_key_path } #{ target }"
+    run "chmod 0644 #{ target }"
   end
 
 
@@ -178,10 +162,7 @@ COMMANDS
   end
 
 
-  def update_authorized_keys
-    return if authorized?
-    authorize_public_key
-  end
+  # key authorization ##########################################################
 
 
   def authorized?
@@ -190,9 +171,51 @@ COMMANDS
   end
 
 
+  def update_authorized_keys
+    return if authorized?
+    authorize_public_key
+  end
+
+
   def authorize_public_key
     run "cat #{ public_key_path } >> #{ authorized_keys_path }"
     run "chmod 0644 #{ authorized_keys_path }"
+  end
+
+
+  def authorized_keys
+    IO.read( authorized_keys_path ).split( "\n" )
+  end
+
+
+  def authorized_keys_path
+    File.join local_ssh_home, "authorized_keys"
+  end
+
+
+  def nfsroot_authorized_keys_path base_dir
+    File.join nfsroot_ssh_home( base_dir ), "authorized_keys"
+  end
+
+
+  # .ssh directory #############################################################
+
+
+  def setup_local_ssh_home
+    setup_ssh_home local_ssh_home
+  end
+
+
+  def setup_ssh_home_on nfsroot_dir
+    setup_ssh_home nfsroot_ssh_home( nfsroot_dir )
+  end
+
+
+  def setup_ssh_home target
+    unless FileTest.directory?( target )
+      Lucie::Utils.mkdir_p target, @debug_options
+    end
+    run "chmod 0700 #{ target }"
   end
 
 
@@ -246,31 +269,13 @@ COMMANDS
   end
 
 
-  def nfsroot_ssh_home
-    nfsroot "root/.ssh"
+  def nfsroot_ssh_home nfsroot_dir
+    nfsroot nfsroot_dir, "root/.ssh"
   end
 
 
-  def nfsroot path
-    File.join( @nfsroot_directory, path ).gsub( /\/+/, "/" )
-  end
-
-
-  # authorized keys ############################################################
-
-
-  def authorized_keys
-    IO.read( authorized_keys_path ).split( "\n" )
-  end
-
-
-  def authorized_keys_path
-    File.join local_ssh_home, "authorized_keys"
-  end
-
-
-  def nfsroot_authorized_keys_path
-    File.join nfsroot_ssh_home, "authorized_keys"
+  def nfsroot base_dir, path
+    File.join( base_dir, path ).gsub( /\/+/, "/" )
   end
 end
 
