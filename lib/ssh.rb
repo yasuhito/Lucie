@@ -17,19 +17,6 @@ class SSH
   attr_accessor :verbose # :nodoc:
 
 
-  def self.private_key
-    lucie_priv_key = File.join( Lucie::ROOT, ".ssh", "id_rsa" )
-    user_priv_key = File.expand_path( File.join( "~", ".ssh", "id_rsa" ) )
-    if FileTest.exists?( lucie_priv_key )
-      lucie_priv_key
-    elsif FileTest.exists?( user_priv_key )
-      user_priv_key
-    else
-      raise "SSH private key not found."
-    end
-  end
-
-
   def initialize debug_options = {}
     @debug_options = debug_options
     @home = @debug_options[ :home ] || File.expand_path( "~" )
@@ -108,6 +95,11 @@ class SSH
 
   def cp_r ip, from, to
     popen3_shell "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
+  end
+
+
+  def private_key_path
+    File.join local_ssh_home, "id_rsa"
   end
 
 
@@ -226,11 +218,6 @@ COMMANDS
 
   def public_key_path
     File.join local_ssh_home, "id_rsa.pub"
-  end
-
-
-  def private_key_path
-    File.join local_ssh_home, "id_rsa"
   end
 
 

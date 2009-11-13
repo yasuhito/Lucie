@@ -10,6 +10,7 @@ class ConfigurationUpdator
 
         ssh = mock( "ssh" )
         SSH.stub!( :new ).and_return( ssh )
+        ssh.should_receive( :private_key_path ).once
         ssh.should_receive( :sh_a ).with( "CLIENT_IP", /hg pull/ ).once.ordered
         ssh.should_receive( :sh_a ).with( "CLIENT_IP", /hg update/ ).once.ordered
 

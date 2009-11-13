@@ -1,7 +1,7 @@
 class Scm
   class Git < Common
     def clone url, target
-      run "git clone #{ url } #{ target }", { "GIT_SSH" => "ssh -i #{ SSH.private_key }" }
+      run "git clone #{ url } #{ target }", { "GIT_SSH" => "ssh -i #{ SSH.new.private_key_path }" }
     end
 
 
@@ -12,8 +12,8 @@ class Scm
 
     def update target
       test_installed
-      run "cd #{ target } && git pull", { "GIT_SSH" => "ssh -i #{ SSH.private_key }" }
-      run "cd #{ target } && git update", { "GIT_SSH" => "ssh -i #{ SSH.private_key }" }
+      run "cd #{ target } && git pull", { "GIT_SSH" => "ssh -i #{ SSH.new.private_key_path }" }
+      run "cd #{ target } && git update", { "GIT_SSH" => "ssh -i #{ SSH.new.private_key_path }" }
     end
 
 
