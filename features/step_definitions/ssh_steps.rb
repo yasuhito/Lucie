@@ -64,15 +64,15 @@ Then /^ホームディレクトリ以下に SSH のキーペアが生成され�
 end
 
 
-Then /^公開鍵が authorized_keys にコピーされる$/ do
+Then /^ホームディレクトリの公開鍵が authorized_keys にコピーされる$/ do
   public_key = File.join( @home, ".ssh", "id_rsa.pub" )
   authorized_keys = File.expand_path( File.join( "~", ".ssh", "authorized_keys" ) )
   history.should include( "cat #{ public_key } >> #{ authorized_keys }" )
 end
 
 
-Then /^公開鍵が authorized_keys に追加される$/ do
-  Then "公開鍵が authorized_keys にコピーされる"
+Then /^ホームディレクトリの公開鍵が authorized_keys に追加される$/ do
+  Then "ホームディレクトリの公開鍵が authorized_keys にコピーされる"
 end
 
 

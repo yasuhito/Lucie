@@ -64,7 +64,7 @@ def options
     :dpkg => @custom_dpkg,
     :repository_name => @repository_name,
     :home => @home,
-    :lucie_home => @lucie_home || Lucie::ROOT,
+    :lucie_home => @lucie_home,
     :nic => [ @if ] }
 end
 
