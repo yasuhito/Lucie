@@ -48,7 +48,7 @@ module Command
 
 
     def generate_ssh_keypair
-      SSH.new( debug_options ).generate_keypair
+      SSH.new( debug_options ).maybe_generate_and_authorize_keypair
     end
 
 

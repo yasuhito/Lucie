@@ -40,7 +40,7 @@ class SSH
   end
 
 
-  def generate_keypair
+  def maybe_generate_and_authorize_keypair
     setup_local_ssh_home
     ssh_keygen
     update_authorized_keys

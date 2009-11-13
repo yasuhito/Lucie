@@ -38,9 +38,9 @@ Given /^空の authorized_keys が存在$/ do
 end
 
 
-When /^SSH のキーペアを生成しようとした$/ do
+When /^SSH のキーペアを生成し、認証しようとした$/ do
   @messenger = StringIO.new( "" )
-  SSH.new( debug_options ).generate_keypair
+  SSH.new( debug_options ).maybe_generate_and_authorize_keypair
 end
 
 
