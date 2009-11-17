@@ -20,7 +20,7 @@ module SubProcess
     # Executes command as subprocess. Standard out and error from the
     # subprocess are passed as block arguments.
     #
-    def popen3 command, &block
+    def popen command, &block
       @pid = fork_child( command )
       # Parent process
       close @parent

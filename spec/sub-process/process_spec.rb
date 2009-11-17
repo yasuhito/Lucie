@@ -12,7 +12,7 @@ module SubProcess
       Kernel.should_receive( :exec ).once.with( "DUMMY COMMAND" )
 
       process = Process.new
-      process.popen3( Command.new( "DUMMY COMMAND", "LC_ALL" => "C" ) ) do | stdout, stderr |
+      process.popen( Command.new( "DUMMY COMMAND", "LC_ALL" => "C" ) ) do | stdout, stderr |
         stdout.should be_a_kind_of( IO )
         stderr.should be_a_kind_of( IO )
       end

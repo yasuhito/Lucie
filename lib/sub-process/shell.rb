@@ -84,7 +84,7 @@ module SubProcess
     #
     def exec command, env = {}
       process = Process.new
-      process.popen3( Command.new( command, env ) ) do | stdout, stderr |
+      process.popen( Command.new( command, env ) ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end
       process.wait
