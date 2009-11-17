@@ -7,11 +7,9 @@ module SubProcess
     # Creates a new SubProcess::Process object.
     #
     def initialize
-      rd_stdin, wr_stdin = IO.pipe
-      rd_stdout, wr_stdout = IO.pipe
-      rd_stderr, wr_stderr = IO.pipe
-      @child = PipeSet.new( wr_stdin, rd_stdout, rd_stderr )
-      @parent = PipeSet.new( rd_stdin, wr_stdout, wr_stderr )
+      stdin, stdout, stderr = Array.new( 3 ) { IO.pipe }
+      @child = PipeSet.new( stdin[ 1 ], stdout[ 0 ], stderr[ 0 ] )
+      @parent = PipeSet.new( stdin[ 0 ], stdout[ 1 ], stderr[ 1 ] )
     end
 
 
