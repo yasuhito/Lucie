@@ -1,10 +1,17 @@
+require "sub-process/pipe-set"
+
+
 module SubProcess
   class Process
     #
     # Creates a new SubProcess::Process object.
     #
     def initialize
-      @child, @parent = init_pipes
+      rd_stdin, wr_stdin = IO.pipe
+      rd_stdout, wr_stdout = IO.pipe
+      rd_stderr, wr_stderr = IO.pipe
+      @child = PipeSet.new( wr_stdin, rd_stdout, rd_stderr )
+      @parent = PipeSet.new( rd_stdin, wr_stdout, wr_stderr )
     end
 
 
@@ -23,11 +30,11 @@ module SubProcess
     def popen command, &block
       @pid = fork_child( command )
       # Parent process
-      close @parent
+      @parent.close
       begin
-        yield child_stdout, child_stderr
+        yield @child.stdout, @child.stderr
       ensure
-        close @child
+        @child.close
       end
     end
 
@@ -39,7 +46,7 @@ module SubProcess
 
     def fork_child command
       Kernel.fork do
-        close @child
+        @child.close
         redirect_child_io
         command.start
       end
@@ -47,38 +54,10 @@ module SubProcess
 
 
     def redirect_child_io
-      STDIN.reopen @parent[ :stdin ]
-      STDOUT.reopen @parent[ :stdout ]
-      STDERR.reopen @parent[ :stderr ]
-      close @parent
-    end
-
-
-    def child_stdout
-      @child[ :stdout ]
-    end
-
-
-    def child_stderr
-      @child[ :stderr ]
-    end
-
-
-    def close pipes
-      pipes.each do | name, pipe |
-        unless pipe.closed?
-          pipe.close
-        end
-      end
-    end
-
-
-    def init_pipes
-      rd_stdin, wr_stdin = IO.pipe
-      rd_stdout, wr_stdout = IO.pipe
-      rd_stderr, wr_stderr = IO.pipe
-      [ { :stdin => wr_stdin, :stdout => rd_stdout, :stderr => rd_stderr },
-        { :stdin => rd_stdin, :stdout => wr_stdout, :stderr => wr_stderr } ]
+      STDIN.reopen @parent.stdin
+      STDOUT.reopen @parent.stdout
+      STDERR.reopen @parent.stderr
+      @parent.close
     end
   end
 end
