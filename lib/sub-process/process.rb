@@ -1,7 +1,7 @@
 module SubProcess
   class Process
     #
-    # Creates a new Popen3::Popen3 object.
+    # Creates a new SubProcess::Process object.
     #
     def initialize
       @child, @parent = init_pipes
@@ -17,8 +17,8 @@ module SubProcess
 
 
     #
-    # Executes command as subprocess. Standard out and error from
-    # the subprocess are passed as block arguments.
+    # Executes command as subprocess. Standard out and error from the
+    # subprocess are passed as block arguments.
     #
     def popen3 command, env = {}, &block
       @pid = fork_child( command, env )

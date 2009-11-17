@@ -4,10 +4,11 @@ require "English"
 module SubProcess
   class Shell
     #
-    # Calls the block passed as an argument with a new Popen3::Shell object.
+    # Calls the block passed as an argument with a new
+    # SubProcess::Shell object.
     #
     # _Example:_
-    #  Popen3::Shell.open do | shell |
+    #  SubProcess::Shell.open do | shell |
     #    # Add some hooks here
     #    shell.on_...
     #    shell.on_...
