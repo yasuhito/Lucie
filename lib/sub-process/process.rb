@@ -20,8 +20,8 @@ module SubProcess
     # Executes command as subprocess. Standard out and error from the
     # subprocess are passed as block arguments.
     #
-    def popen3 command, env = {}, &block
-      @pid = fork_child( command, env )
+    def popen3 command, &block
+      @pid = fork_child( command )
       # Parent process
       close @parent
       begin
@@ -37,11 +37,11 @@ module SubProcess
     ############################################################################
 
 
-    def fork_child command, env
+    def fork_child command
       Kernel.fork do
         close @child
         redirect_child_io
-        start_child command, env
+        start_child command
       end
     end
 
@@ -54,11 +54,11 @@ module SubProcess
     end
 
 
-    def start_child command, env
-      env.each_pair do | key, value |
+    def start_child command
+      command.env.each_pair do | key, value |
         ENV[ key ]= value
       end
-      Kernel.exec command
+      Kernel.exec command.command
     end
 
 

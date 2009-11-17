@@ -84,7 +84,7 @@ module SubProcess
     #
     def exec command, env = {}
       process = Process.new
-      process.popen3( command, env ) do | stdout, stderr |
+      process.popen3( Command.new( command, env ) ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end
       process.wait
@@ -111,8 +111,8 @@ module SubProcess
 
     def create_output_handler_thread_for io, &block
       t = Thread.new do
-        while line = io.gets do
-          block.call line.chomp
+        while io.gets do
+          block.call $LAST_READ_LINE.chomp
         end
       end
       t.priority = -10

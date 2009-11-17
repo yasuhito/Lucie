@@ -14,6 +14,7 @@
 module SubProcess; end
 
 
+require "sub-process/command"
 require "sub-process/process"
 require "sub-process/shell"
 
