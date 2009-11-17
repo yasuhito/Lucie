@@ -1,4 +1,5 @@
 require "English"
+require "sub-process/io-handler-thread"
 
 
 module SubProcess
@@ -84,7 +85,7 @@ module SubProcess
     #
     def exec command, env = {}
       process = Process.new
-      process.popen( Command.new( command, env ) ) do | stdout, stderr |
+      process.popen Command.new( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end
       process.wait
@@ -98,25 +99,10 @@ module SubProcess
 
 
     def handle_child_output stdout, stderr
-      tout = create_output_handler_thread_for( stdout ) do | line |
-        do_stdout line
-      end
-      terr = create_output_handler_thread_for( stderr ) do | line |
-        do_stderr line
-      end
+      tout = IoHandlerThread.new( stdout, method( :do_stdout ) )
+      terr = IoHandlerThread.new( stderr, method( :do_stderr ) )
       tout.join
       terr.join
-    end
-
-
-    def create_output_handler_thread_for io, &block
-      t = Thread.new do
-        while io.gets do
-          block.call $LAST_READ_LINE.chomp
-        end
-      end
-      t.priority = -10
-      t
     end
 
 
