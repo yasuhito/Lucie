@@ -41,7 +41,7 @@ module SubProcess
       Kernel.fork do
         close @child
         redirect_child_io
-        start_child command
+        command.start
       end
     end
 
@@ -51,14 +51,6 @@ module SubProcess
       STDOUT.reopen @parent[ :stdout ]
       STDERR.reopen @parent[ :stderr ]
       close @parent
-    end
-
-
-    def start_child command
-      command.env.each_pair do | key, value |
-        ENV[ key ]= value
-      end
-      Kernel.exec command.command
     end
 
 

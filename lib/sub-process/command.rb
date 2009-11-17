@@ -8,6 +8,14 @@ module SubProcess
       @command = command
       @env = env
     end
+
+
+    def start
+      @env.each_pair do | key, value |
+        ENV[ key ]= value
+      end
+      Kernel.exec @command
+    end
   end
 end
 
