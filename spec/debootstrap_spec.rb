@@ -5,7 +5,7 @@ describe Debootstrap do
   before :each do | each |
     Rake::Task.clear
     @shell = mock( "shell" ).as_null_object
-    Popen3::Shell.should_receive( :open ).and_yield( @shell )
+    SubProcess::Shell.should_receive( :open ).and_yield( @shell )
   end
 
 

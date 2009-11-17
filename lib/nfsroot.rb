@@ -21,6 +21,7 @@ require "nodes"
 require "rake"
 require "rake/tasklib"
 require "ssh"
+require "sub-process"
 
 
 class Nfsroot < Rake::TaskLib
@@ -113,7 +114,7 @@ class Nfsroot < Rake::TaskLib
             run "rm -rf #{ each }"
           end
           # also remove files nfsroot/.? but not . and ..
-          Popen3::Shell.open do | shell |
+          SubProcess::Shell.open do | shell |
             shell.on_stdout do | line |
               run "rm -f #{ line }"
             end
@@ -315,7 +316,7 @@ class Nfsroot < Rake::TaskLib
 
   def ip_addresses
     ips = []
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       shell.on_stdout do | line |
         ips << $1 if /inet addr:(\S+)\s+/=~ line
       end

@@ -1,7 +1,7 @@
 require "English"
 
 
-module Popen3
+module SubProcess
   class Shell
     #
     # Calls the block passed as an argument with a new Popen3::Shell object.

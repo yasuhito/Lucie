@@ -6,7 +6,7 @@ When /^サブプロセス "([^\"]*)" を実行$/ do | command |
   @on_failure_called = false
   @child_status = nil
 
-  Popen3::Shell.open do | shell |
+  SubProcess::Shell.open do | shell |
     shell.on_stdout do | line |
       @stdout << line
     end

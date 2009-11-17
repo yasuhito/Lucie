@@ -1,5 +1,5 @@
-require 'lucie/log'
-require 'popen3'
+require "lucie/log"
+require "sub-process"
 
 
 module Lucie
@@ -11,7 +11,7 @@ module Lucie
 
 
     def run command
-      Popen3::Shell.open do | shell |
+      SubProcess::Shell.open do | shell |
         shell.on_stdout do | line |
           handle_stdout line
         end
@@ -23,7 +23,7 @@ module Lucie
         end
         shell.exec command, { "LC_ALL" => "C" } unless @options[ :dry_run ]
 
-        # Returns an instance of Popen3::Shell as a return value from
+        # Returns an instance of SubProcess::Shell as a return value from
         # this block, in order to get child status.
         shell
       end

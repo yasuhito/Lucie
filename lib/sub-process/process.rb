@@ -1,4 +1,4 @@
-module Popen3
+module SubProcess
   class Process
     #
     # Creates a new Popen3::Popen3 object.

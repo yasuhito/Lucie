@@ -1,7 +1,7 @@
 require File.join( File.dirname( __FILE__ ), "..", "spec_helper" )
 
 
-module Popen3
+module SubProcess
   describe Process do
     it "should spawn a subprocess and redirect its stdout and stderr" do
       Kernel.stub!( :fork ).and_yield

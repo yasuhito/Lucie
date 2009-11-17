@@ -6,6 +6,7 @@ require "lucie/logger/html"
 require "lucie/logger/installer"
 require "lucie/server"
 require "status/installer"
+require "sub-process"
 require "tempfile"
 
 
@@ -151,7 +152,7 @@ class FirstStage
 
 
   def do_ssh command
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       shell.on_stdout do | line |
         debug line
       end

@@ -1,5 +1,4 @@
-require 'lucie/log'
-require 'popen3'
+require "lucie/log"
 
 
 class Apt

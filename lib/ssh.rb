@@ -2,7 +2,7 @@ require "lucie"
 require "lucie/debug"
 require "lucie/logger/null"
 require "lucie/utils"
-require "popen3"
+require "sub-process"
 
 
 class SSH
@@ -45,7 +45,7 @@ class SSH
   def sh ip, command
     output = []
     real_command = %{ssh -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"}
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       shell.on_stdout do | line |
         output << line
       end
@@ -63,7 +63,7 @@ class SSH
     agent_pid = nil
     begin
       real_command = ssh_agent( %{ssh -A -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"} )
-      Popen3::Shell.open do | shell |
+      SubProcess::Shell.open do | shell |
         shell.on_stdout do | line |
           agent_pid = $1 if /^Agent pid (\d+)/=~ line
           stdout.puts line
@@ -81,7 +81,7 @@ class SSH
         shell.exec real_command unless @dry_run
       end
     ensure
-      Popen3::Shell.open do | shell |
+      SubProcess::Shell.open do | shell |
         shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid } unless @dry_run
       end
     end
@@ -109,7 +109,7 @@ class SSH
 
 
   def popen3_shell command
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       debug command
       shell.exec command unless @dry_run
     end

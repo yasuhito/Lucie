@@ -1,3 +1,6 @@
+require "sub-process"
+
+
 class Scm
   class Common
     def initialize debug_options = {}
@@ -30,7 +33,7 @@ class Scm
 
 
     def run command, env = { "LC_ALL" => "C" }
-      Popen3::Shell.open do | shell |
+      SubProcess::Shell.open do | shell |
         shell.on_stdout do | line |
           ( @debug_options[ :messenger ] || $stdout ).puts line
         end

@@ -1,6 +1,6 @@
 require "lucie/io"
 require "lucie/log"
-require "popen3"
+require "sub-process"
 
 
 class Debootstrap
@@ -21,7 +21,7 @@ class Debootstrap
 
 
   def self.VERSION dpkg_l = "dpkg -l"
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       version = nil
       shell.on_stdout do | line |
         version = $1 if /^ii\s+debootstrap\s+(\S+)/=~ line
@@ -54,12 +54,12 @@ class Debootstrap
   end
 
 
-  # Popen3 #####################################################################
+  # SubProcess #####################################################################
 
 
   def run
     check_mandatory_options
-    Popen3::Shell.open do | shell |
+    SubProcess::Shell.open do | shell |
       set_handlers_for shell
       exec_debootstrap shell
     end
