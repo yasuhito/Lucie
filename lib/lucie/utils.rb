@@ -36,8 +36,8 @@ module Lucie
       command.split( "\n" ).each do | each |
         next if /^#/=~ each
         next if /^\s*$/=~ each
-        debug_print each, options, messenger
-        Lucie::Shell.new( options, messenger ).run each
+        debug_print each, options, messenger || options[ :messenger ]
+        Lucie::Shell.new( options, messenger || options[ :messenger ] ).run each
       end
     end
 
