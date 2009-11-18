@@ -23,6 +23,12 @@ class SSH
     end
 
 
+    def setup_ssh_home target
+      mkdir_p target, @debug_options unless FileTest.directory?( target )
+      run "chmod 0700 #{ target }", @debug_options
+    end
+
+
     def authorized_keys_path
       File.join local_ssh_home, "authorized_keys"
     end
@@ -45,12 +51,6 @@ class SSH
 
     def lucie_private_key_path
       File.join lucie_ssh_home, "id_rsa"
-    end
-
-
-    def setup_ssh_home target
-      mkdir_p target, @debug_options unless FileTest.directory?( target )
-      run "chmod 0700 #{ target }", @debug_options
     end
 
 

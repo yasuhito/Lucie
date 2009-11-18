@@ -1,37 +1,32 @@
 module Command
   module NodeInstallMulti
     class Options < Command::Option
-      usage "node install-multi <\"NODE-OPTIONS\" ...> --netmask <NETMASK> [OPTIONS ...]"
+      usage "node install-multi <\"NODE-OPTIONS\" ...> [GLOBAL-OPTIONS ...]"
 
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
                   :argument => "[NETMASK-ADDRESS]",
-                  :description => "Netmask address.",
-                  :mandatory => true )
-
-      separator
+                  :description => "Netmask address." )
 
       add_option( :long_option => "--storage-conf",
                   :short_option => "-s",
                   :argument => "[FILE]",
                   :description => "setup-storage configuration file." )
 
-      separator
-
       add_option( :long_option => "--ldb-repository",
                   :short_option => "-L",
                   :argument => "[REPOSITORY-URL]",
                   :description => "LDB repository URL." )
+
       add_option( :long_option => "--source-control",
                   :short_option => "-c",
                   :argument => "[SCM]",
                   :description => "Specify the source control manager to use (default: Mercurial)" )
+
       add_option( :long_option => "--secret",
                   :short_option => "-X",
                   :argument => "[FILE]",
                   :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
-
-      separator
 
       add_option( :long_option => "--linux-image",
                   :short_option => "-l",
@@ -45,8 +40,6 @@ module Command
                   :short_option => "-S",
                   :argument => "[CODE-NAME]",
                   :description => "Distribution version code name (e.g., etch, stable etc.)." )
-
-      separator
 
       add_option( :long_option => "--http-proxy",
                   :short_option => "-H",
