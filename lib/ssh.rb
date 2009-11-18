@@ -48,7 +48,7 @@ class SSH
   def sh_a ip, command, logger = Lucie::Logger::Null.new
     begin
       agent_pid = SubProcess::Shell.open( @debug_options ) do | shell |
-        Sh_A.new( ip, command, private_key_path ).run( shell, logger )
+        Sh_A.new( ip, command, private_key_path, @debug_options ).run( shell, logger )
       end
     ensure
       SubProcess::Shell.open( @debug_options ) do | shell |

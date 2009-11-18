@@ -9,11 +9,12 @@ class SSH
     attr_reader :agent_pid
 
 
-    def initialize ip, command, priv_key
+    def initialize ip, command, priv_key, debug_options
       @ip = ip
       @command = command
       @priv_key = priv_key
       @agent_pid = nil
+      @debug_options = debug_options
     end
 
 
