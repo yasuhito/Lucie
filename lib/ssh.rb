@@ -3,6 +3,7 @@ require "lucie/debug"
 require "lucie/logger/null"
 require "lucie/utils"
 require "ssh/key-pair-generator"
+require "ssh/nfsroot"
 require "sub-process"
 
 
@@ -34,9 +35,7 @@ class SSH
 
 
   def setup_ssh_access_to nfsroot_dir
-    setup_sshd_on nfsroot_dir
-    setup_ssh_home_on nfsroot_dir
-    install_public_key_to nfsroot_dir
+    Nfsroot.new( nfsroot_dir, @debug_options ).setup_ssh_access public_key_path
     info "ssh access to nfsroot configured."
   end
 
@@ -137,54 +136,6 @@ class SSH
 
   def ssh_agent command
     "eval `ssh-agent`; ssh-add #{ private_key_path }; #{ command }"
-  end
-
-
-  def setup_sshd_on nfsroot_dir
-    sshd_config = nfsroot( nfsroot_dir, "/etc/ssh/sshd_config" )
-    run <<-COMMANDS, @debug_options
-ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ sshd_config }
-ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ sshd_config }
-echo "UseDNS no" >> #{ sshd_config }
-COMMANDS
-  end
-
-
-  def install_public_key_to nfsroot_dir
-    target = nfsroot_authorized_keys_path( nfsroot_dir )
-    run "cp #{ public_key_path } #{ target }", @debug_options
-    run "chmod 0644 #{ target }", @debug_options
-  end
-
-
-  # key authorization ##########################################################
-
-
-  def authorized_keys_path
-    @key_pair_generator.authorized_keys_path
-  end
-
-
-  def nfsroot_authorized_keys_path base_dir
-    File.join nfsroot_ssh_home( base_dir ), "authorized_keys"
-  end
-
-
-  # ssh paths ##################################################################
-
-
-  def setup_ssh_home_on nfsroot_dir
-    @key_pair_generator.setup_ssh_home nfsroot_ssh_home( nfsroot_dir )
-  end
-
-
-  def nfsroot_ssh_home nfsroot_dir
-    nfsroot nfsroot_dir, "root/.ssh"
-  end
-
-
-  def nfsroot base_dir, path
-    File.join( base_dir, path ).gsub( /\/+/, "/" )
   end
 
 

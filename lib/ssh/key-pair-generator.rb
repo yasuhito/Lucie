@@ -1,10 +1,12 @@
 require "lucie"
 require "lucie/utils"
+require "ssh-home"
 
 
 class SSH
   class KeyPairGenerator
     include Lucie::Utils
+    include SSHHome
 
 
     def initialize debug_options
@@ -20,12 +22,6 @@ class SSH
       end
       maybe_authorize_public_key
       maybe_chmod_authorized_keys
-    end
-
-
-    def setup_ssh_home target
-      mkdir_p target, @debug_options unless FileTest.directory?( target )
-      run "chmod 0700 #{ target }", @debug_options
     end
 
 
