@@ -15,11 +15,6 @@ class SSH
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
-  attr_accessor :dry_run # :nodoc:
-  attr_accessor :messenger # :nodoc:
-  attr_accessor :verbose # :nodoc:
-
-
   def initialize debug_options = {}
     @debug_options = debug_options
     @key_pair_generator = KeyPairGenerator.new( @debug_options )
@@ -115,13 +110,13 @@ class SSH
 
   def exec_and_debug shell, command
     debug command
-    shell.exec command unless @dry_run
+    shell.exec command unless dry_run
   end
 
 
   def kill_ssh_agent pid
     SubProcess::Shell.open do | shell |
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => pid } unless @dry_run
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => pid } unless dry_run
     end
   end
 
@@ -129,7 +124,7 @@ class SSH
   def popen3_shell command
     SubProcess::Shell.open do | shell |
       debug command
-      shell.exec command unless @dry_run
+      shell.exec command unless dry_run
     end
   end
 

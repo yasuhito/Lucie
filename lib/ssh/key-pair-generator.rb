@@ -1,10 +1,12 @@
 require "lucie"
+require "lucie/debug"
 require "lucie/utils"
 require "ssh-home"
 
 
 class SSH
   class KeyPairGenerator
+    include Lucie::Debug
     include Lucie::Utils
     include SSHHome
 
@@ -84,31 +86,27 @@ class SSH
 
 
     def maybe_chmod_authorized_keys
-      unless authorized_keys_has_valid_permission?
-        run "chmod 0644 #{ authorized_keys_path }", @debug_options
-      end
+      run "chmod 0644 #{ authorized_keys_path }", @debug_options unless authorized_keys_has_valid_permission?
     end
 
 
     def authorized_keys_has_valid_permission?
-      return if @debug_options[ :dry_run ]
-      File.stat( authorized_keys_path ).mode.to_s( 8 ) == "100644"
-    end
-
-
-    def authorized_keys
-      IO.read( authorized_keys_path ).split( "\n" )
+      dry_run || File.stat( authorized_keys_path ).mode.to_s( 8 ) == "100644"
     end
 
 
     def authorized?
-      return false unless FileTest.exists?( authorized_keys_path )
-      authorized_keys.include?( public_key ) unless @debug_options[ :dry_run ]
+      FileTest.exists?( authorized_keys_path ) and authorized_keys.include?( public_key )
+    end
+
+
+    def authorized_keys
+      dry_run ? [] : IO.read( authorized_keys_path ).split( "\n" )
     end
 
 
     def public_key
-      IO.read( public_key_path ).chomp
+      dry_run ? "" : IO.read( public_key_path ).chomp
     end
 
 
