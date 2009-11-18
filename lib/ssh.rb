@@ -4,6 +4,8 @@ require "lucie/logger/null"
 require "lucie/utils"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
+require "ssh/sh"
+require "ssh/sh_a"
 require "sub-process"
 
 
@@ -36,30 +38,37 @@ class SSH
 
 
   def sh ip, command
-    SubProcess::Shell.open do | shell |
-      ssh shell, ip, command
-    end.join "\n"
+    outputs = SubProcess::Shell.open( @debug_options ) do | shell |
+      Sh.new( ip, command, private_key_path ).run( shell )
+    end
+    outputs.join "\n"
   end
 
 
   def sh_a ip, command, logger = Lucie::Logger::Null.new
     begin
-      agent_pid = SubProcess::Shell.open do | shell |
-        ssh_a shell, ip, command, logger
+      agent_pid = SubProcess::Shell.open( @debug_options ) do | shell |
+        Sh_A.new( ip, command, private_key_path ).run( shell, logger )
       end
     ensure
-      kill_ssh_agent agent_pid
+      SubProcess::Shell.open( @debug_options ) do | shell |
+        shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
+      end
     end
   end
 
 
   def cp ip, from, to
-    popen3_shell "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
+    SubProcess::Shell.open( @debug_options ) do | shell |
+      shell.exec "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
+    end
   end
 
 
   def cp_r ip, from, to
-    popen3_shell "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
+    SubProcess::Shell.open( @debug_options ) do | shell |
+      shell.exec "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
+    end
   end
 
 
@@ -71,67 +80,6 @@ class SSH
   ##############################################################################
   private
   ##############################################################################
-
-
-  def ssh shell, ip, command
-    output = []
-    real_command = %{ssh -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"}
-    shell.on_stdout do | line | 
-      output << line
-    end
-    shell.on_failure do
-      raise "command #{ command } failed on #{ ip }"
-    end
-    exec_and_debug shell, real_command
-    output
-  end
-
-
-  def ssh_a shell, ip, command, logger
-    agent_pid = nil
-    real_command = ssh_agent( %{ssh -A -i #{ private_key_path } #{ OPTIONS } root@#{ ip } "#{ command }"} )
-    shell.on_stdout do | line |
-      agent_pid = $1 if /^Agent pid (\d+)/=~ line
-      stdout.puts line
-      logger.debug line
-    end
-    shell.on_stderr do | line |
-      stderr.puts line
-      logger.debug line
-    end
-    shell.on_failure do
-      raise "command #{ command } failed on #{ ip }"
-    end
-    logger.debug real_command
-    exec_and_debug shell, real_command
-    agent_pid
-  end
-
-
-  def exec_and_debug shell, command
-    debug command
-    shell.exec command unless dry_run
-  end
-
-
-  def kill_ssh_agent pid
-    SubProcess::Shell.open do | shell |
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => pid } unless dry_run
-    end
-  end
-
-
-  def popen3_shell command
-    SubProcess::Shell.open do | shell |
-      debug command
-      shell.exec command unless dry_run
-    end
-  end
-
-
-  def ssh_agent command
-    "eval `ssh-agent`; ssh-add #{ private_key_path }; #{ command }"
-  end
 
 
   def public_key_path

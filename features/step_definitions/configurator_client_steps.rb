@@ -98,12 +98,12 @@ end
 
 
 Then /^設定リポジトリが (.+) コマンドで Lucie クライアントに配置される$/ do | command |
-  @messenger.string.split( "\n" ).last.should match( /#{ regexp_from( command ) }/ )
+  @messenger.string.should match( /#{ regexp_from( command ) }/ )
 end
 
 
 Then /^設定ツールが実行される$/ do
-  @messenger.string.split( "\n" ).last.should match( /make/ )
+  @messenger.string.should match( /make/ )
 end
 
 

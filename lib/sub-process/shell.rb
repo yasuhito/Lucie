@@ -1,9 +1,13 @@
 require "English"
+require "lucie/debug"
 require "sub-process/io-handler-thread"
 
 
 module SubProcess
   class Shell
+    include Lucie::Debug
+
+
     #
     # Calls the block passed as an argument with a new
     # SubProcess::Shell object.
@@ -19,8 +23,13 @@ module SubProcess
     #    shell.exec command
     #  end
     #
-    def self.open &block
-      block.call self.new
+    def self.open debug_options = {}, &block
+      block.call self.new( debug_options )
+    end
+
+
+    def initialize debug_options # :nodoc:
+      @debug_options = debug_options
     end
 
 
@@ -84,11 +93,11 @@ module SubProcess
     # Spawns a subprocess with specified environment variables.
     #
     def exec command, env = {}
-      process = Process.new
-      process.popen Command.new( command, env ) do | stdout, stderr |
+      debug command
+      return if dry_run
+      Process.new.popen Command.new( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
-      end
-      process.wait
+      end.wait
       handle_exitstatus
     end
 

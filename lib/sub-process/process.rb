@@ -34,6 +34,7 @@ module SubProcess
       ensure
         @child.close
       end
+      self
     end
 
 
