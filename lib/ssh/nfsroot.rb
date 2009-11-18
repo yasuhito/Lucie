@@ -18,17 +18,13 @@ class SSH
       setup_sshd
       setup_ssh_home nfsroot_ssh_home_path
       install_public_key public_key_path
+      chmod_authorized_keys
     end
 
 
     ############################################################################
     private
     ############################################################################
-
-
-    def nfsroot_ssh_home_path
-      path "root/.ssh"
-    end
 
 
     def setup_sshd
@@ -41,14 +37,23 @@ COMMANDS
     end
 
 
-    def authorized_keys_path
-      File.join nfsroot_ssh_home_path, "authorized_keys"
+    def install_public_key public_key_path
+      run "cp #{ public_key_path } #{ authorized_keys_path }", @debug_options
     end
 
 
-    def install_public_key public_key_path
-      run "cp #{ public_key_path } #{ authorized_keys_path }", @debug_options
+    def chmod_authorized_keys
       run "chmod 0644 #{ authorized_keys_path }", @debug_options
+    end
+
+
+    def nfsroot_ssh_home_path
+      path "root/.ssh"
+    end
+
+
+    def authorized_keys_path
+      File.join nfsroot_ssh_home_path, "authorized_keys"
     end
 
 
