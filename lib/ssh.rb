@@ -170,23 +170,12 @@ COMMANDS
   end
 
 
-  # .ssh directory #############################################################
+  # ssh paths ##################################################################
 
 
   def setup_ssh_home_on nfsroot_dir
     @key_pair_generator.setup_ssh_home nfsroot_ssh_home( nfsroot_dir )
   end
-
-
-  # public and private key paths ###############################################
-
-
-  def public_key
-    IO.read( public_key_path ).chomp
-  end
-
-
-  # ssh paths ##################################################################
 
 
   def nfsroot_ssh_home nfsroot_dir

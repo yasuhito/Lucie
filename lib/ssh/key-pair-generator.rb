@@ -111,6 +111,11 @@ class SSH
     end
 
 
+    def public_key
+      IO.read( public_key_path ).chomp
+    end
+
+
     def local_ssh_home
       if FileTest.exists?( lucie_public_key_path ) and FileTest.exists?( lucie_private_key_path )
         lucie_ssh_home
