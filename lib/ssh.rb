@@ -165,11 +165,6 @@ COMMANDS
   end
 
 
-  def authorized_keys
-    IO.read( authorized_keys_path ).split( "\n" )
-  end
-
-
   def nfsroot_authorized_keys_path base_dir
     File.join nfsroot_ssh_home( base_dir ), "authorized_keys"
   end

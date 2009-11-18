@@ -87,9 +87,21 @@ class SSH
     end
 
 
-    # [FIXME]
     def maybe_chmod_authorized_keys
-      run "chmod 0644 #{ authorized_keys_path }", @debug_options
+      unless authorized_keys_has_valid_permission?
+        run "chmod 0644 #{ authorized_keys_path }", @debug_options
+      end
+    end
+
+
+    def authorized_keys_has_valid_permission?
+      return if @debug_options[ :dry_run ]
+      File.stat( authorized_keys_path ).mode.to_s( 8 ) == "100644"
+    end
+
+
+    def authorized_keys
+      IO.read( authorized_keys_path ).split( "\n" )
     end
 
 
