@@ -20,9 +20,6 @@ class SSH
   def initialize debug_options = {}
     @debug_options = debug_options
     @key_pair_generator = KeyPairGenerator.new( @debug_options )
-    @verbose = @debug_options[ :verbose ]
-    @dry_run = @debug_options[ :dry_run ]
-    @messenger = @debug_options[ :messenger ]
   end
 
 
@@ -60,6 +57,7 @@ class SSH
 
   def cp ip, from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
+      # [TODO] error handling and debug printing
       shell.exec "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
     end
   end
@@ -67,6 +65,7 @@ class SSH
 
   def cp_r ip, from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
+      # [TODO] error handling and debug printing
       shell.exec "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
     end
   end
