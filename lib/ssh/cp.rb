@@ -1,5 +1,11 @@
+require "ssh-home"
+
+
 class SSH
   class Cp
+    include SSHHome
+
+
     def initialize from, to, private_key_path, debug_options
       @from = from
       @to = to
@@ -9,7 +15,7 @@ class SSH
 
 
     def run shell
-      command = "scp -i #{ @private_key_path } #{ SSH::OPTIONS } #{ @from } root@#{ @to }"
+      command = "scp -i #{ private_key_path } #{ SSH::OPTIONS } #{ @from } root@#{ @to }"
       shell.on_stdout do | line |
         stdout.puts line
       end
