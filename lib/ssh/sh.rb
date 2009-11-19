@@ -7,13 +7,14 @@ class SSH
 
 
     def run shell, logger
-      output = []
-      shell.on_stdout do | line | 
+      output = StringIO.new
+      shell.on_stdout do | line |
+        output.puts line
         stdout.puts line
         logger.debug line
-        output << line
       end
       shell.on_stderr do | line |
+        output.puts line
         stderr.puts line
         logger.debug line
       end
@@ -22,7 +23,7 @@ class SSH
       end
       logger.debug real_command
       shell.exec real_command
-      output
+      output.string
     end
 
 

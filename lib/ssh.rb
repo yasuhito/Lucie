@@ -28,10 +28,9 @@ class SSH
 
 
   def sh ip, command, logger = Lucie::Logger::Null.new
-    outputs = subprocess do | shell |
+    subprocess do | shell |
       Sh.new( ip, command, @debug_options ).run( shell, logger )
     end
-    outputs.join "\n"
   end
 
 
