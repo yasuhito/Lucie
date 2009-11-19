@@ -118,6 +118,9 @@ class Nfsroot < Rake::TaskLib
             shell.on_stdout do | line |
               run "rm -f #{ line }"
             end
+            shell.on_failure do
+              # do nothing
+            end
             shell.exec "find #{ @target_directory } -xdev -maxdepth 1 ! -type d'"
           end
         end

@@ -6,26 +6,27 @@ class SSH
     include SSHHome
 
 
-    def initialize from, to, private_key_path, debug_options
+    def initialize from, to, debug_options
       @from = from
       @to = to
-      @private_key_path = private_key_path
       @debug_options = debug_options
     end
 
 
     def run shell
-      command = "scp -i #{ private_key_path } #{ SSH::OPTIONS } #{ @from } root@#{ @to }"
-      shell.on_stdout do | line |
-        stdout.puts line
-      end
-      shell.on_stderr do | line |
-        stderr.puts line
-      end
-      shell.on_failure do
-        raise "command #{ command } failed"
-      end
+      shell.on_stdout { | line | stdout.puts line }
+      shell.on_stderr { | line | stderr.puts line }
       shell.exec command
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def command
+      "scp -i #{ private_key_path } #{ SSH::OPTIONS } #{ @from } root@#{ @to }"
     end
   end
 end

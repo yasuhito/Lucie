@@ -95,6 +95,7 @@ module SubProcess
     def exec command, env = {}
       debug command
       return if dry_run
+      on_failure { raise "command #{ command } failed" } unless @on_failure
       Process.new.popen Command.new( command, env ) do | stdout, stderr |
         handle_child_output stdout, stderr
       end.wait
