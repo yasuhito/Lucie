@@ -14,13 +14,27 @@ module SSHHome
   end
 
 
+  def ssh_home
+    if FileTest.exists?( lucie_public_key_path ) and FileTest.exists?( lucie_private_key_path )
+      lucie_ssh_home
+    else
+      user_ssh_home
+    end
+  end
+
+
   def public_key_path
-    File.join local_ssh_home, "id_rsa.pub"
+    File.join ssh_home, "id_rsa.pub"
   end
 
 
   def private_key_path
-    File.join local_ssh_home, "id_rsa"
+    File.join ssh_home, "id_rsa"
+  end
+
+
+  def authorized_keys_path
+    File.join ssh_home, "authorized_keys"
   end
 
 
@@ -34,22 +48,13 @@ module SSHHome
   end
 
 
-  def ssh_home
+  def user_ssh_home
     File.join @debug_options[ :home ] || File.expand_path( "~" ), ".ssh"
   end
 
 
   def lucie_ssh_home
     File.join @debug_options[ :lucie_home ] || Lucie::ROOT, ".ssh"
-  end
-
-
-  def local_ssh_home
-    if FileTest.exists?( lucie_public_key_path ) and FileTest.exists?( lucie_private_key_path )
-      lucie_ssh_home
-    else
-      ssh_home
-    end
   end
 end
 

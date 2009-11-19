@@ -17,7 +17,7 @@ class SSH
 
 
     def start
-      setup_local_ssh_home
+      setup_ssh_home ssh_home
       unless keypair_exists?
         cleanup_old_keys
         ssh_keygen
@@ -27,19 +27,9 @@ class SSH
     end
 
 
-    def authorized_keys_path
-      File.join local_ssh_home, "authorized_keys"
-    end
-
-
     ############################################################################
     private
     ############################################################################
-
-
-    def setup_local_ssh_home
-      setup_ssh_home local_ssh_home
-    end
 
 
     def keypair_exists?
