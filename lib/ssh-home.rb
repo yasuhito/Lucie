@@ -1,3 +1,4 @@
+require "lucie/debug"
 require "lucie/utils"
 
 
