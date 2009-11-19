@@ -1,9 +1,11 @@
+require "lucie/debug"
 require "lucie/utils"
 require "ssh-home"
 
 
 class SSH
   class Nfsroot
+    include Lucie::Debug
     include Lucie::Utils
     include SSHHome
 
@@ -19,6 +21,7 @@ class SSH
       setup_ssh_home nfsroot_ssh_home_path
       install_public_key
       chmod_authorized_keys
+      info "ssh access to nfsroot configured."
     end
 
 

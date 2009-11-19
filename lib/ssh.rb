@@ -1,4 +1,3 @@
-require "lucie/debug"
 require "lucie/logger/null"
 require "ssh/cp"
 require "ssh/cp_r"
@@ -10,9 +9,6 @@ require "sub-process"
 
 
 class SSH
-  include Lucie::Debug
-
-
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
@@ -28,7 +24,6 @@ class SSH
 
   def setup_ssh_access_to nfsroot_dir
     Nfsroot.new( nfsroot_dir, @debug_options ).setup_ssh_access
-    info "ssh access to nfsroot configured."
   end
 
 
