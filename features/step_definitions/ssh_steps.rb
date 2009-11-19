@@ -59,10 +59,10 @@ When /^ファイル "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP �
 end
 
 
-When /^ディレクトリ "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピー$/ do | from, node, to |
+When /^ディレクトリ "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピー$/ do | from, node, dir |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).cp_r( node, from, to )
+  SSH.new( debug_options ).cp_r( from, "#{ node }:#{ dir }" )
 end
 
 

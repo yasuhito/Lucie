@@ -64,9 +64,9 @@ class SSH
   end
 
 
-  def cp_r ip, from, to
+  def cp_r from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
-      Cp_r.new( from, "#{ ip }:#{ to }", private_key_path, @debug_options ).run( shell )
+      Cp_r.new( from, to, private_key_path, @debug_options ).run( shell )
     end
   end
 
