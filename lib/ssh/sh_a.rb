@@ -7,6 +7,20 @@ class SSH
 
 
     def run shell, logger
+      begin
+        agent_pid = run_with_ssh_agent( shell, logger )
+      ensure
+        kill_ssh_agent agent_pid, shell
+      end
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def run_with_ssh_agent shell, logger
       agent_pid = nil
       shell.on_stdout do | line |
         agent_pid = $1 if /^Agent pid (\d+)/=~ line
@@ -26,9 +40,12 @@ class SSH
     end
 
 
-    ############################################################################
-    private
-    ############################################################################
+    def kill_ssh_agent agent_pid, shell
+      shell.on_stdout {}
+      shell.on_stderr {}
+      shell.on_failure {}
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
+    end
 
 
     def real_command

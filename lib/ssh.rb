@@ -35,12 +35,8 @@ class SSH
 
 
   def sh_a ip, command, logger = Lucie::Logger::Null.new
-    begin
-      agent_pid = subprocess do | shell |
-        Sh_A.new( ip, command, @debug_options ).run( shell, logger )
-      end
-    ensure
-      kill_ssh_agent agent_pid
+    subprocess do | shell |
+      Sh_A.new( ip, command, @debug_options ).run( shell, logger )
     end
   end
 
@@ -62,13 +58,6 @@ class SSH
   ##############################################################################
   private
   ##############################################################################
-
-
-  def kill_ssh_agent agent_pid
-    subprocess do | shell |
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
-    end
-  end
 
 
   def subprocess &block
