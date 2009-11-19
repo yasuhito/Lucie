@@ -1,9 +1,9 @@
-require "ssh-home"
+require "ssh/home"
 
 
 class SSH
   module ShellCommand
-    include SSHHome
+    include Home
 
 
     def initialize ip, command, debug_options

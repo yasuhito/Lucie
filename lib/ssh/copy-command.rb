@@ -1,9 +1,9 @@
-require "ssh-home"
+require "ssh/home"
 
 
 class SSH
   module CopyCommand
-    include SSHHome
+    include Home
 
 
     def initialize from, to, debug_options

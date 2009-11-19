@@ -1,14 +1,14 @@
 require "lucie"
 require "lucie/debug"
 require "lucie/utils"
-require "ssh-home"
+require "ssh/home"
 
 
 class SSH
   class KeyPairGenerator
+    include Home
     include Lucie::Debug
     include Lucie::Utils
-    include SSHHome
 
 
     def initialize debug_options

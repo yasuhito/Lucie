@@ -1,10 +1,10 @@
-require "ssh-home"
+require "ssh/home"
 require "sub-process"
 
 
 class Scm
   class Common
-    include SSHHome
+    include SSH::Home
 
 
     def initialize debug_options = {}

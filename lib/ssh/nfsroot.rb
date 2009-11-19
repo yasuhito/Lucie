@@ -1,13 +1,13 @@
 require "lucie/debug"
 require "lucie/utils"
-require "ssh-home"
+require "ssh/home"
 
 
 class SSH
   class Nfsroot
+    include Home
     include Lucie::Debug
     include Lucie::Utils
-    include SSHHome
 
 
     def initialize base_dir, debug_options
