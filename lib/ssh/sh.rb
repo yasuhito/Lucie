@@ -6,18 +6,21 @@ class SSH
     include ShellCommand
 
 
-    def run shell
+    def run shell, logger
       output = []
       shell.on_stdout do | line | 
         stdout.puts line
+        logger.debug line
         output << line
       end
       shell.on_stderr do | line |
         stderr.puts line
+        logger.debug line
       end
       shell.on_failure do
         raise "command #{ @command } failed on #{ @ip }"
       end
+      logger.debug real_command
       shell.exec real_command
       output
     end
