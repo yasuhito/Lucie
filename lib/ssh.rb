@@ -3,6 +3,7 @@ require "lucie/debug"
 require "lucie/logger/null"
 require "lucie/utils"
 require "ssh/cp"
+require "ssh/cp_r"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
 require "ssh/sh"
@@ -65,17 +66,7 @@ class SSH
 
   def cp_r ip, from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
-      command = "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
-      shell.on_stdout do | line |
-        stdout.puts line
-      end
-      shell.on_stderr do | line |
-        stderr.puts line
-      end
-      shell.on_failure do
-        raise "command #{ command } failed on #{ ip }"
-      end
-      shell.exec command
+      Cp_r.new( from, "#{ ip }:#{ to }", private_key_path, @debug_options ).run( shell )
     end
   end
 
