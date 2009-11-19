@@ -1,7 +1,5 @@
-require "lucie"
 require "lucie/debug"
 require "lucie/logger/null"
-require "lucie/utils"
 require "ssh/cp"
 require "ssh/cp_r"
 require "ssh/key-pair-generator"
@@ -13,7 +11,6 @@ require "sub-process"
 
 class SSH
   include Lucie::Debug
-  include Lucie::Utils
 
 
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
@@ -21,12 +18,11 @@ class SSH
 
   def initialize debug_options = {}
     @debug_options = debug_options
-    @key_pair_generator = KeyPairGenerator.new( @debug_options )
   end
 
 
   def maybe_generate_and_authorize_keypair
-    @key_pair_generator.start
+    KeyPairGenerator.new( @debug_options ).start
   end
 
 
@@ -37,7 +33,7 @@ class SSH
 
 
   def sh ip, command
-    outputs = SubProcess::Shell.open( @debug_options ) do | shell |
+    outputs = subprocess do | shell |
       Sh.new( ip, command, @debug_options ).run( shell )
     end
     outputs.join "\n"
@@ -46,27 +42,44 @@ class SSH
 
   def sh_a ip, command, logger = Lucie::Logger::Null.new
     begin
-      agent_pid = SubProcess::Shell.open( @debug_options ) do | shell |
+      agent_pid = subprocess do | shell |
         Sh_A.new( ip, command, @debug_options ).run( shell, logger )
       end
     ensure
-      SubProcess::Shell.open( @debug_options ) do | shell |
-        shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
-      end
+      kill_ssh_agent agent_pid
     end
   end
 
 
   def cp from, to
-    SubProcess::Shell.open( @debug_options ) do | shell |
+    subprocess do | shell |
       Cp.new( from, to, @debug_options ).run( shell )
     end
   end
 
 
   def cp_r from, to
-    SubProcess::Shell.open( @debug_options ) do | shell |
+    subprocess do | shell |
       Cp_r.new( from, to, @debug_options ).run( shell )
+    end
+  end
+
+
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def kill_ssh_agent agent_pid
+    subprocess do | shell |
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
+    end
+  end
+
+
+  def subprocess &block
+    SubProcess::Shell.open( @debug_options ) do | shell |
+      block.call shell
     end
   end
 end
