@@ -1,26 +1,15 @@
-require "lucie/debug"
+require "ssh/shell-command"
 
 
 class SSH
   class Sh_A
-    include Lucie::Debug
-
-
-    attr_reader :agent_pid
-
-
-    def initialize ip, command, priv_key, debug_options
-      @ip = ip
-      @command = command
-      @priv_key = priv_key
-      @agent_pid = nil
-      @debug_options = debug_options
-    end
+    include ShellCommand
 
 
     def run shell, logger
+      agent_pid = nil
       shell.on_stdout do | line |
-        @agent_pid = $1 if /^Agent pid (\d+)/=~ line
+        agent_pid = $1 if /^Agent pid (\d+)/=~ line
         stdout.puts line
         logger.debug line
       end
@@ -33,7 +22,7 @@ class SSH
       end
       logger.debug real_command
       shell.exec real_command
-      @agent_pid
+      agent_pid
     end
 
 
@@ -43,7 +32,7 @@ class SSH
 
 
     def real_command
-      %{eval `ssh-agent`; ssh-add #{ @priv_key }; ssh -A -i #{ @priv_key } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
+      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ @priv_key } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
     end
   end
 end

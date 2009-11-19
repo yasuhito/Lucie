@@ -1,22 +1,21 @@
+require "ssh/shell-command"
+
+
 class SSH
   class Sh
-    def initialize ip, command, priv_key
-      @ip = ip
-      @command = command
-      @priv_key = priv_key
-      @output = []
-    end
+    include ShellCommand
 
 
     def run shell
+      output = []
       shell.on_stdout do | line | 
-        @output << line
+        output << line
       end
       shell.on_failure do
         raise "command #{ @command } failed on #{ @ip }"
       end
       shell.exec real_command
-      @output
+      output
     end
 
 
@@ -26,7 +25,7 @@ class SSH
 
 
     def real_command
-      %{ssh -i #{ @priv_key } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
+      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
     end
   end
 end
