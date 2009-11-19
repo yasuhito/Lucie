@@ -11,6 +11,7 @@ class SuperReboot
 
   def initialize debug_options = {}
     @debug_options = debug_options
+    @ssh = SSH.new( @debug_options )
   end
 
 
@@ -68,8 +69,8 @@ class SuperReboot
 
   def ssh_reboot node
     info "Rebooting #{ node.name } via ssh ..."
-    run %{ssh -i #{ SSH.new( @debug_options ).private_key_path } #{ SSH::OPTIONS } root@#{ node.name } "swapoff -a"}, @debug_options, messenger
-    run %{ssh -i #{ SSH.new( @debug_options ).private_key_path } #{ SSH::OPTIONS } root@#{ node.name } "shutdown -r now"}, @debug_options, messenger
+    @ssh.sh node.name, "swapoff -a"
+    @ssh.sh node.name, "shutdown -r now"
   end
 
 
@@ -96,9 +97,8 @@ class SuperReboot
 
   def rebooted_via_ssh? node_name
     info "Rebooting #{ node_name } via ssh ..."
-    command = %{ssh -i #{ SSH.new( @debug_options ).private_key_path } #{ SSH::OPTIONS } root@#{ node_name } "reboot"}
     begin
-      run command, @debug_options, messenger
+      @ssh.sh node_name, "shutdown -r now"
     rescue
       error "Rebooting #{ node_name } via ssh failed."
       return false
