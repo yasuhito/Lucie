@@ -57,16 +57,34 @@ class SSH
 
   def cp ip, from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
-      # [TODO] error handling and debug printing
-      shell.exec "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
+      command = "scp -i #{ private_key_path } #{ OPTIONS } #{ from } root@#{ ip }:#{ to }"
+      shell.on_stdout do | line |
+        stdout.puts line
+      end
+      shell.on_stderr do | line |
+        stderr.puts line
+      end
+      shell.on_failure do
+        raise "command #{ command } failed on #{ ip }"
+      end
+      shell.exec command
     end
   end
 
 
   def cp_r ip, from, to
     SubProcess::Shell.open( @debug_options ) do | shell |
-      # [TODO] error handling and debug printing
-      shell.exec "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
+      command = "scp -i #{ private_key_path } #{ OPTIONS } -r #{ from } root@#{ ip }:#{ to }"
+      shell.on_stdout do | line |
+        stdout.puts line
+      end
+      shell.on_stderr do | line |
+        stderr.puts line
+      end
+      shell.on_failure do
+        raise "command #{ command } failed on #{ ip }"
+      end
+      shell.exec command
     end
   end
 
