@@ -136,7 +136,7 @@ class FirstStage
 
 
   def ssh command
-    SSH.new( @options.merge( :messenger => @messenger ) ).sh @node.name, command
+    SSH.new( @options.merge( :messenger => @messenger ) ).sh @node.name, command, @logger
   end
 
 
