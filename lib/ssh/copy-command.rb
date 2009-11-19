@@ -13,9 +13,16 @@ class SSH
     end
 
 
-    def run shell
-      shell.on_stdout { | line | stdout.puts line }
-      shell.on_stderr { | line | stderr.puts line }
+    def run shell, logger
+      shell.on_stdout do | line |
+        stdout.puts line
+        logger.debug line
+      end
+      shell.on_stderr do | line |
+        stderr.puts line
+        logger.debug line
+      end
+      logger.debug command
       shell.exec command
     end
 

@@ -45,16 +45,16 @@ class SSH
   end
 
 
-  def cp from, to
+  def cp from, to, logger = Lucie::Logger::Null.new
     subprocess do | shell |
-      Cp.new( from, to, @debug_options ).run( shell )
+      Cp.new( from, to, @debug_options ).run( shell, logger )
     end
   end
 
 
-  def cp_r from, to
+  def cp_r from, to, logger = Lucie::Logger::Null.new
     subprocess do | shell |
-      Cp_r.new( from, to, @debug_options ).run( shell )
+      Cp_r.new( from, to, @debug_options ).run( shell, logger )
     end
   end
 
