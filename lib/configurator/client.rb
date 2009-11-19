@@ -1,5 +1,6 @@
 require "lucie/logger/null"
 require "scm"
+require "ssh"
 
 
 class Configurator
@@ -119,7 +120,7 @@ class Configurator
 
     def install_get_confidential_data client_ip, server_ip
       target = get_confidential_data_command
-      @ssh.cp client_ip, "#{ Lucie::ROOT }/script/get_confidential_data", target
+      @ssh.cp "#{ Lucie::ROOT }/script/get_confidential_data", "#{ client_ip }:#{ target }"
       @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ target }"
       @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ target }"
       @ssh.sh client_ip, "chmod +x #{ target }"

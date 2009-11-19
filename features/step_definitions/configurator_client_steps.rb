@@ -6,8 +6,8 @@ class DummySSH
   end
 
 
-  def cp ip, from, to
-    @ssh.cp ip, from, to
+  def cp from, to
+    @ssh.cp from, to
   end
 
 

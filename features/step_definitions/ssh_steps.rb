@@ -52,10 +52,10 @@ When /^SSH \-A でノード "([^\"]*)" にコマンド "([^\"]*)" を実行$/ do
 end
 
 
-When /^ファイル "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP でコピー$/ do | from, node, to |
+When /^ファイル "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP でコピー$/ do | from, node, dir |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).cp( node, from, to )
+  SSH.new( debug_options ).cp( from, "#{ node }:#{ dir }" )
 end
 
 
