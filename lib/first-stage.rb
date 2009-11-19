@@ -141,17 +141,17 @@ class FirstStage
 
 
   def scp from, to
-    SSH.new( @options.merge( :messenger => @messenger ) ).cp from, "root@#{ @node.name }:#{ to }"
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp from, "root@#{ @node.name }:#{ to }", @logger
   end
 
 
   def scp_back from, to
-    SSH.new( @options.merge( :messenger => @messenger ) ).cp "root@#{ @node.name }:#{ from }", to
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp "root@#{ @node.name }:#{ from }", to, @logger
   end
 
 
   def scp_r from, to
-    SSH.new( @options.merge( :messenger => @messenger ) ).cp_r from, "root@#{ @node.name }:#{ to }"
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp_r from, "root@#{ @node.name }:#{ to }", @logger
   end
 
 
