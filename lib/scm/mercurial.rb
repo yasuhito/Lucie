@@ -1,19 +1,19 @@
 class Scm
   class Mercurial < Common
     def clone source, dest
-      run %{hg clone --ssh "ssh -i #{ SSH.new.private_key_path }" #{ source } #{ dest }}
+      run %{hg clone --ssh "ssh -i #{ private_key_path }" #{ source } #{ dest }}
     end
     alias clone_clone clone
 
 
     def update_commands_for target, server_ip, repository
-      [ "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS }'",
+      [ "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ private_key_path } #{ SSH::OPTIONS }'",
         "cd #{ target } && hg update" ]
     end
 
 
     def update target
-      run "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS }'"
+      run "cd #{ target } && hg pull --ssh 'ssh -l #{ whoami } -i #{ private_key_path } #{ SSH::OPTIONS }'"
       run "cd #{ target } && hg update"
     end
 

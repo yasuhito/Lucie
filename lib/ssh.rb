@@ -69,11 +69,6 @@ class SSH
       Cp_r.new( from, to, @debug_options ).run( shell )
     end
   end
-
-
-  def private_key_path
-    @key_pair_generator.private_key_path
-  end
 end
 
 

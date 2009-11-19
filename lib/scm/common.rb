@@ -1,8 +1,12 @@
+require "ssh-home"
 require "sub-process"
 
 
 class Scm
   class Common
+    include SSHHome
+
+
     def initialize debug_options = {}
       @debug_options = debug_options
     end

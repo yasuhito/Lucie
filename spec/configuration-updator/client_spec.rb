@@ -6,11 +6,11 @@ class ConfigurationUpdator
     context "updating client repository" do
       it "should update client repository" do
         node = mock( "node" )
+        node.stub!( :name ).and_return( "CLIENT_NAME" )
         node.stub!( :ip_address ).and_return( "CLIENT_IP" )
 
         ssh = mock( "ssh" )
         SSH.stub!( :new ).and_return( ssh )
-        ssh.should_receive( :private_key_path ).once
         ssh.should_receive( :sh_a ).with( "CLIENT_IP", /hg pull/ ).once.ordered
         ssh.should_receive( :sh_a ).with( "CLIENT_IP", /hg update/ ).once.ordered
 
@@ -19,6 +19,7 @@ class ConfigurationUpdator
 
         mercurial = Scm::Mercurial.new
         scm.stub!( :from ).and_return( mercurial )
+        mercurial.should_receive( :private_key_path ).once
         mercurial.stub!( :test_installed_on )
 
         Lucie::Server.stub!( :ip_address_for ).and_return( "SERVER_IP" )
