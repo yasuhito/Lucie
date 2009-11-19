@@ -137,17 +137,17 @@ class FirstStage
 
 
   def ssh command
-    do_ssh %{ssh -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS } root@#{ @node.name } "#{ command }"}
+    SSH.new( @options.merge( :messenger => @messenger ) ).sh @node.name, command
   end
 
 
   def scp from, to
-    do_ssh %{scp -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS } #{ from } root@#{ @node.name }:#{ to }}
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp from, "#{ @node.name }:#{ to }"
   end
 
 
   def scp_r from, to
-    do_ssh %{scp -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS } -r #{ from } root@#{ @node.name }:#{ to }}
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp_r from, "#{ @node.name }:#{ to }"
   end
 
 
