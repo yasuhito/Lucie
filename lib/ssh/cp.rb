@@ -1,23 +1,9 @@
-require "ssh-home"
+require "ssh/copy-command"
 
 
 class SSH
   class Cp
-    include SSHHome
-
-
-    def initialize from, to, debug_options
-      @from = from
-      @to = to
-      @debug_options = debug_options
-    end
-
-
-    def run shell
-      shell.on_stdout { | line | stdout.puts line }
-      shell.on_stderr { | line | stderr.puts line }
-      shell.exec command
-    end
+    include CopyCommand
 
 
     ############################################################################

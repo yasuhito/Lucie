@@ -1,8 +1,11 @@
-require "ssh/cp"
+require "ssh/copy-command"
 
 
 class SSH
-  class Cp_r < Cp
+  class Cp_r
+    include CopyCommand
+
+
     ############################################################################
     private
     ############################################################################
