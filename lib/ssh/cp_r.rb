@@ -12,7 +12,7 @@ class SSH
 
 
     def command
-      "scp -i #{ private_key_path } #{ SSH::OPTIONS } -r #{ @from } root@#{ @to }"
+      "scp -i #{ private_key_path } #{ SSH::OPTIONS } -r #{ @from } #{ @to }"
     end
   end
 end

@@ -126,8 +126,7 @@ class FirstStage
           ssh "chmod 600 /tmp/target/etc/ssh/#{ each }"
         end
       else
-        from = File.join( "/tmp/target/etc/ssh", each )
-        do_ssh "scp -i #{ SSH.new.private_key_path } #{ SSH::OPTIONS } root@#{ @node.name }:#{ from } #{ local_file }"
+        scp_back File.join( "/tmp/target/etc/ssh", each ), local_file
       end
     end
   end
@@ -142,30 +141,17 @@ class FirstStage
 
 
   def scp from, to
-    SSH.new( @options.merge( :messenger => @messenger ) ).cp from, "#{ @node.name }:#{ to }"
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp from, "root@#{ @node.name }:#{ to }"
+  end
+
+
+  def scp_back from, to
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp "root@#{ @node.name }:#{ from }", to
   end
 
 
   def scp_r from, to
-    SSH.new( @options.merge( :messenger => @messenger ) ).cp_r from, "#{ @node.name }:#{ to }"
-  end
-
-
-  def do_ssh command
-    SubProcess::Shell.open do | shell |
-      shell.on_stdout do | line |
-        debug line
-      end
-      shell.on_stderr do | line |
-        error line
-      end
-      shell.on_failure do
-        raise %{Command "#{ command }" failed}
-      end
-
-      debug command if verbose
-      shell.exec command unless dry_run
-    end
+    SSH.new( @options.merge( :messenger => @messenger ) ).cp_r from, "root@#{ @node.name }:#{ to }"
   end
 
 

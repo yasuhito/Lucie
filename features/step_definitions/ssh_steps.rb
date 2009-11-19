@@ -83,12 +83,12 @@ end
 
 
 Then /^ファイル "([^\"]*)" がノード "([^\"]*)" の "([^\"]*)" に SCP でコピーされる$/ do | from, node, to |
-  @messenger.string.should match( /^scp .* #{ Regexp.escape from } root@#{ node }:#{ Regexp.escape to }$/ )
+  @messenger.string.should match( /^scp .* #{ Regexp.escape from } #{ node }:#{ Regexp.escape to }$/ )
 end
 
 
 Then /^ディレクトリ "([^\"]*)" がノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピーされる$/ do | from, node, to |
-  @messenger.string.should match( /^scp .* \-r #{ Regexp.escape from } root@#{ node }:#{ Regexp.escape to }$/ )
+  @messenger.string.should match( /^scp .* \-r #{ Regexp.escape from } #{ node }:#{ Regexp.escape to }$/ )
 end
 
 
