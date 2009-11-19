@@ -9,7 +9,11 @@ class SSH
     def run shell
       output = []
       shell.on_stdout do | line | 
+        stdout.puts line
         output << line
+      end
+      shell.on_stderr do | line |
+        stderr.puts line
       end
       shell.on_failure do
         raise "command #{ @command } failed on #{ @ip }"
