@@ -31,7 +31,7 @@ class SSH
 
 
   def setup_ssh_access_to nfsroot_dir
-    Nfsroot.new( nfsroot_dir, @debug_options ).setup_ssh_access public_key_path
+    Nfsroot.new( nfsroot_dir, @debug_options ).setup_ssh_access
     info "ssh access to nfsroot configured."
   end
 
@@ -73,16 +73,6 @@ class SSH
 
   def private_key_path
     @key_pair_generator.private_key_path
-  end
-
-
-  ##############################################################################
-  private
-  ##############################################################################
-
-
-  def public_key_path
-    @key_pair_generator.public_key_path
   end
 end
 

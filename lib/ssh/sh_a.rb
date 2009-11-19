@@ -32,7 +32,7 @@ class SSH
 
 
     def real_command
-      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ @priv_key } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
+      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
     end
   end
 end

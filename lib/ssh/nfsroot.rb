@@ -14,10 +14,10 @@ class SSH
     end
 
 
-    def setup_ssh_access public_key_path
+    def setup_ssh_access
       setup_sshd
       setup_ssh_home nfsroot_ssh_home_path
-      install_public_key public_key_path
+      install_public_key
       chmod_authorized_keys
     end
 
@@ -37,7 +37,7 @@ COMMANDS
     end
 
 
-    def install_public_key public_key_path
+    def install_public_key
       run "cp #{ public_key_path } #{ authorized_keys_path }", @debug_options
     end
 

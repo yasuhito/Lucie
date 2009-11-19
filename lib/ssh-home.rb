@@ -14,6 +14,11 @@ module SSHHome
   end
 
 
+  def public_key_path
+    File.join local_ssh_home, "id_rsa.pub"
+  end
+
+
   def private_key_path
     File.join local_ssh_home, "id_rsa"
   end
