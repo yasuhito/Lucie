@@ -11,8 +11,7 @@ class SSH
 
     def run
       SubProcess::Shell.open( @debug_options ) do | shell |
-        set_stdout_handler_for shell
-        set_stderr_handler_for shell
+        set_handlers_for shell
         spawn_subprocess shell, @command.command( @from, @to )
       end
     end
@@ -23,13 +22,11 @@ class SSH
     ############################################################################
 
 
-    def set_stdout_handler_for shell
-      shell.on_stdout { | line | @logger.debug line }
-    end
-
-
-    def set_stderr_handler_for shell
-      shell.on_stdout { | line | @logger.debug line }
+    def set_handlers_for shell
+      default_handler = lambda { | line | @logger.debug line }
+      [ :on_stdout, :on_stderr ].each do | each |
+        shell.__send__ each, &default_handler
+      end
     end
 
 
