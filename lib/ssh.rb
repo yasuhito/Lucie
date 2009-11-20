@@ -1,7 +1,7 @@
 require "lucie/logger/null"
 require "ssh/copy-command"
 require "ssh/cp"
-require "ssh/cp_r"
+require "ssh/cp-recursive"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
 require "ssh/sh"
@@ -39,12 +39,12 @@ class SSH
 
 
   def cp from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( from, to, Cp.new, @debug_options ).run( logger )
+    CopyCommand.new( from, to, Cp.new, logger, @debug_options ).run
   end
 
 
   def cp_r from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( from, to, Cp_r.new, @debug_options ).run( logger )
+    CopyCommand.new( from, to, CpRecursive.new, logger, @debug_options ).run
   end
 end
 

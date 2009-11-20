@@ -2,7 +2,7 @@ require "ssh/home"
 
 
 class SSH
-  class Cp_r
+  class CpRecursive
     include Home
 
 

@@ -1,34 +1,41 @@
 class SSH
   class CopyCommand
-    def initialize from, to, command, debug_options
+    def initialize from, to, command, logger, debug_options
       @from = from
       @to = to
       @command = command
+      @logger = logger
       @debug_options = debug_options
     end
 
 
-    def run logger
+    def run
       SubProcess::Shell.open( @debug_options ) do | shell |
-        shell.on_stdout do | line |
-          logger.debug line
-        end
-        shell.on_stderr do | line |
-          logger.debug line
-        end
-        logger.debug real_command
-        shell.exec real_command
+        set_stdout_handler_for shell
+        set_stderr_handler_for shell
+        spawn_subprocess shell, @command.command( @from, @to )
       end
     end
 
 
-    ############################################################################w
+    ############################################################################
     private
-    ############################################################################w
+    ############################################################################
 
 
-    def real_command
-      @command.command @from, @to
+    def set_stdout_handler_for shell
+      shell.on_stdout { | line | @logger.debug line }
+    end
+
+
+    def set_stderr_handler_for shell
+      shell.on_stdout { | line | @logger.debug line }
+    end
+
+
+    def spawn_subprocess shell, command
+      @logger.debug command
+      shell.exec command
     end
   end
 end
