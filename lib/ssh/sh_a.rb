@@ -8,14 +8,15 @@ class SSH
 
     def initialize logger
       @logger = logger
+      @output = []
     end
 
 
     def run ip, command, shell
       begin
-        agent_pid = run_with_ssh_agent( ip, command, shell )
+        run_with_ssh_agent ip, command, shell
       ensure
-        kill_ssh_agent agent_pid, shell
+        kill_ssh_agent shell
       end
     end
 
@@ -26,25 +27,33 @@ class SSH
 
 
     def run_with_ssh_agent ip, command, shell
-      agent_pid = nil
-      shell.on_stdout do | line |
-        agent_pid = $1 if /^Agent pid (\d+)/=~ line
-        @logger.debug line
-      end
-      shell.on_stderr do | line |
-        @logger.debug line
-      end
-      @logger.debug real_command( ip, command )
-      shell.exec real_command( ip, command )
-      agent_pid
+      set_stdout_handler_for shell
+      set_stderr_handler_for shell
+      spawn_subprocess shell, real_command( ip, command )
     end
 
 
-    def kill_ssh_agent agent_pid, shell
+    def set_stdout_handler_for shell
+      shell.on_stdout { | line | @output << line; @logger.debug( line ) }
+    end
+
+
+    def set_stderr_handler_for shell
+      shell.on_stderr { | line | @output << line; @logger.debug( line ) }
+    end
+
+
+    def kill_ssh_agent shell
       shell.on_stdout {}
       shell.on_stderr {}
       shell.on_failure {}
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => agent_pid }
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output.join( "\n" )
+    end
+
+
+    def spawn_subprocess shell, command
+      @logger.debug command
+      shell.exec command
     end
 
 

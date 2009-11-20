@@ -46,7 +46,7 @@ class Configurator
 
     def update client_ip, server_ip
       update_commands( client_ip, server_ip, REPOSITORY ).each do | each |
-        @ssh.sh_a client_ip, each
+        SSH.new( @debug_options ).sh_a client_ip, each
       end
     end
 
@@ -58,7 +58,7 @@ class Configurator
 
 
     def start ip, logger = Lucie::Logger::Null.new    
-      @ssh.sh_a ip, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make", logger
+      SSH.new( @debug_options ).sh_a ip, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make", logger
     end
 
 
@@ -128,7 +128,7 @@ class Configurator
 
 
     def install_repository client_ip, server_ip, url
-      @ssh.sh_a client_ip, @scm.install_command( REPOSITORY_BASE_DIRECTORY, server_ip, url )
+      SSH.new( @debug_options ).sh_a client_ip, @scm.install_command( REPOSITORY_BASE_DIRECTORY, server_ip, url )
     end
 
 
