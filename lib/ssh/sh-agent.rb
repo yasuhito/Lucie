@@ -3,7 +3,7 @@ require "ssh/shell"
 
 
 class SSH
-  class ShA
+  class ShAgent
     include Home
     include Shell
 

@@ -5,7 +5,7 @@ require "ssh/cp-recursive"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
 require "ssh/sh"
-require "ssh/sh-a"
+require "ssh/sh-agent"
 require "ssh/shell-command"
 
 
@@ -34,7 +34,7 @@ class SSH
 
 
   def sh_a host_name, command_line, logger = Lucie::Logger::Null.new
-    ShellCommand.new( host_name, command_line, ShA.new( logger ), @debug_options ).run
+    ShellCommand.new( host_name, command_line, ShAgent.new( logger ), @debug_options ).run
   end
 
 
