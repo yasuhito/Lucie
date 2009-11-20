@@ -8,10 +8,8 @@ class SSH
 
 
     def setup_ssh_home target
-      Lucie::Utils.mkdir_p target, @debug_options unless FileTest.directory?( target )
-      if dry_run || File.stat( target ).mode.to_s( 8 ) != "40700"
-        Lucie::Utils.run "chmod 0700 #{ target }", @debug_options
-      end
+      Lucie::Utils.mkdir_p target, @debug_options
+      Lucie::Utils.run "chmod 0700 #{ target }", @debug_options
     end
 
 
@@ -60,7 +58,7 @@ class SSH
 
 
     def home
-      ( @debug_options && @debug_options[ :home ] ) ? @debug_options[ :home ] : File.expand_path( "~" )
+      @debug_options && @debug_options[ :home ] || File.expand_path( "~" )
     end
 
 
@@ -70,7 +68,7 @@ class SSH
 
 
     def lucie_home
-      ( @debug_options && @debug_options[ :lucie_home ] ) ? @debug_options[ :lucie_home ] : Lucie::ROOT
+      @debug_options && @debug_options[ :lucie_home ] || Lucie::ROOT
     end
   end
 end
