@@ -1,10 +1,10 @@
 class SSH
   class CopyCommand
-    def initialize from, to, command, logger, debug_options
+    def initialize from, to, logger, command, debug_options
       @from = from
       @to = to
-      @command = command
       @logger = logger
+      @command = command
       @debug_options = debug_options
     end
 

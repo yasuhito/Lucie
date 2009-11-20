@@ -11,9 +11,9 @@ class SSH
     attr_reader :output
 
 
-    def run ip, command, shell
+    def run host_name, command, shell
       set_handlers_for shell
-      spawn_subprocess shell, real_command( ip, command )
+      spawn_subprocess shell, real_command( host_name, command )
       self
     end
 
@@ -23,8 +23,8 @@ class SSH
     ############################################################################
 
 
-    def real_command ip, command
-      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
+    def real_command host_name, command
+      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
     end
   end
 end

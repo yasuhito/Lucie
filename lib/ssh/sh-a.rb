@@ -8,10 +8,10 @@ class SSH
     include Shell
 
 
-    def run ip, command, shell
+    def run host_name, command, shell
       begin
         set_handlers_for shell
-        spawn_subprocess shell, real_command( ip, command )
+        spawn_subprocess shell, real_command( host_name, command )
       ensure
         kill_ssh_agent shell
       end
@@ -28,8 +28,8 @@ class SSH
     end
 
 
-    def real_command ip, command
-      %{#{ start_ssh_agent }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
+    def real_command host_name, command
+      %{#{ start_ssh_agent }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
     end
 
 

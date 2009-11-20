@@ -28,23 +28,23 @@ class SSH
   end
 
 
-  def sh ip, command_line, logger = Lucie::Logger::Null.new
-    ShellCommand.new( ip, command_line, Sh.new( logger ), @debug_options ).run
+  def sh host_name, command_line, logger = Lucie::Logger::Null.new
+    ShellCommand.new( host_name, command_line, Sh.new( logger ), @debug_options ).run
   end
 
 
-  def sh_a ip, command_line, logger = Lucie::Logger::Null.new
-    ShellCommand.new( ip, command_line, ShA.new( logger ), @debug_options ).run
+  def sh_a host_name, command_line, logger = Lucie::Logger::Null.new
+    ShellCommand.new( host_name, command_line, ShA.new( logger ), @debug_options ).run
   end
 
 
   def cp from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( from, to, Cp.new, logger, @debug_options ).run
+    CopyCommand.new( from, to, logger, Cp.new, @debug_options ).run
   end
 
 
   def cp_r from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( from, to, CpRecursive.new, logger, @debug_options ).run
+    CopyCommand.new( from, to, logger, CpRecursive.new, @debug_options ).run
   end
 end
 
