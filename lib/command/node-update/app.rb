@@ -60,7 +60,7 @@ module Command
       def start_update_for node
         Thread.start do
           @updator.update_client node
-          @updator.start node, Lucie::Logger::Updator.new( @debug_options )
+          @updator.start node, Lucie::Logger::Updator.new
         end
       end
 

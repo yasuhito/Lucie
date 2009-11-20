@@ -1,21 +1,16 @@
-require "lucie/debug"
-
-
 module Lucie
   module Logger
     class Updator
-      include Lucie::Debug
-
-
-      def initialize debug_options
-        @debug_options = debug_options
-      end
-
-
-      def method_missing method, *args # :nodoc:
-        stdout.puts *args
+      def debug line
+        puts line
       end
     end
   end
 end
 
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:
