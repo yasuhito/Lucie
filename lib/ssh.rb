@@ -39,12 +39,12 @@ class SSH
 
 
   def cp from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( Cp.new, @debug_options ).run( from, to, logger )
+    CopyCommand.new( from, to, Cp.new, @debug_options ).run( logger )
   end
 
 
   def cp_r from, to, logger = Lucie::Logger::Null.new
-    CopyCommand.new( Cp_r.new, @debug_options ).run( from, to, logger )
+    CopyCommand.new( from, to, Cp_r.new, @debug_options ).run( logger )
   end
 end
 

@@ -6,13 +6,15 @@ class SSH
     include Lucie::Debug
 
 
-    def initialize command, debug_options
+    def initialize from, to, command, debug_options
+      @from = from
+      @to = to
       @command = command
       @debug_options = debug_options
     end
 
 
-    def run from, to, logger
+    def run logger
       SubProcess::Shell.open( @debug_options ) do | shell |
         shell.on_stdout do | line |
           stdout.puts line
@@ -22,9 +24,19 @@ class SSH
           stderr.puts line
           logger.debug line
         end
-        logger.debug @command.command( from, to )
-        shell.exec @command.command( from, to )
+        logger.debug real_command
+        shell.exec real_command
       end
+    end
+
+
+    ############################################################################w
+    private
+    ############################################################################w
+
+
+    def real_command
+      @command.command @from, @to
     end
   end
 end
