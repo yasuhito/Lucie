@@ -1,15 +1,11 @@
 require "ssh/home"
+require "ssh/shell"
 
 
 class SSH
-  class Sh_A
+  class ShA
     include Home
-
-
-    def initialize logger
-      @logger = logger
-      @output = []
-    end
+    include Shell
 
 
     def run ip, command, shell
@@ -33,24 +29,8 @@ class SSH
     end
 
 
-    def set_stdout_handler_for shell
-      shell.on_stdout { | line | @output << line; @logger.debug( line ) }
-    end
-
-
-    def set_stderr_handler_for shell
-      shell.on_stderr { | line | @output << line; @logger.debug( line ) }
-    end
-
-
-    def spawn_subprocess shell, command
-      @logger.debug command
-      shell.exec command
-    end
-
-
     def kill_ssh_agent shell
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output.join( "\n" )
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output
     end
 
 

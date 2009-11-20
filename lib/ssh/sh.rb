@@ -1,18 +1,14 @@
 require "ssh/home"
+require "ssh/shell"
 
 
 class SSH
   class Sh
     include Home
+    include Shell
 
 
     attr_reader :output
-
-
-    def initialize logger
-      @logger = logger
-      @output = ""
-    end
 
 
     def run ip, command, shell
@@ -26,22 +22,6 @@ class SSH
     ############################################################################
     private
     ############################################################################
-
-
-    def set_stdout_handler_for shell
-      shell.on_stdout { | line | @output << line; @logger.debug( line ) }
-    end
-
-
-    def set_stderr_handler_for shell
-      shell.on_stderr { | line | @output << line; @logger.debug( line ) }
-    end
-
-
-    def spawn_subprocess shell, command
-      @logger.debug command
-      shell.exec command
-    end
 
 
     def real_command ip, command
