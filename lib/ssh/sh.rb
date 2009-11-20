@@ -12,8 +12,7 @@ class SSH
 
 
     def run ip, command, shell
-      set_stdout_handler_for shell
-      set_stderr_handler_for shell
+      set_handlers_for shell
       spawn_subprocess shell, real_command( ip, command )
       self
     end
