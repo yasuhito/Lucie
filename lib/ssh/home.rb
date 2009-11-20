@@ -39,6 +39,11 @@ class SSH
     end
 
 
+    def authorized_keys_mode
+      dry_run ? "100644" : File.stat( authorized_keys_path ).mode.to_s( 8 )
+    end
+
+
     def lucie_public_key_path
       File.join lucie_ssh_home, "id_rsa.pub"
     end

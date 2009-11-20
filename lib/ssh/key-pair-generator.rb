@@ -55,18 +55,15 @@ class SSH
     end
 
 
-    def maybe_chmod_authorized_keys
-      run "chmod 0644 #{ authorized_keys_path }", @debug_options unless authorized_keys_has_valid_permission?
-    end
-
-
-    def authorized_keys_has_valid_permission?
-      dry_run || File.stat( authorized_keys_path ).mode.to_s( 8 ) == "100644"
-    end
-
-
     def authorized?
-      FileTest.exists?( authorized_keys_path ) and authorized_keys.include?( public_key )
+      FileTest.exists?( authorized_keys_path ) && authorized_keys.include?( public_key )
+    end
+
+
+    def maybe_chmod_authorized_keys
+      if authorized_keys_mode != "10644"
+        run "chmod 0644 #{ authorized_keys_path }", @debug_options
+      end
     end
 
 
