@@ -323,7 +323,7 @@ class Nfsroot < Rake::TaskLib
       shell.on_stdout do | line |
         ips << $1 if /inet addr:(\S+)\s+/=~ line
       end
-      shell.exec "ifconfig"
+      shell.exec "/sbin/ifconfig"
     end
     ips
   end
