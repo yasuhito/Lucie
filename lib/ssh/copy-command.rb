@@ -1,14 +1,29 @@
+require "lucie/debug"
+
+
 class SSH
   class CopyCommand
-    def initialize command_type, debug_options
-      @command_type = command_type
+    include Lucie::Debug
+
+
+    def initialize command, debug_options
+      @command = command
       @debug_options = debug_options
     end
 
 
     def run from, to, logger
       SubProcess::Shell.open( @debug_options ) do | shell |
-        @command_type.run from, to, shell, logger
+        shell.on_stdout do | line |
+          stdout.puts line
+          logger.debug line
+        end
+        shell.on_stderr do | line |
+          stderr.puts line
+          logger.debug line
+        end
+        logger.debug @command.command( from, to )
+        shell.exec @command.command( from, to )
       end
     end
   end
