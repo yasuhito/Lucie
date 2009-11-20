@@ -43,17 +43,14 @@ class SSH
     end
 
 
-    def kill_ssh_agent shell
-      shell.on_stdout {}
-      shell.on_stderr {}
-      shell.on_failure {}
-      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output.join( "\n" )
-    end
-
-
     def spawn_subprocess shell, command
       @logger.debug command
       shell.exec command
+    end
+
+
+    def kill_ssh_agent shell
+      shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output.join( "\n" )
     end
 
 

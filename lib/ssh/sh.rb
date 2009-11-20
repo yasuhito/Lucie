@@ -11,7 +11,7 @@ class SSH
 
     def initialize logger
       @logger = logger
-      @output = []
+      @output = ""
     end
 
 
