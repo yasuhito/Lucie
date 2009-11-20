@@ -1,5 +1,6 @@
 require "configuration"
 require "logger"
+require "lucie/debug"
 require "lucie/logger/null"
 require "lucie/utils"
 
@@ -7,6 +8,9 @@ require "lucie/utils"
 module Lucie
   module Logger
     class Installer
+      include Lucie::Debug
+
+
       LOG_FILE_NAME = "install.txt"
 
 
@@ -43,7 +47,8 @@ module Lucie
       end
 
 
-      def initialize directory, dry_run
+      def initialize directory, debug_options
+        @debug_options = debug_options
         if dry_run
           @logger = Null.new
         else
@@ -53,6 +58,7 @@ module Lucie
 
 
       def method_missing method, *args # :nodoc:
+        stdout.puts *args
         @logger.__send__ method, *args
       end
     end

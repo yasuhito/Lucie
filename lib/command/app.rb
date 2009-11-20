@@ -58,7 +58,7 @@ module Command
           @tp.dispatch( each ) do | each |
             sleep 1
             log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
-            logger = Lucie::Logger::Installer.new( log_directory, @dry_run )
+            logger = Lucie::Logger::Installer.new( log_directory, debug_options )
             each.status = Status::Installer.new( log_directory, debug_options, @messenger )
             start_installer each, logger
           end

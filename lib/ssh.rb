@@ -28,13 +28,13 @@ class SSH
   end
 
 
-  def sh ip, command, logger = Lucie::Logger::Null.new
-    ShellCommand.new( Sh.new, @debug_options ).run( ip, command, logger )
+  def sh ip, command_line, logger = Lucie::Logger::Null.new
+    ShellCommand.new( ip, command_line, Sh.new, @debug_options ).run( logger )
   end
 
 
-  def sh_a ip, command, logger = Lucie::Logger::Null.new
-    ShellCommand.new( Sh_A.new, @debug_options ).run( ip, command, logger )
+  def sh_a ip, command_line, logger = Lucie::Logger::Null.new
+    ShellCommand.new( ip, command_line, Sh_A.new, @debug_options ).run( logger )
   end
 
 
