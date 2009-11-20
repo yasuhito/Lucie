@@ -29,12 +29,12 @@ class SSH
 
 
   def sh ip, command_line, logger = Lucie::Logger::Null.new
-    ShellCommand.new( ip, command_line, Sh.new, logger, @debug_options ).run
+    ShellCommand.new( ip, command_line, Sh.new( logger ), @debug_options ).run
   end
 
 
   def sh_a ip, command_line, logger = Lucie::Logger::Null.new
-    ShellCommand.new( ip, command_line, Sh_A.new, logger, @debug_options ).run
+    ShellCommand.new( ip, command_line, Sh_A.new( logger ), @debug_options ).run
   end
 
 

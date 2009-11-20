@@ -6,19 +6,40 @@ class SSH
     include Home
 
 
-    def run ip, command, shell, logger
-      output = StringIO.new
-      shell.on_stdout do | line |
-        output.puts line
-        logger.debug line
-      end
-      shell.on_stderr do | line |
-        output.puts line
-        logger.debug line
-      end
-      logger.debug real_command( ip, command )
-      shell.exec real_command( ip, command )
-      output.string
+    attr_reader :output
+
+
+    def initialize logger
+      @logger = logger
+      @output = []
+    end
+
+
+    def run ip, command, shell
+      set_stdout_handler_for shell
+      set_stderr_handler_for shell
+      spawn_subprocess shell, real_command( ip, command )
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def set_stdout_handler_for shell
+      shell.on_stdout { | line | @output << line; @logger.debug( line ) }
+    end
+
+
+    def set_stderr_handler_for shell
+      shell.on_stderr { | line | @output << line; @logger.debug( line ) }
+    end
+
+
+    def spawn_subprocess shell, command
+      @logger.debug command
+      shell.exec command
     end
 
 

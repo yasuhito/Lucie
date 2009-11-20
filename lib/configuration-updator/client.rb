@@ -14,7 +14,7 @@ class ConfigurationUpdator
     def update node, server_repository
       begin
         update_commands( node, server_repository ).each do | each |
-          @ssh.sh_a node.ip_address, each
+          SSH.new( @debug_options ).sh_a node.ip_address, each
         end
       rescue => e
         raise "Failed to update #{ node.name }: #{ e.message }"
@@ -48,7 +48,7 @@ class ConfigurationUpdator
 
     def follow_repository_symlink_of node
       begin
-        /ldb \-> (\S+)$/=~ @ssh.sh( node.ip_address, "ls -l #{ Configurator::Client::BASE_DIRECTORY }" ).chomp
+        /ldb \-> (\S+)$/=~ SSH.new( @debug_options ).sh( node.ip_address, "ls -l #{ Configurator::Client::BASE_DIRECTORY }" ).output
         name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue

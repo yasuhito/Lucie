@@ -1,17 +1,16 @@
 class SSH
   class ShellCommand
-    def initialize ip, command_line, command, logger, debug_options
+    def initialize ip, command_line, command, debug_options
       @ip = ip
       @command_line = command_line
       @command = command
-      @logger = logger
       @debug_options = debug_options
     end
 
 
     def run
       SubProcess::Shell.open( @debug_options ) do | shell |
-        @command.run @ip, @command_line, shell, @logger
+        @command.run @ip, @command_line, shell
       end
     end
   end
