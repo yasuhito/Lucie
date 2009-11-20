@@ -1,11 +1,12 @@
 require "lucie/logger/null"
+require "ssh/copy-command"
 require "ssh/cp"
 require "ssh/cp_r"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
 require "ssh/sh"
 require "ssh/sh_a"
-require "sub-process"
+require "ssh/shell-command"
 
 
 class SSH
@@ -28,42 +29,22 @@ class SSH
 
 
   def sh ip, command, logger = Lucie::Logger::Null.new
-    subprocess do | shell |
-      Sh.new( ip, command, @debug_options ).run( shell, logger )
-    end
+    ShellCommand.new( Sh.new, @debug_options ).run( ip, command, logger )
   end
 
 
   def sh_a ip, command, logger = Lucie::Logger::Null.new
-    subprocess do | shell |
-      Sh_A.new( ip, command, @debug_options ).run( shell, logger )
-    end
+    ShellCommand.new( Sh_A.new, @debug_options ).run( ip, command, logger )
   end
 
 
   def cp from, to, logger = Lucie::Logger::Null.new
-    subprocess do | shell |
-      Cp.new( from, to, @debug_options ).run( shell, logger )
-    end
+    CopyCommand.new( Cp.new, @debug_options ).run( from, to, logger )
   end
 
 
   def cp_r from, to, logger = Lucie::Logger::Null.new
-    subprocess do | shell |
-      Cp_r.new( from, to, @debug_options ).run( shell, logger )
-    end
-  end
-
-
-  ##############################################################################
-  private
-  ##############################################################################
-
-
-  def subprocess &block
-    SubProcess::Shell.open( @debug_options ) do | shell |
-      block.call shell
-    end
+    CopyCommand.new( Cp_r.new, @debug_options ).run( from, to, logger )
   end
 end
 

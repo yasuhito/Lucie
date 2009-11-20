@@ -51,12 +51,22 @@ class SSH
 
 
     def user_ssh_home
-      File.join @debug_options[ :home ] || File.expand_path( "~" ), ".ssh"
+      File.join home, ".ssh"
+    end
+
+
+    def home
+      ( @debug_options && @debug_options[ :home ] ) ? @debug_options[ :home ] : File.expand_path( "~" )
     end
 
 
     def lucie_ssh_home
-      File.join @debug_options[ :lucie_home ] || Lucie::ROOT, ".ssh"
+      File.join lucie_home, ".ssh"
+    end
+
+
+    def lucie_home
+      ( @debug_options && @debug_options[ :lucie_home ] ) ? @debug_options[ :lucie_home ] : Lucie::ROOT
     end
   end
 end

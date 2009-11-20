@@ -1,25 +1,15 @@
-require "ssh/home"
-
-
 class SSH
-  module ShellCommand
-    include Home
-
-
-    def initialize ip, command, debug_options
-      @ip = ip
-      @command = command
+  class ShellCommand
+    def initialize command_type, debug_options
+      @command_type = command_type
       @debug_options = debug_options
     end
 
 
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def real_command
-      raise NotImplementedError
+    def run ip, command, logger
+      SubProcess::Shell.open( @debug_options ) do | shell |
+        @command_type.run ip, command, shell, logger
+      end
     end
   end
 end

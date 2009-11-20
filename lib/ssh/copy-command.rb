@@ -1,39 +1,15 @@
-require "ssh/home"
-
-
 class SSH
-  module CopyCommand
-    include Home
-
-
-    def initialize from, to, debug_options
-      @from = from
-      @to = to
+  class CopyCommand
+    def initialize command_type, debug_options
+      @command_type = command_type
       @debug_options = debug_options
     end
 
 
-    def run shell, logger
-      shell.on_stdout do | line |
-        stdout.puts line
-        logger.debug line
+    def run from, to, logger
+      SubProcess::Shell.open( @debug_options ) do | shell |
+        @command_type.run from, to, shell, logger
       end
-      shell.on_stderr do | line |
-        stderr.puts line
-        logger.debug line
-      end
-      logger.debug command
-      shell.exec command
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def command
-      raise NotImplementedError
     end
   end
 end

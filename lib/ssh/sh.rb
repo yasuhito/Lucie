@@ -1,39 +1,29 @@
-require "ssh/shell-command"
+require "ssh/home"
 
 
 class SSH
   class Sh
-    include ShellCommand
+    include Home
 
 
-    def run shell, logger
+    def run ip, command, shell, logger
       output = StringIO.new
       shell.on_stdout do | line |
         output.puts line
-        stdout.puts line
         logger.debug line
       end
       shell.on_stderr do | line |
         output.puts line
-        stderr.puts line
         logger.debug line
       end
-      shell.on_failure do
-        raise "command #{ @command } failed on #{ @ip }"
-      end
-      logger.debug real_command
-      shell.exec real_command
+      logger.debug real_command( ip, command )
+      shell.exec real_command( ip, command )
       output.string
     end
 
 
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def real_command
-      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
+    def real_command ip, command
+      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
     end
   end
 end

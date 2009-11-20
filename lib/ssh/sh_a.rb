@@ -1,14 +1,14 @@
-require "ssh/shell-command"
+require "ssh/home"
 
 
 class SSH
   class Sh_A
-    include ShellCommand
+    include Home
 
 
-    def run shell, logger
+    def run ip, command, shell, logger
       begin
-        agent_pid = run_with_ssh_agent( shell, logger )
+        agent_pid = run_with_ssh_agent( ip, command, shell, logger )
       ensure
         kill_ssh_agent agent_pid, shell
       end
@@ -20,22 +20,17 @@ class SSH
     ############################################################################
 
 
-    def run_with_ssh_agent shell, logger
+    def run_with_ssh_agent ip, command, shell, logger
       agent_pid = nil
       shell.on_stdout do | line |
         agent_pid = $1 if /^Agent pid (\d+)/=~ line
-        stdout.puts line
         logger.debug line
       end
       shell.on_stderr do | line |
-        stderr.puts line
         logger.debug line
       end
-      shell.on_failure do
-        raise "command #{ @command } failed on #{ @ip }"
-      end
-      logger.debug real_command
-      shell.exec real_command
+      logger.debug real_command( ip, command )
+      shell.exec real_command( ip, command )
       agent_pid
     end
 
@@ -48,8 +43,8 @@ class SSH
     end
 
 
-    def real_command
-      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ @ip } "#{ @command }"}
+    def real_command ip, command
+      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
     end
   end
 end
