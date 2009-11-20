@@ -10,7 +10,9 @@ class SSH
 
     def run ip, command, shell
       begin
-        run_with_ssh_agent ip, command, shell
+        set_stdout_handler_for shell
+        set_stderr_handler_for shell
+        spawn_subprocess shell, real_command( ip, command )
       ensure
         kill_ssh_agent shell
       end
@@ -22,20 +24,18 @@ class SSH
     ############################################################################
 
 
-    def run_with_ssh_agent ip, command, shell
-      set_stdout_handler_for shell
-      set_stderr_handler_for shell
-      spawn_subprocess shell, real_command( ip, command )
-    end
-
-
     def kill_ssh_agent shell
       shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output
     end
 
 
     def real_command ip, command
-      %{eval `ssh-agent`; ssh-add #{ private_key_path }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
+      %{#{ start_ssh_agent }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ ip } "#{ command }"}
+    end
+
+
+    def start_ssh_agent
+      "eval `ssh-agent`; ssh-add #{ private_key_path }"
     end
   end
 end
