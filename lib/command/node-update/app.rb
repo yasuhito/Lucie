@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 require "command/app"
 require "configuration-updator"
+require "lucie/logger/updator"
 require "network"
 require "node"
 require "thread"
@@ -59,7 +60,7 @@ module Command
       def start_update_for node
         Thread.start do
           @updator.update_client node
-          @updator.start node
+          @updator.start node, Lucie::Logger::Updator.new( @debug_options )
         end
       end
 
