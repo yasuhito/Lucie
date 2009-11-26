@@ -256,7 +256,7 @@ module Command
         end
 
         @sspid = fork do
-          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/secret-server' ) } --secret #{ @options.secret } #{ @verbose ? '--verbose' : '' }"
+          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @options.secret } #{ @verbose ? '--verbose' : '' }"
           exec cmd
         end
 
