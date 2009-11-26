@@ -1,3 +1,4 @@
+require "confidential-data-client"
 require "lucie/logger/null"
 require "scm"
 require "ssh"
@@ -90,7 +91,7 @@ class Configurator
     end
 
 
-    def get_confidential_data_command
+    def confidential_data_command
       File.join bin_directory, "get_confidential_data"
     end
 
@@ -119,11 +120,7 @@ class Configurator
 
 
     def install_get_confidential_data client_ip, server_ip
-      target = get_confidential_data_command
-      @ssh.cp "#{ Lucie::ROOT }/script/get_confidential_data", "root@#{ client_ip }:#{ target }"
-      @ssh.sh client_ip, "sed -i s/USER/#{ ENV[ 'USER' ] }/ #{ target }"
-      @ssh.sh client_ip, "sed -i s/SERVER/#{ server_ip }/ #{ target }"
-      @ssh.sh client_ip, "chmod +x #{ target }"
+      ConfidentialDataClient.new( @debug_options ).install client_ip, server_ip, confidential_data_command
     end
 
 
