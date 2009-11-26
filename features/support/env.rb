@@ -97,26 +97,8 @@ SYSLOG
 end
 
 
-def strip_tags html
-  html.sub!(/<[^<>]*>/,"") while /<[^<>]*>/ =~ html
-  html
-end
-
-
-def log_directory name
-  File.join Configuration.log_directory, name
-end
-
-
 def history
   @messenger.string.split "\n"
-end
-
-
-def show_history
-  history.each do | each |
-    $stderr.puts each
-  end
 end
 
 

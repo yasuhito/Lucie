@@ -51,11 +51,7 @@ end
 
 
 When /^サーバーコンフィグレータが Lucie サーバにその設定リポジトリのローカル複製を作成$/ do
-  begin
-    @configurator.clone_clone @url, "DUMMY_SERVER_IP"
-  rescue
-    @error = $!
-  end
+  @configurator.clone_clone @url, "DUMMY_SERVER_IP"
 end
 
 

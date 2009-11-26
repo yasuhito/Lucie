@@ -6,11 +6,6 @@ class DummySSH
   end
 
 
-  def cp from, to
-    @ssh.cp from, to
-  end
-
-
   def sh ip, command
     @ssh.sh ip, command
     if /test \-d/=~ command

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-ssh -oStrictHostKeyChecking=no USER@SERVER 'telnet 127.0.0.1 58243'

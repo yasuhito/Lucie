@@ -28,11 +28,6 @@ Given /^Lucie サーバの IP アドレスは "([^\"]*)"$/ do | ip |
 end
 
 
-When /^コンフィグレータがノード "([^\"]*)" の更新のために Lucie サーバの更新を実行した$/ do | name |
-  @configurator.update_server_for [ Nodes.find( name ) ]
-end
-
-
 When /^コンフィグレータが Lucie クライアント "([^\"]*)" の更新を実行した$/ do | name |
   @configurator.update_client Nodes.find( name )
 end
