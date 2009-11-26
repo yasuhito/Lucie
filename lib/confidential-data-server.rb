@@ -1,8 +1,6 @@
 require "lucie/debug"
 require "lucie/utils"
 require "socket"
-require "sub-process"
-require "tempfile"
 
 
 class ConfidentialDataServer
