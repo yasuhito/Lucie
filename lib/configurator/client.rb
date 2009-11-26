@@ -81,18 +81,8 @@ class Configurator
     end
 
 
-    def bin_directory
-      "/var/lib/lucie/bin"
-    end
-
-
     def ldb_command
       File.join REPOSITORY, "bin", "ldb"
-    end
-
-
-    def confidential_data_command
-      File.join bin_directory, "get_confidential_data"
     end
 
 
@@ -103,9 +93,6 @@ class Configurator
       unless repository_base_directory_exists?( client_ip )
         create_repository_base_directory client_ip
       end
-      unless bin_directory_exists?( client_ip )
-        create_bin_directory client_ip
-      end
     end
 
 
@@ -114,13 +101,8 @@ class Configurator
     end
 
 
-    def create_bin_directory client_ip
-      @ssh.sh client_ip, "mkdir -p #{ bin_directory }"
-    end
-
-
     def install_get_confidential_data client_ip, server_ip
-      ConfidentialDataClient.new( @debug_options ).install client_ip, server_ip, confidential_data_command
+      ConfidentialDataClient.new( @debug_options ).install client_ip, server_ip
     end
 
 
@@ -131,16 +113,6 @@ class Configurator
 
     def update_commands client_ip, server_ip, repository
       @scm.update_commands_for REPOSITORY, server_ip, repository
-    end
-
-
-    def bin_directory_exists? ip
-      begin
-        @ssh.sh ip, "test -d #{ bin_directory }"
-        true
-      rescue
-        false
-      end
     end
 
 
