@@ -9,7 +9,7 @@ end
 
 
 Given /^a confidential data server started with the encrypted file$/ do
-  @confidential_data_server = ConfidentialDataServer.new( @encrypted.path, @password, :verbose => true, :dry_run => true )
+  @confidential_data_server = ConfidentialDataServer.new( @encrypted.path, @password, { :verbose => true, :dry_run => true } )
   @confidential_data_server.start
 end
 

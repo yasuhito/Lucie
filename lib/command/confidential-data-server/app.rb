@@ -3,7 +3,7 @@ require "confidential-data-server"
 
 
 module Command
-  module SecretServer
+  module ConfidentialDataServer
     class App < Command::App
       def initialize argv = ARGV, debug_options = {}
         super argv, debug_options
@@ -11,7 +11,7 @@ module Command
 
 
       def main
-        ::ConfidentialDataServer.new( @options.secret, password, debug_options ).start
+        ::ConfidentialDataServer.new( @options.encrypted_file, password, debug_options.merge( :port => @options.port ) ).start
       end
 
 

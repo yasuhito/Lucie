@@ -4,11 +4,11 @@
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../lib/" ) )
 
 
-require "command/secret-server"
+require "command/confidential-data-server"
 
 
 begin
-  app = Command::SecretServer::App.new
+  app = Command::ConfidentialDataServer::App.new
   app.main
 rescue Interrupt
   $stderr.puts "Interrupted"

@@ -2,15 +2,22 @@ require "command/option"
 
 
 module Command
-  module SecretServer
+  module ConfidentialDataServer
     class Options < Command::Option
-      usage "./script/secret-server --secret <FILE> [OPTIONS ...]"
+      usage "./script/confidential-data-server --encrypted-file <FILE> [OPTIONS ...]"
 
-      add_option( :long_option => "--secret",
-                  :short_option => "-X",
+      add_option( :long_option => "--encrypted-file",
+                  :short_option => "-e",
                   :argument => "[FILE]",
                   :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.).",
                   :mandatory => true )
+
+      separator
+
+      add_option( :long_option => "--port",
+                  :short_option => "-p",
+                  :argument => "[NUM]",
+                  :description => "Specify the port on which the server listens for connections (default #{ ::ConfidentialDataServer::PORT })" )
 
       separator
 
