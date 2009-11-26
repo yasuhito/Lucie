@@ -13,7 +13,7 @@ end
 
 When /^I connect to the confidential data server$/ do
   @socket = StringIO.new( "" )
-  @secret_server.__send__ :connected, @socket
+  @secret_server.__send__ :reply_to, @socket
 end
 
 

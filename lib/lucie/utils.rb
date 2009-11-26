@@ -48,6 +48,16 @@ module Lucie
     end
 
 
+    def tempfile body
+      tmp = Tempfile.new( "lucie" )
+      tmp.print body
+      tmp.flush
+      yield tmp if block_given?
+      tmp.close
+      tmp
+    end
+
+
     ############################################################################
     private
     module_function
@@ -75,15 +85,6 @@ module Lucie
         run "#{ sudo_cmd }cp #{ tmp.path } #{ path }", :verbose => false, :dry_run => false
         run "#{ sudo_cmd }chmod 644 #{ path }", :verbose => false, :dry_run => false
       end
-    end
-
-
-    def tempfile body
-      tmp = Tempfile.new( "lucie" )
-      tmp.print body
-      tmp.flush
-      yield tmp
-      tmp.close
     end
   end
 end
