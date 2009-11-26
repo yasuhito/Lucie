@@ -6,14 +6,14 @@ Given /^confidential data server holds confidential data "([^\"]*)"$/ do | data 
   raw.flush
   system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ encrypted.path }"
   encrypted.flush
-  @secret_server = ConfidentialDataServer.new( encrypted.path, @password, :verbose => true, :dry_run => true )
-  @secret_server.start
+  @confidential_data_server = ConfidentialDataServer.new( encrypted.path, @password, :verbose => true, :dry_run => true )
+  @confidential_data_server.start
 end
 
 
 When /^I connect to the confidential data server$/ do
   @socket = StringIO.new( "" )
-  @secret_server.__send__ :reply_to, @socket
+  @confidential_data_server.__send__ :reply_to, @socket
 end
 
 

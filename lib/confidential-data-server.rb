@@ -1,6 +1,7 @@
 require "lucie/debug"
 require "lucie/utils"
 require "socket"
+require "sub-process"
 require "tempfile"
 
 
@@ -52,7 +53,7 @@ class ConfidentialDataServer
 
 
   def decrypt path, password
-    decrypted = `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ tempfile( IO.read( path ) ).path }`
+    decrypted = `openssl enc -pass pass:'#{ password }' -d -aes256 < #{ tempfile( IO.read( path ) ).path } 2>/dev/null`
     raise "Failed to decrypt #{ path }." if $?.to_i != 0
     decrypted
   end
