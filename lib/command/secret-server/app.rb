@@ -1,5 +1,5 @@
 require "command/app"
-require "secret-server"
+require "confidential-data-server"
 
 
 module Command
@@ -11,7 +11,7 @@ module Command
 
 
       def main
-        ::SecretServer.new( @options.secret, password, debug_options ).start
+        ::ConfidentialDataServer.new( @options.secret, password, debug_options ).start
       end
 
 

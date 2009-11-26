@@ -3,7 +3,7 @@ require "socket"
 require "tempfile"
 
 
-class SecretServer
+class ConfidentialDataServer
   include Lucie::Debug
 
 
@@ -16,7 +16,7 @@ class SecretServer
   def start
     return if @debug_options[ :dry_run ]
     @server = TCPServer.open( "localhost", port )
-    debug "Secret server started on port = #{ port }"
+    debug "Confidential data server started on port = #{ port }"
     main_loop
   end
 
@@ -54,7 +54,7 @@ class SecretServer
 
 
   def new_temp_file contents
-    temp = Tempfile.new( "secret-server" )
+    temp = Tempfile.new( "confidential-data-server" )
     temp.print contents
     temp.flush
   end

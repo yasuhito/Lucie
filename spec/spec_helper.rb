@@ -5,11 +5,11 @@ $: << File.join( File.dirname( __FILE__ ), "/../vendor/ruby-ifconfig-1.2/lib" )
 require "rubygems"
 require "spec"
 
+require "confidential-data-server"
 require "configuration-updator"
 require "configurator"
 require "debootstrap"
 require "lucie/server"
-require "secret-server"
 require "service"
 require "super-reboot"
 require "tempfile"

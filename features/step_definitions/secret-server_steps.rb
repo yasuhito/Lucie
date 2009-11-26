@@ -1,4 +1,4 @@
-Given /^secret server holds confidential data "([^\"]*)"$/ do | data |
+Given /^confidential data server holds confidential data "([^\"]*)"$/ do | data |
   @password = "password"
   encrypted = Tempfile.new( "secret-server" )
   raw = Tempfile.new( "secret-server" )
@@ -6,18 +6,18 @@ Given /^secret server holds confidential data "([^\"]*)"$/ do | data |
   raw.flush
   system "openssl enc -pass pass:password -e -aes256 < #{ raw.path } > #{ encrypted.path }"
   encrypted.flush
-  @secret_server = SecretServer.new( encrypted.path, @password, :verbose => true, :dry_run => true )
+  @secret_server = ConfidentialDataServer.new( encrypted.path, @password, :verbose => true, :dry_run => true )
   @secret_server.start
 end
 
 
-When /^I connect to secret server$/ do
+When /^I connect to the confidential data server$/ do
   @socket = StringIO.new( "" )
   @secret_server.__send__ :connected, @socket
 end
 
 
-Then /^I get "([^\"]*)" from secret server$/ do | decrypted |
+Then /^I get "([^\"]*)" from the confidential data server$/ do | decrypted |
   @socket.string.chomp.should == decrypted
 end
 

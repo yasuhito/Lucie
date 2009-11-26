@@ -12,10 +12,10 @@ $LOAD_PATH.unshift File.join( File.dirname( __FILE__ ), "/../../lib" )
 require "command/node-install"
 require "command/node-install-multi"
 require "command/node-update"
+require "confidential-data-server"
 require "configuration-updator"
 require "configurator"
 require "lucie"
-require "secret-server"
 
 
 ################################################################################

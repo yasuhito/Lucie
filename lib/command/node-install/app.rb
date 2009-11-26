@@ -1,7 +1,7 @@
 require "command/app"
+require "confidential-data-server"
 require "node"
 require "nodes"
-require "secret-server"
 
 
 module Command
