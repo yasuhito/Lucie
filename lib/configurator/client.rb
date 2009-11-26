@@ -102,7 +102,7 @@ class Configurator
 
 
     def install_get_confidential_data client_ip, server_ip
-      ConfidentialDataClient.new( @debug_options ).install client_ip, server_ip
+      ConfidentialDataClient.new( client_ip, server_ip, @debug_options ).install
     end
 
 

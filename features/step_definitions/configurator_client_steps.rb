@@ -47,11 +47,6 @@ Given /^config ディレクトリが Lucie クライアント上に存在しな�
 end
 
 
-Given /^bin ディレクトリが Lucie クライアント上に存在しない$/ do
-  @configurator.ssh = DummySSH.new( false, options )
-end
-
-
 Given /^設定リポジトリがクライアント \(IP アドレスは "([^\"]*)"\) 上にすでに存在$/ do | ip |
   @ip = ip
   @messenger = StringIO.new
@@ -79,11 +74,6 @@ end
 
 Then /^config ディレクトリが Lucie クライアント上に生成される$/ do
   @messenger.string.should match( /ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/config"/ )
-end
-
-
-Then /^bin ディレクトリが Lucie クライアント上に生成される$/ do
-  @messenger.string.should match( /ssh .+ root@#{ regexp_from( @ip ) } "mkdir \-p \/var\/lib\/lucie\/bin"/ )
 end
 
 
