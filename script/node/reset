@@ -19,7 +19,8 @@ begin
   app = Command::NodeReset::App.new
   app.main
 rescue => e
-  Lucie::Script.handle_exception app, e
+  Lucie::Script.handle_exception e, app ? app.options.verbose : nil
+  exit -1
 ensure
   Blocker.release
 end

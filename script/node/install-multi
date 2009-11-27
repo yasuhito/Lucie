@@ -27,7 +27,8 @@ begin
   app.usage_and_exit if target_nodes.empty?
   app.main target_nodes
 rescue => e
-  Lucie::Script.handle_exception app, e
+  Lucie::Script.handle_exception e, app ? app.options.verbose : nil
+  exit -1
 ensure
   Blocker.release
 end

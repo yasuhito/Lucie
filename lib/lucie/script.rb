@@ -1,13 +1,12 @@
 module Lucie
   module Script
-    def self.handle_exception app, e
-      $stderr.puts "ERROR: " + e.message
-      if app and app.options.verbose
-        e.backtrace.each do | each |
+    def self.handle_exception exception, verbose
+      $stderr.puts "ERROR: " + exception.message
+      if verbose
+        exception.backtrace.each do | each |
           $stderr.puts each
         end
       end
-      exit -1
     end
   end
 end
