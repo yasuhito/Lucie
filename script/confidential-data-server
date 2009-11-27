@@ -15,7 +15,7 @@ rescue Interrupt
   $stderr.puts "Interrupted"
   exit 0
 rescue => e
-  Lucie::Script.handle_exception e, app ? app.options.verbose : nil
+  Lucie::Script.handle_exception e, app
   exit -1
 end
 
