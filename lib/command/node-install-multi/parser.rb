@@ -33,7 +33,7 @@ module Command
 
 
       def merge_with_global_options option
-        option.suite ||= @global_options.suite
+        option.suite ||= @global_options.suite || "stable"
         option.storage_conf ||= @global_options.storage_conf
         option.linux_image ||= @global_options.linux_image
         option.netmask ||= @global_options.netmask

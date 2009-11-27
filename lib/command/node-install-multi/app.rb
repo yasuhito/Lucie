@@ -50,7 +50,15 @@ module Command
 
       def start_installer_for node, logger
         server_clone_directory = @options.ldb_repository ? Configurator::Server.clone_directory( @options.ldb_repository ) : nil
-        @installer.start node, @node_options[ node.name ].suite || "stable", @node_options[ node.name ].linux_image, @node_options[ node.name ].storage_conf, server_clone_directory, logger, @html_logger, debug_options, @messenger
+        @installer.start( node,
+                          @node_options[ node.name ].suite,
+                          @node_options[ node.name ].linux_image,
+                          @node_options[ node.name ].storage_conf,
+                          server_clone_directory,
+                          logger,
+                          @html_logger,
+                          debug_options,
+                          @messenger )
       end
 
 
@@ -63,15 +71,9 @@ module Command
 
 
       def node_options name
-        { :netmask_address => @node_options[ name ].netmask, :mac_address => @node_options[ name ].mac, :ip_address => ip_address( name ) }
-      end
-
-
-      def ip_address name
-        node = Nodes.find( name )
-        return node.ip_address if node
-        return @node_options[ name ].ip_address if @node_options[ name ].ip_address
-        nil
+        { :netmask_address => @node_options[ name ].netmask,
+          :mac_address => @node_options[ name ].mac,
+          :ip_address => @node_options[ name ].ip_address }
       end
 
 
