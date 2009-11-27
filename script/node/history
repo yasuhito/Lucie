@@ -6,8 +6,8 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" )
 
 require "command/node-history"
 require "configuration"
-require "lucie"
 require "lucie/log"
+require "lucie/script"
 
 
 Lucie::Log.path = File.join( Configuration.log_directory, "node-history.log" )
@@ -25,12 +25,7 @@ begin
   app.usage_and_exit if target_node.empty?
   app.main target_node
 rescue => e
-  $stderr.puts "ERROR: " + e.message
-  if app and app.options.verbose
-    e.backtrace.each do | each |
-      $stderr.puts each
-    end
-  end
+  Lucie::Script.handle_exception e, app
   exit -1
 end
 

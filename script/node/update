@@ -5,7 +5,7 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" )
 
 
 require "blocker"
-require "lucie"
+require "lucie/script"
 require "command/node-update"
 
 
@@ -28,12 +28,7 @@ begin
   app.usage_and_exit if target_nodes.empty?
   app.main target_nodes
 rescue => e
-  $stderr.puts "ERROR: " + e.message
-  if app and app.options.verbose
-    e.backtrace.each do | each |
-      $stderr.puts each
-    end
-  end
+  Lucie::Script.handle_exception e, app
   exit -1
 ensure
   Blocker.release
