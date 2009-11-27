@@ -9,25 +9,18 @@ require "command/node-install-multi"
 require "lucie/script"
 
 
-def target_nodes
-  nodes = {}
-  ARGV.each do | each |
-    next if /\A\-/=~ each
-    next if /\A\S+\Z/=~ each
-    options = each.split( /\s+/ )
-    nodes[ options.first ] = options[ 1..-1 ]
-  end
-  nodes
+def node_options
+  Command::NodeInstallMulti::Parser.new( ARGV ).parse
 end
 
 
 begin
   Blocker.block
   app = Command::NodeInstallMulti::App.new
-  app.usage_and_exit if target_nodes.empty?
-  app.main target_nodes
-rescue => e
-  Lucie::Script.handle_exception e, app
+  app.usage_and_exit if node_options.empty?
+  app.main node_options
+rescue => exception
+  Lucie::Script.handle_exception exception, app
   exit -1
 ensure
   Blocker.release

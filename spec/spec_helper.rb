@@ -5,6 +5,7 @@ $: << File.join( File.dirname( __FILE__ ), "/../vendor/ruby-ifconfig-1.2/lib" )
 require "rubygems"
 require "spec"
 
+require "command/node-install-multi/parser"
 require "confidential-data-server"
 require "configuration-updator"
 require "configurator"

@@ -1,6 +1,7 @@
 require "command/node-install-multi/app"
-require "command/node-install/options"
 require "command/node-install-multi/options"
+require "command/node-install-multi/parser"
+require "command/node-install/options"
 
 
 ### Local variables:
