@@ -41,14 +41,6 @@ Cucumber::Rake::Task.new do | t |
 end
 
 
-Cucumber::Rake::Task.new( "cucumber:cruise", "Run Features with Cucumber (cc.rb)" ) do | t |
-  rm_f rcov_dat
-  t.cucumber_opts = "--format profile"
-  t.rcov = true
-  t.rcov_opts = rcov_opts
-end
-
-
 # RSpec Tasks ##################################################################
 
 COVERAGE_THRESHOLD = 93.4
@@ -78,7 +70,7 @@ RCov::VerifyTask.new do | t |
 end
 
 
-task :verify_rcov_cruise => [ "spec:cruise", "cucumber:cruise" ]
+task :verify_rcov_cruise => [ "spec:cruise", "cucumber" ]
 RCov::VerifyTask.new( :verify_rcov_cruise ) do | t |
   t.threshold = COVERAGE_THRESHOLD
 end
