@@ -51,7 +51,7 @@ end
 
 # RSpec Tasks ##################################################################
 
-COVERAGE_THRESHOLD = 93.3
+COVERAGE_THRESHOLD = 93.4
 
 
 desc "Run specs with RCov"
