@@ -14,9 +14,20 @@ module Command
       end
 
 
-      def main argv
+      def main
+        prepare_installation
+        install
+      end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
+
+
+      def prepare_installation
         begin
-          parse argv
+          parse
           generate_ssh_keypair
           update_sudo_timestamp
           start_main_logger
@@ -29,6 +40,19 @@ module Command
           start_super_reboot
           setup_ssh
           setup_first_stage
+        rescue
+          Nodes.load_all.each do | each |
+            if each.status.nil? or each.status.incomplete?
+              @html_logger.update_status( each, "failed" ) if @html_logger
+            end
+          end
+          raise $!
+        end
+      end
+
+
+      def install
+        begin
           install_parallel
         rescue
           @tp.killall
@@ -40,11 +64,6 @@ module Command
           raise $!
         end
       end
-
-
-      ##########################################################################
-      private
-      ##########################################################################
 
 
       def start_installer_for node, logger
@@ -76,8 +95,8 @@ module Command
       end
 
 
-      def parse argv
-        @node_options = Command::NodeInstallMulti::Parser.new( argv, @options ).parse
+      def parse
+        @node_options = Command::NodeInstallMulti::Parser.new( @argv, @options ).parse
       end
     end
   end

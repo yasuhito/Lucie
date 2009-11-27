@@ -8,7 +8,7 @@ When /^I try to run 'node install\-multi', with option "([^\"]*)", and nodes "([
   @messenger = StringIO.new
   begin
     debug_options = { :messenger => @messenger, :nic => [ @if ], :dpkg => SuccessfulDpkg.new }
-    Command::NodeInstallMulti::App.new( options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], debug_options ).main( @node_argv )
+    Command::NodeInstallMulti::App.new( @node_argv + options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], debug_options ).main
   rescue => e
     @error = e
   end
