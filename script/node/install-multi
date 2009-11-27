@@ -9,16 +9,10 @@ require "command/node-install-multi"
 require "lucie/script"
 
 
-def node_options
-  Command::NodeInstallMulti::Parser.new( ARGV ).parse
-end
-
-
 begin
   Blocker.block
   app = Command::NodeInstallMulti::App.new
-  app.usage_and_exit if node_options.empty?
-  app.main node_options
+  app.main ARGV
 rescue => exception
   Lucie::Script.handle_exception exception, app
   exit -1

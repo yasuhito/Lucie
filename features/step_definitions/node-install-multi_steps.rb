@@ -1,6 +1,6 @@
 Given /^install option for node "([^\"]*)" is "([^\"]*)"$/ do | node, options |
-  @node_argv ||= {}
-  @node_argv[ node ] = options.split( /\s+/ )
+  @node_argv ||= []
+  @node_argv << "#{ node } #{ options }"
 end
 
 

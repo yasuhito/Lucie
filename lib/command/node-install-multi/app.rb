@@ -1,4 +1,5 @@
 require "command/app"
+require "command/node-install-multi/parser"
 require "configurator"
 require "node"
 require "nodes"
@@ -13,9 +14,9 @@ module Command
       end
 
 
-      def main node_argv
+      def main argv
         begin
-          parse node_argv
+          parse argv
           generate_ssh_keypair
           update_sudo_timestamp
           start_main_logger
@@ -74,16 +75,8 @@ module Command
       end
 
 
-      def parse node_argv
-        @node_options = {}
-        node_argv.each do | name, argv |
-          @node_options[ name ] = Command::NodeInstall::Options.new.parse( argv )
-          @node_options[ name ].suite ||= @options.suite
-          @node_options[ name ].storage_conf ||= @options.storage_conf
-          @node_options[ name ].linux_image ||= @options.linux_image
-          @node_options[ name ].netmask ||= @options.netmask
-          @node_options[ name ].check_mandatory_options
-        end
+      def parse argv
+        @node_options = Command::NodeInstallMulti::Parser.new( argv, @options ).parse
       end
     end
   end
