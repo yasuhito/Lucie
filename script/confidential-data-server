@@ -14,8 +14,8 @@ begin
 rescue Interrupt
   $stderr.puts "Interrupted"
   exit 0
-rescue => e
-  Lucie::Script.handle_exception e, app
+rescue => exception
+  Lucie::Script.handle_exception exception, app
   exit -1
 end
 
