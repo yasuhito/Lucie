@@ -11,13 +11,13 @@ When /^I try to run 'node install\-multi' with global option "([^\"]*)"$/ do | g
 end
 
 
-Then /^node "([^\"]*)" installed$/ do | node |
-  history.should include( "Node '#{ node }' installed." )
+Then /^node "([^\"]*)" installed using storage conf "([^\"]*)"$/ do | node, storage_conf |
+  history.should include( "node #{ node } is going to be installed using #{ storage_conf }" )
 end
 
 
-Then /^node "([^\"]*)" installed using storage conf "([^\"]*)"$/ do | node, storage_conf |
-  history.should include( "node #{ node } is going to be installed using #{ storage_conf }" )
+Then /^node "([^\"]*)" installed$/ do | node |
+  history.should include( "Node '#{ node }' installed." )
 end
 
 

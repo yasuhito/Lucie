@@ -9,15 +9,14 @@ require "command/node-install-multi"
 require "lucie/script"
 
 
-begin
-  Blocker.block
-  app = Command::NodeInstallMulti::App.new
-  app.main
-rescue => exception
-  Lucie::Script.handle_exception exception, app
-  exit -1
-ensure
-  Blocker.release
+Blocker.start do
+  begin
+    app = Command::NodeInstallMulti::App.new
+    app.main
+  rescue => exception
+    Lucie::Script.handle_exception exception, app
+    exit -1
+  end
 end
 
 
