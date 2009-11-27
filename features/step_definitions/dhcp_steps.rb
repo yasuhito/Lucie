@@ -1,6 +1,6 @@
 When /^I try to setup dhcpd$/ do
   @messenger = StringIO.new( "" )
-  dhcp_service = Service::Dhcp.new( { :verbose => true, :dry_run => true }, @messenger )
+  dhcp_service = Service::Dhcp.new( :verbose => true, :dry_run => true, :messenger => @messenger )
   begin
     dhcp_service.setup Nodes.load_all, [ @if ]
   rescue => e

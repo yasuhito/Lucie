@@ -1,6 +1,6 @@
 When /^I try to setup first stage environment for node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
-  first_stage = Environment::FirstStage.new( { :verbose => true, :dry_run => true }, @messenger )
+  first_stage = Environment::FirstStage.new( :verbose => true, :dry_run => true, :messenger => @messenger )
   first_stage.start [ Nodes.find( name ) ], Installer.new, Tempfile.new( "inetd.conf" ).path, [ @if ]
 end
 

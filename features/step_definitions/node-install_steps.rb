@@ -28,11 +28,6 @@ When /^I run node install "([^\"]*)"$/ do | node |
 end
 
 
-Then /^node "([^\"]*)" installed$/ do | node |
-  history.should include( "Node '#{ node }' installed." )
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8

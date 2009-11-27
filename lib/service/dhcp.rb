@@ -32,7 +32,7 @@ class Service
 
 
     def write_config nodes, interfaces
-      write_file @@config, dhcpd_conf( nodes, interfaces ), @options.merge( :sudo => true ), @messenger
+      write_file @@config, dhcpd_conf( nodes, interfaces ), @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
     end
 
 

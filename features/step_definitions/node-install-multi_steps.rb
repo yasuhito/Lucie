@@ -4,26 +4,20 @@ Given /^install option for node "([^\"]*)" is "([^\"]*)"$/ do | node, options |
 end
 
 
-When /^I try to run 'node install\-multi', with option "([^\"]*)", and nodes "([^\"]*)"$/ do | options, nodes |
+When /^I try to run 'node install\-multi' with global option "([^\"]*)"$/ do | global_option |
   @messenger = StringIO.new
-  debug_options = { :messenger => @messenger, :nic => [ @if ], :dpkg => SuccessfulDpkg.new }
-  Command::NodeInstallMulti::App.new( @node_argv + options.split( /\s+/ ) + [ "--verbose", "--dry-run" ], debug_options ).main
+  debug_options = { :messenger => @messenger, :verbose => true, :nic => [ @if ], :dpkg => SuccessfulDpkg.new }
+  Command::NodeInstallMulti::App.new( @node_argv + global_option.split( /\s+/ ) + [ "--dry-run" ], debug_options ).main
 end
 
 
-Then /^nodes "([^\"]*)" installed$/ do | nodes |
-  @error.should == nil
-  nodes.split( /,\s*/ ).each do | each |
-    history.should include( "Node '#{ each }' installed." )
-  end
+Then /^node "([^\"]*)" installed$/ do | node |
+  history.should include( "Node '#{ node }' installed." )
 end
 
 
-Then /^nodes "([^\"]*)" installed using storage conf "([^\"]*)"$/ do | nodes, storage_conf |
-  @error.should == nil
-  nodes.split( /,\s*/ ).each do | each |
-    history.should include( "node #{ each } is going to be installed using #{ storage_conf }" )
-  end
+Then /^node "([^\"]*)" installed using storage conf "([^\"]*)"$/ do | node, storage_conf |
+  history.should include( "node #{ node } is going to be installed using #{ storage_conf }" )
 end
 
 

@@ -30,7 +30,8 @@ end
 
 When /^I setup installer$/ do
   @messenger = StringIO.new( "" )
-  installer_service = Service::Installer.new( { :verbose => true, :dry_run => true }, @messenger )
+  @verbose = true
+  installer_service = Service::Installer.new( debug_options )
   installer_service.setup Nodes.load_all, Installers.load_all.first
 end
 

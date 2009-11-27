@@ -3,8 +3,8 @@ require "service"
 
 module Environment
   class SecondStage
-    def initialize options, messenger
-      @tftp_service = Service::Tftp.new( options, messenger )
+    def initialize debug_options
+      @tftp_service = Service::Tftp.new( debug_options )
     end
 
 

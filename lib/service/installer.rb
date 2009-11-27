@@ -10,7 +10,7 @@ class Service
 
     def setup nodes, installer
       info "Setting up installer ..."
-      installer.build server_ip_address_for( nodes ), @options, @messenger
+      installer.build server_ip_address_for( nodes ), @debug_options, @debug_options[ :messenger ]
     end
 
 
@@ -20,7 +20,7 @@ class Service
 
 
     def server_ip_address_for nodes
-      @options[ :dry_run ] ? dummy_ip_address : Lucie::Server.ip_address_for( nodes )
+      @debug_options[ :dry_run ] ? dummy_ip_address : Lucie::Server.ip_address_for( nodes )
     end
 
 

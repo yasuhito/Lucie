@@ -30,7 +30,7 @@ class Service
 
 
     def write_config nodes, installer
-      write_file @@config, exports_config( nodes, installer ), @options.merge( :sudo => true ), @messenger
+      write_file @@config, exports_config( nodes, installer ), @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
     end
 
 

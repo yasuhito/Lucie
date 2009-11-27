@@ -25,7 +25,7 @@ class Service
 
 
     def write_config debian_repository
-      write_file @@config, <<-CONFIG, @options.merge( :sudo => true ), @messenger
+      write_file @@config, <<-CONFIG, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
 debian          #{ debian_repository }
 security        http://security.debian.org/debian-security
 volatile        http://volatile.debian.org/debian-volatile

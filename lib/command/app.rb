@@ -108,9 +108,9 @@ module Command
 
     def setup_first_stage
       if @dry_run and @nic
-        Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
+        Environment::FirstStage.new( debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
       else
-        Environment::FirstStage.new( debug_options, @messenger ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
+        Environment::FirstStage.new( debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
       end
     end
 
@@ -145,7 +145,7 @@ module Command
 
     def run_second_reboot node, logger
       time = StopWatch.time_to_run do
-        Environment::SecondStage.new( debug_options, @messenger ).start( node )
+        Environment::SecondStage.new( debug_options ).start( node )
         unless @dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             @html_logger.proceed_to_next_step node, "Rebooting"

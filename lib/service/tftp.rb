@@ -42,7 +42,7 @@ class Service
 
     def reset_all
       Dir.glob( Tftp.pxe_directory + "/*" ).each do | each |
-        write_file each, pxe_local_boot_config, @options.merge( :sudo => true ), @messenger
+        write_file each, pxe_local_boot_config, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
       end
     end
 
@@ -61,38 +61,38 @@ class Service
 
 
     def setup_pxe kernel
-      run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @options, @messenger
-      run "sudo cp #{ kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @options, @messenger
+      run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @debug_options, @debug_options[ :messenger ]
+      run "sudo cp #{ kernel } #{ File.join( Configuration.tftp_root, installer_kernel ) }", @debug_options, @debug_options[ :messenger ]
     end
 
 
     def reconfigure_tftpd
       unless tftpd_configured?
-        write_file @@config, tftpd_default, @options.merge( :sudo => true ), @messenger
+        write_file @@config, tftpd_default, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
       end
     end
 
 
     def create_pxe_nfsroot_files_for node, installer
       make_pxe_directory
-      write_file pxe_config_file( node.mac_address ), pxe_nfsroot_config( node, installer ), @options.merge( :sudo => true ), @messenger
+      write_file pxe_config_file( node.mac_address ), pxe_nfsroot_config( node, installer ), @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
     end
 
 
     def make_pxe_directory
       unless File.directory?( Tftp.pxe_directory )
-        run "sudo mkdir -p #{ Tftp.pxe_directory }", @options, @messenger
+        run "sudo mkdir -p #{ Tftp.pxe_directory }", @debug_options, @debug_options[ :messenger ]
       end
     end
 
 
     def create_pxe_localboot_files_for node
-      write_file pxe_config_file( node.mac_address ), pxe_local_boot_config, @options.merge( :sudo => true ), @messenger
+      write_file pxe_config_file( node.mac_address ), pxe_local_boot_config, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
     end
 
 
     def remove_pxe_file_of mac
-      run "sudo rm -f #{ pxe_config_file( mac ) }", @options, @messenger
+      run "sudo rm -f #{ pxe_config_file( mac ) }", @debug_options, @debug_options[ :messenger ]
     end
 
 
@@ -201,7 +201,7 @@ EOF
           return true if /^tftp\s+/=~ each
         end
       rescue Errno::ENOENT
-        return false if @options[ :dry_run ]
+        return false if @debug_options[ :dry_run ]
         raise $!
       end
       false
@@ -209,8 +209,8 @@ EOF
 
 
     def disable_inetd_conf
-      run "sudo /usr/sbin/update-inetd --disable tftp", @options, @messenger
-      run "sudo kill -HUP `cat /var/run/inetd.pid`", @options, @messenger
+      run "sudo /usr/sbin/update-inetd --disable tftp", @debug_options, @debug_options[ :messenger ]
+      run "sudo kill -HUP `cat /var/run/inetd.pid`", @debug_options, @debug_options[ :messenger ]
     end
   end
 end

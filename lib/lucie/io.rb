@@ -22,12 +22,17 @@ module Lucie
 
 
     def stdout
-      @messenger || $stdout
+      messenger || $stdout
     end
 
 
     def stderr
-      @messenger || $stderr
+      messenger || $stderr
+    end
+
+
+    def messenger
+      @debug_options ? @debug_options[ :messenger ] : nil
     end
   end
 end

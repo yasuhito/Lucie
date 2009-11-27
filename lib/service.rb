@@ -46,9 +46,8 @@ class Service
   end
 
 
-  def initialize options, messenger
-    @options = options
-    @messenger = messenger
+  def initialize debug_options
+    @debug_options = debug_options
   end
 
 
@@ -62,8 +61,8 @@ class Service
       prerequisites = obj.class.__send__( :class_variable_get, :@@prerequisites )[ obj.class ]
       prerequisites.each do | each |
         script = "/etc/init.d/#{ each }"
-        if @options[ :dry_run ] || FileTest.exists?( script )
-          run "sudo #{ script } restart", @options, @messenger
+        if @debug_options[ :dry_run ] || FileTest.exists?( script )
+          run "sudo #{ script } restart", @debug_options, @debug_options[ :messenger ]
         end
       end
     end
@@ -73,8 +72,8 @@ class Service
   def backup
     instance_eval do | obj |
       config = obj.class.__send__( :class_variable_get, :@@config )
-      if @options[ :dry_run ] || FileTest.exists?( config )
-        run "sudo mv -f #{ config } #{ config }.old", @options, @messenger
+      if @debug_options[ :dry_run ] || FileTest.exists?( config )
+        run "sudo mv -f #{ config } #{ config }.old", @debug_options, @debug_options[ :messenger ]
       end
     end
   end

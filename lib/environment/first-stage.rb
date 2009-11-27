@@ -4,18 +4,17 @@ require "service"
 
 module Environment
   class FirstStage
-    def initialize options, messenger
-      @options = options
-      @messenger = messenger
+    def initialize debug_options
+      @debug_options = debug_options
     end
 
 
     def start nodes, installer, inetd_conf = "/etc/inetd.conf", interfaces = NetworkInterfaces
-      Service::Installer.new( @options, @messenger ).setup nodes, installer
-      Service::Approx.new( @options, @messenger ).setup installer.package_repository
-      Service::Tftp.new( @options, @messenger ).setup_nfsroot nodes, installer, inetd_conf
-      Service::Nfs.new( @options, @messenger ).setup nodes, installer
-      Service::Dhcp.new( @options, @messenger ).setup nodes, interfaces
+      Service::Installer.new( @debug_options ).setup nodes, installer
+      Service::Approx.new( @debug_options ).setup installer.package_repository
+      Service::Tftp.new( @debug_options ).setup_nfsroot nodes, installer, inetd_conf
+      Service::Nfs.new( @debug_options ).setup nodes, installer
+      Service::Dhcp.new( @debug_options ).setup nodes, interfaces
     end
   end
 end

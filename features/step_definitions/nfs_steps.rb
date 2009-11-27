@@ -1,6 +1,6 @@
 When /^I try to setup nfsd for installer "([^\"]*)"$/ do | installer |
   @messenger = StringIO.new( "" )
-  nfs_service = Service::Nfs.new( { :dry_run => true, :verbose => true }, @messenger )
+  nfs_service = Service::Nfs.new( :dry_run => true, :verbose => true, :messenger => @messenger )
   nfs_service.setup Nodes.load_all, Installers.find( installer )
 end
 
