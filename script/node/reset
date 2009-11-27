@@ -7,8 +7,8 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" )
 require "blocker"
 require "command/node-reset"
 require "configuration"
-require "lucie"
 require "lucie/log"
+require "lucie/script"
 
 
 Lucie::Log.path = File.join( Configuration.log_directory, "node-reset.log" )
@@ -19,13 +19,7 @@ begin
   app = Command::NodeReset::App.new
   app.main
 rescue => e
-  $stderr.puts "ERROR: " + e.message
-  if app and app.options.verbose
-    e.backtrace.each do | each |
-      $stderr.puts each
-    end
-  end
-  exit -1
+  Lucie::Script.handle_exception app, e
 ensure
   Blocker.release
 end

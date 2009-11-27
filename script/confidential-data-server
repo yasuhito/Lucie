@@ -5,6 +5,7 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../lib/" ) )
 
 
 require "command/confidential-data-server"
+require "lucie/script"
 
 
 begin
@@ -14,13 +15,7 @@ rescue Interrupt
   $stderr.puts "Interrupted"
   exit 0
 rescue => e
-  $stderr.puts "ERROR: " + e.message
-  if app and app.options.verbose
-    e.backtrace.each do | each |
-      $stderr.puts each
-    end
-  end
-  exit -1
+  Lucie::Script.handle_exception app, e
 end
 
 
