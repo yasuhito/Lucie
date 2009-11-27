@@ -6,7 +6,7 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../../lib/" )
 
 require "blocker"
 require "command/node-install-multi"
-require "lucie"
+require "lucie/script"
 
 
 def target_nodes
@@ -27,13 +27,7 @@ begin
   app.usage_and_exit if target_nodes.empty?
   app.main target_nodes
 rescue => e
-  $stderr.puts "ERROR: " + e.message
-  if app and app.options.verbose
-    e.backtrace.each do | each |
-      $stderr.puts each
-    end
-  end
-  exit -1
+  Lucie::Script.handle_exception app, e
 ensure
   Blocker.release
 end
