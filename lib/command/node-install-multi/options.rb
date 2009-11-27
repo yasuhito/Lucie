@@ -1,3 +1,6 @@
+require "command/option"
+
+
 module Command
   module NodeInstallMulti
     class Options < Command::Option
