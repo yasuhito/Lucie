@@ -11,7 +11,7 @@ module Command
 
 
       def main
-        ::ConfidentialDataServer.new( @options.encrypted_file, password, debug_options.merge( :port => @options.port ) ).start
+        ::ConfidentialDataServer.new( @global_options.encrypted_file, password, debug_options.merge( :port => @global_options.port ) ).start
       end
 
 
