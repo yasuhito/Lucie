@@ -4,6 +4,7 @@ require "environment"
 require "highline"
 require "installer"
 require "installers"
+require "lucie/debug"
 require "lucie/io"
 require "lucie/logger/html"
 require "lucie/server"
@@ -16,6 +17,7 @@ require "thread_pool"
 
 module Command
   class App
+    include Lucie::Debug
     include Lucie::IO
     include Lucie::Utils
 

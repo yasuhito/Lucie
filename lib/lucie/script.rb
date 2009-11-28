@@ -2,7 +2,7 @@ module Lucie
   module Script
     def self.handle_exception exception, app
       $stderr.puts "ERROR: #{ exception.message }"
-      if app && app.options.verbose
+      if app && app.verbose
         exception.backtrace.each do | each |
           $stderr.puts each
         end
