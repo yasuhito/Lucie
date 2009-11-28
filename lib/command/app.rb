@@ -22,11 +22,10 @@ module Command
     include Lucie::Utils
 
 
-    def initialize argv, options
+    def initialize argv, debug_options
       @argv = argv
       @global_options = parse_argv
-      @debug_options = { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }.merge( options )
-      @nic = options[ :nic ]
+      @debug_options = { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }.merge( debug_options )
       @tp = ThreadPool.new
       usage_and_exit if @global_options.help
       @global_options.check_mandatory_options
@@ -104,8 +103,8 @@ module Command
 
 
     def setup_first_stage
-      if @debug_options[ :dry_run ] and @nic
-        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
+      if dry_run and @debug_options[ :nic ]
+        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @debug_options[ :nic ] )
       else
         Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
       end
@@ -114,7 +113,7 @@ module Command
 
     def run_first_reboot node, logger
       time = StopWatch.time_to_run do
-        unless @debug_options[ :dry_run ]
+        unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
               @html_logger.proceed_to_next_step node, "Rebooting"
@@ -143,7 +142,7 @@ module Command
     def run_second_reboot node, logger
       time = StopWatch.time_to_run do
         Environment::SecondStage.new( @debug_options ).start( node )
-        unless @debug_options[ :dry_run ]
+        unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             @html_logger.proceed_to_next_step node, "Rebooting"
             logger.info "Rebooting"
@@ -194,13 +193,13 @@ module Command
 
     def start_main_logger
       Lucie::Log.path = File.join( Configuration.log_directory, "install.log" )
-      Lucie::Log.verbose = @debug_options[ :verbose ]
+      Lucie::Log.verbose = verbose
       Lucie::Log.info "Lucie installer started."
     end
 
 
     def start_html_logger
-      @html_logger = Lucie::Logger::HTML.new( :dry_run => @debug_options[ :dry_run ], :messenger => @debug_options[ :messenger ] )
+      @html_logger = Lucie::Logger::HTML.new( @debug_options )
       install_options = { :suite => @installer.suite, :ldb_repository => @global_options.ldb_repository,
         :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
       @html_logger.start install_options
@@ -229,8 +228,8 @@ module Command
 
 
     def lucie_server_ip_address
-      if @debug_options[ :dry_run ] and @nic
-        @nic.first.ip_address
+      if dry_run and @debug_options[ :nic ]
+        @debug_options[ :nic ].first.ip_address
       else
         Lucie::Server.ip_address_for Nodes.load_all
       end
@@ -247,7 +246,7 @@ module Command
         end
 
         @sspid = fork do
-          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ @debug_options[ :verbose ] ? '--verbose' : '' }"
+          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ verbose ? '--verbose' : '' }"
           exec cmd
         end
 
@@ -281,12 +280,12 @@ module Command
 
 
     def update_sudo_timestamp
-      run %{sudo -v}, @debug_options, @debug_options[ :messenger ]
+      run %{sudo -v}, @debug_options
     end
 
 
     def setup_ssh
-      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options, @debug_options[ :messenger ]
+      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
     end
   end
 end
