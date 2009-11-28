@@ -1,6 +1,7 @@
 require "command/app"
 require "command/node-install-multi/parser"
 require "configurator"
+require "command/installer"
 require "node"
 require "nodes"
 
@@ -8,6 +9,9 @@ require "nodes"
 module Command
   module NodeInstallMulti
     class App < Command::App
+      include Command::Installer
+
+
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
         super argv, @debug_options
@@ -28,7 +32,7 @@ module Command
       def prepare_installation
         begin
           parse
-          generate_ssh_keypair
+          maybe_generate_and_authorize_keypair
           update_sudo_timestamp
           start_main_logger
           check_prerequisites

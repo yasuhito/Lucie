@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require "command/app"
+require "command/installer"
 require "configuration-updator"
 require "lucie/logger/updator"
 require "network"
@@ -10,6 +11,9 @@ require "thread"
 module Command
   module NodeUpdate
     class App < Command::App
+      include Command::Installer
+
+
       # [FIXME] Command::App#initialize の引数を
       #         Command::App#initialize( argv, debug_options ) に修正し、
       #         この initialize メソッドを無くすべし

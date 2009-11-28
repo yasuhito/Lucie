@@ -1,7 +1,6 @@
 require "configuration"
 require "configurator"
 require "environment"
-require "highline"
 require "installer"
 require "installers"
 require "lucie/debug"
@@ -41,11 +40,6 @@ module Command
     ############################################################################
     private
     ############################################################################
-
-
-    def generate_ssh_keypair
-      SSH.new( @debug_options ).maybe_generate_and_authorize_keypair
-    end
 
 
     def install_parallel
@@ -100,15 +94,6 @@ module Command
 
 
     # First and Second Stage ###################################################
-
-
-    def setup_first_stage
-      if dry_run and @debug_options[ :nic ]
-        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @debug_options[ :nic ] )
-      else
-        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
-      end
-    end
 
 
     def run_first_reboot node, logger
@@ -167,44 +152,12 @@ module Command
     # Configurator #############################################################
 
 
-    def setup_ldb
-      return unless @global_options.ldb_repository
-      @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
-      if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
-        @configurator.update_server @global_options.ldb_repository
-      else
-        @configurator.clone_to_server @global_options.ldb_repository, lucie_server_ip_address
-      end
-    end
-
-
     def start_ldb node, logger
       @html_logger.proceed_to_next_step node, "Starting LDB ..."
       logger.info "Starting LDB ..."
       if @global_options.ldb_repository
         @configurator.clone_to_client @global_options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
-      end
-    end
-
-
-    # Logging ##################################################################
-
-
-    def start_main_logger
-      Lucie::Log.path = File.join( Configuration.log_directory, "install.log" )
-      Lucie::Log.verbose = verbose
-      Lucie::Log.info "Lucie installer started."
-    end
-
-
-    def start_html_logger
-      @html_logger = Lucie::Logger::HTML.new( :dry_run => dry_run, :messenger => messenger )
-      install_options = { :suite => @installer.suite, :ldb_repository => @global_options.ldb_repository,
-        :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
-      @html_logger.start install_options
-      Nodes.load_all.each do | each |
-        @html_logger.update_status each, "started"
       end
     end
 
@@ -233,59 +186,6 @@ module Command
       else
         Lucie::Server.ip_address_for Nodes.load_all
       end
-    end
-
-
-    def start_secret_server
-      if @global_options.secret
-        unless ENV[ "LUCIE_PASSWORD" ]
-          IO.read @global_options.secret
-          ENV[ "LUCIE_PASSWORD" ] = HighLine.new.ask( "Please enter password to decrypt #{ @global_options.secret }:" ) do | q |
-            q.echo = "*"
-          end
-        end
-
-        @sspid = fork do
-          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ verbose ? '--verbose' : '' }"
-          exec cmd
-        end
-
-        t = Thread.new( @sspid ) do | pid |
-          Process.waitpid pid
-          Thread.main.raise "Secret server exitted abnormally"
-        end
-        t.priority = -10
-      end
-    end
-
-
-    def create_installer
-      @installer = Installer.new
-      @installer.http_proxy = @global_options.http_proxy if @global_options.http_proxy
-      @installer.package_repository = @global_options.package_repository if @global_options.package_repository
-      @installer.suite = @global_options.suite if @global_options.suite
-      @installer.installer_linux_image = @global_options.installer_linux_image if @global_options.installer_linux_image
-      Installers.add @installer, @debug_options, @debug_options[ :messenger ]
-    end
-
-
-    def start_super_reboot
-      @super_reboot = SuperReboot.new( @debug_options )
-    end
-
-
-    def check_prerequisites
-      Service.check_prerequisites @debug_options
-    end
-
-
-    def update_sudo_timestamp
-      run %{sudo -v}, @debug_options
-    end
-
-
-    def setup_ssh
-      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
     end
   end
 end
