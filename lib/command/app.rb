@@ -20,24 +20,19 @@ module Command
     include Lucie::Utils
 
 
-    attr_reader :options
-
-
     def initialize argv, options
       @argv = argv
-      @options = parse_argv
-      @dry_run = @options.dry_run
-      @verbose = @options.verbose
-      @messenger = options[ :messenger ]
+      @global_options = parse_argv
+      @debug_options = { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }.merge( options )
       @nic = options[ :nic ]
       @tp = ThreadPool.new
-      usage_and_exit if @options.help
-      @options.check_mandatory_options
+      usage_and_exit if @global_options.help
+      @global_options.check_mandatory_options
     end
 
 
     def usage_and_exit
-      print @options.usage
+      print @global_options.usage
       exit 0
     end
 
@@ -48,7 +43,7 @@ module Command
 
 
     def generate_ssh_keypair
-      SSH.new( debug_options ).maybe_generate_and_authorize_keypair
+      SSH.new( @debug_options ).maybe_generate_and_authorize_keypair
     end
 
 
@@ -57,9 +52,9 @@ module Command
         Nodes.load_all.collect do | each |
           @tp.dispatch( each ) do | each |
             sleep 1
-            log_directory = Lucie::Logger::Installer.new_log_directory( each, debug_options, @messenger )
-            logger = Lucie::Logger::Installer.new( log_directory, debug_options )
-            each.status = Status::Installer.new( log_directory, debug_options, @messenger )
+            log_directory = Lucie::Logger::Installer.new_log_directory( each, @debug_options, @debug_options[ :messenger ] )
+            logger = Lucie::Logger::Installer.new( log_directory, @debug_options )
+            each.status = Status::Installer.new( log_directory, @debug_options, @debug_options[ :messenger ] )
             start_installer each, logger
           end
         end
@@ -93,7 +88,7 @@ module Command
         $stderr.puts e.message
         logger.error e.message
         @html_logger.update_status node, "failed (#{ e.message })"
-        if @options.verbose
+        if @global_options.verbose
           e.backtrace.each do | each |
             $stderr.puts each
             logger.debug each
@@ -107,17 +102,17 @@ module Command
 
 
     def setup_first_stage
-      if @dry_run and @nic
-        Environment::FirstStage.new( debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
+      if @debug_options[ :dry_run ] and @nic
+        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @nic )
       else
-        Environment::FirstStage.new( debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
+        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
       end
     end
 
 
     def run_first_reboot node, logger
       time = StopWatch.time_to_run do
-        unless @dry_run
+        unless @debug_options[ :dry_run ]
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
               @html_logger.proceed_to_next_step node, "Rebooting"
@@ -145,8 +140,8 @@ module Command
 
     def run_second_reboot node, logger
       time = StopWatch.time_to_run do
-        Environment::SecondStage.new( debug_options ).start( node )
-        unless @dry_run
+        Environment::SecondStage.new( @debug_options ).start( node )
+        unless @debug_options[ :dry_run ]
           File.open( "/var/log/syslog", "r" ) do | syslog |
             @html_logger.proceed_to_next_step node, "Rebooting"
             logger.info "Rebooting"
@@ -172,12 +167,12 @@ module Command
 
 
     def setup_ldb
-      return unless @options.ldb_repository
-      @configurator = Configurator.new( @options.source_control || "Mercurial", debug_options )
-      if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
-        @configurator.update_server @options.ldb_repository
+      return unless @global_options.ldb_repository
+      @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
+      if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
+        @configurator.update_server @global_options.ldb_repository
       else
-        @configurator.clone_to_server @options.ldb_repository, lucie_server_ip_address
+        @configurator.clone_to_server @global_options.ldb_repository, lucie_server_ip_address
       end
     end
 
@@ -185,8 +180,8 @@ module Command
     def start_ldb node, logger
       @html_logger.proceed_to_next_step node, "Starting LDB ..."
       logger.info "Starting LDB ..."
-      if @options.ldb_repository
-        @configurator.clone_to_client @options.ldb_repository, node, lucie_server_ip_address, logger
+      if @global_options.ldb_repository
+        @configurator.clone_to_client @global_options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
       end
     end
@@ -197,14 +192,14 @@ module Command
 
     def start_main_logger
       Lucie::Log.path = File.join( Configuration.log_directory, "install.log" )
-      Lucie::Log.verbose = @verbose
+      Lucie::Log.verbose = @debug_options[ :verbose ]
       Lucie::Log.info "Lucie installer started."
     end
 
 
     def start_html_logger
-      @html_logger = Lucie::Logger::HTML.new( :dry_run => @dry_run, :messenger => @messenger )
-      install_options = { :suite => @installer.suite, :ldb_repository => @options.ldb_repository,
+      @html_logger = Lucie::Logger::HTML.new( :dry_run => @debug_options[ :dry_run ], :messenger => @debug_options[ :messenger ] )
+      install_options = { :suite => @installer.suite, :ldb_repository => @global_options.ldb_repository,
         :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
       @html_logger.start install_options
       Nodes.load_all.each do | each |
@@ -228,17 +223,11 @@ module Command
     end
 
 
-    def debug_options
-      { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }.merge( @debug_options || {} )
-    end
-    alias argv_options debug_options
-
-
     # Misc. ####################################################################
 
 
     def lucie_server_ip_address
-      if @dry_run and @nic
+      if @debug_options[ :dry_run ] and @nic
         @nic.first.ip_address
       else
         Lucie::Server.ip_address_for Nodes.load_all
@@ -247,16 +236,16 @@ module Command
 
 
     def start_secret_server
-      if @options.secret
+      if @global_options.secret
         unless ENV[ "LUCIE_PASSWORD" ]
-          IO.read @options.secret
-          ENV[ "LUCIE_PASSWORD" ] = HighLine.new.ask( "Please enter password to decrypt #{ @options.secret }:" ) do | q |
+          IO.read @global_options.secret
+          ENV[ "LUCIE_PASSWORD" ] = HighLine.new.ask( "Please enter password to decrypt #{ @global_options.secret }:" ) do | q |
             q.echo = "*"
           end
         end
 
         @sspid = fork do
-          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @options.secret } #{ @verbose ? '--verbose' : '' }"
+          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ @debug_options[ :verbose ] ? '--verbose' : '' }"
           exec cmd
         end
 
@@ -271,31 +260,31 @@ module Command
 
     def create_installer
       @installer = Installer.new
-      @installer.http_proxy = @options.http_proxy if @options.http_proxy
-      @installer.package_repository = @options.package_repository if @options.package_repository
-      @installer.suite = @options.suite if @options.suite
-      @installer.installer_linux_image = @options.installer_linux_image if @options.installer_linux_image
-      Installers.add @installer, debug_options, @messenger
+      @installer.http_proxy = @global_options.http_proxy if @global_options.http_proxy
+      @installer.package_repository = @global_options.package_repository if @global_options.package_repository
+      @installer.suite = @global_options.suite if @global_options.suite
+      @installer.installer_linux_image = @global_options.installer_linux_image if @global_options.installer_linux_image
+      Installers.add @installer, @debug_options, @debug_options[ :messenger ]
     end
 
 
     def start_super_reboot
-      @super_reboot = SuperReboot.new( debug_options )
+      @super_reboot = SuperReboot.new( @debug_options )
     end
 
 
     def check_prerequisites
-      Service.check_prerequisites debug_options
+      Service.check_prerequisites @debug_options
     end
 
 
     def update_sudo_timestamp
-      run %{sudo -v}, debug_options, @messenger
+      run %{sudo -v}, @debug_options, @debug_options[ :messenger ]
     end
 
 
     def setup_ssh
-      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, debug_options, @messenger
+      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options, @debug_options[ :messenger ]
     end
   end
 end

@@ -67,7 +67,7 @@ module Command
 
 
       def start_installer_for node, logger
-        server_clone_directory = @options.ldb_repository ? Configurator::Server.clone_directory( @options.ldb_repository ) : nil
+        server_clone_directory = @global_options.ldb_repository ? Configurator::Server.clone_directory( @global_options.ldb_repository ) : nil
         @installer.start( node,
                           @node_options[ node.name ].suite,
                           @node_options[ node.name ].linux_image,
@@ -76,14 +76,14 @@ module Command
                           logger,
                           @html_logger,
                           debug_options,
-                          @messenger )
+                          @debug_options[ :messenger ] )
       end
 
 
       def create_nodes
         @node_options.keys.each do | each |
           node = Node.new( each, node_options( each ) )
-          Nodes.add node, debug_options, @messenger
+          Nodes.add node, debug_options, @debug_options[ :messenger ]
         end
       end
 
@@ -96,7 +96,7 @@ module Command
 
 
       def parse
-        @node_options = Command::NodeInstallMulti::Parser.new( @argv, @options ).parse
+        @node_options = Command::NodeInstallMulti::Parser.new( @argv, @global_options ).parse
       end
     end
   end

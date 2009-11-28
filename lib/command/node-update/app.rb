@@ -22,22 +22,22 @@ module Command
       def main node_names
         start_secret_server
         nodes = nodes_from( node_names )
-        if @options.ldb_repository
-          @configurator = Configurator.new( @options.source_control || "Mercurial", debug_options )
-          if FileTest.directory?( Configurator::Server.clone_directory( @options.ldb_repository ) )
-            @configurator.update_server @options.ldb_repository
+        if @global_options.ldb_repository
+          @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
+          if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
+            @configurator.update_server @global_options.ldb_repository
           else
-            @configurator.clone_to_server @options.ldb_repository, Lucie::Server.ip_address_for( nodes )
+            @configurator.clone_to_server @global_options.ldb_repository, Lucie::Server.ip_address_for( nodes )
           end
           nodes.collect do | each |
             Thread.start( each, Lucie::Server.ip_address_for( nodes ) ) do | node, lucie_ip |
-              @configurator.clone_to_client @options.ldb_repository, node, lucie_ip
+              @configurator.clone_to_client @global_options.ldb_repository, node, lucie_ip
             end
           end.each do | each |
             each.join
           end
         end
-        @updator = ConfigurationUpdator.new( argv_options )
+        @updator = ConfigurationUpdator.new( @debug_options )
         update nodes
       end
 
@@ -73,8 +73,8 @@ module Command
 
 
       def node_from name
-        opts = { :ip_address => Network.resolve( name, argv_options ),
-          :netmask_address => Network.netmask_address( name, argv_options ) }
+        opts = { :ip_address => Network.resolve( name, @debug_options ),
+          :netmask_address => Network.netmask_address( name, @debug_options ) }
         Node.new name, opts
       end
     end
