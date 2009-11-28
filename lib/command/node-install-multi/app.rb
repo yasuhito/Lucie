@@ -75,7 +75,7 @@ module Command
                           server_clone_directory,
                           logger,
                           @html_logger,
-                          debug_options,
+                          @debug_options,
                           @debug_options[ :messenger ] )
       end
 
@@ -83,7 +83,7 @@ module Command
       def create_nodes
         @node_options.keys.each do | each |
           node = Node.new( each, node_options( each ) )
-          Nodes.add node, debug_options, @debug_options[ :messenger ]
+          Nodes.add node, @debug_options, @debug_options[ :messenger ]
         end
       end
 
