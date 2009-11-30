@@ -19,7 +19,7 @@ end
 
 
 def rcov_opts
-  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems,spec/" ]
+  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems" ]
 end
 
 
