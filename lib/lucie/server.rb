@@ -17,6 +17,7 @@ module Lucie
 
 
     def self.ip_address_for nodes, debug_options = {}
+      return debug_options[ :nic ].first.ip_address if debug_options[ :dry_run ] and debug_options[ :nic ] and ( not debug_options[ :nic ].compact.empty? )
       return "LUCIE_SERVER_IP_ADDRESS" if debug_options[ :dry_run ]
       subnet, = ( nodes.respond_to?( :first ) ? nodes.first : nodes ).net_info
       nic = ( debug_options[ :interfaces ] || NetworkInterfaces ).select do | each |

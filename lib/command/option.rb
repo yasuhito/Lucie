@@ -70,6 +70,7 @@ module Command
         value = instance_variable_get( "@" + Option.attr_name_of( each[ :long_option ] ) )
         raise "#{ each[ :long_option ] } option is a mandatory." unless value
       end
+      self
     end
     
     

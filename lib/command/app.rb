@@ -1,20 +1,17 @@
-require "lucie/debug"
-require "lucie/server"
-require "thread_pool"
-
-
 module Command
   class App
-    include Lucie::Debug
+    def self.options_class_name
+      instance_eval do | obj |
+        obj.name.gsub( /App\Z/, "Options" )
+      end
+    end
 
 
     def initialize argv, debug_options
       @argv = argv
-      @global_options = parse_argv
+      @global_options = parse_argv.check_mandatory_options
       @debug_options = { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }.merge( debug_options )
-      @tp = ThreadPool.new
       usage_and_exit if @global_options.help
-      @global_options.check_mandatory_options
     end
 
 
@@ -35,18 +32,7 @@ module Command
 
 
     def options_class
-      instance_eval do | obj |
-        eval ( obj.class.to_s.split( "::" )[ 0..-2 ] + [ "Options" ] ).join( "::" )
-      end
-    end
-
-
-    def lucie_server_ip_address
-      if dry_run and @debug_options[ :nic ]
-        @debug_options[ :nic ].first.ip_address
-      else
-        Lucie::Server.ip_address_for Nodes.load_all
-      end
+      eval self.class.options_class_name
     end
   end
 end

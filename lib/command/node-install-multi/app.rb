@@ -1,9 +1,10 @@
 require "command/app"
+require "command/installer"
 require "command/node-install-multi/parser"
 require "configurator"
-require "command/installer"
 require "node"
 require "nodes"
+require "thread_pool"
 
 
 module Command
@@ -57,6 +58,7 @@ module Command
 
       def install
         begin
+          @tp = ThreadPool.new
           install_parallel
         rescue
           @tp.killall

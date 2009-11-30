@@ -230,6 +230,11 @@ module Command
         @configurator.start node, logger
       end
     end
+
+
+    def lucie_server_ip_address
+      Lucie::Server.ip_address_for Nodes.load_all, @debug_options
+    end
   end
 end
 
