@@ -36,6 +36,12 @@ module Command
     end
 
 
+    # default options:
+    attr_reader :dry_run
+    attr_reader :help
+    attr_reader :verbose
+
+
     def initialize
       OptionList.clear_options
       register_options

@@ -1,8 +1,14 @@
+require "lucie/debug"
+
+
 module Command
   class App
+    include Lucie::Debug
+
+
     def self.options_class_name
       instance_eval do | obj |
-        obj.name.gsub( /App\Z/, "Options" )
+        obj.name.gsub /App\Z/, "Options"
       end
     end
 
@@ -10,13 +16,13 @@ module Command
     def initialize argv, debug_options
       @argv = argv
       @global_options = parse_argv.check_mandatory_options
-      @debug_options = { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }.merge( debug_options )
+      @debug_options = global_debug_options.merge( debug_options )
       usage_and_exit if @global_options.help
     end
 
 
     def usage_and_exit
-      print @global_options.usage
+      stdout.print @global_options.usage
       exit 0
     end
 
@@ -24,6 +30,11 @@ module Command
     ############################################################################
     private
     ############################################################################
+
+
+    def global_debug_options
+      { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }
+    end
 
 
     def parse_argv
