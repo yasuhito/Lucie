@@ -12,7 +12,6 @@ require "spec/rake/verify_rcov"
 # Helper methods
 ################################################################################
 
-
 def rcov_dat
   File.join File.dirname( __FILE__ ), "coverage.dat"
 end
@@ -26,7 +25,6 @@ end
 ################################################################################
 # Tasks
 ################################################################################
-
 
 task :default => [ :verify_rcov ]
 task :cruise => [ :verify_rcov_cruise ]
@@ -51,7 +49,7 @@ end
 
 # RSpec Tasks ##################################################################
 
-COVERAGE_THRESHOLD = 93.4
+COVERAGE_THRESHOLD = 94.2
 
 
 desc "Run specs with RCov"
@@ -92,7 +90,6 @@ end
 
 
 # Benchmark Graph ##############################################################
-
 
 task :graph do
   plot
