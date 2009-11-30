@@ -33,7 +33,8 @@ module Command
 
 
     def global_debug_options
-      { :verbose => @global_options.verbose, :dry_run => @global_options.dry_run }
+      { :verbose => @global_options.verbose,
+        :dry_run => @global_options.dry_run }
     end
 
 
