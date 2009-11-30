@@ -19,7 +19,7 @@ end
 
 
 def rcov_opts
-  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems,lib/popen3.rb,lib/pshell.rb,spec/" ]
+  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems,spec/" ]
 end
 
 
@@ -36,6 +36,14 @@ task :cruise => [ :verify_rcov_cruise ]
 
 Cucumber::Rake::Task.new do | t |
   rm_f rcov_dat
+  t.rcov = true
+  t.rcov_opts = rcov_opts
+end
+
+
+Cucumber::Rake::Task.new( "cucumber:cruise", "Run Features with Cucumber (cc.rb)" ) do | t |
+  rm_f rcov_dat
+  t.cucumber_opts = "--format rerun"
   t.rcov = true
   t.rcov_opts = rcov_opts
 end
@@ -70,7 +78,7 @@ RCov::VerifyTask.new do | t |
 end
 
 
-task :verify_rcov_cruise => [ "spec:cruise", "cucumber" ]
+task :verify_rcov_cruise => [ "spec:cruise", "cucumber:cruise" ]
 RCov::VerifyTask.new( :verify_rcov_cruise ) do | t |
   t.threshold = COVERAGE_THRESHOLD
 end
