@@ -12,8 +12,7 @@ module Command
 
 
       def main
-        tftp = Service::Tftp.new( @debug_options, @debug_options[ :messenger ] )
-        tftp.reset_all
+        Service::Tftp.new( @debug_options ).reset_all
       end
     end
   end
