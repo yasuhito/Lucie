@@ -40,6 +40,11 @@ class Service
     end
 
 
+    def reset node
+      write_file pxe_config_file( node.mac_address ), pxe_local_boot_config, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
+    end
+
+
     def reset_all
       Dir.glob( Tftp.pxe_directory + "/*" ).each do | each |
         write_file each, pxe_local_boot_config, @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]

@@ -60,7 +60,6 @@ module Command
 
         t = Thread.new( @cds_pid ) do | pid |
           Process.waitpid pid
-          Thread.main.raise "Secret server exitted abnormally"
         end
         t.priority = -10
       end
@@ -118,9 +117,8 @@ module Command
     end
 
 
-    def disable_network_boot
-      tftp = Service::Tftp.new( @debug_options )
-      tftp.reset_all
+    def disable_network_boot node
+      Service::Tftp.new( @debug_options ).reset node
     end
 
 

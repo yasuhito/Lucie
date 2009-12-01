@@ -24,7 +24,9 @@ module Command
           prepare_installation
           install
         ensure
-          Process.kill( "TERM", @cds_pid ) if @cds_pid
+          if @cds_pid
+            Process.kill( "TERM", @cds_pid ) rescue nil
+          end
         end
       end
 
@@ -50,8 +52,8 @@ module Command
           setup_ssh_forward_agent
           setup_first_stage_environment
         rescue Exception
-          disable_network_boot
           Nodes.load_all.each do | each |
+            disable_network_boot each
             if each.status.nil? or each.status.incomplete?
               @html_logger.update_status( each, "failed" ) if @html_logger
             end
