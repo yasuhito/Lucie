@@ -24,7 +24,7 @@ module Command
 
 
       def main node_names
-        start_secret_server
+        maybe_start_confidential_data_server
         nodes = nodes_from( node_names )
         if @global_options.ldb_repository
           @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )

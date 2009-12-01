@@ -33,18 +33,18 @@ module Command
       def prepare_installation
         begin
           parse
-          maybe_generate_and_authorize_keypair
-          update_sudo_timestamp
           start_main_logger
           check_prerequisites
-          create_nodes
-          start_secret_server
-          setup_ldb
+          maybe_generate_and_authorize_keypair
+          update_sudo_timestamp
+          register_nodes
+          maybe_start_confidential_data_server
+          maybe_setup_ldb
           create_installer
           start_html_logger
-          start_super_reboot
-          setup_ssh
-          setup_first_stage
+          create_super_reboot
+          setup_ssh_forward_agent
+          setup_first_stage_environment
         rescue
           Nodes.load_all.each do | each |
             if each.status.nil? or each.status.incomplete?
@@ -86,7 +86,7 @@ module Command
       end
 
 
-      def create_nodes
+      def register_nodes
         @node_options.keys.each do | each |
           node = Node.new( each, node_options( each ) )
           Nodes.add node, @debug_options, @debug_options[ :messenger ]

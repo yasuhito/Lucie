@@ -22,16 +22,6 @@ module Command
     include Lucie::Utils
 
 
-    def maybe_generate_and_authorize_keypair
-      SSH.new( @debug_options ).maybe_generate_and_authorize_keypair
-    end
-
-
-    def update_sudo_timestamp
-      run %{sudo -v}, @debug_options
-    end
-
-
     def start_main_logger
       Lucie::Log.path = File.join( Configuration.log_directory, "install.log" )
       Lucie::Log.verbose = verbose
@@ -44,7 +34,17 @@ module Command
     end
 
 
-    def start_secret_server
+    def maybe_generate_and_authorize_keypair
+      SSH.new( @debug_options ).maybe_generate_and_authorize_keypair
+    end
+
+
+    def update_sudo_timestamp
+      run %{sudo -v}, @debug_options
+    end
+
+
+    def maybe_start_confidential_data_server
       if @global_options.secret
         unless ENV[ "LUCIE_PASSWORD" ]
           IO.read @global_options.secret
@@ -67,7 +67,7 @@ module Command
     end
 
 
-    def setup_ldb
+    def maybe_setup_ldb
       return unless @global_options.ldb_repository
       @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
       if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
@@ -99,17 +99,17 @@ module Command
     end
 
 
-    def start_super_reboot
+    def create_super_reboot
       @super_reboot = SuperReboot.new( @debug_options )
     end
 
 
-    def setup_ssh
+    def setup_ssh_forward_agent
       run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
     end
 
 
-    def setup_first_stage
+    def setup_first_stage_environment
       if dry_run and @debug_options[ :nic ]
         Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @debug_options[ :nic ] )
       else
