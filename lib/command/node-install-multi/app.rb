@@ -20,8 +20,12 @@ module Command
 
 
       def main
-        prepare_installation
-        install
+        begin
+          prepare_installation
+          install
+        ensure
+          Process.kill( "TERM", @cds_pid ) if @cds_pid
+        end
       end
 
 
@@ -57,14 +61,44 @@ module Command
 
 
       def install
+        thread_pool = ThreadPool.new
         begin
-          @tp = ThreadPool.new
-          install_parallel
-        rescue
-          @tp.killall
+          Nodes.load_all.collect do | each |
+            thread_pool.dispatch( each ) do | each |
+              sleep 1
+              log_directory = Lucie::Logger::Installer.new_log_directory( each, @debug_options, @debug_options[ :messenger ] )
+              logger = Lucie::Logger::Installer.new( log_directory, @debug_options )
+              each.status = Status::Installer.new( log_directory, @debug_options, @debug_options[ :messenger ] )
+              begin
+                each.status.start!
+                run_first_reboot each, logger
+                run_first_stage each, logger
+                run_second_reboot each, logger
+                run_second_stage each, logger
+                each.status.succeed!
+                @html_logger.proceed_to_next_step each, "ok"
+              rescue Exception => e
+                each.status.fail!
+                $stderr.puts e.message
+                logger.error e.message
+                @html_logger.update_status each, "failed (#{ e.message })"
+                if @global_options.verbose
+                  e.backtrace.each do | each |
+                    $stderr.puts each
+                    logger.debug each
+                  end
+                end
+              end
+            end
+          end
+          thread_pool.shutdown
+        rescue Exception => e
+          thread_pool.killall
           Nodes.load_all.each do | each |
             if each.status.nil? or each.status.incomplete?
-              @html_logger.update_status( each, "failed" ) if @html_logger
+              each.status.fail!
+              emsg = e.message.empty? ? e.inspect : e.message
+              @html_logger.update_status each, "failed (#{ emsg })"
             end
           end
           raise $!

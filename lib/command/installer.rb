@@ -53,12 +53,12 @@ module Command
           end
         end
 
-        @sspid = fork do
+        @cds_pid = fork do
           cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ verbose ? '--verbose' : '' }"
           exec cmd
         end
 
-        t = Thread.new( @sspid ) do | pid |
+        t = Thread.new( @cds_pid ) do | pid |
           Process.waitpid pid
           Thread.main.raise "Secret server exitted abnormally"
         end
@@ -114,57 +114,6 @@ module Command
         Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @debug_options[ :nic ] )
       else
         Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
-      end
-    end
-
-
-    def install_parallel
-      begin
-        Nodes.load_all.collect do | each |
-          @tp.dispatch( each ) do | each |
-            sleep 1
-            log_directory = Lucie::Logger::Installer.new_log_directory( each, @debug_options, @debug_options[ :messenger ] )
-            logger = Lucie::Logger::Installer.new( log_directory, @debug_options )
-            each.status = Status::Installer.new( log_directory, @debug_options, @debug_options[ :messenger ] )
-            start_installer each, logger
-          end
-        end
-        @tp.shutdown
-      rescue Exception => e
-        @tp.killall
-        Nodes.load_all.each do | each |
-          if each.status.incomplete?
-            each.status.fail!
-            emsg= e.message.empty? ? e.inspect : e.message
-            @html_logger.update_status each, "failed (#{ emsg })"
-          end
-        end
-      ensure
-        Process.kill( "TERM", @sspid ) if @sspid
-      end
-    end
-
-
-    def start_installer node, logger
-      begin
-        node.status.start!
-        run_first_reboot node, logger
-        run_first_stage node, logger
-        run_second_reboot node, logger
-        run_second_stage node, logger
-        node.status.succeed!
-        @html_logger.proceed_to_next_step node, "ok"
-      rescue Exception => e
-        node.status.fail!
-        $stderr.puts e.message
-        logger.error e.message
-        @html_logger.update_status node, "failed (#{ e.message })"
-        if @global_options.verbose
-          e.backtrace.each do | each |
-            $stderr.puts each
-            logger.debug each
-          end
-        end
       end
     end
 
