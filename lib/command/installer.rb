@@ -118,6 +118,12 @@ module Command
     end
 
 
+    def disable_network_boot
+      tftp = Service::Tftp.new( @debug_options, @debug_options[ :messenger ] )
+      tftp.reset_all
+    end
+
+
     def run_first_reboot node, logger
       time = StopWatch.time_to_run do
         unless dry_run

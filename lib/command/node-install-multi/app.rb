@@ -50,6 +50,7 @@ module Command
           setup_ssh_forward_agent
           setup_first_stage_environment
         rescue
+          disable_network_boot
           Nodes.load_all.each do | each |
             if each.status.nil? or each.status.incomplete?
               @html_logger.update_status( each, "failed" ) if @html_logger
