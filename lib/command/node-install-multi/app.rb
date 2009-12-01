@@ -49,7 +49,7 @@ module Command
           create_super_reboot
           setup_ssh_forward_agent
           setup_first_stage_environment
-        rescue
+        rescue Exception
           disable_network_boot
           Nodes.load_all.each do | each |
             if each.status.nil? or each.status.incomplete?
