@@ -49,6 +49,17 @@ class SuperReboot
   end
 
 
+  def reboot_to_finish_installation node, syslog, logger
+    start_watchdog( node, logger, syslog ) do | watchdog |
+      ssh_reboot node
+      watchdog.wait_dhcpack
+      watchdog.wait_pxe_localboot
+      watchdog.wait_pong
+      watchdog.wait_sshd
+    end
+  end
+
+
   ##############################################################################
   private
   ##############################################################################

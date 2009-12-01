@@ -78,8 +78,10 @@ module Command
                 run_first_stage each, logger
                 run_second_reboot each, logger
                 run_second_stage each, logger
+                run_third_reboot each, logger
+                logger.info "Node '#{ each.name }' installed."
                 each.status.succeed!
-                @html_logger.proceed_to_next_step each, "ok"
+                @html_logger.update_status each, "ok"
               rescue Exception => e
                 each.status.fail!
                 $stderr.puts e.message

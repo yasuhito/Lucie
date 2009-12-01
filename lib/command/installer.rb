@@ -170,8 +170,6 @@ module Command
         start_ldb node, logger
       end
       logger.info "The second stage finished in #{ time } seconds."
-      logger.info "Node '#{ node.name }' installed."
-      info "Node '#{ node.name }' installed."
     end
 
 
@@ -182,6 +180,20 @@ module Command
         @configurator.clone_to_client @global_options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
       end
+    end
+
+
+    def run_third_reboot node, logger
+      @html_logger.proceed_to_next_step node, "Rebooting"
+      time = StopWatch.time_to_run do
+        unless dry_run
+          File.open( "/var/log/syslog", "r" ) do | syslog |
+            logger.info "Rebooting"
+            @super_reboot.reboot_to_finish_installation node, syslog, logger
+          end
+        end
+      end
+      logger.info "The third reboot finished in #{ time } seconds."
     end
 
 
