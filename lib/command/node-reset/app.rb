@@ -1,4 +1,5 @@
 require "command/app"
+require "service"
 
 
 module Command

@@ -119,7 +119,7 @@ module Command
 
 
     def disable_network_boot
-      tftp = Service::Tftp.new( @debug_options, @debug_options[ :messenger ] )
+      tftp = Service::Tftp.new( @debug_options )
       tftp.reset_all
     end
 
