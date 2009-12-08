@@ -71,7 +71,7 @@ class BootSequenceTracker
 
   def wait_sshd
     wait_loop do
-      debug "Waiting for sshd to start on #{ @node_name } ..."
+      debug "Waiting for #{ @node_name } to start sshd ..."
       begin
         TCPSocket.open( @node_ip, 22 ) unless dry_run
         break

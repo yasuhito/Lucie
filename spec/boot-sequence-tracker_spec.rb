@@ -90,7 +90,7 @@ EOF
 
 
   it "should wait until sshd is up" do
-    @messenger.should_receive( :puts ).with( "Waiting for sshd to start on yutaro ..." ).exactly( 3 ).times
+    @messenger.should_receive( :puts ).with( "Waiting for yutaro to start sshd ..." ).exactly( 3 ).times
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once.and_raise( Errno::EHOSTUNREACH )
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once.and_raise( Errno::ECONNREFUSED )
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once

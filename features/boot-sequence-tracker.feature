@@ -46,4 +46,4 @@ Feature: boot sequence tracker tracks reboot process
   Scenario: wait until sshd is up
     Given boot sequence tracker started for node "yutaro"
     When I try to wait until sshd is up
-    Then "Waiting for sshd to start on yutaro ..." displayed
+    Then "Waiting for yutaro to start sshd ..." displayed
