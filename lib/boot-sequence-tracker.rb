@@ -1,3 +1,6 @@
+require "boot-sequence-tracker/dhcpd-re"
+require "boot-sequence-tracker/nfsd-re"
+require "boot-sequence-tracker/tftpd-re"
 require "lucie/debug"
 require "ping"
 require "socket"
@@ -12,6 +15,9 @@ class BootSequenceTracker
 
   def initialize node, logger, debug_options = {}
     @node = node
+    @dhcpd_re = DhcpdRE.new( @node )
+    @nfsd_re = NfsdRE.new( @node )
+    @tftpd_re = TftpdRE.new( @node )
     @logger = logger
     @debug_options = debug_options
   end
@@ -24,35 +30,35 @@ class BootSequenceTracker
 
 
   def wait_pxe
-    block_until_match regexp_tftp_pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
-    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
-    block_until_match regexp_tftp_kernel, "Waiting for #{ name } to request Lucie kernel ..."
+    block_until_match @tftpd_re.pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
+    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
+    block_until_match @tftpd_re.kernel, "Waiting for #{ name } to request Lucie kernel ..."
   end
 
 
   def wait_manual_reboot
-    block_until_match regexp_tftp_pxelinux, "Please reboot #{ name } manually."
-    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
-    block_until_match regexp_tftp_kernel, "Waiting for #{ name } to request Lucie kernel ..."
+    block_until_match @tftpd_re.pxelinux, "Please reboot #{ name } manually."
+    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
+    block_until_match @tftpd_re.kernel, "Waiting for #{ name } to request Lucie kernel ..."
   end
 
 
   def wait_pxe_localboot
-    block_until_match regexp_tftp_pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
-    block_until_match regexp_tftp_pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
+    block_until_match @tftpd_re.pxelinux, "Waiting for #{ name } to request PXE boot loader ..."
+    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ name } to request PXE boot loader configuration file ..."
   end
 
 
   def wait_dhcpack
-    block_until_match regexp_dhcp_discover, "Waiting for #{ name } to send DHCPDISCOVER ..."
-    block_until_match regexp_dhcp_offer, "Waiting for #{ name } to receive DHCPOFFER ..."
-    block_until_match regexp_dhcp_request, "Waiting for #{ name } to send DHCPREQUEST ..."
-    block_until_match regexp_dhcp_ack, "Waiting for #{ name } to receive DHCPACK ..."
+    block_until_match @dhcpd_re.discover, "Waiting for #{ name } to send DHCPDISCOVER ..."
+    block_until_match @dhcpd_re.offer, "Waiting for #{ name } to receive DHCPOFFER ..."
+    block_until_match @dhcpd_re.request, "Waiting for #{ name } to send DHCPREQUEST ..."
+    block_until_match @dhcpd_re.ack, "Waiting for #{ name } to receive DHCPACK ..."
   end
 
 
   def wait_nfsroot
-    block_until_match regexp_nfs_mount, "Waiting for #{ name } to mount nfsroot ..."
+    block_until_match @nfsd_re.mount, "Waiting for #{ name } to mount nfsroot ..."
   end
 
 
@@ -125,62 +131,6 @@ class BootSequenceTracker
   end
 
 
-  # regular expressions ########################################################
-
-
-  def regexp_tftp_kernel
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename lucie/
-  end
-
-
-  def regexp_tftp_pxelinux
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename pxelinux\.0/
-  end
-  
-
-  def regexp_tftp_pxelinux_cfg
-    /in\.tftpd\[\d+\]: RRQ from #{ regexp_ip } filename pxelinux\.cfg\/01\-#{ regexp_from mac.gsub( ":", "-" ) }/
-  end
-
-
-  def regexp_dhcp_discover
-    /dhcpd: DHCPDISCOVER from #{ regexp_mac }/
-  end
-
-
-  def regexp_dhcp_offer
-    /dhcpd: DHCPOFFER on #{ regexp_ip } to #{ regexp_mac }/
-  end
-
-
-  def regexp_dhcp_request
-    /dhcpd: DHCPREQUEST for #{ regexp_ip } .* from #{ regexp_mac }/
-  end
-
-
-  def regexp_dhcp_ack
-    /dhcpd: DHCPACK on #{ regexp_ip } to #{ regexp_mac }/
-  end
-
-
-  def regexp_nfs_mount
-    /mountd\[\d+\]: authenticated mount request from #{ regexp_ip }/
-  end
-
-
-  def regexp_ip
-    regexp_from ip
-  end
-
-
-  def regexp_mac
-    regexp_from mac 
-  end
-
-
-  # Utils ######################################################################
-
-
   def name
     @node.name
   end
@@ -188,16 +138,6 @@ class BootSequenceTracker
 
   def ip
     @node.ip_address
-  end
-
-
-  def mac
-    @node.mac_address.downcase
-  end
-
-
-  def regexp_from str
-    Regexp.escape str
   end
 end
 
