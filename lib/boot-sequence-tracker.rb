@@ -14,11 +14,9 @@ class BootSequenceTracker
 
 
   def initialize node, logger, debug_options = {}
+    @node = node
     @node_name = node.name
     @node_ip = node.ip_address
-    @dhcpd_re = DhcpdRE.new( node )
-    @nfsd_re = NfsdRE.new( node )
-    @tftpd_re = TftpdRE.new( node )
     @logger = logger
     @debug_options = debug_options
   end
@@ -31,35 +29,27 @@ class BootSequenceTracker
 
 
   def wait_pxe
-    block_until_match @tftpd_re.pxelinux, "Waiting for #{ @node_name } to request PXE boot loader ..."
-    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..."
-    block_until_match @tftpd_re.kernel, "Waiting for #{ @node_name } to request Lucie kernel ..."
+    wait pxe_regexps( "Waiting for #{ @node_name } to request PXE boot loader ..." )
   end
 
 
   def wait_manual_reboot
-    block_until_match @tftpd_re.pxelinux, "Please reboot #{ @node_name } manually."
-    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..."
-    block_until_match @tftpd_re.kernel, "Waiting for #{ @node_name } to request Lucie kernel ..."
+    wait pxe_regexps( "Please reboot #{ @node_name } manually." )
   end
 
 
   def wait_pxe_localboot
-    block_until_match @tftpd_re.pxelinux, "Waiting for #{ @node_name } to request PXE boot loader ..."
-    block_until_match @tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..."
+    wait pxe_localboot_regexps
   end
 
 
   def wait_dhcpack
-    block_until_match @dhcpd_re.discover, "Waiting for #{ @node_name } to send DHCPDISCOVER ..."
-    block_until_match @dhcpd_re.offer, "Waiting for #{ @node_name } to receive DHCPOFFER ..."
-    block_until_match @dhcpd_re.request, "Waiting for #{ @node_name } to send DHCPREQUEST ..."
-    block_until_match @dhcpd_re.ack, "Waiting for #{ @node_name } to receive DHCPACK ..."
+    wait dhcp_regexps
   end
 
 
   def wait_nfsroot
-    block_until_match @nfsd_re.mount, "Waiting for #{ @node_name } to mount nfsroot ..."
+    wait nfsroot_regexps
   end
 
 
@@ -87,6 +77,7 @@ class BootSequenceTracker
         break
       rescue Errno::EHOSTUNREACH, Errno::ECONNREFUSED
         # do nothing
+        nil
       end
     end
   end
@@ -96,6 +87,44 @@ class BootSequenceTracker
   private
   ##############################################################################
 
+
+  def wait re_message
+    re_message.each do | re, message |
+      block_until_match re, message
+    end
+  end
+
+
+  def pxe_regexps boot_loader_message = "Waiting for #{ @node_name } to request PXE boot loader ..."
+    tftpd_re = TftpdRE.new( @node )
+    [ [ tftpd_re.pxelinux, boot_loader_message ],
+      [ tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ],
+      [ tftpd_re.kernel, "Waiting for #{ @node_name } to request Lucie kernel ..." ] ]
+  end
+
+
+  def pxe_localboot_regexps
+    tftpd_re = TftpdRE.new( @node )
+    [ [ tftpd_re.pxelinux, "Waiting for #{ @node_name } to request PXE boot loader ..." ],
+      [ tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ] ]
+  end
+
+
+  def dhcp_regexps
+    dhcpd_re = DhcpdRE.new( @node )
+    [ [ dhcpd_re.discover, "Waiting for #{ @node_name } to send DHCPDISCOVER ..." ],
+      [ dhcpd_re.offer, "Waiting for #{ @node_name } to receive DHCPOFFER ..." ],
+      [ dhcpd_re.request, "Waiting for #{ @node_name } to send DHCPREQUEST ..." ],
+      [ dhcpd_re.ack, "Waiting for #{ @node_name } to receive DHCPACK ..." ] ]
+  end
+
+
+  def nfsroot_regexps
+    [ [ NfsdRE.new( @node ).mount, "Waiting for #{ @node_name } to mount nfsroot ..." ] ]
+  end
+
+
+  # Misc #######################################################################
 
   def wait_loop
     loop do
@@ -123,7 +152,6 @@ class BootSequenceTracker
     while @syslog.gets
       return true if regexp.match( $_ )
     end
-    false
   end
 
 
