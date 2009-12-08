@@ -1,6 +1,6 @@
+require "boot-sequence-tracker"
 require "lucie/debug"
 require "lucie/utils"
-require "reboot-watch-dog"
 require "ssh"
 
 
@@ -16,46 +16,46 @@ class SuperReboot
 
 
   def start_first_stage node, syslog, logger, script = nil
-    start_watchdog( node, logger, syslog ) do | watchdog |
-      reboot_and_wait node, watchdog, logger, script
-      watchdog.wait_pxe
-      watchdog.wait_dhcpack
-      watchdog.wait_nfsroot
-      watchdog.wait_pong
-      watchdog.wait_sshd
+    start_tracker( node, logger, syslog ) do | tracker |
+      reboot_and_wait node, tracker, logger, script
+      tracker.wait_pxe
+      tracker.wait_dhcpack
+      tracker.wait_nfsroot
+      tracker.wait_pong
+      tracker.wait_sshd
     end
   end
 
 
   def wait_manual_reboot node, syslog, logger
-    start_watchdog( node, logger, syslog ) do | watchdog |
-      watchdog.wait_manual_reboot
-      watchdog.wait_dhcpack
-      watchdog.wait_nfsroot
-      watchdog.wait_pong
-      watchdog.wait_sshd
+    start_tracker( node, logger, syslog ) do | tracker |
+      tracker.wait_manual_reboot
+      tracker.wait_dhcpack
+      tracker.wait_nfsroot
+      tracker.wait_pong
+      tracker.wait_sshd
     end
   end
 
 
   def start_second_stage node, syslog, logger
-    start_watchdog( node, logger, syslog ) do | watchdog |
+    start_tracker( node, logger, syslog ) do | tracker |
       ssh_reboot node
-      watchdog.wait_dhcpack
-      watchdog.wait_pxe_localboot
-      watchdog.wait_pong
-      watchdog.wait_sshd
+      tracker.wait_dhcpack
+      tracker.wait_pxe_localboot
+      tracker.wait_pong
+      tracker.wait_sshd
     end
   end
 
 
   def reboot_to_finish_installation node, syslog, logger
-    start_watchdog( node, logger, syslog ) do | watchdog |
+    start_tracker( node, logger, syslog ) do | tracker |
       ssh_reboot node
-      watchdog.wait_dhcpack
-      watchdog.wait_pxe_localboot
-      watchdog.wait_pong
-      watchdog.wait_sshd
+      tracker.wait_dhcpack
+      tracker.wait_pxe_localboot
+      tracker.wait_pong
+      tracker.wait_sshd
     end
   end
 
@@ -65,9 +65,9 @@ class SuperReboot
   ##############################################################################
 
 
-  def reboot_and_wait node, watchdog, logger, script
+  def reboot_and_wait node, tracker, logger, script
     reboot node, script
-    watchdog.wait_dhcpack
+    tracker.wait_dhcpack
   end
 
 
@@ -85,10 +85,10 @@ class SuperReboot
   end
 
 
-  def start_watchdog node, logger, syslog
-    watchdog = RebootWatchDog.new( node, logger, @debug_options )
-    watchdog.syslog = syslog
-    yield watchdog
+  def start_tracker node, logger, syslog
+    tracker = BootSequenceTracker.new( node, logger, @debug_options )
+    tracker.syslog = syslog
+    yield tracker
   end
 
 

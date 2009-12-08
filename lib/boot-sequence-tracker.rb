@@ -3,7 +3,7 @@ require "ping"
 require "socket"
 
 
-class RebootWatchDog
+class BootSequenceTracker
   include Lucie::Debug
 
 

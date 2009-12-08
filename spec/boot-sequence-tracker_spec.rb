@@ -1,19 +1,19 @@
 require File.join( File.dirname( __FILE__ ), "spec_helper" )
 
 
-describe RebootWatchDog do
+describe BootSequenceTracker do
   before :each do
     node = mock( "node", :name => "yutaro", :ip_address => "192.168.0.1", :mac_address => "11:22:33:44:55:66" )
     logger = mock( "logger", :debug => nil )
-    @watch_dog = RebootWatchDog.new( node, logger, { :verbose => false, :retry_interval => 0.001 } )
+    @tracker = BootSequenceTracker.new( node, logger, { :verbose => false, :retry_interval => 0.001 } )
   end
 
 
   it "should wait until node boots from PXE" do
     syslog = mock( "syslog", :seek => nil )
     syslog.should_receive( :gets ).and_return( *dummy_pxe_syslog )
-    @watch_dog.syslog = syslog
-    @watch_dog.wait_pxe
+    @tracker.syslog = syslog
+    @tracker.wait_pxe
   end
 
 
@@ -21,13 +21,13 @@ describe RebootWatchDog do
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once.and_raise( Errno::EHOSTUNREACH )
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once.and_raise( Errno::ECONNREFUSED )
     TCPSocket.should_receive( :open ).with( "192.168.0.1", 22 ).once
-    @watch_dog.wait_sshd
+    @tracker.wait_sshd
   end
 
 
   it "should wait until pong" do
     Ping.should_receive( :pingecho ).with( "192.168.0.1" ).once.and_return( true )
-    @watch_dog.wait_pong
+    @tracker.wait_pong
   end
 
 

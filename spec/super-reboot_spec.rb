@@ -6,8 +6,8 @@ describe SuperReboot do
     @node = mock( "node", :name => "yutaro", :ip_address => "192.168.0.1", :mac_address => "11:22:33:44:55:66" )
     @messenger = StringIO.new( "" )
     @debug_options = { :dry_run => false, :verbose => true, :messenger => @messenger }
-    watch_dog = mock( "watch dog" ).as_null_object
-    RebootWatchDog.should_receive( :new ).and_return( watch_dog )
+    tracker = mock( "tracker" ).as_null_object
+    BootSequenceTracker.should_receive( :new ).and_return( tracker )
   end
 
 
