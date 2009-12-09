@@ -12,7 +12,6 @@ describe SuperReboot do
 
   it "should wait until manual reboot" do
     @tracker.should_receive( :wait_manual_reboot ).once.ordered
-    @tracker.should_receive( :wait_dhcpack ).once.ordered
     @tracker.should_receive( :wait_nfsroot ).once.ordered
     @tracker.should_receive( :wait_pong ).once.ordered
     @tracker.should_receive( :wait_sshd ).once.ordered
