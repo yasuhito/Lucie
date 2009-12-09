@@ -1,6 +1,4 @@
-require "boot-sequence-tracker/dhcpd-re"
-require "boot-sequence-tracker/nfsd-re"
-require "boot-sequence-tracker/tftpd-re"
+require "boot-sequence-tracker/syslog-re"
 require "lucie/debug"
 require "ping"
 require "socket"
@@ -8,9 +6,7 @@ require "socket"
 
 class BootSequenceTracker
   include Lucie::Debug
-  include DhcpdRE
-  include NfsdRE
-  include TftpdRE
+  include SyslogRE
 
 
   DEFAULT_RETRY_INTERVAL = 30
