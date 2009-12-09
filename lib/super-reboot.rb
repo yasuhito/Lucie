@@ -44,6 +44,7 @@ class SuperReboot
 
 
   def start_second_stage
+    run_ssh_swapoff
     run_ssh_reboot
     start_tracker do | tracker |
       tracker.wait_dhcpack
@@ -103,9 +104,13 @@ class SuperReboot
   end
 
 
+  def run_ssh_swapoff
+    @ssh.sh @node_name, "swapoff -a"
+  end
+
+
   def run_ssh_reboot
     info "Rebooting #{ @node_name } via ssh ..."
-    @ssh.sh @node_name, "swapoff -a"
     @ssh.sh @node_name, "shutdown -r now"
   end
 end
