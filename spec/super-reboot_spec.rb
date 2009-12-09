@@ -20,6 +20,17 @@ describe SuperReboot do
   end
 
 
+  it "should wait third reboot" do
+    @tracker.should_receive( :wait_dhcpack ).once.ordered
+    @tracker.should_receive( :wait_pxe_localboot ).once.ordered
+    @tracker.should_receive( :wait_pong ).once.ordered
+    @tracker.should_receive( :wait_sshd ).once.ordered
+
+    SSH.stub!( :new ).and_return( mock( "ssh" ).as_null_object )
+    SuperReboot.new( @node, dummy_syslog, dummy_logger, debug_options ).reboot_to_finish_installation
+  end
+
+
   context "when failed to reboot with script" do
     it "should fall back to ssh reboot" do
       SSH.stub!( :new ).and_return( mock( "ssh" ).as_null_object )

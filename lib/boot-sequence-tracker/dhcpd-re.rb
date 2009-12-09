@@ -2,32 +2,29 @@ require "boot-sequence-tracker/common-re"
 
 
 class BootSequenceTracker
-  module DhcpdRE
-    include CommonRE
-
-
-    def dhcpdiscover_RE node
-      /dhcpd: DHCPDISCOVER from #{ mac_RE node }/
+  class DhcpdRE < CommonRE
+    def dhcp_discover_re
+      /dhcpd: DHCPDISCOVER from #{ mac_re }/
     end
 
 
-    def dhcpoffer_RE node
-      /dhcpd: DHCPOFFER on #{ ip_RE node } to #{ mac_RE node }/
+    def dhcp_offer_re
+      /dhcpd: DHCPOFFER on #{ ip_re } to #{ mac_re }/
     end
 
 
-    def dhcprequest_RE node
-      /dhcpd: DHCPREQUEST for #{ ip_RE node } .* from #{ mac_RE node }/
+    def dhcp_request_re
+      /dhcpd: DHCPREQUEST for #{ ip_re } .* from #{ mac_re }/
     end
 
 
-    def dhcpack_RE node
-      /dhcpd: DHCPACK on #{ ip_RE node } to #{ mac_RE node }/
+    def dhcp_ack_re
+      /dhcpd: DHCPACK on #{ ip_re } to #{ mac_re }/
     end
 
 
-    def mac_RE node
-      Regexp.escape node.mac_address.downcase
+    def mac_re
+      Regexp.escape @node.mac_address.downcase
     end
   end
 end

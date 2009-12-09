@@ -2,12 +2,9 @@ require "boot-sequence-tracker/common-re"
 
 
 class BootSequenceTracker
-  module NfsdRE
-    include CommonRE
-
-
-    def nfsroot_mount_RE node
-      /mountd\[\d+\]: authenticated mount request from #{ ip_RE node }/
+  class NfsdRE < CommonRE
+    def nfs_mount_re
+      /mountd\[\d+\]: authenticated mount request from #{ ip_re }/
     end
   end
 end

@@ -1,7 +1,12 @@
 class BootSequenceTracker
-  module CommonRE
-    def ip_RE node
-      Regexp.escape node.ip_address
+  class CommonRE
+    def initialize node
+      @node = node
+    end
+
+
+    def ip_re
+      Regexp.escape @node.ip_address
     end
   end
 end
