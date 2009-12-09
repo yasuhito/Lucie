@@ -6,16 +6,16 @@ end
 When /^I start first stage of node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
   syslog = StringIO.new( successful_boot_syslog_of Nodes.find( name ) )
-  super_reboot = SuperReboot.new( :dry_run => true, :verbose => true, :messenger => @messenger )
-  super_reboot.start_first_stage Nodes.find( name ), syslog, Lucie::Logger::Null.new, @reboot_script
+  super_reboot = SuperReboot.new( Nodes.find( name ), syslog, Lucie::Logger::Null.new, { :dry_run => true, :verbose => true, :messenger => @messenger } )
+  super_reboot.start_first_stage @reboot_script
 end
 
 
 When /^I start second stage of node "([^\"]*)"$/ do | name |
   @messenger = StringIO.new( "" )
   syslog = StringIO.new( successful_boot_syslog_of Nodes.find( name ) )
-  super_reboot = SuperReboot.new( :dry_run => true, :verbose => true, :messenger => @messenger )
-  super_reboot.start_second_stage Nodes.find( name ), syslog, Lucie::Logger::Null.new
+  super_reboot = SuperReboot.new( Nodes.find( name ), syslog, Lucie::Logger::Null.new, { :dry_run => true, :verbose => true, :messenger => @messenger } )
+  super_reboot.start_second_stage
 end
 
 

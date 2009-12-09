@@ -9,15 +9,19 @@ class SuperReboot
   include Lucie::Utils
 
 
-  def initialize debug_options = {}
+  def initialize node, syslog, logger, debug_options = {}
+    @node = node
+    @syslog = syslog
+    @logger = logger
     @debug_options = debug_options
     @ssh = SSH.new( @debug_options )
   end
 
 
-  def start_first_stage node, syslog, logger, script = nil
-    start_tracker( syslog, node, logger ) do | tracker |
-      reboot_and_wait node, tracker, logger, script
+  def start_first_stage script = nil
+    reboot script
+    start_tracker do | tracker |
+      tracker.wait_dhcpack
       tracker.wait_pxe
       tracker.wait_dhcpack
       tracker.wait_nfsroot
@@ -27,8 +31,8 @@ class SuperReboot
   end
 
 
-  def wait_manual_reboot node, syslog, logger
-    start_tracker( syslog, node, logger ) do | tracker |
+  def wait_manual_reboot
+    start_tracker do | tracker |
       tracker.wait_manual_reboot
       tracker.wait_dhcpack
       tracker.wait_nfsroot
@@ -38,26 +42,16 @@ class SuperReboot
   end
 
 
-  def start_second_stage node, syslog, logger
-    start_tracker( syslog, node, logger ) do | tracker |
-      ssh_reboot node
+  def start_second_stage
+    ssh_reboot
+    start_tracker do | tracker |
       tracker.wait_dhcpack
       tracker.wait_pxe_localboot
       tracker.wait_pong
       tracker.wait_sshd
     end
   end
-
-
-  def reboot_to_finish_installation node, syslog, logger
-    start_tracker( syslog, node, logger ) do | tracker |
-      ssh_reboot node
-      tracker.wait_dhcpack
-      tracker.wait_pxe_localboot
-      tracker.wait_pong
-      tracker.wait_sshd
-    end
-  end
+  alias :reboot_to_finish_installation :start_second_stage
 
 
   ##############################################################################
@@ -65,55 +59,50 @@ class SuperReboot
   ##############################################################################
 
 
-  def reboot_and_wait node, tracker, logger, script
-    reboot node, script
-    tracker.wait_dhcpack
+  def start_tracker
+    yield BootSequenceTracker.new( @syslog, @node, @logger, @debug_options )
   end
 
 
-  def reboot node, script
-    return if script and rebooted_with_script?( node.name, script )
-    return if rebooted_via_ssh?( node.name )
+  def reboot script
+    return if rebooted_with( script )
+    return if rebooted_via_ssh
     raise "failed to super-reboot"
   end
 
 
-  def ssh_reboot node
-    info "Rebooting #{ node.name } via ssh ..."
-    @ssh.sh node.name, "swapoff -a"
-    @ssh.sh node.name, "shutdown -r now"
-  end
-
-
-  def start_tracker syslog, node, logger
-    yield BootSequenceTracker.new( syslog, node, logger, @debug_options )
-  end
-
-
-  def rebooted_with_script? node_name, script
-    command = "#{ script } #{ node_name }"
-    info "Executing '#{ command }' to reboot #{ node_name } ..."
+  def rebooted_with script
+    return false unless script
+    command = "#{ script } #{ @node.name }"
+    info "Executing '#{ command }' to reboot #{ @node.name } ..."
     begin
       run command, @debug_options, messenger
     rescue => e
       error "Reboot script '#{ command }' failed."
       return false
     end
-    info "Succeeded in executing '#{ command }'. Now rebooting #{ node_name } ..."
+    info "Succeeded in executing '#{ command }'. Now rebooting #{ @node.name } ..."
     true
   end
 
 
-  def rebooted_via_ssh? node_name
-    info "Rebooting #{ node_name } via ssh ..."
+  def rebooted_via_ssh
+    info "Rebooting #{ @node.name } via ssh ..."
     begin
-      @ssh.sh node_name, "shutdown -r now"
+      @ssh.sh @node.name, "shutdown -r now"
     rescue
-      error "Rebooting #{ node_name } via ssh failed."
+      error "Rebooting #{ @node.name } via ssh failed."
       return false
     end
-    info "Succeeded in rebooting #{ node_name } via ssh. Now rebooting ..."
+    info "Succeeded in rebooting #{ @node.name } via ssh. Now rebooting ..."
     true
+  end
+
+
+  def ssh_reboot
+    info "Rebooting #{ @node.name } via ssh ..."
+    @ssh.sh @node.name, "swapoff -a"
+    @ssh.sh @node.name, "shutdown -r now"
   end
 end
 

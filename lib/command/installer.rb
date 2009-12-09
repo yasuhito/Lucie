@@ -98,11 +98,6 @@ module Command
     end
 
 
-    def create_super_reboot
-      @super_reboot = SuperReboot.new( @debug_options )
-    end
-
-
     def setup_ssh_forward_agent
       run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
     end
@@ -129,11 +124,11 @@ module Command
             begin
               @html_logger.proceed_to_next_step node, "Rebooting"
               logger.info "Rebooting"
-              @super_reboot.start_first_stage node, syslog, logger
+              SuperReboot.new( node, syslog, logger, @debug_options ).start_first_stage
             rescue
               @html_logger.proceed_to_next_step node, "Requesting manual reboot"
               logger.info "Requesting manual reboot"
-              @super_reboot.wait_manual_reboot node, syslog, logger
+              SuperReboot.new( node, syslog, logger, @debug_options ).wait_manual_reboot
             end
           end
         end
@@ -157,7 +152,7 @@ module Command
           File.open( "/var/log/syslog", "r" ) do | syslog |
             @html_logger.proceed_to_next_step node, "Rebooting"
             logger.info "Rebooting"
-            @super_reboot.start_second_stage node, syslog, logger
+            SuperReboot.new( node, syslog, logger, @debug_options ).start_second_stage
           end
         end
       end
@@ -189,7 +184,7 @@ module Command
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             logger.info "Rebooting"
-            @super_reboot.reboot_to_finish_installation node, syslog, logger
+            SuperReboot.new( node, syslog, logger, @debug_options ).reboot_to_finish_installation
           end
         end
       end

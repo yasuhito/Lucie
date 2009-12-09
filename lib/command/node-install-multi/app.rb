@@ -48,7 +48,6 @@ module Command
           maybe_setup_ldb
           create_installer
           start_html_logger
-          create_super_reboot
           setup_ssh_forward_agent
           setup_first_stage_environment
         rescue Exception
