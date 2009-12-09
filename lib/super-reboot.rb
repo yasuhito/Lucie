@@ -11,6 +11,7 @@ class SuperReboot
 
   def initialize node, syslog, logger, debug_options = {}
     @node = node
+    @node_name = node.name
     @syslog = syslog
     @logger = logger
     @debug_options = debug_options
@@ -43,7 +44,7 @@ class SuperReboot
 
 
   def start_second_stage
-    ssh_reboot
+    run_ssh_reboot
     start_tracker do | tracker |
       tracker.wait_dhcpack
       tracker.wait_pxe_localboot
@@ -65,44 +66,47 @@ class SuperReboot
 
 
   def reboot script
-    return if rebooted_with( script )
+    return if script && rebooted_with( script )
     return if rebooted_via_ssh
     raise "failed to super-reboot"
   end
 
 
   def rebooted_with script
-    return false unless script
-    command = "#{ script } #{ @node.name }"
-    info "Executing '#{ command }' to reboot #{ @node.name } ..."
     begin
-      run command, @debug_options, messenger
-    rescue => e
-      error "Reboot script '#{ command }' failed."
+      run_script_reboot script
+    rescue
+      error "Reboot script failed."
       return false
     end
-    info "Succeeded in executing '#{ command }'. Now rebooting #{ @node.name } ..."
+    info "Reboot script succeeded. Now rebooting #{ @node_name } ..."
     true
   end
 
 
   def rebooted_via_ssh
-    info "Rebooting #{ @node.name } via ssh ..."
     begin
-      @ssh.sh @node.name, "shutdown -r now"
+      run_ssh_reboot
     rescue
-      error "Rebooting #{ @node.name } via ssh failed."
+      error "Rebooting #{ @node_name } via ssh failed."
       return false
     end
-    info "Succeeded in rebooting #{ @node.name } via ssh. Now rebooting ..."
+    info "Succeeded in rebooting #{ @node_name } via ssh. Now rebooting ..."
     true
   end
 
 
-  def ssh_reboot
-    info "Rebooting #{ @node.name } via ssh ..."
-    @ssh.sh @node.name, "swapoff -a"
-    @ssh.sh @node.name, "shutdown -r now"
+  def run_script_reboot script
+    command = "#{ script } #{ @node_name }"
+    info "Executing '#{ command }' to reboot #{ @node_name } ..."
+    run command, @debug_options, messenger
+  end
+
+
+  def run_ssh_reboot
+    info "Rebooting #{ @node_name } via ssh ..."
+    @ssh.sh @node_name, "swapoff -a"
+    @ssh.sh @node_name, "shutdown -r now"
   end
 end
 

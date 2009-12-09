@@ -5,19 +5,28 @@ describe SuperReboot do
   before :each do | each |
     @node = mock( "node", :name => "yutaro", :ip_address => "192.168.0.1", :mac_address => "11:22:33:44:55:66" )
     @messenger = StringIO.new( "" )
-    tracker = mock( "tracker" ).as_null_object
-    BootSequenceTracker.stub!( :new ).and_return( tracker )
+    @tracker = mock( "tracker" ).as_null_object
+    BootSequenceTracker.stub!( :new ).and_return( @tracker )
+  end
+
+
+  it "should wait until manual reboot" do
+    @tracker.should_receive( :wait_manual_reboot ).once.ordered
+    @tracker.should_receive( :wait_dhcpack ).once.ordered
+    @tracker.should_receive( :wait_nfsroot ).once.ordered
+    @tracker.should_receive( :wait_pong ).once.ordered
+    @tracker.should_receive( :wait_sshd ).once.ordered
+
+    SuperReboot.new( @node, dummy_syslog, dummy_logger, debug_options ).wait_manual_reboot
   end
 
 
   context "when failed to reboot with script" do
     it "should fall back to ssh reboot" do
-      ssh = mock( "ssh" )
-      ssh.stub( :sh ).with( "yutaro", "shutdown -r now" )
-      SSH.stub!( :new ).and_return( ssh )
+      SSH.stub!( :new ).and_return( mock( "ssh" ).as_null_object )
       SuperReboot.new( @node, dummy_syslog, dummy_logger, debug_options ).start_first_stage "false"
 
-      history.should include( "Reboot script 'false yutaro' failed." )
+      history.should include( "Reboot script failed." )
       history.should include( "Rebooting yutaro via ssh ..." )
     end
   end

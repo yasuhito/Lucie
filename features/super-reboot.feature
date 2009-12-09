@@ -12,7 +12,7 @@ Feature: super-reboot reboots nodes
     Given reboot script "/tmp/reboot.sh"
     When I start first stage of node "yutaro"
     Then "Executing '/tmp/reboot.sh yutaro' to reboot yutaro ..." displayed
-    And "Succeeded in executing '/tmp/reboot.sh yutaro'. Now rebooting yutaro ..." displayed
+    And "Reboot script succeeded. Now rebooting yutaro ..." displayed
 
   Scenario: start first stage with ssh and succeed
     When I start first stage of node "yutaro"
