@@ -16,18 +16,14 @@ class BootSequenceTracker
   DEFAULT_RETRY_INTERVAL = 30
 
 
-  def initialize node, logger, debug_options = {}
+  def initialize syslog, node, logger, debug_options = {}
+    @syslog = syslog
     @node = node
     @node_name = node.name
     @node_ip = node.ip_address
     @logger = logger
     @debug_options = debug_options
-  end
-
-
-  def syslog= io
-    @syslog = io
-    @syslog.seek 0, IO::SEEK_END unless dry_run
+    seek_end
   end
 
 
@@ -89,6 +85,11 @@ class BootSequenceTracker
   ##############################################################################
   private
   ##############################################################################
+
+
+  def seek_end
+    @syslog.seek 0, IO::SEEK_END unless dry_run
+  end
 
 
   def wait log_RE

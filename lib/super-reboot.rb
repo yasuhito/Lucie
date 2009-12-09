@@ -16,7 +16,7 @@ class SuperReboot
 
 
   def start_first_stage node, syslog, logger, script = nil
-    start_tracker( node, logger, syslog ) do | tracker |
+    start_tracker( syslog, node, logger ) do | tracker |
       reboot_and_wait node, tracker, logger, script
       tracker.wait_pxe
       tracker.wait_dhcpack
@@ -28,7 +28,7 @@ class SuperReboot
 
 
   def wait_manual_reboot node, syslog, logger
-    start_tracker( node, logger, syslog ) do | tracker |
+    start_tracker( syslog, node, logger ) do | tracker |
       tracker.wait_manual_reboot
       tracker.wait_dhcpack
       tracker.wait_nfsroot
@@ -39,7 +39,7 @@ class SuperReboot
 
 
   def start_second_stage node, syslog, logger
-    start_tracker( node, logger, syslog ) do | tracker |
+    start_tracker( syslog, node, logger ) do | tracker |
       ssh_reboot node
       tracker.wait_dhcpack
       tracker.wait_pxe_localboot
@@ -50,7 +50,7 @@ class SuperReboot
 
 
   def reboot_to_finish_installation node, syslog, logger
-    start_tracker( node, logger, syslog ) do | tracker |
+    start_tracker( syslog, node, logger ) do | tracker |
       ssh_reboot node
       tracker.wait_dhcpack
       tracker.wait_pxe_localboot
@@ -85,10 +85,8 @@ class SuperReboot
   end
 
 
-  def start_tracker node, logger, syslog
-    tracker = BootSequenceTracker.new( node, logger, @debug_options )
-    tracker.syslog = syslog
-    yield tracker
+  def start_tracker syslog, node, logger
+    yield BootSequenceTracker.new( syslog, node, logger, @debug_options )
   end
 
 
