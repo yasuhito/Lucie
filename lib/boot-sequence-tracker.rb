@@ -8,6 +8,9 @@ require "socket"
 
 class BootSequenceTracker
   include Lucie::Debug
+  include DhcpdRE
+  include NfsdRE
+  include TftpdRE
 
 
   DEFAULT_RETRY_INTERVAL = 30
@@ -88,43 +91,41 @@ class BootSequenceTracker
   ##############################################################################
 
 
-  def wait re_message
-    re_message.each do | re, message |
+  def wait log_RE
+    log_RE.each do | re, message |
       block_until_match re, message
     end
   end
 
 
   def pxe_regexps boot_loader_message = "Waiting for #{ @node_name } to request PXE boot loader ..."
-    tftpd_re = TftpdRE.new( @node )
-    [ [ tftpd_re.pxelinux, boot_loader_message ],
-      [ tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ],
-      [ tftpd_re.kernel, "Waiting for #{ @node_name } to request Lucie kernel ..." ] ]
+    [ [ pxelinux_RE( @node ), boot_loader_message ],
+      [ pxelinux_cfg_RE( @node ), "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ],
+      [ pxekernel_RE( @node ), "Waiting for #{ @node_name } to request Lucie kernel ..." ] ]
   end
 
 
   def pxe_localboot_regexps
-    tftpd_re = TftpdRE.new( @node )
-    [ [ tftpd_re.pxelinux, "Waiting for #{ @node_name } to request PXE boot loader ..." ],
-      [ tftpd_re.pxelinux_cfg, "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ] ]
+    [ [ pxelinux_RE( @node ), "Waiting for #{ @node_name } to request PXE boot loader ..." ],
+      [ pxelinux_cfg_RE( @node ), "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ] ]
   end
 
 
   def dhcp_regexps
-    dhcpd_re = DhcpdRE.new( @node )
-    [ [ dhcpd_re.discover, "Waiting for #{ @node_name } to send DHCPDISCOVER ..." ],
-      [ dhcpd_re.offer, "Waiting for #{ @node_name } to receive DHCPOFFER ..." ],
-      [ dhcpd_re.request, "Waiting for #{ @node_name } to send DHCPREQUEST ..." ],
-      [ dhcpd_re.ack, "Waiting for #{ @node_name } to receive DHCPACK ..." ] ]
+    [ [ dhcpdiscover_RE( @node ), "Waiting for #{ @node_name } to send DHCPDISCOVER ..." ],
+      [ dhcpoffer_RE( @node ), "Waiting for #{ @node_name } to receive DHCPOFFER ..." ],
+      [ dhcprequest_RE( @node ), "Waiting for #{ @node_name } to send DHCPREQUEST ..." ],
+      [ dhcpack_RE( @node ), "Waiting for #{ @node_name } to receive DHCPACK ..." ] ]
   end
 
 
   def nfsroot_regexps
-    [ [ NfsdRE.new( @node ).mount, "Waiting for #{ @node_name } to mount nfsroot ..." ] ]
+    [ [ nfsroot_mount_RE( @node ), "Waiting for #{ @node_name } to mount nfsroot ..." ] ]
   end
 
 
   # Misc #######################################################################
+
 
   def wait_loop
     loop do

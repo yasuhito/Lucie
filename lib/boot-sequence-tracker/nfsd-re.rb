@@ -1,12 +1,13 @@
+require "boot-sequence-tracker/common-re"
+
+
 class BootSequenceTracker
-  class NfsdRE
-    def initialize node
-      @ip = Regexp.escape( node.ip_address )
-    end
+  module NfsdRE
+    include CommonRE
 
 
-    def mount
-      /mountd\[\d+\]: authenticated mount request from #{ @ip }/
+    def nfsroot_mount_RE node
+      /mountd\[\d+\]: authenticated mount request from #{ ip_RE node }/
     end
   end
 end

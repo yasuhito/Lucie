@@ -1,23 +1,28 @@
+require "boot-sequence-tracker/common-re"
+
+
 class BootSequenceTracker
-  class TftpdRE
-    def initialize node
-      @ip = Regexp.escape( node.ip_address )
-      @mac = Regexp.escape( node.mac_address.downcase.gsub( ":", "-" ) )
+  module TftpdRE
+    include CommonRE
+
+
+    def pxekernel_RE node
+      /in\.tftpd\[\d+\]: RRQ from #{ ip_RE node } filename lucie/
     end
 
 
-    def kernel
-      /in\.tftpd\[\d+\]: RRQ from #{ @ip } filename lucie/
-    end
-
-
-    def pxelinux
-      /in\.tftpd\[\d+\]: RRQ from #{ @ip } filename pxelinux\.0/
+    def pxelinux_RE node
+      /in\.tftpd\[\d+\]: RRQ from #{ ip_RE node } filename pxelinux\.0/
     end
     
 
-    def pxelinux_cfg
-      /in\.tftpd\[\d+\]: RRQ from #{ @ip } filename pxelinux\.cfg\/01\-#{ @mac }/
+    def pxelinux_cfg_RE node
+      /in\.tftpd\[\d+\]: RRQ from #{ ip_RE node } filename pxelinux\.cfg\/01\-#{ mac_downcase_RE node }/
+    end
+
+
+    def mac_downcase_RE node
+      Regexp.escape node.mac_address.downcase.gsub( ":", "-" )
     end
   end
 end
