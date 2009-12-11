@@ -3,72 +3,56 @@ require "lucie"
 
 class Blocker
   module PidFile
-    def self.file_name
-      File.expand_path "#{ Lucie::ROOT }/tmp/lucie.pid"
+    def self.path name
+      File.expand_path "#{ Lucie::ROOT }/tmp/#{ name }.pid"
     end
 
 
-    def self.store pid
-      File.open( file_name, 'w' ) do | f |
-        f << pid
+    def self.store name, pid
+      File.open( path( name ), "w" ) do | file |
+        file << pid
       end
     end
 
 
-    def self.recall
-      IO.read( file_name ).to_i rescue nil
+    def self.recall name
+      IO.read( path( name ) ).to_i
     end
   end
 
 
-  def self.start &code_block
+  def self.start name = "lucie", &code_block
     begin
-      block
+      block name
       code_block.call
     ensure
-      release
+      release name
     end
   end
 
 
-  def self.block
-    lock = File.open( PidFile.file_name, 'a+' )
-    locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
+  def self.fork_start name = "lucie", &code_block
+    block name
+    PidFile.store name, Kernel.fork( &code_block )
+  end
 
+
+  def self.block name
+    lock = File.open( PidFile.path( name ), "a+" )
+    locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
     unless locked
       lock.close
-      raise cannot_lock_error_message
+      raise "Another process is already running."
     end
   end
 
 
-  def self.blocked?
-    unless FileTest.exists?( PidFile.file_name )
-      return false
-    end
-
-    lock = File.open( PidFile.file_name, 'a' )
-    begin
-      return !lock.flock( File::LOCK_EX | File::LOCK_NB )
-    ensure
+  def self.release name = "lucie"
+    File.open( PidFile.path( name ), "w" ) do | lock |
       lock.flock( File::LOCK_UN | File::LOCK_NB )
       lock.close
+      File.delete lock.path
     end
-  end
-
-
-  def self.release
-    lock = File.open( PidFile.file_name, 'w' )
-    if lock
-      lock.flock( File::LOCK_UN | File::LOCK_NB )
-      lock.close
-      File.delete( lock.path )
-    end
-  end
-
-
-  def self.cannot_lock_error_message
-    "Another process is already running."
   end
 end
 
