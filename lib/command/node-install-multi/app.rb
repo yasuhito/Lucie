@@ -16,6 +16,7 @@ module Command
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
         super argv, @debug_options
+        @global_options.check_mandatory_options
       end
 
 

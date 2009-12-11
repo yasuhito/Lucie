@@ -14,6 +14,10 @@ module Command
 
       separator
 
+      add_option( :long_option => "--password",
+                  :short_option => "-P",
+                  :argument => "[PASSWORD]",
+                  :description => "A password to decrypt the encrypted confidential data" )
       add_option( :long_option => "--port",
                   :short_option => "-p",
                   :argument => "[NUM]",

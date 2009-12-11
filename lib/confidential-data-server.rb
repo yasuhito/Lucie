@@ -14,14 +14,13 @@ class ConfidentialDataServer
   def initialize encrypted, password, debug_options = {}
     @debug_options = debug_options
     @decrypted = decrypt( encrypted, password )
-    @port = @debug_options[ :port ] || PORT
   end
 
 
-  def start
-    return if @debug_options[ :dry_run ]
-    @server = TCPServer.open( "localhost", @port )
-    debug "Confidential data server started on port = #{ @port }"
+  def start port = PORT
+    return if dry_run
+    @server = TCPServer.open( "localhost", port )
+    debug "Confidential data server started on port = #{ port }"
     main_loop
   end
 

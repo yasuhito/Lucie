@@ -54,6 +54,14 @@ DummyInterface = Struct.new( :ip_address, :netmask, :subnet )
 ################################################################################
 
 
+def tempfile content
+  t = Tempfile.new( "lucie_cucumber" )
+  t.print content
+  t.flush
+  t
+end
+
+
 # [FIXME] obsolete.
 def options
   { :dry_run => true,

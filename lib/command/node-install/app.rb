@@ -9,6 +9,7 @@ module Command
     class App < Command::App
       def initialize argv = ARGV, messenger = nil
         super argv, :messenger => messenger
+        @global_options.check_mandatory_options
       end
 
 

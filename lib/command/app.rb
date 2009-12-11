@@ -15,7 +15,7 @@ module Command
 
     def initialize argv, debug_options
       @argv = argv
-      @global_options = parse_argv.check_mandatory_options
+      @global_options = parse_argv
       @debug_options = global_debug_options.merge( debug_options )
       usage_and_exit if @global_options.help
     end

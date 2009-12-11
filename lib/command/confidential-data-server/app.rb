@@ -7,11 +7,14 @@ module Command
     class App < Command::App
       def initialize argv = ARGV, debug_options = {}
         super argv, debug_options
+        @global_options.check_mandatory_options
       end
 
 
       def main
-        ::ConfidentialDataServer.new( @global_options.encrypted_file, password, @debug_options.merge( :port => @global_options.port ) ).start
+        server = ::ConfidentialDataServer.new( @global_options.encrypted_file, password, @debug_options )
+        custom_port = @global_options.port
+        server.start *[ custom_port ? custom_port.to_i : nil ]
       end
 
 
@@ -21,8 +24,8 @@ module Command
 
 
       def password
-        pw = ENV[ "LUCIE_PASSWORD" ]
-        raise "Environment variable 'LUCIE_PASSWORD' is not set!" unless pw
+        pw = ENV[ "LUCIE_PASSWORD" ] || @global_options.password
+        raise "password is missing" unless pw
         pw
       end
     end
