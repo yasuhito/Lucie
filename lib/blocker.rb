@@ -12,6 +12,7 @@ class Blocker
       File.open( path( name ), "w" ) do | file |
         file << pid
       end
+      pid
     end
 
 
