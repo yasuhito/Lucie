@@ -33,7 +33,7 @@ describe Blocker do
   it "should store its PID in its pid file" do
     Kernel.stub!( :fork ).and_yield
     Blocker::PidFile.should_receive( :store ).with( lock_name, 100 )
-    Blocker.fork_start( lock_name ) do 100 end
+    Blocker.fork( lock_name ) do 100 end
   end
 
 

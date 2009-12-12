@@ -32,13 +32,13 @@ class Blocker
   end
 
 
-  def self.fork_start name = "lucie", &code_block
+  def self.fork name = "lucie", &code_block
     block name
     PidFile.store name, Kernel.fork( &code_block )
   end
 
 
-  def self.block name
+  def self.block name = "lucie"
     lock = File.open( PidFile.path( name ), "a+" )
     locked = lock.flock( File::LOCK_EX | File::LOCK_NB )
     unless locked
