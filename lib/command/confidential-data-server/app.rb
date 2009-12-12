@@ -12,15 +12,20 @@ module Command
 
 
       def main
-        server = ::ConfidentialDataServer.new( @global_options.encrypted_file, password, @debug_options )
+        cds = new_server
         custom_port = @global_options.port
-        server.start *[ custom_port ? custom_port.to_i : nil ]
+        custom_port ? cds.start( custom_port.to_i ) : cds.start
       end
 
 
       ##########################################################################
       private
       ##########################################################################
+
+
+      def new_server
+        ::ConfidentialDataServer.new( @global_options.encrypted_file, password, @debug_options )
+      end
 
 
       def password
