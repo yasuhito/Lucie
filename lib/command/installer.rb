@@ -115,7 +115,7 @@ module Command
               logger.info "Rebooting"
               SuperReboot.new( node, syslog, logger, @debug_options ).start_first_stage
             rescue
-              @html_logger.proceed_to_next_step node, "Requesting manual reboot"
+              @html_logger.update_status node, "Requesting manual reboot"
               logger.info "Requesting manual reboot"
               SuperReboot.new( node, syslog, logger, @debug_options ).wait_manual_reboot
             end
