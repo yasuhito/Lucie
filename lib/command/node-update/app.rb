@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require "blocker"
 require "command/app"
 require "command/installer"
 require "configuration-updator"
@@ -24,25 +25,32 @@ module Command
 
 
       def main node_names
-        maybe_start_confidential_data_server
-        nodes = nodes_from( node_names )
-        if @global_options.ldb_repository
-          @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
-          if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
-            @configurator.update_server @global_options.ldb_repository
-          else
-            @configurator.clone_to_server @global_options.ldb_repository, Lucie::Server.ip_address_for( nodes )
-          end
-          nodes.collect do | each |
-            Thread.start( each, Lucie::Server.ip_address_for( nodes ) ) do | node, lucie_ip |
-              @configurator.clone_to_client @global_options.ldb_repository, node, lucie_ip
+        begin
+          maybe_start_confidential_data_server
+          nodes = nodes_from( node_names )
+          if @global_options.ldb_repository
+            @configurator = Configurator.new( @global_options.source_control || "Mercurial", @debug_options )
+            if FileTest.directory?( Configurator::Server.clone_directory( @global_options.ldb_repository ) )
+              @configurator.update_server @global_options.ldb_repository
+            else
+              @configurator.clone_to_server @global_options.ldb_repository, Lucie::Server.ip_address_for( nodes )
             end
-          end.each do | each |
-            each.join
+            nodes.collect do | each |
+              Thread.start( each, Lucie::Server.ip_address_for( nodes ) ) do | node, lucie_ip |
+                @configurator.clone_to_client @global_options.ldb_repository, node, lucie_ip
+              end
+            end.each do | each |
+              each.join
+            end
           end
+          @updator = ConfigurationUpdator.new( @debug_options )
+          update nodes
+        ensure
+          if @global_options.secret
+            Process.kill "TERM", Blocker::PidFile.recall( "confidential-data-server" )
+          end
+          Blocker.release "confidential-data-server"
         end
-        @updator = ConfigurationUpdator.new( @debug_options )
-        update nodes
       end
 
 

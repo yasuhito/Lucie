@@ -45,23 +45,12 @@ module Command
 
 
     def maybe_start_confidential_data_server
-      if @global_options.secret
-        unless ENV[ "LUCIE_PASSWORD" ]
-          IO.read @global_options.secret
-          ENV[ "LUCIE_PASSWORD" ] = HighLine.new.ask( "Please enter password to decrypt #{ @global_options.secret }:" ) do | q |
-            q.echo = "*"
-          end
-        end
-
-        @cds_pid = fork do
-          cmd = "#{ File.expand_path( File.dirname( __FILE__ ) + '/../../script/confidential-data-server' ) } --encrypted-file #{ @global_options.secret } #{ verbose ? '--verbose' : '' }"
-          exec cmd
-        end
-
-        t = Thread.new( @cds_pid ) do | pid |
-          Process.waitpid pid
-        end
-        t.priority = -10
+      return unless @global_options.secret
+      password = HighLine.new.ask( "Please enter password to decrypt #{ @global_options.secret }:" ) do | q |
+        q.echo = "*"
+      end
+      Blocker.fork( "confidential-data-server" ) do
+        ConfidentialDataServer.new( @global_options.secret, password, @debug_options ).start
       end
     end
 
