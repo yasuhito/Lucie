@@ -1,0 +1,12 @@
+Lucie is a cluster installation and configuration tool. It enables
+parallel network installation of large numbers of nodes from one
+single administration server. The Lucie installer performs HDD
+partitioning and installations of the Linux kernel and required
+software packages. The Lucie configurator then generates system and
+software configurations. Lucie is designed to be scalable and
+efficient, so a complete Linux cluster can be built from scratch in a
+short amount of time. Moreover, the whole installation process is
+designed to be fully automated.
+
+Some part of Lucie is derived from FAI
+(http://www.informatik.uni-koeln.de/fai/).
