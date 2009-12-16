@@ -62,11 +62,20 @@ EOF
   end
 
 
-  it "should wait until node mounts nfsroot" do
+  it "should wait until node mounts nfsroot (IP Address)" do
     @messenger.should_receive( :puts ).with( "Waiting for yutaro to mount nfsroot ..." ).once
 
     BootSequenceTracker.new( dummy_syslog( <<-EOF ), @node, @logger, @debug_options ).wait_nfsroot
 Jun 17 21:00:15 lucie_server mountd[12345]: authenticated mount request from 192.168.0.1
+EOF
+  end
+
+
+  it "should wait until node mounts nfsroot (FQDN)" do
+    @messenger.should_receive( :puts ).with( "Waiting for yutaro to mount nfsroot ..." ).once
+
+    BootSequenceTracker.new( dummy_syslog( <<-EOF ), @node, @logger, @debug_options ).wait_nfsroot
+Jun 17 21:00:15 lucie_server mountd[12345]: authenticated mount request from yutaro
 EOF
   end
 
