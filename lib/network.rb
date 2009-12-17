@@ -44,6 +44,9 @@ class Network
 
   def self.netmask_address name, debug_options
     nic = NetworkInterfaces.select do | each |
+      # [FIXME] handle following two cases in the NetworkInterfaces
+      next unless each.netmask
+      next unless each.subnet
       Network.network_address( resolve( name, debug_options ), each.netmask ) == each.subnet
     end.first
     return "NETMASK" if debug_options[ :dry_run ]
