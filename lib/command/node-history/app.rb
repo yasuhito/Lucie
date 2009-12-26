@@ -1,6 +1,7 @@
 require "command/app"
 require "lucie/debug"
 require "lucie/logger/installer"
+require "node"
 
 
 module Command
