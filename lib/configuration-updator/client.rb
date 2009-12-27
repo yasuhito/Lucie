@@ -52,7 +52,7 @@ class ConfigurationUpdator
         name = File.basename( $1 ) if $1
         raise if name.empty?
       rescue
-        raise "Configuration repository not found on #{ node.name }:#{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }"
+        raise "Failed to find LDB repository on #{ node.name }. Try node update with `--source-control' and `--ldb-repository'"
       end
       name
     end

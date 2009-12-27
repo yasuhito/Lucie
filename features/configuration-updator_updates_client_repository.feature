@@ -38,7 +38,7 @@
       かつ コンフィグレータがその設定リポジトリを Lucie クライアント "yasuhito_node" に複製していない
       かつ <SCM> が Lucie クライアントにインストールされている
     もし コンフィグレーションアップデータが Lucie クライアント "yasuhito_node" の更新を実行
-    ならば エラー "Configuration repository not found on yasuhito_node:/var/lib/lucie/config"  
+    ならば エラー "Failed to find LDB repository on yasuhito_node. Try node update with `--source-control' and `--ldb-repository'"
 
     例:
       | SCM        |
