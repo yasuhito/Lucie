@@ -4,21 +4,22 @@
 $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../lib/" ) )
 
 
-require "lucie"
-
+require "blocker"
 require "command/confidential-data-server"
 require "lucie/script"
 
 
-begin
-  app = Command::ConfidentialDataServer::App.new
-  app.main
-rescue Interrupt
-  $stderr.puts "Interrupted"
-  exit 0
-rescue => exception
-  Lucie::Script.handle_exception exception, app
-  exit -1
+Blocker.start "confidential-data-server" do
+  begin
+    app = Command::ConfidentialDataServer::App.new
+    app.main
+  rescue Interrupt
+    $stderr.puts "Interrupted"
+    exit 0
+  rescue => exception
+    Lucie::Script.handle_exception exception, app
+    exit -1
+  end
 end
 
 

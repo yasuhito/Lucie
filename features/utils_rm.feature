@@ -1,10 +1,11 @@
 Feature: remove files
-  As a Lucie user
+
+  As a Lucie sub-module
   I want to remove files
   So that I can install nodes
 
   Background:
-    Given a log file "/tmp/lucie.log"
+    Given Lucie log file is "/tmp/lucie.log"
     And a file "/tmp/lucie.tmp" exists
 
   Scenario: rm -f
@@ -25,8 +26,8 @@ Feature: remove files
     Given --dry-run option is on
     When I execute rm -f "/tmp/lucie.tmp"
     Then "/tmp/lucie.tmp" not removed
-    And "rm -f /tmp/lucie.tmp" displayed
-    And "rm -f /tmp/lucie.tmp" logged
+    And nothing displayed
+    And nothing logged
 
   Scenario: rm -f --verbose --dry-run
     Given --verbose option is on

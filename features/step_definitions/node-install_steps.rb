@@ -1,5 +1,5 @@
 Given /^\-\-address option is "([^\"]*)"$/ do | value |
-  @address = [ "--address=#{ value }" ]
+  @address = [ "--ip-address=#{ value }" ]
 end
 
 
@@ -19,12 +19,12 @@ end
 
 
 When /^I run node install "([^\"]*)"$/ do | node |
-  pending
   verbose = @verbose ? [ "--verbose" ] : []
   dry_run = @dry_run ? [ "--dry-run" ] : []
-  opts = [ "--reboot-script=true" ] + @address + @netmask + @mac + @storage_conf + verbose + dry_run
-  @messenger = StringIO.new( "" )
-  Command::NodeInstall::App.new( opts, @messenger, [ @if ] ).main( [ node ] )
+  opts = @address + @netmask + @mac + @storage_conf + verbose + dry_run
+  @messenger = StringIO.new
+  @inetd_conf = Tempfile.new( "lucie" ).path
+  Command::NodeInstall::App.new( opts, :messenger => @messenger, :dry_run => true, :nic => [ @if ], :inetd_conf => @inetd_conf ).main( node )
 end
 
 

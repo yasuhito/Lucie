@@ -1,8 +1,8 @@
 When /^I try to setup dhcpd$/ do
-  @messenger = StringIO.new( "" )
-  dhcp_service = Service::Dhcp.new( :verbose => true, :dry_run => true, :messenger => @messenger )
+  @messenger = StringIO.new
+  dhcp_service = Service::Dhcp.new( :verbose => true, :dry_run => true, :messenger => @messenger, :nic => [ @if ] )
   begin
-    dhcp_service.setup Nodes.load_all, [ @if ]
+    dhcp_service.setup Nodes.load_all
   rescue => e
     @error = e
   end

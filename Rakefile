@@ -32,6 +32,9 @@ task :cruise => [ :verify_rcov_cruise ]
 
 # Cucumber Tasks ###############################################################
 
+# an alias for Emacs feature-mode.
+task :features => [ :cucumber ]
+
 Cucumber::Rake::Task.new do | t |
   rm_f rcov_dat
   t.rcov = true
@@ -41,7 +44,7 @@ end
 
 Cucumber::Rake::Task.new( "cucumber:cruise", "Run Features with Cucumber (cc.rb)" ) do | t |
   rm_f rcov_dat
-  t.cucumber_opts = "--format rerun"
+  t.cucumber_opts = "--format progress"
   t.rcov = true
   t.rcov_opts = rcov_opts
 end

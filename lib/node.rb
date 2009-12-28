@@ -28,9 +28,9 @@ class Node
 
   def self.load_install_history_of name, debug_options
     node = self.new( name )
-    dir = Lucie::Logger::Installer.log_directory( node )
+    dir = debug_options[ :node_log_dir ] || Lucie::Logger::Installer.log_directory( node )
     hist = Dir[ "#{ dir }/install-*" ].collect do | each |
-      Status::Installer.new each, debug_options, debug_options[ :messenger ]
+      Status::Installer.new each, debug_options
     end
   end
 
@@ -106,18 +106,14 @@ class Node
   end
 
 
+  def broadcast_address
+    Network.broadcast_address ip_address, netmask_address
+  end
+
+
   ################################################################################
   private
   ################################################################################
-
-
-  def write_config options, messenger
-    eth0_mac = File.join( @path, @mac_address.gsub( ':', '_' ) )
-    write_file eth0_mac, <<-EOF, options, messenger
-ip_address,#{ ip_address }
-netmask_address,#{ netmask_address }
-EOF
-  end
 
 
   def disable_file iname

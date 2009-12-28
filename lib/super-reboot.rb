@@ -113,7 +113,7 @@ class SuperReboot
   def run_script_reboot script
     command = "#{ script } #{ @node_name }"
     info "Executing '#{ command }' to reboot #{ @node_name } ..."
-    run command, @debug_options, messenger
+    run command, @debug_options
   end
 
 

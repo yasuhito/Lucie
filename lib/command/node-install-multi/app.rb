@@ -2,9 +2,10 @@ require "command/app"
 require "command/installer"
 require "command/node-install-multi/parser"
 require "configurator"
+require "installation-tracker"
 require "node"
 require "nodes"
-require "thread_pool"
+require "process-pool"
 
 
 module Command
@@ -17,6 +18,7 @@ module Command
         @debug_options = debug_options
         super argv, @debug_options
         @global_options.check_mandatory_options
+        @node_logger = {}
       end
 
 
@@ -25,9 +27,11 @@ module Command
           prepare_installation
           install
         ensure
-          if @cds_pid
-            Process.kill( "TERM", @cds_pid ) rescue nil
+          @installation_tracker.finalize if @installation_tracker
+          if @global_options.secret
+            Process.kill "TERM", Blocker::PidFile.recall( "confidential-data-server" )
           end
+          Blocker.release "confidential-data-server"
         end
       end
 
@@ -54,9 +58,7 @@ module Command
         rescue Exception
           Nodes.load_all.each do | each |
             disable_network_boot each
-            if each.status.nil? or each.status.incomplete?
-              @html_logger.update_status( each, "failed" ) if @html_logger
-            end
+            each.status.fail! if each.status
           end
           raise $!
         end
@@ -64,16 +66,14 @@ module Command
 
 
       def install
-        thread_pool = ThreadPool.new
+        process_pool = ProcessPool.new( @debug_options )
         begin
-          Nodes.load_all.collect do | each |
-            thread_pool.dispatch( each ) do | each |
-              sleep 1
-              log_directory = Lucie::Logger::Installer.new_log_directory( each, @debug_options, @debug_options[ :messenger ] )
-              logger = Lucie::Logger::Installer.new( log_directory, @debug_options )
-              each.status = Status::Installer.new( log_directory, @debug_options, @debug_options[ :messenger ] )
+          Nodes.load_all.each do | each |
+            sleep 1
+            process_pool.dispatch( each ) do | each |
               begin
-                each.status.start!
+                $0 = "lucie: installer (#{ each.name })"
+                logger = @node_logger[ each ]
                 run_first_reboot each, logger
                 run_first_stage each, logger
                 run_second_reboot each, logger
@@ -81,12 +81,10 @@ module Command
                 run_third_reboot each, logger
                 logger.info "Node '#{ each.name }' installed."
                 each.status.succeed!
-                @html_logger.update_status each, "ok"
               rescue Exception => e
                 each.status.fail!
                 $stderr.puts e.message
                 logger.error e.message
-                @html_logger.update_status each, "failed (#{ e.message })"
                 if @global_options.verbose
                   e.backtrace.each do | each |
                     $stderr.puts each
@@ -96,15 +94,11 @@ module Command
               end
             end
           end
-          thread_pool.shutdown
+          process_pool.shutdown
         rescue Exception => e
-          thread_pool.killall
+          process_pool.killall
           Nodes.load_all.each do | each |
-            if each.status.nil? or each.status.incomplete?
-              each.status.fail!
-              emsg = e.message.empty? ? e.inspect : e.message
-              @html_logger.update_status each, "failed (#{ emsg })"
-            end
+            each.status.fail! if each.status.incomplete?
           end
           raise $!
         end
@@ -119,7 +113,6 @@ module Command
                           @node_options[ node.name ].storage_conf,
                           server_clone_directory,
                           logger,
-                          @html_logger,
                           @debug_options,
                           @debug_options[ :messenger ] )
       end
@@ -128,6 +121,11 @@ module Command
       def register_nodes
         @node_options.keys.each do | each |
           node = Node.new( each, node_options( each ) )
+          log_directory = Lucie::Logger::Installer.new_log_directory( node, @debug_options, @debug_options[ :messenger ] )
+          logger = Lucie::Logger::Installer.new( log_directory, @debug_options )
+          node.status = Status::Installer.new( log_directory, @debug_options )
+          node.status.start!
+          @node_logger[ node ] = logger
           Nodes.add node, @debug_options, @debug_options[ :messenger ]
         end
       end

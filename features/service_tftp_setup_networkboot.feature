@@ -1,17 +1,16 @@
-Feature: Setup tftpd to boot from nfsroot
+Feature: Setup tftpd for network boot
+
   As a Lucie user
-  I want to setup tftpd nfsroot automatically
-  So that I have not to write configuration and restart tftpd by hand
+  I want Lucie to automatically configure tftpd for network boot
+  So that I don't have to write tftpd configuration by hand
 
   Background:
-    Given Lucie log path is "/tmp/lucie.log"
-    And node list is empty
+    Given tftp root path is "/tmp/tftp_root"
     And installers temporary directory "/tmp/lucie/tmp/installers" is empty
-    And an installer for suite "lenny" added and built
+    And an installer for suite "lenny"
 
   Scenario: Setup tftpd
-    Given tftp root path is "/tmp/tftp_root"
-    And a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
+    Given a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"
     And a node named "yasuhito_private_node01" with MAC address "11:11:11:11:11:11"
     And a node named "yasuhito_private_node02" with MAC address "22:22:22:22:22:22"
     When I try to setup tftpd nfsroot with installer "lenny_i386"
@@ -54,4 +53,3 @@ Feature: Setup tftpd to boot from nfsroot
     When I try to setup tftpd nfsroot with installer "lenny_i386"
     Then tftpd is not restarted
     And "tftpd config generated?" is "NO"
-

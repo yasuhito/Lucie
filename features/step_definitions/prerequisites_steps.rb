@@ -1,7 +1,7 @@
 Given /^new service "([^\"]*)", with prerequisite "([^\"]*)"$/ do | klass, prerequisite |
   eval <<-EOF
-  class Service
-    class #{ klass } < Service
+  module Service
+    class #{ klass } < Common
       prerequisite "#{ prerequisite }"
     end
   end
@@ -11,12 +11,12 @@ end
 
 When /^I try to check prerequisites$/ do
   @messenger = StringIO.new
-  Service.check_prerequisites( :dry_run => true, :messenger => @messenger )
+  Service.check_prerequisites( :dry_run => true, :verbose => @verbose, :messenger => @messenger )
 end
 
 
 Then /^"([^\"]*)" checked$/ do | package |
-  @messenger.string.should match( /^Checking #{ regexp_from( package ) } \.\.\. (INSTALLED|NOT INSTALLED)$/ )
+  @messenger.string.should match( /^Checking #{ regexp_from( package ) } \.\.\. (installed|not installed)$/ )
 end
 
 

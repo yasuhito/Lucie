@@ -26,11 +26,12 @@ end
 
 
 When /^I try to setup tftpd nfsroot with installer "([^\"]*)"$/ do | installer |
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   @inetd_conf ||= Tempfile.new( "lucie" )
-  Service::Tftp.__send__ :class_variable_set, :@@config, @tftpd_config ? @tftpd_config.path : "/etc/default/tftpd-hpa"
-  tftp_service = Service::Tftp.new( :verbose => true, :dry_run => true, :messenger => @messenger )
-  tftp_service.setup_nfsroot Nodes.load_all, Installers.find( installer ), @inetd_conf.path
+  @nodes ||= []
+  tftp_service = Service::Tftp.new( :verbose => true, :dry_run => true, :messenger => @messenger, :inetd_conf => @inetd_conf.path,
+                                    :config_path => ( @tftpd_config ? @tftpd_config.path : nil ) )
+  tftp_service.setup_networkboot @nodes, Installers.find( installer )
 end
 
 
@@ -85,19 +86,12 @@ end
 
 Then /^PXE configuration file for node "([^\"]*)" should be modified to boot from local$/ do | node_name |
   mac_file = "01-" + Nodes.find( node_name ).mac_address.gsub( ':', '-' ).downcase
-  history[ 0..4 ].should == ( <<-EXPECTED ).split( "\n" )
-file write (#{ File.join( Configuration.tftp_root, 'pxelinux.cfg', mac_file ) })
-> default local
-> 
-> label local
-> localboot 0
-EXPECTED
+  history.should include( "file write (#{ File.join( Configuration.tftp_root, 'pxelinux.cfg', mac_file ) })" )
 end
 
 
 When /^I try to remove tftpd configuration for node "([^\"]*)"$/ do | name |
-  @messenger = StringIO.new( "" )
-  @tftpd_config = Tempfile.new( "tftp" )
+  @messenger = StringIO.new
   tftp_service = Service::Tftp.new( :dry_run => true, :verbose => true, :messenger => @messenger )
   tftp_service.remove Nodes.find( name )
 end

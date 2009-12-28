@@ -3,9 +3,12 @@ Feature: node install command
   I want to install a node with node install command
   So that I can install a node
 
-  Scenario: node install
+  Background:
     Given eth0 "192.168.0.1"
-    And --address option is "192.168.0.100"
+    And a node named "yasuhito_private_node", with IP address "192.168.0.100"
+
+  Scenario: node install
+    Given --address option is "192.168.0.100"
     And --netmask option is "255.255.255.0"
     And --mac option is "11:22:33:44:55:66"
     And --storage-conf option is "my_storage.conf"

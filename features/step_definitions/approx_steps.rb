@@ -1,11 +1,29 @@
 When /^I try to setup approx$/ do
-  @messenger = StringIO.new( "" )
-  Service::Approx.new( :verbose => true, :dry_run => true, :messenger => @messenger ).setup "DEBIAN_REPOSITORY"
+  @messenger = StringIO.new
+  approx = Service::Approx.new( :verbose => true, :dry_run => true, :messenger => @messenger )
+  approx.setup "DEBIAN_REPOSITORY"
 end
 
 
-Then /^approx configuration file generated$/ do
+Then /^an approx configuration file generated$/ do
   history.should include( "file write (/etc/approx/approx.conf)" )
+end
+
+
+Then /^the approx configuration file should include debian repository$/ do
+  @messenger.string.should match( /^> debian\s+DEBIAN_REPOSITORY$/ )
+end
+
+
+Then /^the approx configuration file should include security repository$/ do
+  security_repository = regexp_from( "http://security.debian.org/debian-security" )
+  @messenger.string.should match( /^> security\s+#{ security_repository }$/ )
+end
+
+
+Then /^the approx configuration file should include volatile repository$/ do
+  volatile_repository = regexp_from( "http://volatile.debian.org/debian-volatile" )
+  @messenger.string.should match( /^> volatile\s+#{ volatile_repository }$/ )
 end
 
 

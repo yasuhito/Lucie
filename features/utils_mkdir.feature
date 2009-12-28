@@ -1,10 +1,11 @@
 Feature: mkdir
-  As a Lucie user
+
+  As a Lucie sub-module
   I want to make directories
   So that I can install nodes
 
   Background:
-    Given a log file "/tmp/lucie.log"
+    Given Lucie log file is "/tmp/lucie.log"
     And a directory "/tmp/lucie" not exist
 
   Scenario: mkdir
@@ -25,8 +26,8 @@ Feature: mkdir
     Given --dry-run option is on
     When I execute mkdir "/tmp/lucie"
     Then directory "/tmp/lucie" not created
-    And "mkdir -p /tmp/lucie" displayed
-    And "mkdir -p /tmp/lucie" logged
+    And nothing displayed
+    And nothing logged
 
   Scenario: mkdir --verbose --dry-run
     Given --verbose option is on

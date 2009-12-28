@@ -17,18 +17,13 @@ When /^the node "([^\"]*)" updated its status "([^\"]*)"$/ do | name, status |
 end
 
 
+When /^html logger updated$/ do
+  @html_logger.update_html
+end
+
+
 Then /^status of "([^\"]*)" is "([^\"]*)"$/ do | name, status |
   history.join( "\n" ).should match( Regexp.new( status ) )
-end
-
-
-Then /^an html log file generated$/ do
-  history.should include( "file write (#{ Lucie::Logger::HTML.log_file })" )
-end
-
-
-Then /^the html log includes an entry for node "([^\"]*)"$/ do | name |
-  history.join( "\n" ).should match( Regexp.new( name ) )
 end
 
 

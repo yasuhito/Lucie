@@ -1,7 +1,6 @@
 require "configuration"
 require "installer"
 require "lucie/io"
-require "lucie/mutex"
 require "lucie/utils"
 require "lucie/version"
 require "nodes"
@@ -11,7 +10,6 @@ module Lucie
   module Logger
     class HTML
       include Lucie::IO
-      include Lucie::Mutex
       include Lucie::Utils
 
 
@@ -20,6 +18,11 @@ module Lucie
 
       def self.log_file
         File.join Configuration.log_directory, "install.html"
+      end
+
+
+      def initialize debug_options
+        @debug_options = debug_options
       end
 
 
@@ -38,35 +41,18 @@ module Lucie
       end
 
 
-      def initialize debug_options
-        @debug_options = debug_options
-      end
-
-
       def update_status node, status
-        synchronize do
-          @status[ node ] = status
-          update_html
-        end
+        @status[ node ] = status
       end
 
 
-      def proceed_to_next_step node, status
-        synchronize do
-          @current_step[ node ] += 1
-          @status[ node ] = status
-          update_html
-        end
+      def next_step node
+        @current_step[ node ] += 1
       end
-
-
-      ##########################################################################
-      private
-      ##########################################################################
 
 
       def update_html
-        write_file HTML.log_file, <<-EOF, @debug_options, @debug_options[ :messenger ]
+        write_file HTML.log_file, <<-EOF, @debug_options
 <html>
   <head>
     <meta http-equiv="Refresh" content="#{ REFRESH_INTERVAL }">
@@ -82,6 +68,11 @@ module Lucie
 </html>
 EOF
       end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
 
 
       def make_log_directory

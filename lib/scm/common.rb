@@ -9,6 +9,7 @@ class Scm
 
     def initialize debug_options = {}
       @debug_options = debug_options
+      @dpkg = @debug_options[ :dpkg ] || Dpkg.new( @debug_options )
     end
 
 
@@ -18,14 +19,14 @@ class Scm
 
 
     def test_installed
-      unless Dpkg.new( @debug_options ).installed?( name )
+      unless @dpkg.installed?( name )
         raise "#{ self } is not installed"
       end
     end
 
 
     def test_installed_on node
-      unless Dpkg.new( @debug_options ).installed_on?( node, name )
+      unless @dpkg.installed_on?( node, name )
         raise "#{ self } is not installed on #{ node.name }"
       end
     end

@@ -41,8 +41,8 @@ module Lucie
         end
         new_dir = File.join( log_directory( node ), "install-#{ labels.max ? labels.max + 1 : 0 }" )
         Lucie::Utils.mkdir_p new_dir, options.merge( :messenger => messenger )
-        Lucie::Utils.rm_f latest_log_directory( node ), options, messenger
-        Lucie::Utils.ln_s new_dir, latest_log_directory( node ), options, messenger
+        Lucie::Utils.rm_f latest_log_directory( node ), options.merge( :messenger => messenger )
+        Lucie::Utils.ln_s new_dir, latest_log_directory( node ), options.merge( :messenger => messenger )
         new_dir
       end
 

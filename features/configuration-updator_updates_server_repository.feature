@@ -7,6 +7,8 @@
 
   背景:
     前提 Lucie のテンポラリディレクトリは "/tmp/lucie/"
+    かつ eth0 "192.168.0.1"
+    かつ a node named "yasuhito_node", with IP address "192.168.0.100"
 
   テンプレ: サーバ上の設定リポジトリを更新
     前提 Lucie クライアント "yasuhito_node" 用の設定リポジトリ (<SCM>)

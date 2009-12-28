@@ -6,6 +6,12 @@ module Command
     class Options < Command::Option
       usage "node history <NODE> [OPTIONS ...]"
 
+      add_option( :long_option => "--color",
+                  :short_option => "-c",
+                  :description => "Control wheter color is used to distinguish installation result." )
+
+      separator
+
       add_option( :long_option => "--help",
                   :short_option => "-h",
                   :description => "Show this help message." )

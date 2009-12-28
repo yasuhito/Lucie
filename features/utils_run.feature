@@ -1,11 +1,11 @@
 Feature: run commands
 
-  As a Lucie module
+  As a Lucie sub-module
   I want to run commands
   So that I can install nodes
 
   Background:
-    Given a log file "/tmp/lucie.log"
+    Given Lucie log file is "/tmp/lucie.log"
     And a file "/tmp/lucie-test.tmp" not exist
 
   Scenario: run
@@ -29,8 +29,8 @@ Feature: run commands
     When I run "touch /tmp/lucie-test.tmp"
     Then nothing raised
     And "/tmp/lucie-test.tmp" not created
-    And "touch /tmp/lucie-test.tmp" displayed
-    And "touch /tmp/lucie-test.tmp" logged
+    And nothing displayed
+    And nothing logged
 
   Scenario: run --verbose --dry-run
     Given --verbose option is on

@@ -13,3 +13,4 @@ Feature: tftpd remove entry
   Scenario: remove an entry
     When I try to remove tftpd configuration for node "yasuhito_private_node01"
     Then PXE configuration file for node "yasuhito_private_node01" removed
+

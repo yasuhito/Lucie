@@ -8,19 +8,6 @@ When /^I try to find an installer "([^\"]*)"$/ do | name |
 end
 
 
-When /^I try to remove an installer "([^\"]*)"$/ do | name |
-  @messenger = StringIO.new( "" )
-  Installers.remove! name, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
-end
-
-
-When /^I add an installer named "([^\"]*)" twice$/ do | name |
-  2.times do
-    Installers.add Installer.new( name, installer_directory( name ) ) rescue @error_message = $!.to_s
-  end
-end
-
-
 When /^I try to get a size of installer list$/ do
   @installers_size = Installers.size
 end
@@ -63,18 +50,8 @@ Then /^no installer found$/ do
 end
 
 
-Then /^installer "([^\"]*)" removed$/ do | name |
-  Installers.find( name ).should == nil
-end
-
-
 Then /^no error should be raised by removing nonexistent installer$/ do
   # do nothing.
-end
-
-
-Then /^an error "([^\"]*)" should be raised$/ do | err_msg |
-  @error_message.should == err_msg
 end
 
 

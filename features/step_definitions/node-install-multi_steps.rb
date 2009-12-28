@@ -6,7 +6,8 @@ end
 
 When /^I try to run 'node install\-multi' with global option "([^\"]*)"$/ do | global_option |
   @messenger = StringIO.new
-  debug_options = { :messenger => @messenger, :verbose => true, :nic => [ @if ], :dpkg => SuccessfulDpkg.new }
+  @inetd_conf = Tempfile.new( "lucie" ).path
+  debug_options = { :messenger => @messenger, :verbose => true, :nic => [ @if ], :inetd_conf => @inetd_conf, :dpkg => SuccessfulDpkg.new }
   Command::NodeInstallMulti::App.new( @node_argv + global_option.split( /\s+/ ) + [ "--dry-run" ], debug_options ).main
 end
 

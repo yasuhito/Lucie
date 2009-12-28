@@ -61,11 +61,7 @@ class Configurator
 
 
   def lucie_server_ip_address_for nodes
-    if @options[ :dry_run ] and @options[ :nic ]
-      @options[ :nic ].first.ip_address
-    else
-      Lucie::Server.ip_address_for nodes
-    end
+    Lucie::Server.ip_address_for nodes, @options
   end
 end
 

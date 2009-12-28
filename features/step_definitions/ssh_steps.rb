@@ -68,6 +68,7 @@ end
 
 When /^SSH のキーペアを生成し、認証しようとした$/ do
   @messenger = StringIO.new
+  @verbose = true
   SSH.new( debug_options ).maybe_generate_and_authorize_keypair
 end
 

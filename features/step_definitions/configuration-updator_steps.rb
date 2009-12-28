@@ -5,7 +5,6 @@ end
 
 
 Given /^Lucie クライアント "([^\"]*)" 用の設定リポジトリ \(([a-zA-Z]+)\)$/ do | name, scm |
-  Given %{Lucie クライアント "#{ name }"}
   @scm = Scm.from( scm )
 end
 

@@ -1,5 +1,5 @@
-class Service
-  class Debootstrap < Service
+module Service
+  class Debootstrap < Common
     prerequisite "debootstrap"
   end
 end

@@ -84,7 +84,7 @@ class Installer
 
   def save options, messenger
     mkdir_p path, options.merge( :messenger => messenger )
-    generate_config options, messenger
+    generate_config options.merge( :messenger => messenger )
   end
 
 
@@ -93,16 +93,17 @@ class Installer
   end
 
 
-  def build lucie_server_ip_address, options, messenger
+  def build lucie_server_ip_address, debug_options
     @ip_address = lucie_server_ip_address
-    Build.new( self, path, options, messenger ).run
+    Build.new( self, path, debug_options, debug_options[ :messenger ] ).run
   end
 
 
-  def start node, suite, linux_image, storage_conf, ldb_directory, logger, html_logger, options, messenger
+  def start node, suite, linux_image, storage_conf, ldb_directory, logger, options, messenger
     ( messenger || $stdout ).puts "node #{ node.name } is going to be installed using #{ storage_conf }"
     base_system = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ @arch }.tgz" )
-    FirstStage.new( node, suite, linux_image, base_system, storage_conf, ldb_directory, logger, html_logger, options, messenger ).run
+    install_options = { :suite => suite, :linux_image => linux_image, :base_system => base_system, :storage_conf => storage_conf, :ldb_directory => ldb_directory }
+    FirstStage.new( node, install_options, logger, options.merge( :messenger => messenger ) ).run
   end
 
 
@@ -111,8 +112,8 @@ class Installer
   ##############################################################################
 
 
-  def generate_config options, messenger
-    write_file Installer.config( name ), <<-CONFIG, options, messenger
+  def generate_config debug_options
+    write_file Installer.config( name ), <<-CONFIG, debug_options
 Installer.configure do | installer |
 
   # HTTP proxy url.

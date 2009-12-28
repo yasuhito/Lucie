@@ -6,7 +6,7 @@ module Lucie
   class Shell
     def initialize options = {}, messenger = nil
       @options = options
-      @messenger = messenger
+      @messenger = messenger || options[ :messenger ]
     end
 
 

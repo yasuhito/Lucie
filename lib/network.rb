@@ -43,13 +43,13 @@ class Network
 
 
   def self.netmask_address name, debug_options
+    return Nodes.find( name ).netmask_address if debug_options[ :dry_run ] && Nodes.find( name )
     nic = NetworkInterfaces.select do | each |
       # [FIXME] handle following two cases in the NetworkInterfaces
       next unless each.netmask
       next unless each.subnet
       Network.network_address( resolve( name, debug_options ), each.netmask ) == each.subnet
     end.first
-    return "NETMASK" if debug_options[ :dry_run ]
     raise "cannot find network interface for #{ name }" unless nic
     nic.netmask
   end

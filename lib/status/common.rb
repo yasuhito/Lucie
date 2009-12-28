@@ -2,8 +2,11 @@ require "lucie/utils"
 
 
 module Status
+  class StatusError < StandardError; end
   class Common
     include Lucie::Utils
+
+    attr_reader :path
 
 
     def self.base_name name # :nodoc:
@@ -13,10 +16,10 @@ module Status
     end
 
 
-    def initialize path, options, messenger
+    def initialize path, debug_options = {}
       @path = path
-      @options = options
-      @messenger = messenger
+      @debug_options = debug_options
+      @messenger = debug_options[ :messenger ]
     end
 
     
@@ -25,9 +28,17 @@ module Status
     end
 
 
-    ############################################################################
-    # Status setters
-    ############################################################################
+    def update message
+      write_status_file "incomplete", message
+    end
+
+
+    def read
+      Dir[ File.join( @path, "#{ base_name }.*" ) ].each do | each |
+        return IO.read( each )
+      end
+      nil
+    end
 
 
     def start!
@@ -51,11 +62,6 @@ module Status
     end
 
 
-    ############################################################################
-    # Status getters
-    ############################################################################
-
-
     def succeeded?
       read_latest_status == 'success'
     end
@@ -73,16 +79,8 @@ module Status
 
     def elapsed_time
       file = status_file
+      raise Status::StatusError, "Could not find status file" unless file
       match_elapsed_time( File.basename( file ) )
-    end
-
-
-    def elapsed_time_in_progress
-      if incomplete?
-        ( Time.now - created_at ).ceil
-      else
-        nil
-      end
     end
 
 
@@ -110,9 +108,7 @@ module Status
 
     def match_elapsed_time file_name
       match = /\A#{ base_name }\.[^\.]+\.in(\d+)s\Z/.match( file_name )
-      if !match or !$1
-        raise 'Could not parse elapsed time.'
-      end
+      raise StatusError, "Could not parse elapsed time." if !match or !$1
       return $1.to_i
     end
 
@@ -123,15 +119,23 @@ module Status
     end
 
 
+    def write_status_file status, message
+      filename = File.join( @path, "#{ base_name }.#{ status }" )
+      mkdir_p( @path, @debug_options ) unless FileTest.directory?( @path )
+      write_file filename, message, @debug_options
+    end
+
+
     def touch_status_file status
       filename = File.join( @path, "#{ base_name }.#{ status }" )
-      touch filename, @options, @messenger
+      mkdir_p( @path, @debug_options ) unless FileTest.directory?( @path )
+      touch filename, @debug_options
     end
 
 
     def remove_old_status_file
       Dir[ File.join( @path, "#{ base_name }.*" ) ].each do | each |
-        rm_f each, @options, @messenger
+        rm_f each, @debug_options
       end
     end
 

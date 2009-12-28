@@ -1,15 +1,113 @@
-require "rubygems"
-
-require "lucie/io"
 require "lucie/server"
 require "lucie/utils"
-require "network"
-require "network_interfaces"
 
 
-class Service
-  class Dhcp < Service
-    include Lucie::IO
+module Service
+  class Dhcp < Common
+    class ConfigFile
+      class SubnetEntry
+        def initialize nodes, subnet, netmask, debug_options
+          @nodes = nodes
+          @subnet = subnet
+          @netmask = netmask
+          @debug_options = debug_options
+        end
+
+
+        def to_s
+          <<-EOF
+subnet #{ @subnet } netmask #{ @netmask } {
+  option broadcast-address #{ @nodes.first.broadcast_address };
+  deny unknown-clients;
+
+  next-server #{ Lucie::Server.ip_address_for( @nodes, @debug_options ) };
+  filename "pxelinux.0";
+
+#{ host_entries.join "\n" }
+}
+EOF
+        end
+
+
+        ########################################################################
+        private
+        ########################################################################
+
+
+        def host_entries
+          @nodes.collect do | each |
+            HostEntry.new( each ).to_s
+          end
+        end
+      end
+
+
+      class HostEntry
+        def initialize node
+          @node = node
+        end
+
+
+        def to_s
+        <<-EOF
+  host #{ @node.name } {
+    hardware ethernet #{ @node.mac_address };
+    fixed-address #{ @node.ip_address };
+  }
+EOF
+        end
+      end
+
+
+      def initialize nodes, debug_options
+        @nodes = nodes.sort_by { | each | each.name }
+        @debug_options = debug_options
+      end
+
+
+      def to_s
+        <<-EOF
+option domain-name "#{ Lucie::Server.domain }";
+
+#{ subnet_entries }
+EOF
+      end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
+
+
+      def subnet_entries
+        subnets.inject( "" ) do | result, each |
+          result + subnet_entry_for( *each )
+        end
+      end
+
+
+      def subnet_entry_for netinfo, nodes
+        subnet, netmask = netinfo
+        SubnetEntry.new( nodes, subnet, netmask, @debug_options ).to_s
+      end
+
+
+      #
+      # returns all the subnet and netmask addresses used by nodes.
+      #
+      # return value:
+      #   a Hash of [ network_address, netmask_address ] => [ node1, node2, ... ]
+      #
+      def subnets
+        result = Hash.new( [] )
+        @nodes.each do | each |
+          result[ each.net_info ] += [ each ]
+        end
+        result
+      end
+    end
+
+
     include Lucie::Utils
 
 
@@ -17,11 +115,10 @@ class Service
     prerequisite "dhcp3-server"
 
 
-    def setup nodes, interfaces = NetworkInterfaces
-      info "Setting up dhcpd ..."
+    def setup nodes
       return if nodes.empty?
       backup
-      write_config nodes, interfaces
+      write_config nodes
       restart
     end
 
@@ -31,85 +128,8 @@ class Service
     ############################################################################
 
 
-    def write_config nodes, interfaces
-      write_file @@config, dhcpd_conf( nodes, interfaces ), @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
-    end
-
-
-    # Networking ###############################################################
-
-
-    def broadcast_address nodes
-      node = nodes.first
-      Network.broadcast_address node.ip_address, node.netmask_address
-    end
-
-
-    #
-    # returns all the subnet and netmask addresses used by nodes.
-    #
-    # return value:
-    #   a Hash of [ network_address, netmask_address ] => [ node1, node2, ... ]
-    #
-    def subnets nodes
-      subnets = Hash.new( [] )
-      nodes.sort_by do | each |
-        each.name
-      end.each do | each |
-        subnets[ each.net_info ] = subnets[ each.net_info ].push( each )
-      end
-      subnets
-    end
-
-
-    # dhcpd.conf snippets ######################################################
-
-
-    def dhcpd_conf nodes, interfaces
-      <<-EOF
-option domain-name "#{ Lucie::Server.domain }";
-
-#{ subnet_entries( nodes, interfaces ) }
-EOF
-    end
-
-
-    def subnet_entries nodes, interfaces
-      entries = ""
-      subnets( nodes ).each_pair do | netinfo, nodes |
-        entries += subnet_entry( netinfo, nodes, interfaces )
-      end
-      entries
-    end
-
-
-    def subnet_entry netinfo, nodes, interfaces
-      subnet, netmask = netinfo
-      return <<-EOF
-subnet #{ subnet } netmask #{ netmask } {
-  option broadcast-address #{ broadcast_address( nodes ) };
-  deny unknown-clients;
-
-  next-server #{ Lucie::Server.ip_address_for( nodes, :interfaces => interfaces ) };
-  filename "pxelinux.0";
-
-#{ host_entries( nodes ) }
-}
-EOF
-    end
-
-
-    def host_entries nodes
-      entries = ""
-      nodes.each do | each |
-        entries += <<-EOF
-  host #{ each.name } {
-    hardware ethernet #{ each.mac_address };
-    fixed-address #{ each.ip_address };
-  }
-EOF
-      end
-      entries
+    def write_config nodes
+      write_file config_path, ConfigFile.new( nodes, @debug_options ).to_s, @debug_options.merge( :sudo => true )
     end
   end
 end

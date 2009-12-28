@@ -8,8 +8,8 @@ class Installers
   end
 
 
-  def self.add installer, options, messenger
-    self.new.__send__ :add, installer, options, messenger
+  def self.add installer, debug_options
+    self.new( debug_options[ :dry_run ] ).__send__ :add, installer, debug_options, debug_options[ :messenger ]
   end
 
 
@@ -41,8 +41,9 @@ class Installers
   end
 
 
-  def initialize
-    load_all
+  def initialize dry_run = false
+    @list = []
+    load_all unless dry_run
   end
 
 

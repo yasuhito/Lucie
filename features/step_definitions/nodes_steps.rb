@@ -28,14 +28,6 @@ When /^I try to sort nodes by name$/ do
 end
 
 
-When /^a node named "([^\"]*)" added twice$/ do | name |
-  opts = { :ip_address => '1.1.1.1', :netmask_address => '255.255.255.0', :mac_address => '00:00:00:00:00:00' }
-  2.times do
-    Nodes.add Node.new( name, opts ) rescue @error = $! 
-  end
-end
-
-
 Then /^node list should be empty$/ do
   @nodes.should be_empty
 end
@@ -85,11 +77,6 @@ Then /^I should get a sorted node list "([^\"]*)"$/ do | list |
   @sorted_nodes.each_with_index do | each, index |
     list.split( /,\s+/ )[ index ].should == each.name
   end
-end
-
-
-Then /^error "([^\"]*)" should be raised$/ do | message |
-  @error.message.should == message
 end
 
 

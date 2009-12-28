@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 Given /^バックエンドとして ([a-zA-Z]+) を指定したサーバーコンフィグレータ$/ do | scm |
   @messenger = StringIO.new
+  @verbose = true
   @configurator = Configurator::Server.new( scm, options )
 end
 
 
 Given /^バックエンドの SCM が指定されていないサーバーコンフィグレータ$/ do
   @messenger = StringIO.new
+  @verbose = true
   @configurator = Configurator::Server.new( nil, options )
 end
 

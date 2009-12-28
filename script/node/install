@@ -17,16 +17,15 @@ def target_node
 end
 
 
-begin
-  Blocker.block
-  app = Command::NodeInstall::App.new
-  app.usage_and_exit if target_node.nil?
-  app.main target_node
-rescue => e
-  Lucie::Script.handle_exception e, app
-  exit -1
-ensure
-  Blocker.release
+Blocker.start do
+  begin
+    app = Command::NodeInstall::App.new
+    app.usage_and_exit if target_node.nil?
+    app.main target_node
+  rescue => e
+    Lucie::Script.handle_exception e, app
+    exit -1
+  end
 end
 
 

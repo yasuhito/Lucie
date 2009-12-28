@@ -29,6 +29,7 @@ class Configurator
 
     def initialize scm = nil, debug_options = {}
       @debug_options = debug_options
+      @dpkg = @debug_options[ :dpkg ] || Dpkg.new( @debug_options )
       @scm = Scm.from( scm, @debug_options ) if scm
     end
 
@@ -75,7 +76,7 @@ class Configurator
 
     def check_scm
       raise "scm is not specified" unless @scm
-      raise "#{ @scm } is not installed" unless Dpkg.new( @debug_options ).installed?( @scm.name )
+      raise "#{ @scm } is not installed" unless @dpkg.installed?( @scm.name )
     end
 
 

@@ -4,7 +4,7 @@ Feature: write files
   So that I can install nodes
 
   Background:
-    Given a log file "/tmp/lucie.log"
+    Given Lucie log file is "/tmp/lucie.log"
     And a file "/tmp/lucie.tmp" not exist
 
   Scenario: write_file
@@ -29,19 +29,15 @@ Feature: write files
     Given --dry-run option is on
     When I write file "/tmp/lucie.tmp" with "Hello World"
     Then "/tmp/lucie.tmp" not created
-    And "file write (/tmp/lucie.tmp)" displayed
-    And "> Hello World" displayed
-    And "file write (/tmp/lucie.tmp)" logged
-    And "> Hello World" logged
+    And nothing displayed
+    And nothing logged
 
   Scenario: write_file --dry-run (sudo)
     Given --dry-run option is on
     When I sudo write file "/tmp/lucie.tmp" with "Hello World"
     Then "/tmp/lucie.tmp" not created
-    And "file write (/tmp/lucie.tmp)" displayed
-    And "> Hello World" displayed
-    And "file write (/tmp/lucie.tmp)" logged
-    And "> Hello World" logged
+    And nothing displayed
+    And nothing logged
 
   Scenario: write_file --verbose --dry-run
     Given --verbose option is on

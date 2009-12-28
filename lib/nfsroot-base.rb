@@ -159,7 +159,7 @@ class NfsrootBase < Rake::TaskLib
 
 
   def run command
-    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
   end
 end
 

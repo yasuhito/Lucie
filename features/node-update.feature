@@ -7,6 +7,8 @@
 
   背景:
     前提 node list is empty
+    かつ eth0 "192.168.0.1"
+    かつ a node named "yasuhito_node", with IP address "192.168.0.100"
     かつ Lucie のテンポラリディレクトリは "/tmp/lucie"
 
   シナリオ: node update

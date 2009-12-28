@@ -1,6 +1,6 @@
 When /^I add an installer$/ do
-  @messenger = StringIO.new( "" )
-  Installers.add Installer.new, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+  @messenger = StringIO.new
+  Installers.add Installer.new, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
 end
 
 

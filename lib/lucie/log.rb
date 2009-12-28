@@ -1,51 +1,39 @@
-require 'logger'
+require "logger"
+require "singleton"
 
 
 module Lucie
   class Log
-    FORMAT = "%Y-%m-%d %H:%M:%S"
+    class SingletonLogger
+      include Singleton
 
 
-    @@logger = nil
-
-    
-    def self.path= path
-      @@path = path
-      @@logger = ::Logger.new( @@path )
-      @@logger.datetime_format = FORMAT
-    end
+      FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-    def self.path
-      @@path
-    end
-    
+      attr_reader :path
 
-    def self.verbose= verbose
-      return unless @@logger
-      if verbose
-        @@logger.level = ::Logger::DEBUG
-      else
-        @@logger.level = ::Logger::INFO
+
+      def path= path
+        @path = path
+        @logger = ::Logger.new( @path )
+        @logger.datetime_format = FORMAT
+      end
+
+
+      def method_missing message, *args
+        @logger.__send__ message, *args if @logger
       end
     end
 
 
-    def self.debug message
-      return unless @@logger
-      @@logger.debug message
+    def self.verbose= verbose
+      SingletonLogger.instance.level = ( verbose ? ::Logger::DEBUG : ::Logger::INFO )
     end
 
 
-    def self.info message
-      return unless @@logger
-      @@logger.info message
-    end
-
-
-    def self.error message
-      return unless @@logger
-      @@logger.error message
+    def self.method_missing message, *args
+      SingletonLogger.instance.__send__ message, *args
     end
   end
 end

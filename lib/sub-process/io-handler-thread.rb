@@ -6,7 +6,6 @@ module SubProcess
           method.call $LAST_READ_LINE.chomp
         end
       end
-      self.priority = -10
     end
   end
 end

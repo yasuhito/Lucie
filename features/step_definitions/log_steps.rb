@@ -1,4 +1,4 @@
-Given /^a log file "([^\"]*)"$/ do | name |
+Given /^Lucie log file is "([^\"]*)"$/ do | name |
   FileUtils.rm_f name
   Lucie::Log.path = name
 end

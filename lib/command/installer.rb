@@ -1,3 +1,4 @@
+require "blocker"
 require "configuration"
 require "configurator"
 require "environment"
@@ -50,6 +51,7 @@ module Command
         q.echo = "*"
       end
       Blocker.fork( "confidential-data-server" ) do
+        $0 = "lucie: confidential-data-server"
         ConfidentialDataServer.new( @global_options.secret, password, @debug_options ).start
       end
     end
@@ -72,17 +74,19 @@ module Command
       @installer.package_repository = @global_options.package_repository if @global_options.package_repository
       @installer.suite = @global_options.suite if @global_options.suite
       @installer.installer_linux_image = @global_options.installer_linux_image if @global_options.installer_linux_image
-      Installers.add @installer, @debug_options, @debug_options[ :messenger ]
+      Installers.add @installer, @debug_options
     end
 
 
     def start_html_logger
-      @html_logger = Lucie::Logger::HTML.new( :dry_run => dry_run, :messenger => messenger )
+      html_logger = Lucie::Logger::HTML.new( :dry_run => dry_run, :messenger => messenger )
       install_options = { :suite => @installer.suite, :ldb_repository => @global_options.ldb_repository,
         :package_repository => @installer.package_repository, :http_proxy => @installer.http_proxy }
-      @html_logger.start install_options
+      html_logger.start install_options
+      @installation_tracker = InstallationTracker.new( html_logger )
+      @installation_tracker.main_loop
       Nodes.load_all.each do | each |
-        @html_logger.update_status each, "started"
+        each.status.update "Started"
       end
     end
 
@@ -93,16 +97,12 @@ module Command
 
 
     def setup_first_stage_environment
-      if dry_run and @debug_options[ :nic ]
-        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf", @debug_options[ :nic ] )
-      else
-        Environment::FirstStage.new( @debug_options ).start( Nodes.load_all, @installer, "/etc/inetd.conf" )
-      end
+      Environment::FirstStage.new( Nodes.load_all, @installer, @debug_options ).start
     end
 
 
     def disable_network_boot node
-      Service::Tftp.new( @debug_options ).reset node
+      Service::Tftp.new( @debug_options ).setup_localboot node
     end
 
 
@@ -111,12 +111,12 @@ module Command
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
-              @html_logger.proceed_to_next_step node, "Rebooting"
-              logger.info "Rebooting"
+              logger.info "Rebooting ..."
+              node.status.update "Rebooting ..."
               SuperReboot.new( node, syslog, logger, @debug_options ).start_first_stage
             rescue
-              @html_logger.update_status node, "Requesting manual reboot"
               logger.info "Requesting manual reboot"
+              node.status.update "Requesting manual reboot"
               SuperReboot.new( node, syslog, logger, @debug_options ).wait_manual_reboot
             end
           end
@@ -139,8 +139,8 @@ module Command
         Environment::SecondStage.new( @debug_options ).start( node )
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
-            @html_logger.proceed_to_next_step node, "Rebooting"
-            logger.info "Rebooting"
+            logger.info "Rebooting ..."
+            node.status.update "Rebooting ..."
             SuperReboot.new( node, syslog, logger, @debug_options ).start_second_stage
           end
         end
@@ -158,8 +158,8 @@ module Command
 
 
     def start_ldb node, logger
-      @html_logger.proceed_to_next_step node, "Starting LDB ..."
       logger.info "Starting LDB ..."
+      node.status.update "Starting LDB ..."
       if @global_options.ldb_repository
         @configurator.clone_to_client @global_options.ldb_repository, node, lucie_server_ip_address, logger
         @configurator.start node, logger
@@ -168,11 +168,11 @@ module Command
 
 
     def run_third_reboot node, logger
-      @html_logger.proceed_to_next_step node, "Rebooting"
       time = StopWatch.time_to_run do
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
-            logger.info "Rebooting"
+            logger.info "Rebooting ..."
+            node.status.update "Rebooting ..."
             SuperReboot.new( node, syslog, logger, @debug_options ).reboot_to_finish_installation
           end
         end

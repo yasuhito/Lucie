@@ -20,5 +20,6 @@ Feature: HTML logger
     And the node "yasuhito_node0" updated its status "Installed"
     And the node "yasuhito_node0" updated its status "OK"
     And the node "yasuhito_node1" updated its status "Bye"
+    And html logger updated
     Then status of "yasuhito_node0" is "OK"
     And status of "yasuhito_node1" is "Bye"

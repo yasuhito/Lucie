@@ -14,9 +14,9 @@ require "configurator"
 require "debootstrap"
 require "lucie"
 require "lucie/server"
+require "process-pool"
 require "service"
 require "super-reboot"
-require "tempfile"
 
 
 def tempfile content

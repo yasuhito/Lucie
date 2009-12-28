@@ -336,7 +336,7 @@ class Nfsroot < Rake::TaskLib
 
 
   def touch path
-    Lucie::Utils.touch path, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    Lucie::Utils.touch path, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
   end
 
 
@@ -346,12 +346,12 @@ class Nfsroot < Rake::TaskLib
 
 
   def run command
-    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    Lucie::Utils.run command, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
   end
 
 
   def write_file path, body
-    Lucie::Utils.write_file path, body, { :verbose => @verbose, :dry_run => @dry_run }, @messenger
+    Lucie::Utils.write_file path, body, { :verbose => @verbose, :dry_run => @dry_run, :messenger => @messenger }
   end
 
 

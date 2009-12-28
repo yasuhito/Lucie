@@ -1,4 +1,4 @@
-require "lucie/log"
+require "lucie/logger/utils"
 require "lucie/shell"
 require "tempfile"
 
@@ -8,51 +8,129 @@ module Lucie
     module_function
 
 
-    def rm_f target, options = {}, messenger = nil
-      debug_print "rm -f #{ target }", options, messenger
-      FileUtils.rm_f target, :noop => options[ :dry_run ]
+    #
+    # Remove a file specified in +path+. This method cannot remove
+    # directories. Command-line is logged with Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    #  Lucie::Utils.rm_f "junk.txt"
+    #  Lucie::Utils.rm_f "dust.txt", :verbose => true
+    #  Lucie::Utils.rm_f "memo.txt", :dry_run => true
+    #
+    def rm_f path, options = {}
+      debug_print "rm -f #{ path }", options
+      FileUtils.rm_f path, :noop => options[ :dry_run ]
     end
 
 
-    def touch target, options = {}, messenger = nil
-      debug_print "touch #{ target }", options, messenger
-      FileUtils.touch target, :noop => options[ :dry_run ]
+    #
+    # Updates modification time (mtime) and access time (atime) of the
+    # file specified in +path+. The file is created if it doesn't
+    # exist. Command-line is logged with Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    #  Lucie::Utils.touch "timestamp"
+    #  Lucie::Utils.touch "OK", :verbose => true
+    #  Lucie::Utils.touch "OK", :dry_run => true
+    #
+    def touch path, options = {}
+      debug_print "touch #{ path }", options
+      FileUtils.touch path, :noop => options[ :dry_run ]
     end
 
 
-    def mkdir_p target, options = {}
-      debug_print "mkdir -p #{ target }", options, options[ :messenger ]
-      FileUtils.mkdir_p target, :noop => options[ :dry_run ]
+    #
+    # Creates a directory and all its parent directories. For example,
+    #
+    #   Lucie::Utils.mkdir_p "/usr/local/lib/ruby"
+    #
+    # causes to make following directories, if it does not exist.
+    #
+    #  * /usr
+    #  * /usr/local
+    #  * /usr/local/lib
+    #  * /usr/local/lib/ruby
+    #
+    # Command-line is logged with Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    def mkdir_p directory, options = {}
+      debug_print "mkdir -p #{ directory }", options
+      FileUtils.mkdir_p directory, :noop => options[ :dry_run ]
     end
 
 
-    def ln_s source, dest, options = {}, messenger = nil
-      debug_print "ln -s #{ source } #{ dest }", options, messenger
+    #
+    # Creates a symbolic link +dest+ which points to +source+. If
+    # +dest+ already exists and it is a directory, creates a symbolic
+    # link +dest/source+. If +dest+ already exists and it is not a
+    # directory, raises Errno::EEXIST. Command-line is logged with
+    # Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    #  Lucie::Utils.ln_s "/usr/bin/gcc-3.0", "/usr/bin/gcc"
+    #  Lucie::Utils.ln_s "/usr/bin/gcc-3.0", "/usr/bin/gcc", :verbose => true
+    #  Lucie::Utils.ln_s "/usr/bin/gcc-3.0", "/usr/bin/gcc", :dry_run => true
+    #
+    def ln_s source, dest, options = {}
+      debug_print "ln -s #{ source } #{ dest }", options
       FileUtils.ln_s source, dest, :noop => options[ :dry_run ]
     end
 
 
-    def run command, options = {}, messenger = nil
+    #
+    # Spawns a new process specified with +command+. If multiple lines
+    # are passed as +command+, empty lines and comments (starting with
+    # '#') are ignored. Command-line is logged with Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    #  Lucie::Utils.run "ls", :verbose => true
+    #  Lucie::Utils.run <<-COMMAND
+    #  # create yasuhito's home directory
+    #  mkdir /home/yasuhito
+    #  chown yasuhito:yasuhito /home/yasuhito
+    #  COMMAND
+    #
+    def run command, options = {}
       command.split( "\n" ).each do | each |
         next if /^#/=~ each
         next if /^\s*$/=~ each
-        debug_print each, options, messenger || options[ :messenger ]
-        Lucie::Shell.new( options, messenger || options[ :messenger ] ).run each
+        debug_print each, options
+        Lucie::Shell.new( options ).run each
       end
     end
 
 
-    def write_file path, body, options = {}, messenger = nil
-      write_temp_and_copy( path, body, options[ :sudo ] ) unless options[ :dry_run ]
-      debug_print_write_file path, body, options, messenger
+    #
+    # Creates a new file +path+ with contents +body+. If +sudo+ option
+    # is specified, the file creation is done with root
+    # priviledge. Information is logged with Lucie::Log.
+    #
+    # Options: verbose dry_run sudo
+    #
+    #  Lucie::Utils.write_file "/tmp/hello.txt", "Hello World"
+    #  Lucie::Utils.write_file "/root/memo.txt", "Secret File", :sudo => true
+    #
+    def write_file path, body, options = {}
+      write_temp_and_copy( path, body, options[ :sudo ] ? "sudo" : nil ) unless options[ :dry_run ]
+      debug_print_write_file path, body, options
     end
 
 
+    #
+    # Creates a temporary file of mode 0600 in the temporary directory
+    # with contents +body+, opens it with mode "w+", and returns a
+    # Tempfile object which represents the created temporary file. A
+    # Tempfile object can be treated just like a normal File object.
+    #
     def tempfile body
       tmp = Tempfile.new( "lucie" )
       tmp.print body
-      tmp.flush
-      yield tmp if block_given?
       tmp.close
       tmp
     end
@@ -60,32 +138,29 @@ module Lucie
 
     ############################################################################
     private
-    module_function
     ############################################################################
 
 
-    def debug_print command, options, messenger
-      Lucie::Log.verbose = options[ :verbose ] || options[ :dry_run ]
-      Lucie::Log.debug command
-      ( messenger || $stderr ).puts( command ) if options[ :dry_run ] || options[ :verbose ]
+    def debug_print message, options
+      Lucie::Logger::Utils.new( options ).debug message
     end
+    module_function :debug_print
 
 
-    def debug_print_write_file path, body, options, messenger
-      debug_print "file write (#{ path })", options, messenger
+    def debug_print_write_file path, body, options
+      debug_print "file write (#{ path })", options
       body.split( "\n" ).each do | each |
-        debug_print "> #{ each }", options, messenger
+        debug_print "> #{ each }", options
       end
     end
+    module_function :debug_print_write_file
 
 
-    def write_temp_and_copy path, body, sudo = false
-      sudo_cmd = sudo ? "sudo " : ""
-      tempfile body do | tmp |
-        run "#{ sudo_cmd }cp #{ tmp.path } #{ path }", :verbose => false, :dry_run => false
-        run "#{ sudo_cmd }chmod 644 #{ path }", :verbose => false, :dry_run => false
-      end
+    def write_temp_and_copy path, body, sudo
+      run "#{ sudo } cp #{ tempfile( body ).path } #{ path }".strip
+      run "#{ sudo } chmod 644 #{ path }".strip
     end
+    module_function :write_temp_and_copy
   end
 end
 

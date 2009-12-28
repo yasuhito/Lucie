@@ -14,7 +14,7 @@ class Build
     @path = path
     @options = options
     @messenger = messenger
-    @status = Status::Build.new( @path, @options, @messenger )
+    @status = Status::Build.new( @path, @options.merge( :messenger => @messenger ) )
     if @options[ :dry_run ]
       Lucie::Log.path = nil
     else

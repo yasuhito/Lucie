@@ -1,13 +1,34 @@
-require "installer"
-require "lucie/io"
-require "lucie/log"
 require "lucie/utils"
-require "nodes"
 
 
-class Service
-  class Nfs < Service
-    include Lucie::IO
+module Service
+  class Nfs < Common
+    class ConfigFile
+      def initialize nodes, installer_directory
+        @nodes = nodes
+        @installer_directory = installer_directory
+      end
+
+
+      def to_s
+        lines = @nodes.collect do | each |
+          exports_entry_for each
+        end
+        lines.join "\n"
+      end
+
+
+      ##########################################################################
+      private
+      ##########################################################################
+
+
+      def exports_entry_for node
+        "#{ @installer_directory } #{ node.ip_address }(async,ro,no_root_squash,no_subtree_check)"
+      end
+    end
+
+
     include Lucie::Utils
 
 
@@ -15,11 +36,10 @@ class Service
     prerequisite "nfs-kernel-server"
 
 
-    def setup nodes, installer
-      info "Setting up nfsd ..."
+    def setup nodes, installer_directory
       return if nodes.empty?
       backup
-      write_config nodes, installer
+      write_config nodes, installer_directory
       restart
     end
 
@@ -29,24 +49,8 @@ class Service
     ############################################################################
 
 
-    def write_config nodes, installer
-      write_file @@config, exports_config( nodes, installer ), @debug_options.merge( :sudo => true ), @debug_options[ :messenger ]
-    end
-
-
-    def exports_entry_string node, installer
-      return <<-EOF
-# #{ node.name }
-#{ installer.path } #{ node.ip_address }(async,ro,no_root_squash,no_subtree_check)
-EOF
-    end
-
-
-    def exports_config nodes, installer
-      lines = nodes.collect do | each |
-        exports_entry_string each, installer
-      end
-      lines.join "\n"
+    def write_config nodes, installer_directory
+      write_file config_path, ConfigFile.new( nodes, installer_directory ).to_s, @debug_options.merge( :sudo => true )
     end
   end
 end

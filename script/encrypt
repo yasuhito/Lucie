@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+#
+# Usage:
+#   ./script/encrypt --password hoge < himitsu.txt > himitsu.enc
+#
+
+
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../lib/" ) )
+
+
+require "command/encrypt"
+require "lucie/script"
+
+
+begin
+  app = Command::Encrypt::App.new
+  app.usage_and_exit if ARGV.nil?
+  app.main ARGV.first
+rescue => e
+  Lucie::Script.handle_exception e, app
+  exit -1
+end
+
+
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
+

@@ -9,7 +9,7 @@ class BootSequenceTracker
   include SyslogRE
 
 
-  DEFAULT_RETRY_INTERVAL = 30
+  DEFAULT_RETRY_INTERVAL = 5
 
 
   def initialize syslog, node, logger, debug_options = {}

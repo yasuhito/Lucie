@@ -1,22 +1,7 @@
 When /^I run node update "([^\"]*)"$/ do | nodes |
-  @messenger = StringIO.new( "" )
+  @messenger = StringIO.new
   @verbose = true
-  begin
-    Command::NodeUpdate::App.new( [], debug_options ).main nodes.split( /,\s*/ )
-  rescue => e
-    @error = e
-  end
-end
-
-
-Then /^remote repository cloned to Lucie server$/ do
-  history.join( "\n" ).should match( /^hg clone/ )
-end
-
-
-Then /^ldb on Lucie server updated$/ do
-  history.join( "\n" ).should match( /hg pull/ )
-  history.join( "\n" ).should match( /hg update/ )
+  Command::NodeUpdate::App.new( [], debug_options ).main nodes.split( /,\s*/ )
 end
 
 

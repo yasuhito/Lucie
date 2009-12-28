@@ -15,7 +15,7 @@ module Lucie
       it "should return Lucie server's IP address if found" do
         @interface.stub!( :subnet ).and_return( "157.82.0.0" )
         @interface.stub!( :ip_address ).and_return( "157.82.22.4" )
-        Server.ip_address_for( @node, :interfaces => [ @interface ] ).should == "157.82.22.4"
+        Server.ip_address_for( @node, :nic => [ @interface ] ).should == "157.82.22.4"
       end
 
 
@@ -23,7 +23,7 @@ module Lucie
         @interface.stub!( :subnet ).and_return( "157.83.0.0" )
         @interface.stub!( :ip_address ).and_return( "157.83.22.4" )
         lambda do
-          Server.ip_address_for @node, :interfaces => [ @interface ]
+          Server.ip_address_for @node, :nic => [ @interface ]
         end.should raise_error( "No suitable network interface for installation found" )
       end
     end

@@ -5,9 +5,10 @@ Feature: First stage installer
 
   Background:
     Given node list is empty
+    And eth0 "192.168.0.1"
+    And a node named "yasuhito_node", with IP address "192.168.0.100"
 
   Scenario: run first stage installer
-    Given a node named "yasuhito_node"
     When I run first stage installer with node "yasuhito_node"
     Then "Setting up hard disk partitions ..." displayed
     And "Setting up Linux base system ..." displayed

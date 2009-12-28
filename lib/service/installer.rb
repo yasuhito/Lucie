@@ -1,31 +1,18 @@
-require "lucie/io"
 require "lucie/server"
-require "nfsroot"
 
 
-class Service
-  class Installer < Service
-    include Lucie::IO
-
-
-    def setup nodes, installer
-      info "Setting up installer ..."
-      installer.build server_ip_address_for( nodes ), @debug_options, @debug_options[ :messenger ]
-    end
-
-
-    ############################################################################
-    private
-    ############################################################################
-
-
-    def server_ip_address_for nodes
-      @debug_options[ :dry_run ] ? dummy_ip_address : Lucie::Server.ip_address_for( nodes )
-    end
-
-
-    def dummy_ip_address
-      "192.168.0.1"
+module Service
+  #
+  # A controller class of nfsroot service. This class automatically
+  # (re-)builds nfsroot directory.
+  #
+  class Installer < Common
+    #
+    # Builds an +installer+ if need be. Lucie server's IP address is
+    # specified with +lucie_server_ip_address+.
+    #
+    def setup installer, lucie_server_ip_address
+      installer.build lucie_server_ip_address, @debug_options
     end
   end
 end
