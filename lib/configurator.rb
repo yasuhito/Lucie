@@ -7,7 +7,7 @@ require "lucie/server"
 class Configurator
   def self.repository_name_from url
     raise "Repository url not specified" unless url
-    url.gsub( /[\/:@]/, "_" )
+    url.gsub( /[\/:@]/, "_" ).gsub( /_+/, "_" )
   end
 
 

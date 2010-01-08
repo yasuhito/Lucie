@@ -107,7 +107,7 @@ class Configurator
         mercurial.stub!( :name ).and_return( "Mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
         mercurial.should_receive( :is_a? ).with( Scm::Mercurial ).and_return( true )
-        mercurial.should_receive( :clone ).with( "ssh://DUMMY_SERVER_IP//tmp/lucie/config/http___myrepos.org__lucie", "/tmp/lucie/config/http___myrepos.org__lucie.local" )
+        mercurial.should_receive( :clone ).with( "ssh://DUMMY_SERVER_IP//tmp/lucie/config/http_myrepos.org_lucie", "/tmp/lucie/config/http_myrepos.org_lucie.local" )
         Server.new( :mercurial ).clone_clone "http://myrepos.org//lucie", "DUMMY_SERVER_IP"
       end
     end
@@ -123,8 +123,8 @@ class Configurator
         mercurial.stub!( :name ).and_return( "Mercurial" )
         Scm::Mercurial.stub!( :new ).and_return( mercurial )
         mercurial.should_receive( :is_a? ).with( Scm::Mercurial ).and_return( true )
-        mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie" )
-        mercurial.should_receive( :update ).with( "/tmp/lucie/config/http___myrepos.org__lucie.local" )
+        mercurial.should_receive( :update ).with( "/tmp/lucie/config/http_myrepos.org_lucie" )
+        mercurial.should_receive( :update ).with( "/tmp/lucie/config/http_myrepos.org_lucie.local" )
         Server.new( :mercurial ).update Configurator.repository_name_from( "http://myrepos.org//lucie" )
       end
     end
