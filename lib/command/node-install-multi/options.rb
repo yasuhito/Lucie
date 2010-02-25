@@ -61,6 +61,9 @@ module Command
       add_option( :long_option => "--dry-run",
                   :short_option => "-d",
                   :description => "Print the commands that would be executed, but do not execute them." )
+      add_option( :long_option => "--break",
+                  :short_option => "-b",
+                  :description => "Set a breakpoint." )
       add_option( :long_option => "--verbose",
                   :short_option => "-v",
                   :description => "Be verbose." )
