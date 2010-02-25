@@ -99,10 +99,10 @@ class Installer
   end
 
 
-  def start node, suite, linux_image, storage_conf, ldb_directory, logger, options, messenger
+  def start node, suite, linux_image, storage_conf, ldb_directory, breakpoint, logger, options, messenger
     ( messenger || $stdout ).puts "node #{ node.name } is going to be installed using #{ storage_conf }"
     base_system = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ @arch }.tgz" )
-    install_options = { :suite => suite, :linux_image => linux_image, :base_system => base_system, :storage_conf => storage_conf, :ldb_directory => ldb_directory }
+    install_options = { :suite => suite, :linux_image => linux_image, :base_system => base_system, :storage_conf => storage_conf, :ldb_directory => ldb_directory, :break => breakpoint }
     FirstStage.new( node, install_options, logger, options.merge( :messenger => messenger ) ).run
   end
 

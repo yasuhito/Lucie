@@ -112,6 +112,7 @@ module Command
                           @node_options[ node.name ].linux_image,
                           @node_options[ node.name ].storage_conf,
                           server_clone_directory,
+                          @global_options.break,
                           logger,
                           @debug_options,
                           @debug_options[ :messenger ] )

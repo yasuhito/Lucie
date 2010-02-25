@@ -101,6 +101,7 @@ module Command
                           @global_options.linux_image,
                           @global_options.storage_conf,
                           server_clone_directory,
+                          false,
                           logger,
                           @debug_options,
                           @messenger )
