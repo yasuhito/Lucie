@@ -8,6 +8,14 @@ require "spec/rake/spectask"
 require "spec/rake/verify_rcov"
 
 
+Dir[ "tasks/**/*.rake" ].each do | t |
+  load t
+end
+
+desc "Enforce Ruby code quality with static analysis of code"
+task :quality => [ :reek, :roodi, :flog, :flay ]
+
+
 ################################################################################
 # Helper methods
 ################################################################################
