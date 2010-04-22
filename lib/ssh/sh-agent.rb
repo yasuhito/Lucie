@@ -1,10 +1,10 @@
-require "ssh/home"
+require "ssh/path"
 require "ssh/shell"
 
 
 class SSH
   class ShAgent
-    include Home
+    include Path
     include Shell
 
 
@@ -29,12 +29,12 @@ class SSH
 
 
     def real_command host_name, command
-      %{#{ start_ssh_agent }; ssh -A -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
+      %{#{ start_ssh_agent }; ssh -A -i #{ private_key } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
     end
 
 
     def start_ssh_agent
-      "eval `ssh-agent`; ssh-add #{ private_key_path }"
+      "eval `ssh-agent`; ssh-add #{ private_key }"
     end
   end
 end

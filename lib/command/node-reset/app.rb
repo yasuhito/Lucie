@@ -12,7 +12,7 @@ module Command
 
 
       def main
-        Service::Tftp.new( @debug_options ).reset_all
+        Service::Tftp.new( @debug_options ).setup_localboot_all
       end
     end
   end

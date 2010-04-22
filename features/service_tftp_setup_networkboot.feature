@@ -27,11 +27,11 @@ Feature: Setup tftpd for network boot
     Then "tftpd config generated?" is "<config generated?>"
 
   Scenarios:
-    | RUN_DAEMON | tftpd option               | config generated? |
-    | YES        | -v -l -s /foo/bar          | YES               |
-    | NO         | -v -l -s /foo/bar          | YES               |
-    | NO         | -v -l -s /var/lib/tftpboot | YES               |
-    | YES        | -v -l -s /var/lib/tftpboot | NO                |
+    | RUN_DAEMON | tftpd option            | config generated? |
+    | YES        | -v -l -s /foo/bar       | YES               |
+    | NO         | -v -l -s /foo/bar       | YES               |
+    | NO         | -v -l -s /tmp/tftp_root | YES               |
+    | YES        | -v -l -s /tmp/tftp_root | NO                |
 
   Scenario Outline: Reconfigure and restart inetd
     Given RUN_DAEMON option of tftpd default config is "YES"

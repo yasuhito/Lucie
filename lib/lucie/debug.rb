@@ -19,7 +19,7 @@ module Lucie
 
 
     def dry_run
-      @debug_options[ :dry_run ]
+      @debug_options && @debug_options[ :dry_run ]
     end
 
 

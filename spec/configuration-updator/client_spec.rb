@@ -19,7 +19,7 @@ class ConfigurationUpdator
 
         mercurial = Scm::Mercurial.new
         scm.stub!( :from ).and_return( mercurial )
-        mercurial.should_receive( :private_key_path ).once
+        mercurial.should_receive( :private_key ).once
         mercurial.stub!( :test_installed_on )
 
         Lucie::Server.stub!( :ip_address_for ).and_return( "SERVER_IP" )

@@ -90,20 +90,6 @@ Then /^PXE configuration file for node "([^\"]*)" should be modified to boot fro
 end
 
 
-When /^I try to remove tftpd configuration for node "([^\"]*)"$/ do | name |
-  @messenger = StringIO.new
-  tftp_service = Service::Tftp.new( :dry_run => true, :verbose => true, :messenger => @messenger )
-  tftp_service.remove Nodes.find( name )
-end
-
-
-Then /^PXE configuration file for node "([^\"]*)" removed$/ do | name |
-  mac = "01-" + Nodes.find( name ).mac_address.gsub( ':', '-' ).downcase
-  expected = Regexp.new( Regexp.escape( "rm -f " + File.join( Configuration.tftp_root, 'pxelinux.cfg', mac ) ) )
-  @messenger.string.should match( expected )
-end
-
-
 Then /^tftpd is not restarted$/ do
   history.should_not include( "sudo /etc/init.d/tftpd-hpa restart" )
 end

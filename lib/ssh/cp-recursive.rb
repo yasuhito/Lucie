@@ -1,13 +1,13 @@
-require "ssh/home"
+require "ssh/path"
 
 
 class SSH
   class CpRecursive
-    include Home
+    include Path
 
 
     def command from, to
-      "scp -i #{ private_key_path } #{ SSH::OPTIONS } -r #{ from } #{ to }"
+      "scp -i #{ private_key } #{ SSH::OPTIONS } -r #{ from } #{ to }"
     end
   end
 end

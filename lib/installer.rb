@@ -15,7 +15,6 @@ class Installer
 
 
   attr_accessor :http_proxy
-  attr_accessor :installer_linux_image
   attr_accessor :package_repository
   attr_accessor :suite
   attr_reader :ip_address
@@ -68,10 +67,9 @@ class Installer
   def configure_nfsroot
     Nfsroot.configure do | nfsroot |
       nfsroot.http_proxy = @http_proxy
-      nfsroot.kernel_package = @installer_linux_image if @installer_linux_image
       nfsroot.package_repository = @package_repository
       nfsroot.suite = @suite
-      nfsroot.target_directory = File.join( path, "nfsroot" )
+      nfsroot.target_directory = File.join( path, "nfsroot", "live", "filesystem.dir" )
       nfsroot.verbose = ( ENV[ "VERBOSE" ] == "true" ? true : false )
     end
   end
@@ -89,7 +87,12 @@ class Installer
 
 
   def kernel
-    File.join path, "nfsroot/boot/vmlinuz-*"
+    File.join path, "nfsroot/live/filesystem.dir/boot/vmlinuz-*"
+  end
+
+
+  def initrd
+    File.join path, "nfsroot/live/filesystem.dir/boot/initrd.img-*"
   end
 
 
@@ -125,7 +128,6 @@ Installer.configure do | installer |
   # Code name of debian version.
   installer.suite = #{ @suite ? "'#{ @suite }'" : 'nil' }
 
-  installer.installer_linux_image = #{ @installer_linux_image ? "'#{ @installer_linux_image }'" : 'nil' }
 end
 CONFIG
   end

@@ -1,10 +1,10 @@
-require "ssh/home"
+require "ssh/path"
 require "ssh/shell"
 
 
 class SSH
   class Sh
-    include Home
+    include Path
     include Shell
 
 
@@ -24,7 +24,7 @@ class SSH
 
 
     def real_command host_name, command
-      %{ssh -i #{ private_key_path } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
+      %{ssh -i #{ private_key } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
     end
   end
 end

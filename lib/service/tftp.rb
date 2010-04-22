@@ -1,46 +1,39 @@
 require "configuration"
-require "lucie/utils"
 require "nfsroot"
+require "service/inetd"
 require "service/tftp/config-local-boot"
 require "service/tftp/config-network-boot"
 
 
 module Service
+  #
+  # A configuration generator for TFTP service.
+  #
   class Tftp < Common
-    include Lucie::Utils
-
-
     config "/etc/default/tftpd-hpa"
     prerequisite "syslinux"
     prerequisite "tftpd-hpa"
 
 
-    def self.pxe_directory
-      File.join Configuration.tftp_root, "pxelinux.cfg"
-    end
-
-
     def setup_networkboot nodes, installer
+      return if nodes.empty?
       nodes.each do | each |
-        make_pxe_directory
-        create_pxe_nfsroot_files_for each, installer
+        maybe_make_pxe_directory
+        create_networkboot_file each, installer
       end
-      setup( installer ) unless nodes.empty?
+      setup installer
     end
 
 
     def setup_localboot node
-      ConfigLocalBoot.new( node.mac_address, @debug_options ).create
+      ConfigLocalBoot.new( node, @debug_options ).create
     end
 
 
-    def remove node
-      remove_pxe_file_of node.mac_address
-    end
-
-
-    def reset_all
-      ConfigFile.all.each { | each | write( each, ConfigLocalBoot::CONTENT ) }
+    def setup_localboot_all
+      ConfigFile.all.each do | each |
+        sudo_write each, ConfigLocalBoot.content
+      end
     end
 
 
@@ -50,44 +43,41 @@ module Service
 
 
     def setup installer
-      setup_pxelinux
-      setup_pxe_kernel installer.kernel
-      reconfigure_inetd
-      reconfigure_tftpd
+      setup_pxe_for installer
+      maybe_reconfigure_inetd
+      maybe_reconfigure_tftpd
       restart
     end
 
 
-    def setup_pxelinux
-      run "sudo cp /usr/lib/syslinux/pxelinux.0 #{ Configuration.tftp_root }", @debug_options
+    def setup_pxe_for installer
+      tftp_root = Configuration.tftp_root
+      sudo_run "cp /usr/lib/syslinux/pxelinux.0 #{ tftp_root }", @debug_options
+      sudo_run "cp #{ installer.kernel } #{ File.join tftp_root, ConfigFile::INSTALLER_KERNEL }", @debug_options
+      sudo_run "cp #{ installer.initrd } #{ tftp_root }", @debug_options
     end
 
 
-    def setup_pxe_kernel kernel
-      run "sudo cp #{ kernel } #{ File.join( Configuration.tftp_root, ConfigFile::INSTALLER_KERNEL ) }", @debug_options
+    def maybe_reconfigure_inetd
+      Inetd.new( @debug_options ).disable( "tftp" )
     end
 
 
-    def reconfigure_tftpd
+    def maybe_reconfigure_tftpd
       unless tftpd_configured?
-        write config_path, ConfigFile.tftpd_default
+        sudo_write config_path, ConfigFile.tftpd_default
       end
     end
 
 
-    def create_pxe_nfsroot_files_for node, installer
-      ConfigNetworkBoot.new( node, installer, @debug_options ).create
+    def create_networkboot_file node, installer
+      ConfigNetworkBoot.new( node, Nfsroot.path( installer ), @debug_options ).create
     end
 
 
-    def make_pxe_directory
-      target = Tftp.pxe_directory
-      run "sudo mkdir -p #{ target }", @debug_options unless File.directory?( target )
-    end
-
-
-    def remove_pxe_file_of mac
-      run "sudo rm -f #{ ConfigFile.new( mac ).path }", @debug_options
+    def maybe_make_pxe_directory
+      target = ConfigFile.pxe_directory
+      sudo_run "mkdir -p #{ target }", @debug_options unless File.directory?( target )
     end
 
 
@@ -95,63 +85,41 @@ module Service
 
 
     def tftpd_configured?
-      return false unless FileTest.exists?( config_path )
+      return false unless tftpd_config_file_exists?
       return false unless tftpd_run_as_daemon?
       return false unless tftpd_commandline_options_are_valid?
       true
     end
 
 
+    def tftpd_config_file_exists?
+      FileTest.exists? config_path
+    end
+
+
     def tftpd_run_as_daemon?
-      IO.read( config_path ).split( "\n" ).each do | each |
-        return true if /^RUN_DAEMON=(yes|"yes")$/=~ each
-      end
-      false
+      /^RUN_DAEMON=(yes|"yes")$/=~ tftpd_conf
     end
 
 
     def tftpd_commandline_options_are_valid?
-      IO.read( config_path ).split( "\n" ).each do | each |
-        if /^OPTIONS=(.*)$/=~ each
-          # -l option: Run the server in standalone (listen) mode.
-          # -s option: Change root directory on startup.
-          return ( $1 == %{"-v -l -s /var/lib/tftpboot"} )
-        end
+      if /^OPTIONS="([^\"]*)"$/=~ tftpd_conf
+        # -l option: Run the server in standalone (listen) mode.
+        # -s option: Change root directory on startup.
+        $1 == "-v -l -s #{ Configuration.tftp_root }"
       end
     end
 
 
-    # inetd ####################################################################
-
-
-    def reconfigure_inetd
-      disable_inetd_conf if tftpd_boot_from_inetd
-    end
-
-
-    def tftpd_boot_from_inetd
-      inetd_conf.split( "\n" ).each do | each |
-        return true if /^tftp\s+/=~ each
-      end
-      false
-    end
-
-
-    def inetd_conf
-      IO.read( @debug_options[ :inetd_conf ] || "/etc/inetd.conf" )
-    end
-
-
-    def disable_inetd_conf
-      run "sudo /usr/sbin/update-inetd --disable tftp", @debug_options
-      run "sudo kill -HUP `cat /var/run/inetd.pid`", @debug_options
+    def tftpd_conf
+      IO.read config_path
     end
 
 
     # util #####################################################################
 
 
-    def write path, content
+    def sudo_write path, content
       write_file path, content, @debug_options.merge( :sudo => true )
     end
   end

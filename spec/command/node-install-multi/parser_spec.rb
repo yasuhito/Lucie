@@ -14,7 +14,6 @@ module Command
                    "--suite", "etch",
                    "--ldb-repository", "svn+ssh://intri@myrepos.org/SVN/L4",
                    "--verbose",
-                   "-i", "linux-image-2.6.31.4_hongo.installer.20091022_amd64.deb",
                    "-l", "linux-image-amd64",
                    "--secret", "/home/lucie/env.enc" ]
           node_options = Parser.new( argv, Command::NodeInstallMulti::Options.new.parse( argv ) ).parse

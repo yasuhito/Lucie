@@ -64,7 +64,7 @@ end
 
 puts 'Creating a writable area on the install client.'
 
-sh_exec 'mount -n -t proc proc /proc'
+# sh_exec 'mount -n -t proc proc /proc'
 
 begin
   sh_exec 'mount -t tmpfs tmpfs /tmp'
@@ -75,7 +75,7 @@ rescue
 end
 sh_exec 'mkdir -p /tmp/etc /tmp/target'
 
-mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/sysconfig /etc/lvm)
+mkrw %w(/dev /var/run /var/log /var/lock /var/discover /var/lib/discover /etc/network/run /etc/sysconfig /etc/lvm)
 mkrw %w(/var/lib/cfengine2 /var/lib/heartbeat)
 
 Lucie::Log.path = "/tmp/lucie.log"
@@ -87,7 +87,7 @@ Lucie::Log.verbose = true
 ################################################################################
 
 shell <<-COMMANDS
-mount -t sysfs sysfs /sys
+# mount -t sysfs sysfs /sys
 
 hostname #{ hostname }
 

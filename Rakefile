@@ -58,7 +58,7 @@ COVERAGE_THRESHOLD = 94.6
 desc "Run specs with RCov"
 Spec::Rake::SpecTask.new do | t |
   t.spec_files = FileList[ 'spec/**/*_spec.rb' ]
-  t.spec_opts = [ "--color", "--format", "nested" ]
+  t.spec_opts = [ "--color", "--format", "RspecSpinner::Bar" ]
   t.rcov = true
   t.rcov_opts = rcov_opts
 end
@@ -126,6 +126,7 @@ def parse_file log
   first_stage = nil
   second_reboot = nil
   second_stage = nil
+  third_reboot = nil
   IO.read( log ).each_line do | l |
     case l
     when /The first reboot finished in (.*) seconds\.$/
@@ -136,15 +137,18 @@ def parse_file log
       second_reboot = first_stage + $1.to_f
     when /The second stage finished in (.*) seconds\.$/
       second_stage = second_reboot + $1.to_f
+    when /The third reboot finished in (.*) seconds\.$/
+      third_reboot = second_stage + $1.to_f
     else
       # skip
     end
   end
-  if first_reboot.nil? or first_stage.nil? or second_reboot.nil? or second_stage.nil?
+  if first_reboot.nil? or first_stage.nil? or second_reboot.nil? or second_stage.nil? or third_reboot.nil?
     raise "failed to parse #{ log }"
   end
   { :first_reboot => first_reboot, :first_stage => first_stage,
-    :second_reboot => second_reboot, :second_stage => second_stage }
+    :second_reboot => second_reboot, :second_stage => second_stage,
+    :third_reboot => third_reboot }
 end
 
 
@@ -171,6 +175,7 @@ def gen_plot plot_file, eps_file
     f.puts "set style arrow 2 heads size screen 0.002, 90 lt 1 lw 1 front"
     f.puts "set style arrow 3 heads size screen 0.002, 90 lt 3 lw 1 front"
     f.puts "set style arrow 4 heads size screen 0.002, 90 lt 4 lw 1 front"
+    f.puts "set style arrow 5 heads size screen 0.002, 90 lt 5 lw 1 front"
     f.puts
 
     nnodes = 1
@@ -183,7 +188,8 @@ def gen_plot plot_file, eps_file
       f.puts "set arrow #{ arrow } from #{ perf[ :first_reboot ] },#{ nnodes } to #{ perf[ :first_stage ] },#{ nnodes } as 2"; arrow += 1
       f.puts "set arrow #{ arrow } from #{ perf[ :first_stage ] },#{ nnodes } to #{ perf[ :second_reboot ] },#{ nnodes } as 3"; arrow += 1
       f.puts "set arrow #{ arrow } from #{ perf[ :second_reboot ] },#{ nnodes } to #{ perf[ :second_stage ] },#{ nnodes } as 4"; arrow += 1
-      xrange = perf[ :second_stage ] if perf[ :second_stage ] > xrange
+      f.puts "set arrow #{ arrow } from #{ perf[ :second_stage ] },#{ nnodes } to #{ perf[ :third_reboot ] },#{ nnodes } as 5"; arrow += 1
+      xrange = perf[ :third_reboot ] if perf[ :third_reboot ] > xrange
       nnodes += 1
     end
     f.puts

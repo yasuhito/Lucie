@@ -1,74 +1,83 @@
 require "lucie/debug"
 require "lucie/utils"
+require "ssh/path"
 
 
 class SSH
-  module Home
+  #
+  # Setups ssh home directory (e.g., ~/.ssh, ~/.lucie, and [nfsroot]/root/.ssh).
+  #
+  class Home
     include Lucie::Debug
+    include Lucie::Utils
+    include Path
 
 
-    def setup_ssh_home target
-      Lucie::Utils.mkdir_p target, @debug_options
-      Lucie::Utils.run "chmod 0700 #{ target }", @debug_options
+    def initialize ssh_home, debug_options = {}
+      @ssh_home = ssh_home
+      @debug_options = debug_options
     end
 
 
-    def ssh_home
-      if FileTest.exists?( lucie_public_key_path ) and FileTest.exists?( lucie_private_key_path )
-        lucie_ssh_home
-      else
-        user_ssh_home
+    def setup
+      maybe_mkdir
+      maybe_chmod
+      maybe_authorize_public_key
+      maybe_chmod_authorized_keys
+    end
+
+
+    ############################################################################
+    private
+    ############################################################################
+
+
+    def maybe_mkdir
+      if dry_run || ( not FileTest.directory?( @ssh_home ) )
+        run "mkdir -p #{ @ssh_home }", @debug_options
+        # mkdir_p @ssh_home, @debug_options
       end
     end
 
 
-    def public_key_path
-      File.join ssh_home, "id_rsa.pub"
+    def maybe_chmod
+      if dry_run || permission_of( @ssh_home ) != "0700"
+        run "chmod 0700 #{ @ssh_home }", @debug_options
+      end
     end
 
 
-    def private_key_path
-      File.join ssh_home, "id_rsa"
+    def maybe_authorize_public_key
+      if dry_run || ( not authorized? )
+        run "cat #{ public_key } >> #{ authorized_keys }", @debug_options
+      end
     end
 
 
-    def authorized_keys_path
-      File.join ssh_home, "authorized_keys"
+    def maybe_chmod_authorized_keys
+      if authorized_keys_with_wrong_permission?
+        run "chmod 0644 #{ authorized_keys }", @debug_options
+      end
     end
 
 
-    def authorized_keys_mode
-      dry_run ? "100644" : File.stat( authorized_keys_path ).mode.to_s( 8 )
+    def authorized_keys_with_wrong_permission?
+      dry_run || permission_of( authorized_keys ) != "0644"
     end
 
 
-    def lucie_public_key_path
-      File.join lucie_ssh_home, "id_rsa.pub"
+    def authorized?
+      FileTest.exists?( authorized_keys ) && authorized_keys_list.include?( public_key_content )
     end
 
 
-    def lucie_private_key_path
-      File.join lucie_ssh_home, "id_rsa"
+    def authorized_keys_list
+      IO.read( authorized_keys ).split( "\n" )
     end
 
 
-    def user_ssh_home
-      File.join home, ".ssh"
-    end
-
-
-    def home
-      @debug_options && @debug_options[ :home ] || File.expand_path( "~" )
-    end
-
-
-    def lucie_ssh_home
-      File.join lucie_home, ".ssh"
-    end
-
-
-    def lucie_home
-      @debug_options && @debug_options[ :lucie_home ] || Lucie::ROOT
+    def public_key_content
+      IO.read( public_key ).chomp
     end
   end
 end

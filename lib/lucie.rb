@@ -2,6 +2,7 @@ $LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../vendor/rub
 
 
 module Lucie
+  class InternalError < StandardError; end
   ROOT = File.expand_path( File.join( File.dirname( __FILE__ ), ".." ) )
 end
 

@@ -13,6 +13,7 @@ require "lucie"
 require "command/node-history"
 require "command/node-install"
 require "command/node-install-multi"
+require "command/node-reset"
 require "command/node-update"
 require "confidential-data-server"
 require "configuration-updator"
@@ -73,7 +74,6 @@ def options
     :dpkg => @custom_dpkg,
     :repository_name => @repository_name,
     :home => @home,
-    :lucie_home => @lucie_home,
     :nic => [ @if ] }
 end
 

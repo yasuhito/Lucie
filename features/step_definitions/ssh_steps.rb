@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
-Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアがすでに存在$/ do | home |
+Given /^ホームディレクトリは "([^\"]*)"$/ do | home |
   @home = home
+end
+
+
+Given /^ホームディレクトリに SSH のキーペアがすでに存在$/ do
   FileUtils.rm_rf ssh_home
   touch_ssh_keypair_on ssh_home
 end
 
 
-Given /^ホームディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | home, flag |
-  @home = home
+Given /^ホームディレクトリに SSH のキーペアが "([^\"]*)"$/ do | flag |
   FileUtils.rm_rf ssh_home
   touch_ssh_keypair_on ssh_home if flag == "存在する"
 end
 
 
-Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアが "([^\"]*)"$/ do | lucie_home,  flag |
-  @lucie_home = lucie_home
+Given /^ホームディレクトリに Lucie 用の SSH キーペアが "([^\"]*)"$/ do | flag |
   FileUtils.rm_rf lucie_ssh_home
   touch_ssh_keypair_on lucie_ssh_home if flag == "存在する"
 end
 
 
-Given /^Lucie ディレクトリ "([^\"]*)" に SSH のキーペアが存在しない$/ do | lucie_home |
-  @lucie_home = lucie_home
+Given /^ホームディレクトリに Lucie 用の SSH キーペアが存在しない$/ do
   FileUtils.rm_rf lucie_ssh_home
 end
 
@@ -148,7 +149,7 @@ end
 
 
 def lucie_ssh_home
-  File.join @lucie_home, ".ssh"
+  File.join @home, ".lucie"
 end
 
 

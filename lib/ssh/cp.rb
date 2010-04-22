@@ -1,13 +1,13 @@
-require "ssh/home"
+require "ssh/path"
 
 
 class SSH
   class Cp
-    include Home
+    include Path
 
 
     def command from, to
-      "scp -i #{ private_key_path } #{ SSH::OPTIONS } #{ from } #{ to }"
+      "scp -i #{ private_key } #{ SSH::OPTIONS } #{ from } #{ to }"
     end
   end
 end

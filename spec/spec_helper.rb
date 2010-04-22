@@ -4,6 +4,7 @@ $: << File.join( File.dirname( __FILE__ ), "/../vendor/ruby-ifconfig-1.2/lib" )
 
 require "rubygems"
 require "spec"
+require "rspec_spinner"
 
 require "blocker"
 require "command/confidential-data-server"
@@ -17,14 +18,7 @@ require "lucie/server"
 require "process-pool"
 require "service"
 require "super-reboot"
-
-
-def tempfile content
-  t = Tempfile.new( "lucie_rspec" )
-  t.print content
-  t.flush
-  t
-end
+require "tmpdir"
 
 
 ### Local variables:

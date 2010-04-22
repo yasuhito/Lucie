@@ -73,7 +73,6 @@ module Command
       @installer.http_proxy = @global_options.http_proxy if @global_options.http_proxy
       @installer.package_repository = @global_options.package_repository if @global_options.package_repository
       @installer.suite = @global_options.suite if @global_options.suite
-      @installer.installer_linux_image = @global_options.installer_linux_image if @global_options.installer_linux_image
       Installers.add @installer, @debug_options
     end
 

@@ -11,38 +11,37 @@ module Command
                   :argument => "[NETMASK-ADDRESS]",
                   :description => "Netmask address." )
 
+      separator
+
       add_option( :long_option => "--storage-conf",
                   :short_option => "-s",
                   :argument => "[FILE]",
                   :description => "setup-storage configuration file." )
-
       add_option( :long_option => "--ldb-repository",
                   :short_option => "-L",
                   :argument => "[REPOSITORY-URL]",
                   :description => "LDB repository URL." )
-
       add_option( :long_option => "--source-control",
                   :short_option => "-c",
                   :argument => "[SCM]",
                   :description => "Specify the source control manager to use (default: Mercurial)" )
-
       add_option( :long_option => "--secret",
                   :short_option => "-X",
                   :argument => "[FILE]",
                   :description => "AES-256 encrypted file containing confidential data (e.g., passwords, private keys etc.)." )
 
+      separator
+
       add_option( :long_option => "--linux-image",
                   :short_option => "-l",
                   :argument => "[PACKAGE]",
                   :description => "Linux image package (e.g., linux-image-686) to be installed." )
-      add_option( :long_option => "--installer-linux-image",
-                  :short_option => "-i",
-                  :argument => "[PACKAGE]",
-                  :description => "Linux image package used while installation." )
       add_option( :long_option => "--suite",
                   :short_option => "-S",
                   :argument => "[CODE-NAME]",
                   :description => "Distribution version code name (e.g., etch, stable etc.)." )
+
+      separator
 
       add_option( :long_option => "--http-proxy",
                   :short_option => "-H",

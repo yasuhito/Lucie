@@ -1,26 +1,29 @@
 require "lucie/debug"
 require "lucie/utils"
 require "ssh/home"
+require "ssh/path"
 
 
 class SSH
+  #
+  # Setups ssh access to nfsroot.
+  #
   class Nfsroot
-    include Home
     include Lucie::Debug
     include Lucie::Utils
+    include Path
 
 
     def initialize base_dir, debug_options
       @base_dir = base_dir
+      @ssh_home = Home.new( nfsroot_ssh_home, debug_options )
       @debug_options = debug_options
     end
 
 
     def setup_ssh_access
       setup_sshd
-      setup_ssh_home nfsroot_ssh_home_path
-      install_public_key
-      chmod_authorized_keys
+      setup_ssh_home
       info "ssh access to nfsroot configured."
     end
 
@@ -40,23 +43,13 @@ COMMANDS
     end
 
 
-    def install_public_key
-      run "cp #{ public_key_path } #{ authorized_keys_path }", @debug_options
+    def setup_ssh_home
+      @ssh_home.setup
     end
 
 
-    def chmod_authorized_keys
-      run "chmod 0644 #{ authorized_keys_path }", @debug_options
-    end
-
-
-    def nfsroot_ssh_home_path
+    def nfsroot_ssh_home
       path "root/.ssh"
-    end
-
-
-    def authorized_keys_path
-      File.join nfsroot_ssh_home_path, "authorized_keys"
     end
 
 

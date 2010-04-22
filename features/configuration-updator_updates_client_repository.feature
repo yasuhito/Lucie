@@ -20,7 +20,7 @@
 
     例:
       | SCM         | COMMANDS             |
-      | Subversion  | scp                  |
+      | Subversion  | rsync                |
       | Mercurial   | hg pull, hg update   |
       | Git         | git pull, git update |
 

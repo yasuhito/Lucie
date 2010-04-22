@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+$ldb_executable = File.join( File.dirname( __FILE__ ), "vendor", "ldb", "ldb.py" )
+exec "#{ $ldb_executable } #{ ARGV.join( ' ' ) }"
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8
+### indent-tabs-mode: nil
+### End:

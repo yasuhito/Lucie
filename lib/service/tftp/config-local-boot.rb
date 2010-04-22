@@ -3,17 +3,22 @@ require "service/tftp/config-file"
 
 module Service
   class Tftp < Common
+    #
+    # A configuration file generator for local booting with TFTP.
+    #
     class ConfigLocalBoot < ConfigFile
-      CONTENT = <<-EOF
+      def self.content
+        return <<-EOF
 default local
 
 label local
 localboot 0
 EOF
+      end
 
 
-      def initialize mac, debug_options
-        @mac = mac
+      def initialize node, debug_options
+        @node = node
         @debug_options = debug_options
       end
 
@@ -24,7 +29,7 @@ EOF
 
 
       def content
-        CONTENT
+        self.class.content
       end
     end
   end

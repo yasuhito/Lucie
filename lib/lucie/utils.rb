@@ -107,6 +107,27 @@ module Lucie
 
 
     #
+    # Spawns a new process specified with +command+ using +sudo+. If
+    # multiple lines are passed as +command+, empty lines and comments
+    # (starting with '#') are ignored. Command-line is logged with
+    # Lucie::Log.
+    #
+    # Options: verbose dry_run
+    #
+    #  Lucie::Utils.sudo_run "cat /var/log/syslog", :verbose => true
+    #  Lucie::Utils.sudo_run <<-COMMAND
+    #  # Remove the tftp entry from inetd
+    #  /usr/sbin/update-inetd --disable tftp
+    #  # To reflect above change, send a signal to inetd.
+    #  kill -HUP `cat /var/run/inetd.pid`
+    #  COMMAND
+    #
+    def sudo_run command, options = {}
+      run "sudo #{ command }", options
+    end
+
+
+    #
     # Creates a new file +path+ with contents +body+. If +sudo+ option
     # is specified, the file creation is done with root
     # priviledge. Information is logged with Lucie::Log.
@@ -133,6 +154,11 @@ module Lucie
       tmp.print body
       tmp.close
       tmp
+    end
+
+
+    def permission_of file
+      File.stat( file ).mode.to_s( 8 )[ -4, 4 ]
     end
 
 
