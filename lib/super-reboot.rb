@@ -4,6 +4,15 @@ require "lucie/utils"
 require "ssh"
 
 
+#
+# A node rebooter that initiates first/second/third reboot process.
+#
+#  sr = SuperReboot.new( node, syslog, logger )
+#  sr.start_first_stage
+#  sr.wait_manual_reboot
+#  sr.start_second_stage
+#  sr.reboot_to_finish_installation
+#
 class SuperReboot
   include Lucie::Debug
   include Lucie::Utils
