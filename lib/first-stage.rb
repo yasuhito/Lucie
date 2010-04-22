@@ -20,7 +20,6 @@ class FirstStage
   include Lucie::Debug
   include Lucie::Utils
   include SSH
-  include SSH::Home
 
 
   def initialize node, install_options, logger, debug_options = {}
