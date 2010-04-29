@@ -1,3 +1,6 @@
+#
+# A pipe set for IPC.
+#
 class PipeSet
   attr_reader :stdin
   attr_reader :stdout
