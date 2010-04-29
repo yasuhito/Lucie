@@ -1,7 +1,16 @@
 module SubProcess
-  class IoHandlerThread < Thread
-    def initialize io, method, &block
-      super( io, method ) do | io, method |
+  #
+  # Handles standard IOs of sub-process.
+  #
+  class IoHandlerThread
+    def initialize io, method
+      @io = io
+      @method = method
+    end
+
+
+    def start
+      Thread.new( @io, @method ) do | io, method |
         while io.gets do
           method.call $LAST_READ_LINE.chomp
         end

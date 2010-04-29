@@ -113,8 +113,8 @@ module SubProcess
 
 
     def handle_child_output stdout, stderr
-      tout = IoHandlerThread.new( stdout, method( :do_stdout ) )
-      terr = IoHandlerThread.new( stderr, method( :do_stderr ) )
+      tout = IoHandlerThread.new( stdout, method( :do_stdout ) ).start
+      terr = IoHandlerThread.new( stderr, method( :do_stderr ) ).start
       tout.join
       terr.join
     end
