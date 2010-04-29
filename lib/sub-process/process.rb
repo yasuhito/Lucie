@@ -2,6 +2,9 @@ require "sub-process/pipe-set"
 
 
 module SubProcess
+  #
+  # Forks a sub-process and creates pipes for IPC.
+  #
   class Process
     #
     # Creates a new SubProcess::Process object.
