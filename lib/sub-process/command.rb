@@ -1,4 +1,7 @@
 module SubProcess
+  #
+  # Starts a command with specified environment variables.
+  #
   class Command
     attr_reader :command
     attr_reader :env
