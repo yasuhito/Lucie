@@ -4,6 +4,10 @@ require "sub-process/io-handler-thread"
 
 
 module SubProcess
+  #
+  # Spawns a sub-process and registers handlers for standard IOs and
+  # process exit events.
+  #
   class Shell
     include Lucie::Debug
 
