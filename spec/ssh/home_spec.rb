@@ -81,13 +81,13 @@ describe SSH::Home, %{with ssh_home = "\#{tmpdir}/ssh_home"} do
 
     it "should not authorize the key if already authorized" do
       FileUtils.cp public_key, authorized_keys
-      @home.should_not_receive( :run ).with( "cat #{ public_key } >> /tmp/ssh_home/authorized_keys", {} )
+      @home.should_not_receive( :run ).with( "cat #{ public_key } >> #{ authorized_keys }", {} )
       @home.setup
     end
 
 
     it "should authorize the key if not authorized" do
-      @home.should_receive( :run ).with( "cat #{ public_key } >> /tmp/ssh_home/authorized_keys", {} )
+      @home.should_receive( :run ).with( "cat #{ public_key } >> #{ authorized_keys }", {} )
       @home.setup
     end
   end

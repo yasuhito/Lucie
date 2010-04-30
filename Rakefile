@@ -26,7 +26,7 @@ end
 
 
 def rcov_opts
-  [ "--aggregate #{ rcov_dat }", "--exclude /var/lib/gems" ]
+  [ "--aggregate #{ rcov_dat }", %{--exclude /var/lib/gems,#{ File.expand_path "~/.rvm" }} ]
 end
 
 
