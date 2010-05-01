@@ -5,7 +5,7 @@ class SSH
   #
   # scp with logging.
   #
-  class ScpProcess
+  class ScprProcess
     include Path
 
 
@@ -20,7 +20,7 @@ class SSH
     def run
       SubProcess::Shell.open( @debug_options ) do | shell |
         set_handlers_for shell
-        spawn_subprocess shell, "scp -i #{ private_key } #{ SSH::OPTIONS } #{ @from } #{ @to }"
+        spawn_subprocess shell, "scp -i #{ private_key } #{ SSH::OPTIONS } -r #{ @from } #{ @to }"
       end
     end
 

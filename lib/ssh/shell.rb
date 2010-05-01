@@ -1,11 +1,5 @@
 class SSH
   module Shell
-    def initialize logger
-      @logger = logger
-      @output = ""
-    end
-
-
     def set_handlers_for shell
       default_handler = lambda { | line | @output << line + "\n"; @logger.debug( line ) }
       [ :on_stdout, :on_stderr ].each do | each |

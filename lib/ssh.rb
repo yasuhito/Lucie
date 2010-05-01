@@ -1,12 +1,10 @@
 require "lucie/logger/null"
-require "ssh/cp"
-require "ssh/cp-recursive"
 require "ssh/key-pair-generator"
 require "ssh/nfsroot"
 require "ssh/scp-process"
-require "ssh/sh"
-require "ssh/sh-agent"
-require "ssh/ssh-process"
+require "ssh/scpr-process"
+require "ssh/sh-process"
+require "ssh/sha-process"
 
 
 #
@@ -33,22 +31,22 @@ class SSH
 
 
   def sh host_name, command_line
-    SshProcess.new( host_name, command_line, Sh.new( @logger ), @debug_options ).run
+    ShProcess.new( host_name, command_line, @logger, @debug_options ).run
   end
 
 
   def sh_a host_name, command_line
-    SshProcess.new( host_name, command_line, ShAgent.new( @logger ), @debug_options ).run
+    ShaProcess.new( host_name, command_line, @logger, @debug_options ).run
   end
 
 
   def cp from, to
-    ScpProcess.new( from, to, @logger, Cp.new, @debug_options ).run
+    ScpProcess.new( from, to, @logger, @debug_options ).run
   end
 
 
   def cp_r from, to
-    ScpProcess.new( from, to, @logger, CpRecursive.new, @debug_options ).run
+    ScprProcess.new( from, to, @logger, @debug_options ).run
   end
 end
 

@@ -4,9 +4,9 @@ require "ssh/shell"
 
 class SSH
   #
-  # ssh command
+  # ssh with logging
   #
-  class Sh
+  class ShProcess
     include Path
     include Shell
 
@@ -14,9 +14,20 @@ class SSH
     attr_reader :output
 
 
-    def run host_name, command, shell
-      set_handlers_for shell
-      spawn_subprocess shell, real_command( host_name, command )
+    def initialize host_name, command_line, logger, debug_options
+      @host_name = host_name
+      @command_line = command_line
+      @output = ""
+      @logger = logger
+      @debug_options = debug_options
+    end
+
+
+    def run
+      SubProcess::Shell.open( @debug_options ) do | shell |
+        set_handlers_for shell
+        spawn_subprocess shell, real_command( @host_name, @command_line )
+      end
       self
     end
 

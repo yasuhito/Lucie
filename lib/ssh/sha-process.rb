@@ -4,26 +4,32 @@ require "ssh/shell"
 
 class SSH
   #
-  # Executes a command with ssh-agent.
+  # ssh -a with logging
   #
-  class ShAgent
+  class ShaProcess
     include Path
     include Shell
 
 
-    def run host_name, command, shell
-      begin
-        set_handlers_for shell
-        spawn_subprocess shell, real_command( host_name, command )
-      ensure
-        kill_ssh_agent shell
-      end
+    def initialize host_name, command_line, logger, debug_options
+      @host_name = host_name
+      @command_line = command_line
+      @output = ""
+      @logger = logger
+      @debug_options = debug_options
     end
 
 
-    ############################################################################
-    private
-    ############################################################################
+    def run
+      SubProcess::Shell.open( @debug_options ) do | shell |
+        begin
+          set_handlers_for shell
+          spawn_subprocess shell, real_command( @host_name, @command_line )
+        ensure
+          kill_ssh_agent shell
+        end
+      end
+    end
 
 
     def kill_ssh_agent shell
