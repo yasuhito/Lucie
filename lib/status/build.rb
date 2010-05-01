@@ -2,6 +2,9 @@ require "status/common"
 
 
 module Status
+  #
+  # A status file of installer build.
+  #
   class Build < Common
     base_name "build_status"
   end
