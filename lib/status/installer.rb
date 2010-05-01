@@ -2,6 +2,9 @@ require "status/common"
 
 
 module Status
+  #
+  # installer_status file
+  #
   class Installer < Common
     base_name "installer_status"
 
