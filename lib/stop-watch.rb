@@ -1,10 +1,33 @@
-module StopWatch
-  def time_to_run &proc
-    start = Time.now
-    proc.call
-    Time.now - start
+#
+# Tracks the time to run a block.
+#
+class StopWatch
+  def time_to_run &block
+    start
+    block.call
+    stop
+    elapsed
   end
-  module_function :time_to_run
+
+
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def start
+    @start_time = Time.now
+  end
+
+
+  def stop
+    @stop_time = Time.now
+  end
+
+
+  def elapsed
+    @stop_time - @start_time
+  end
 end
 
 

@@ -106,7 +106,7 @@ module Command
 
 
     def run_first_reboot node, logger
-      time = StopWatch.time_to_run do
+      elapsed = StopWatch.new.time_to_run do
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
@@ -121,20 +121,20 @@ module Command
           end
         end
       end
-      logger.info "The first reboot finished in #{ time } seconds."
+      logger.info "The first reboot finished in #{ elapsed } seconds."
     end
 
 
     def run_first_stage node, logger
-      time = StopWatch.time_to_run do
+      elapsed = StopWatch.new.time_to_run do
         start_installer_for node, logger
       end
-      logger.info "The first stage finished in #{ time } seconds."
+      logger.info "The first stage finished in #{ elapsed } seconds."
     end
 
 
     def run_second_reboot node, logger
-      time = StopWatch.time_to_run do
+      elapsed = StopWatch.new.time_to_run do
         Environment::SecondStage.new( @debug_options ).start( node )
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
@@ -144,15 +144,15 @@ module Command
           end
         end
       end
-      logger.info "The second reboot finished in #{ time } seconds."
+      logger.info "The second reboot finished in #{ elapsed } seconds."
     end
 
 
     def run_second_stage node, logger
-      time = StopWatch.time_to_run do
+      elapsed = StopWatch.new.time_to_run do
         start_ldb node, logger
       end
-      logger.info "The second stage finished in #{ time } seconds."
+      logger.info "The second stage finished in #{ elapsed } seconds."
     end
 
 
@@ -167,7 +167,7 @@ module Command
 
 
     def run_third_reboot node, logger
-      time = StopWatch.time_to_run do
+      elapsed = StopWatch.new.time_to_run do
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             logger.info "Rebooting ..."
@@ -176,7 +176,7 @@ module Command
           end
         end
       end
-      logger.info "The third reboot finished in #{ time } seconds."
+      logger.info "The third reboot finished in #{ elapsed } seconds."
     end
 
 
