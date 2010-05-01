@@ -2,7 +2,7 @@ class SSH
   #
   # scp with logging.
   #
-  class CopyCommand
+  class ScpProcess
     def initialize from, to, logger, command, debug_options
       @from = from
       @to = to

@@ -36,7 +36,7 @@ module Command
 
 
     def maybe_generate_and_authorize_keypair
-      SSH.new( @debug_options ).maybe_generate_and_authorize_keypair
+      SSH.new( nil, @debug_options ).maybe_generate_and_authorize_keypair
     end
 
 

@@ -4,22 +4,22 @@ require "ssh"
 class FirstStage
   module SSH
     def ssh command
-      ::SSH.new( @debug_options ).sh @node.name, command, @logger
+      ::SSH.new( @logger, @debug_options ).sh @node.name, command
     end
 
 
     def scp from, to
-      ::SSH.new( @debug_options ).cp from, "root@#{ @node.name }:#{ to }", @logger
+      ::SSH.new( @logger, @debug_options ).cp from, "root@#{ @node.name }:#{ to }"
     end
 
 
     def scp_back from, to
-      ::SSH.new( @debug_options ).cp "root@#{ @node.name }:#{ from }", to, @logger
+      ::SSH.new( @logger, @debug_options ).cp "root@#{ @node.name }:#{ from }", to
     end
 
 
     def scp_r from, to
-      ::SSH.new( @debug_options ).cp_r from, "root@#{ @node.name }:#{ to }", @logger
+      ::SSH.new( @logger, @debug_options ).cp_r from, "root@#{ @node.name }:#{ to }"
     end
   end
 end

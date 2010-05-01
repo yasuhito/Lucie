@@ -12,7 +12,7 @@ class ConfidentialDataClient
     @client_ip = client_ip
     @server_ip = server_ip
     @debug_options = debug_options
-    @ssh = SSH.new( @debug_options )
+    @ssh = SSH.new( nil, @debug_options )
   end
 
 

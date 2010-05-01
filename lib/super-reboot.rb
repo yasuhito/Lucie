@@ -24,7 +24,7 @@ class SuperReboot
     @syslog = syslog
     @logger = logger
     @debug_options = debug_options
-    @ssh = SSH.new( @debug_options )
+    @ssh = SSH.new( @logger, @debug_options )
   end
 
 

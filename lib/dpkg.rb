@@ -21,7 +21,7 @@ class Dpkg
     if @debug_options[ :dpkg ]
       @debug_options[ :dpkg ].installed_on?( node, package )
     else
-      ssh = SSH.new( @debug_options )
+      ssh = SSH.new( nil, @debug_options )
       ssh.sh node.ip_address, "test -f /var/lib/dpkg/info/#{ package }.md5sums"
     end
   end

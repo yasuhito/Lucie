@@ -42,35 +42,35 @@ end
 When /^SSH でノード "([^\"]*)" にコマンド "([^\"]*)" を実行$/ do | node, command |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).sh( node, command )
+  SSH.new( nil, debug_options ).sh( node, command )
 end
 
 
 When /^SSH \-A でノード "([^\"]*)" にコマンド "([^\"]*)" を実行$/ do | node, command |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).sh_a( node, command )
+  SSH.new( nil, debug_options ).sh_a( node, command )
 end
 
 
 When /^ファイル "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP でコピー$/ do | from, node, dir |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).cp( from, "#{ node }:#{ dir }" )
+  SSH.new( nil, debug_options ).cp( from, "#{ node }:#{ dir }" )
 end
 
 
 When /^ディレクトリ "([^\"]*)" をノード "([^\"]*)" の "([^\"]*)" に SCP \-r でコピー$/ do | from, node, dir |
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).cp_r( from, "#{ node }:#{ dir }" )
+  SSH.new( nil, debug_options ).cp_r( from, "#{ node }:#{ dir }" )
 end
 
 
 When /^SSH のキーペアを生成し、認証しようとした$/ do
   @messenger = StringIO.new
   @verbose = true
-  SSH.new( debug_options ).maybe_generate_and_authorize_keypair
+  SSH.new( nil, debug_options ).maybe_generate_and_authorize_keypair
 end
 
 
@@ -122,7 +122,7 @@ end
 
 When /^nfsroot に SSH の鍵を仕込もうとした$/ do
   @messenger = StringIO.new
-  SSH.new( debug_options ).setup_ssh_access_to @nfsroot_directory
+  SSH.new( nil, debug_options ).setup_ssh_access_to @nfsroot_directory
 end
 
 
