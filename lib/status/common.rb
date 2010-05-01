@@ -2,7 +2,15 @@ require "lucie/utils"
 
 
 module Status
+  #
+  # An error raised by Status::* classes.
+  #
   class StatusError < StandardError; end
+
+
+  #
+  # A base class for Status::* classes.
+  #
   class Common
     include Lucie::Utils
 
@@ -114,7 +122,8 @@ module Status
 
 
     def read_latest_status
-      return match_status( File.basename( status_file ) ).downcase if status_file
+      file = status_file
+      return match_status( File.basename( file ) ).downcase if file
       nil
     end
 
