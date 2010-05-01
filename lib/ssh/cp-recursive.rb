@@ -2,6 +2,9 @@ require "ssh/path"
 
 
 class SSH
+  #
+  # scp -r
+  #
   class CpRecursive
     include Path
 

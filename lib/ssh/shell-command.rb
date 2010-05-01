@@ -1,4 +1,7 @@
 class SSH
+  #
+  # ssh with logging
+  #
   class ShellCommand
     def initialize host_name, command_line, command, debug_options
       @host_name = host_name

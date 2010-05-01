@@ -9,6 +9,9 @@ require "ssh/sh-agent"
 require "ssh/shell-command"
 
 
+#
+# Manages keypair and SSH connections to nodes.
+#
 class SSH
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 

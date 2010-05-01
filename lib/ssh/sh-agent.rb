@@ -3,6 +3,9 @@ require "ssh/shell"
 
 
 class SSH
+  #
+  # Executes a command with ssh-agent.
+  #
   class ShAgent
     include Path
     include Shell

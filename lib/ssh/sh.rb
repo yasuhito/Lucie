@@ -3,6 +3,9 @@ require "ssh/shell"
 
 
 class SSH
+  #
+  # ssh command
+  #
   class Sh
     include Path
     include Shell

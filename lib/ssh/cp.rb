@@ -2,6 +2,9 @@ require "ssh/path"
 
 
 class SSH
+  #
+  # scp command
+  #
   class Cp
     include Path
 

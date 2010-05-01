@@ -1,4 +1,7 @@
 class SSH
+  #
+  # scp with logging.
+  #
   class CopyCommand
     def initialize from, to, logger, command, debug_options
       @from = from
