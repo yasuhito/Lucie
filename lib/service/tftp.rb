@@ -1,6 +1,7 @@
 require "configuration"
 require "nfsroot"
 require "service/inetd"
+require "service/tftp/config-file"
 require "service/tftp/config-local-boot"
 require "service/tftp/config-network-boot"
 
