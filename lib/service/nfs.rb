@@ -2,7 +2,13 @@ require "lucie/utils"
 
 
 module Service
+  #
+  # Nfs daemon configurator & controller
+  #
   class Nfs < Common
+    #
+    # Nfs configuration file
+    #
     class ConfigFile
       def initialize nodes, installer_directory
         @nodes = nodes
