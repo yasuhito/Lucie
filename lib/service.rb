@@ -1,13 +1,11 @@
-# require "service/common"
+require "service/common"
 
-# require "service/approx"
-# require "service/debootstrap"
-# require "service/dhcp"
-# require "service/installer"
-# require "service/nfs"
-# require "service/tftp"
-
-# require "dpkg"
+require "service/approx"
+require "service/debootstrap"
+require "service/dhcp"
+require "service/installer"
+require "service/nfs"
+require "service/tftp"
 
 
 module Service
@@ -35,18 +33,6 @@ module Service
   end
   module_function :check_prerequisites
 end
-
-
-require "service/common"
-
-require "service/approx"
-require "service/debootstrap"
-require "service/dhcp"
-require "service/installer"
-require "service/nfs"
-require "service/tftp"
-
-# require "dpkg"
 
 
 ### Local variables:

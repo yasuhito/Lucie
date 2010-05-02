@@ -2,6 +2,9 @@ require "singleton"
 
 
 module Service
+  #
+  # keeps a list of configuration files.
+  #
   class ConfigManager
     include Singleton
 

@@ -5,6 +5,9 @@ require "service/prerequisite-checker"
 
 
 module Service
+  #
+  # A base class for services
+  #
   class Common
     include Lucie::Debug
     include Lucie::Utils

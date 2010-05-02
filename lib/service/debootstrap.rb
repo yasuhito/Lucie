@@ -1,4 +1,7 @@
 module Service
+  #
+  # debootstrap controller
+  #
   class Debootstrap < Common
     prerequisite "debootstrap"
   end
