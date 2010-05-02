@@ -3,8 +3,17 @@ require "lucie/utils"
 
 
 module Service
+  #
+  # Dhcp daemon controller & configurator
+  #
   class Dhcp < Common
+    #
+    # Dhcp configuration file
+    #
     class ConfigFile
+      #
+      # subnet stanza in dhcpd.conf
+      #
       class SubnetEntry
         def initialize nodes, subnet, netmask, debug_options
           @nodes = nodes
@@ -42,6 +51,9 @@ EOF
       end
 
 
+      #
+      # host stanza in dhcpd.conf
+      #
       class HostEntry
         def initialize node
           @node = node
