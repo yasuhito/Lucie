@@ -1,15 +1,10 @@
-require "ssh/path"
-require "ssh/shell"
+require "ssh/process"
 
 
 #
 # ssh with logging
 #
-class SSH::ShProcess
-  include SSH::Path
-  include SSH::Shell
-
-
+class SSH::ShProcess < SSH::Process
   attr_reader :output
 
 
@@ -17,17 +12,7 @@ class SSH::ShProcess
     @host_name = host_name
     @command_line = command_line
     @output = ""
-    @logger = logger
-    @debug_options = debug_options
-  end
-
-
-  def run
-    SubProcess::Shell.open( @debug_options ) do | shell |
-      set_handlers_for shell
-      spawn_subprocess shell, real_command( @host_name, @command_line )
-    end
-    self
+    super logger, debug_options
   end
 
 
@@ -36,8 +21,8 @@ class SSH::ShProcess
   ############################################################################
 
 
-  def real_command host_name, command
-    %{ssh -i #{ private_key } #{ SSH::OPTIONS } root@#{ host_name } "#{ command }"}
+  def real_command
+    %{ssh -i #{ private_key } #{ SSH::OPTIONS } root@#{ @host_name } "#{ @command_line }"}
   end
 end
 

@@ -1,45 +1,24 @@
-require "ssh/path"
+require "ssh/process"
 
 
 #
 # scp with logging.
 #
-class SSH::ScprProcess
-  include SSH::Path
-
-
+class SSH::ScprProcess < SSH::Process
   def initialize from, to, logger, debug_options
     @from = from
     @to = to
-    @logger = logger
-    @debug_options = debug_options
+    super logger, debug_options
   end
 
 
-  def run
-    SubProcess::Shell.open( @debug_options ) do | shell |
-      set_handlers_for shell
-      spawn_subprocess shell, "scp -i #{ private_key } #{ SSH::OPTIONS } -r #{ @from } #{ @to }"
-    end
-  end
-
-
-  ############################################################################
+  ##############################################################################
   private
-  ############################################################################
+  ##############################################################################
 
 
-  def set_handlers_for shell
-    default_handler = lambda { | line | @logger.debug line }
-    [ :on_stdout, :on_stderr ].each do | each |
-      shell.__send__ each, &default_handler
-    end
-  end
-
-
-  def spawn_subprocess shell, command
-    @logger.debug command
-    shell.exec command
+  def real_command
+    "scp -i #{ private_key } #{ SSH::OPTIONS } -r #{ @from } #{ @to }"
   end
 end
 
