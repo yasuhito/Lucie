@@ -3,7 +3,13 @@ require "singleton"
 
 
 module Service
+  #
+  # tests prerequisite packages
+  #
   class PrerequisiteChecker
+    #
+    # prerequisite package list
+    #
     class List
       include Singleton
 
