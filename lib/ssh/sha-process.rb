@@ -1,18 +1,10 @@
-require "ssh/process"
+require "ssh/shell-process"
 
 
 #
 # ssh -a with logging
 #
-class SSH::ShaProcess < SSH::Process
-  def initialize host_name, command_line, logger, debug_options
-    @host_name = host_name
-    @command_line = command_line
-    @output = ""
-    super logger, debug_options
-  end
-
-
+class SSH::ShaProcess < SSH::ShellProcess
   ##############################################################################
   private
   ##############################################################################

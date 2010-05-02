@@ -1,17 +1,10 @@
-require "ssh/process"
+require "ssh/copy-process"
 
 
 #
-# scp with logging.
+# scp -r with logging.
 #
-class SSH::ScprProcess < SSH::Process
-  def initialize from, to, logger, debug_options
-    @from = from
-    @to = to
-    super logger, debug_options
-  end
-
-
+class SSH::ScprProcess < SSH::CopyProcess
   ##############################################################################
   private
   ##############################################################################
