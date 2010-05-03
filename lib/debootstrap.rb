@@ -21,7 +21,7 @@ class Debootstrap
 
 
   def self.VERSION dpkg_l = "dpkg -l"
-    SubProcess::Shell.open do | shell |
+    SubProcess.create do | shell |
       version = nil
       shell.on_stdout do | line |
         version = $1 if /^ii\s+debootstrap\s+(\S+)/=~ line
@@ -59,7 +59,7 @@ class Debootstrap
 
   def run
     check_mandatory_options
-    SubProcess::Shell.open do | shell |
+    SubProcess.create do | shell |
       set_handlers_for shell
       exec_debootstrap shell
     end

@@ -11,7 +11,7 @@ module Lucie
 
 
     def run command
-      SubProcess::Shell.open do | shell |
+      SubProcess.create do | shell |
         shell.on_stdout do | line |
           handle_stdout line
         end

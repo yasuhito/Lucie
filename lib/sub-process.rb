@@ -1,22 +1,44 @@
+require "sub-process/command"
+require "sub-process/process"
+require "sub-process/shell"
+
+
+# Allows you to spawn processes and connect to their output/error
+# pipes and obtain their return codes.
 #
-# SubProcess module allows you to spawn processes and connect to their
-# output/error pipes and obtain their return codes.
+# == Example:
 #
-# If you need to spawn subprocesses in your code, require this file
-# with:
+#  SubProcess.create do | shell |
+#    # Add some hooks here
+#    shell.on_...
+#    shell.on_...
+#      ...
+#
+#    # Finally spawn a subprocess
+#    shell.exec command
+#  end
+#
+# == Hooks:
+#
+# <tt>on_stdout</tt>:: Executed when a new line arrived from sub-process's stdout.
+# <tt>on_stderr</tt>:: Executed when a new line arrived from sub-process's stderr.
+# <tt>on_exit</tt>:: Executed when sub process exitted.
+# <tt>on_success</tt>:: Executed when sub process exitted successfully.
+# <tt>on_failure</tt>:: Executed when sub process aborted.
+#
+# *WARNING*: If you need to spawn subprocesses in your code, require
+# this file with:
 #
 #  require "sub-process"
 #
 # instead of requiring sub-process/*.rb directly.
 #
-
-
-module SubProcess; end
-
-
-require "sub-process/command"
-require "sub-process/process"
-require "sub-process/shell"
+module SubProcess
+  def create debug_options = {}, &block
+    Shell.open debug_options, &block
+  end
+  module_function :create
+end
 
 
 ### Local variables:

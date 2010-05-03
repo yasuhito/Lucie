@@ -8,7 +8,7 @@ module SubProcess
   # Spawns a sub-process and registers handlers for standard IOs and
   # process exit events.
   #
-  class Shell
+  class Shell # :nodoc:
     include Lucie::Debug
 
 

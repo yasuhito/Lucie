@@ -5,7 +5,7 @@ module SubProcess
   #
   # Forks a sub-process and creates pipes for IPC.
   #
-  class Process
+  class Process # :nodoc:
     #
     # Creates a new SubProcess::Process object.
     #

@@ -15,7 +15,7 @@ class SSH::Process
 
 
   def run
-    SubProcess::Shell.open( @debug_options ) do | shell |
+    SubProcess.create( @debug_options ) do | shell |
       begin
         set_handlers_for shell
         spawn_subprocess shell, real_command

@@ -2,7 +2,7 @@ module SubProcess
   #
   # Starts a command with specified environment variables.
   #
-  class Command
+  class Command # :nodoc:
     attr_reader :command
     attr_reader :env
 

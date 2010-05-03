@@ -2,7 +2,7 @@ module SubProcess
   #
   # Handles standard IOs of sub-process.
   #
-  class IoHandlerThread
+  class IoHandlerThread # :nodoc:
     def initialize io, method
       @io = io
       @method = method

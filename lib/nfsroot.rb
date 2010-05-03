@@ -112,7 +112,7 @@ class Nfsroot < Rake::TaskLib
             run "rm -rf #{ each }"
           end
           # also remove files nfsroot/.? but not . and ..
-          SubProcess::Shell.open do | shell |
+          SubProcess.create do | shell |
             shell.on_stdout do | line |
               run "rm -f #{ line }"
             end
@@ -333,7 +333,7 @@ class Nfsroot < Rake::TaskLib
 
   def ip_addresses
     ips = []
-    SubProcess::Shell.open do | shell |
+    SubProcess.create do | shell |
       shell.on_stdout do | line |
         ips << $1 if /inet addr:(\S+)\s+/=~ line
       end

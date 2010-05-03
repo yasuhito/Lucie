@@ -38,7 +38,7 @@ class Scm
 
 
     def run command, env = { "LC_ALL" => "C" }
-      SubProcess::Shell.open do | shell |
+      SubProcess.create do | shell |
         shell.on_stdout do | line |
           ( @debug_options[ :messenger ] || $stdout ).puts line
         end
