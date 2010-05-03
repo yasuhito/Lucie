@@ -1,13 +1,21 @@
-# Allows you to spawn processes and connect to their output/error
-# pipes and obtain their return codes.
+#
+# Spawns a process and connect pipes to its stdout/stderr and obtain
+# its exit code.
 #
 # == Example:
 #
 #  SubProcess.create do | shell |
 #    # Add some hooks here
-#    shell.on_...
-#    shell.on_...
-#      ...
+#    shell.on_stdout do | line |
+#      log line
+#    end
+#    shell.on_stderr do | line |
+#      log line
+#      $stderr.puts line
+#    end
+#    shell.on_failure do
+#      raise "'#{ command }' failed."
+#    end
 #
 #    # Finally spawn a subprocess
 #    shell.exec command
@@ -17,12 +25,11 @@
 #
 # <tt>on_stdout</tt>:: Executed when a new line arrived from sub-process's stdout.
 # <tt>on_stderr</tt>:: Executed when a new line arrived from sub-process's stderr.
-# <tt>on_exit</tt>:: Executed when sub process exitted.
-# <tt>on_success</tt>:: Executed when sub process exitted successfully.
-# <tt>on_failure</tt>:: Executed when sub process aborted.
+# <tt>on_exit</tt>:: Executed when sub process exited.
+# <tt>on_success</tt>:: Executed when sub process exited successfully.
+# <tt>on_failure</tt>:: Executed when sub process exited with an error.
 #
-# *WARNING*: If you need to spawn subprocesses in your code, require
-# this file with:
+# *WARNING*: Require this file with:
 #
 #  require "sub-process"
 #
