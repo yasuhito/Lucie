@@ -1,8 +1,3 @@
-require "sub-process/command"
-require "sub-process/process"
-require "sub-process/shell"
-
-
 # Allows you to spawn processes and connect to their output/error
 # pipes and obtain their return codes.
 #
@@ -34,6 +29,11 @@ require "sub-process/shell"
 # instead of requiring sub-process/*.rb directly.
 #
 module SubProcess
+  require "sub-process/command"
+  require "sub-process/process"
+  require "sub-process/shell"
+
+
   def create debug_options = {}, &block
     Shell.open debug_options, &block
   end

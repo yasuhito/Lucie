@@ -1,24 +1,22 @@
-module SubProcess
-  #
-  # Starts a command with specified environment variables.
-  #
-  class Command # :nodoc:
-    attr_reader :command
-    attr_reader :env
+#
+# Starts a command with specified environment variables.
+#
+class SubProcess::Command # :nodoc:
+  attr_reader :command
+  attr_reader :env
 
 
-    def initialize command, env = {}
-      @command = command
-      @env = env
+  def initialize command, env = {}
+    @command = command
+    @env = env
+  end
+
+
+  def start
+    @env.each_pair do | key, value |
+      ENV[ key ]= value
     end
-
-
-    def start
-      @env.each_pair do | key, value |
-        ENV[ key ]= value
-      end
-      Kernel.exec @command
-    end
+    Kernel.exec @command
   end
 end
 

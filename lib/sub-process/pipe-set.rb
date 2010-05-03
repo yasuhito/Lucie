@@ -1,25 +1,23 @@
-module SubProcess
-  #
-  # A pipe set for IPC.
-  #
-  class PipeSet # :nodoc:
-    attr_reader :stdin
-    attr_reader :stdout
-    attr_reader :stderr
+#
+# A pipe set for IPC.
+#
+class SubProcess::PipeSet # :nodoc:
+  attr_reader :stdin
+  attr_reader :stdout
+  attr_reader :stderr
 
 
-    def initialize stdin, stdout, stderr
-      @stdin = stdin
-      @stdout = stdout
-      @stderr = stderr
-    end
+  def initialize stdin, stdout, stderr
+    @stdin = stdin
+    @stdout = stdout
+    @stderr = stderr
+  end
 
 
-    def close
-      [ @stdin, @stdout, @stderr ].each do | each |
-        unless each.closed?
-          each.close
-        end
+  def close
+    [ @stdin, @stdout, @stderr ].each do | each |
+      unless each.closed?
+        each.close
       end
     end
   end
