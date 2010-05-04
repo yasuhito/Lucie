@@ -103,6 +103,7 @@ class SubProcess::Shell # :nodoc:
       handle_child_output stdout, stderr
     end.wait
     handle_exitstatus
+    self
   end
 
 

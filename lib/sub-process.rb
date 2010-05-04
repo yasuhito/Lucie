@@ -17,7 +17,7 @@
 #      raise "'#{ command }' failed."
 #    end
 #
-#    # Finally spawn a subprocess
+#    # Spawn a subprocess
 #    shell.exec command
 #  end
 #

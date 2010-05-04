@@ -22,10 +22,6 @@ module Lucie
           raise "'#{ command }' failed."
         end
         shell.exec command, { "LC_ALL" => "C" } unless @options[ :dry_run ]
-
-        # Returns an instance of SubProcess::Shell as a return value from
-        # this block, in order to get child status.
-        shell
       end
     end
 
