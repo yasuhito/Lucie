@@ -95,7 +95,7 @@ class SubProcess::Shell # :nodoc:
   #
   # Spawns a subprocess with specified environment variables.
   #
-  def exec command, env = {}
+  def exec command, env = { "LC_ALL" => "C" }
     debug command
     return if dry_run
     on_failure { raise "command #{ command } failed" } unless @on_failure
