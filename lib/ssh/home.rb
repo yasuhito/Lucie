@@ -4,9 +4,9 @@ require "ssh/path"
 
 
 #
-# Setups ssh home directory (e.g., ~/.ssh, ~/.lucie, and [nfsroot]/root/.ssh).
+# Sets up ssh home directory (e.g., ~/.ssh, ~/.lucie, and [nfsroot]/root/.ssh).
 #
-class SSH::Home
+class SSH::Home # :nodoc:
   include Lucie::Debug
   include Lucie::Utils
   include SSH::Path

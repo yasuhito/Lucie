@@ -7,7 +7,7 @@ require "ssh/path"
 #
 # Setups ssh access to nfsroot.
 #
-class SSH::Nfsroot
+class SSH::Nfsroot # :nodoc:
   include Lucie::Debug
   include Lucie::Utils
   include SSH::Path

@@ -7,7 +7,7 @@ require "ssh/path"
 #
 # Generates a new ssh keypair and authorizes its public key if need be.
 #
-class SSH::KeyPairGenerator
+class SSH::KeyPairGenerator # :nodoc:
   include Lucie::Debug
   include Lucie::Utils
   include SSH::Path
