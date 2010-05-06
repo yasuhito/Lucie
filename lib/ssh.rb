@@ -31,7 +31,8 @@ class SSH
 
 
   def sh host_name, command_line
-    ShProcess.new( host_name, command_line, @logger, @debug_options ).run
+    @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
+    @process.run
   end
 
 
@@ -47,6 +48,11 @@ class SSH
 
   def cp_r from, to
     ScprProcess.new( from, to, @logger, @debug_options ).run
+  end
+
+
+  def output
+    @process.output
   end
 end
 
