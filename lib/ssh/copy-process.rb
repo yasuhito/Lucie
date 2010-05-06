@@ -4,7 +4,7 @@ require "ssh/process"
 #
 # scp with logging.
 #
-class SSH::CopyProcess < SSH::Process
+class SSH::CopyProcess < SSH::Process # :nodoc:
   def initialize from, to, logger, debug_options
     @from = from
     @to = to

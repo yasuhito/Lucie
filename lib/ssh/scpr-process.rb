@@ -4,7 +4,7 @@ require "ssh/copy-process"
 #
 # scp -r with logging.
 #
-class SSH::ScprProcess < SSH::CopyProcess
+class SSH::ScprProcess < SSH::CopyProcess # :nodoc:
   ##############################################################################
   private
   ##############################################################################

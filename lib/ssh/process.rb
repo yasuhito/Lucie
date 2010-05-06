@@ -4,7 +4,7 @@ require "ssh/path"
 #
 # A base class of SSH process.
 #
-class SSH::Process
+class SSH::Process # :nodoc:
   include SSH::Path
 
 

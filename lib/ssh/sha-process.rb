@@ -4,7 +4,7 @@ require "ssh/shell-process"
 #
 # ssh -a with logging
 #
-class SSH::ShaProcess < SSH::ShellProcess
+class SSH::ShaProcess < SSH::ShellProcess # :nodoc:
   ##############################################################################
   private
   ##############################################################################

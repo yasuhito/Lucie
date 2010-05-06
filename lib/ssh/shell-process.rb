@@ -4,7 +4,7 @@ require "ssh/process"
 #
 # ssh with logging
 #
-class SSH::ShellProcess < SSH::Process
+class SSH::ShellProcess < SSH::Process # :nodoc:
   attr_reader :output
 
 

@@ -1,16 +1,18 @@
 require "lucie/logger/null"
-require "ssh/key-pair-generator"
-require "ssh/nfsroot"
-require "ssh/scp-process"
-require "ssh/scpr-process"
-require "ssh/sh-process"
-require "ssh/sha-process"
 
 
 #
 # Manages keypair and SSH connections to nodes.
 #
 class SSH
+  require "ssh/key-pair-generator"
+  require "ssh/nfsroot"
+  require "ssh/scp-process"
+  require "ssh/scpr-process"
+  require "ssh/sh-process"
+  require "ssh/sha-process"
+
+
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
