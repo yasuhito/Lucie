@@ -17,7 +17,7 @@ class SSH::Process
   def run
     SubProcess.create( @debug_options ) do | shell |
       begin
-        set_handlers_for shell
+        set_default_handlers_for shell
         spawn_subprocess shell, real_command
       ensure
         post_command_hook shell
@@ -42,13 +42,17 @@ class SSH::Process
   end
 
 
-  def set_handlers_for shell
-    default_handler = lambda do | line |
-      @output << line + "\n"
-      @logger.debug line
-    end
+  def set_default_handlers_for shell
     [ :on_stdout, :on_stderr ].each do | each |
       shell.__send__ each, &default_handler
+    end
+  end
+
+
+  def default_handler
+    lambda do | line |
+      @output << line + "\n"
+      @logger.debug line
     end
   end
 
