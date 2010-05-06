@@ -43,7 +43,7 @@ class SSH::Process
 
 
   def set_handlers_for shell
-    default_handler = lambda { | line | @logger.debug line }
+    default_handler = lambda { | line | @output << line + "\n"; @logger.debug line }
     [ :on_stdout, :on_stderr ].each do | each |
       shell.__send__ each, &default_handler
     end
