@@ -45,6 +45,7 @@ describe SuperReboot do
   context "when failed to super reboot" do
     it "should raise" do
       lambda do
+        SSH.stub!( :new ).and_return( "SSH" )
         SuperReboot.new( @node, dummy_syslog, dummy_logger, debug_options ).start_first_stage
       end.should raise_error( RuntimeError, "failed to super-reboot" )
     end
