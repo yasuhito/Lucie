@@ -77,23 +77,26 @@ class FirstStage
     update_status "Installing a kernel package ..."
     scp "#{ Lucie::ROOT }/config/kernel-img.conf", "/tmp/target/etc/"
     apt_option = '-y --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
-    arch = case Lucie::Server.architecture
-           when "i386"
-             "486"
-           when "i686"
-             "686"
-           else
-             Lucie::Server.architecture
-           end
+    linux_image_arch = case @install_options[ :arch ]
+                       when "i386"
+                         "486"
+                       when "i686"
+                         "686"
+                       when "amd64"
+                         "amd64"
+                       else
+                         raise "Invalid architecture: #{ @install_options[ :arch ] }"
+                       end
+
     if @install_options[ :linux_image ] && FileTest.exists?( @install_options[ :linux_image ] )
-      linux_image = "linux-image-#{ arch }"
+      linux_image = "linux-image-#{ linux_image_arch }"
       ssh "chroot /tmp/target apt-get #{ apt_option } update"
       ssh "chroot /tmp/target apt-get #{ apt_option } install #{ linux_image }"
       custom_linux_image = @install_options[ :linux_image ]
       scp custom_linux_image, "/tmp/target/tmp"
       ssh "chroot /tmp/target dpkg -i /tmp/#{ File.basename custom_linux_image }"
     else
-      linux_image = @install_options[ :linux_image ] || "linux-image-#{ arch }"
+      linux_image = @install_options[ :linux_image ] || "linux-image-#{ linux_image_arch }"
       ssh "chroot /tmp/target apt-get #{ apt_option } update"
       ssh "chroot /tmp/target apt-get #{ apt_option } install #{ linux_image }"
     end

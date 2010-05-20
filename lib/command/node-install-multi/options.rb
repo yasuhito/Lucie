@@ -40,6 +40,10 @@ module Command
                   :short_option => "-S",
                   :argument => "[CODE-NAME]",
                   :description => "Distribution version code name (e.g., etch, stable etc.)." )
+      add_option( :long_option => "--architecture",
+                  :short_option => "-a",
+                  :argument => "[ARCHITECTURE]",
+                  :description => %{Architecture of packages Lucie installs (for example, "i386", "amd64").} )
 
       separator
 

@@ -65,6 +65,7 @@ class Nfsroot < Rake::TaskLib
       task.include = [ "grub", "mercurial", "subversion", "sqlite3", "make", "rsync" ]
       task.package_repository = @package_repository
       task.suite = @suite
+      task.arch = @arch
 
       task.dry_run = @dry_run
       task.messenger = @messenger
@@ -124,6 +125,21 @@ class Nfsroot < Rake::TaskLib
         end
       end
     end
+  end
+
+
+  def arch= a
+    @arch = a
+#     @arch = case a
+#             when "i386"
+#               "486"
+#             when "i686"
+#               "686"
+#             when "amd64"
+#               "amd64"
+#             else
+#               raise "invalid architecture: #{ a }"
+#             end
   end
 
 
@@ -225,19 +241,21 @@ class Nfsroot < Rake::TaskLib
 
 
   def additional_packages
-    arch = case Lucie::Server.architecture
-           when "i386"
-             "486"
-           when "i686"
-             "686"
-           else
-             Lucie::Server.architecture
-           end
+    aufs_arch = case @arch
+                when "i386"
+                  "486"
+                when "i686"
+                  "686"
+                when "amd64"
+                  "amd64"
+                else
+                  raise "Invalid architecture: #{ @arch }"
+                end
     [ "ruby", "reiserfsprogs", "discover", "module-init-tools",
       "udev", "console-tools", "psmisc", "file", "perl-modules",
       "libparse-recdescent-perl", "parted", "facter", "ssh",
       "initramfs-tools", "live-initramfs", "firmware-bnx2",
-      "firmware-bnx2x", "aufs-modules-2.6-#{ arch }" ]
+      "firmware-bnx2x", "aufs-modules-2.6-#{ aufs_arch }" ]
   end
 
 
@@ -312,6 +330,7 @@ class Nfsroot < Rake::TaskLib
     tftp_kernel_target = File.join( Configuration.tftp_root, ENV[ 'INSTALLER_NAME' ] || @suite )
 
     info 'Setting up PXE environment.'
+    run "rm -f #{ File.join Configuration.tftp_root, 'initrd.img-*' }"
     run "cp -p #{ target '/boot/initrd.img-*' } #{ Configuration.tftp_root }"
 
     run "cp -p #{ target '/boot/vmlinuz-*' } #{ tftp_kernel_target }"

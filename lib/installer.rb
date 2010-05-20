@@ -17,6 +17,7 @@ class Installer
   attr_accessor :http_proxy
   attr_accessor :package_repository
   attr_accessor :suite
+  attr_accessor :arch
   attr_reader :ip_address
 
 
@@ -69,6 +70,7 @@ class Installer
       nfsroot.http_proxy = @http_proxy
       nfsroot.package_repository = @package_repository
       nfsroot.suite = @suite
+      nfsroot.arch = @arch
       nfsroot.target_directory = File.join( path, "nfsroot", "live", "filesystem.dir" )
       nfsroot.verbose = ( ENV[ "VERBOSE" ] == "true" ? true : false )
     end
@@ -105,7 +107,7 @@ class Installer
   def start node, suite, linux_image, storage_conf, ldb_directory, breakpoint, logger, options, messenger
     ( messenger || $stdout ).puts "node #{ node.name } is going to be installed using #{ storage_conf }"
     base_system = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ @arch }.tgz" )
-    install_options = { :suite => suite, :linux_image => linux_image, :base_system => base_system, :storage_conf => storage_conf, :ldb_directory => ldb_directory, :break => breakpoint }
+    install_options = { :suite => suite, :arch => @arch, :linux_image => linux_image, :base_system => base_system, :storage_conf => storage_conf, :ldb_directory => ldb_directory, :break => breakpoint }
     FirstStage.new( node, install_options, logger, options.merge( :messenger => messenger ) ).run
   end
 
@@ -127,6 +129,9 @@ Installer.configure do | installer |
 
   # Code name of debian version.
   installer.suite = #{ @suite ? "'#{ @suite }'" : 'nil' }
+
+  # Node's architecture type
+  installer.arch = "#{ @arch }"
 
 end
 CONFIG
