@@ -166,7 +166,7 @@ EOF
 
 
   def setup_network
-    ssh "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ network_address } #{ broadcast_address } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Facter.value( 'ipaddress' ) }"
+    ssh "setup_network #{ @node.name } #{ @node.mac_address } #{ @node.ip_address } #{ @node.netmask_address } #{ network_address } #{ broadcast_address } #{ Facter.value( 'domain' ) } #{ Facter.value( 'hostname' ) } #{ Lucie::Server.ip_address_for( [ @node ], @debug_options ) }"
   end
 
 
