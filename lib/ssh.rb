@@ -6,6 +6,7 @@ require "lucie/logger/null"
 #
 class SSH
   require "ssh/key-pair-generator"
+  require "ssh/login-process"
   require "ssh/nfsroot"
   require "ssh/scp-process"
   require "ssh/scpr-process"
@@ -33,8 +34,12 @@ class SSH
 
 
   def sh host_name, command_line
-    @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
-    @process.run
+    if command_line
+      @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
+      @process.run
+    else
+      LoginProcess.new( host_name, @debug_options ).run
+    end
   end
 
 

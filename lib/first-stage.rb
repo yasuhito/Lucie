@@ -33,7 +33,7 @@ class FirstStage
 
   def run
     update_status "Installation for '#{ @node.name }' started."
-    system "ssh -i #{ private_key_path } #{ ::SSH::OPTIONS } root@#{ @node.name }" if @install_options[ :break ]
+    ssh if @install_options[ :break ]
     all_steps.each do | each |
       __send__ each
     end
