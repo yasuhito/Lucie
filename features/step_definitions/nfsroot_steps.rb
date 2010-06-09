@@ -12,6 +12,7 @@ When /^I try to build nfsroot$/ do
     n.sources_list = @sources_list
     n.suite = @suite
     n.target_directory = @target_directory
+    n.arch = "i386"
 
     n.messenger = @messenger
     n.dry_run = true
