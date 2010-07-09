@@ -79,7 +79,7 @@ module Command
                 run_second_reboot each, logger
                 run_second_stage each, logger
                 run_third_reboot each, logger
-                logger.info "Node '#{ each.name }' installed."
+                logger.info "Node '#{ each.name }' installed.\n"
                 each.status.succeed!
               rescue Exception => e
                 each.status.fail!
