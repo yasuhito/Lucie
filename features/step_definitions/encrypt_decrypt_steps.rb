@@ -11,6 +11,18 @@ When /^その一時ファイルを encrypt コマンド \(パスワード = "([^
 end
 
 
+When /^その一時ファイルを encrypt コマンド \(パスワード = "([^"]*)"、ドライラン\) で暗号化した$/ do | password | #"
+  @output = Tempfile.new( "encrypt" ).path
+  @rc = system( "./script/encrypt --dry-run --password #{ password } #{ @tempfile.path } > #{ @output }" )
+end
+
+
+When /^その一時ファイルを encrypt コマンド \(オプションは "([^"]*)"\) で暗号化した$/ do | options | #"
+  @output = Tempfile.new( "encrypt" ).path
+  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } > #{ @output }" )
+end
+
+
 When /^その出力を decrypt コマンドで復号 \(パスワード = "([^"]*)" \) した$/ do | password | #"
   @output[ :decrypt ] = Tempfile.new( "decrypt" ).path
   @rc = system( "./script/decrypt --password #{ password } #{ @output[ :encrypt ] } > #{ @output[ :decrypt ] }" )
@@ -66,6 +78,11 @@ end
 
 Then /^decrypt コマンドは成功する$/ do
   @rc.should be_true
+end
+
+
+Then /^出力は無し$/ do
+  IO.read( @output ).should == ""
 end
 
 

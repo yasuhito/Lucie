@@ -2,7 +2,7 @@ module Lucie
   module Debug
     def info message
       @logger.info message if @logger and ( not dry_run )
-      stdout.puts message
+      stdout.print message
     end
 
 

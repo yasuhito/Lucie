@@ -12,6 +12,20 @@
     ならば encrypt コマンドは成功する
 
 
+  シナリオ: encrypt をドライラン (--dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    もし その一時ファイルを encrypt コマンド (オプションは "--dry-run --password alpine") で暗号化した
+    ならば encrypt コマンドは成功する
+    かつ 出力は無し
+
+
+  シナリオ: encrypt をドライラン (-d)
+    前提 中身が "himitsu" の一時ファイルが存在
+    もし その一時ファイルを encrypt コマンド (オプションは "-d --password alpine") で暗号化した
+    ならば encrypt コマンドは成功する
+    かつ 出力は無し
+
+
   シナリオ: ecnrypt のヘルプメッセージ (--help)
     もし encrypt --help コマンドを実行
     ならば 次の出力を得る:
