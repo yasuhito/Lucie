@@ -46,7 +46,12 @@ end
 
 include Lucie::Utils
 arguments = DecryptArguments.new( ARGV )
-run "openssl enc -pass pass:'#{ arguments.password }' -d -aes256 -in #{ ARGV.first }", :dry_run => arguments.dry_run, :verbose => arguments.dry_run
+options = { :dry_run => arguments.dry_run, :verbose => arguments.dry_run }
+if arguments.password
+  run "openssl enc -pass pass:'#{ arguments.password }' -d -aes256 -in #{ ARGV.first }", options
+else
+  run "openssl enc -d -aes256 -in #{ ARGV.first }", options
+end
 
 
 ### Local variables:
