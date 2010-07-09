@@ -11,7 +11,7 @@ class SubProcess::IoHandlerThread # :nodoc:
   def start
     Thread.new( @io, @method ) do | io, method |
       while io.gets do
-        method.call $LAST_READ_LINE.chomp
+        method.call $LAST_READ_LINE
       end
     end
   end

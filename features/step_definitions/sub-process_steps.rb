@@ -36,7 +36,7 @@ end
 
 
 Then /^次の標準出力を得る:$/ do | string |
-  @stdout.join( "\n" ).should == string
+  @stdout.join.should == string
 end
 
 
@@ -46,7 +46,7 @@ end
 
 
 Then /^次の標準エラー出力を得る:$/ do | string |
-  @stderr.join( "\n" ).should == string
+  @stderr.join.should == string
 end
 
 
