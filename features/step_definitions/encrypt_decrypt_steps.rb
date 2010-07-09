@@ -13,9 +13,9 @@ When /^その一時ファイルを encrypt コマンド \(オプションは "([
 end
 
 
-When /^その出力を decrypt コマンドで復号 \(パスワード = "([^"]*)" \) した$/ do | password | #"
+When /^その出力を decrypt コマンド \(オプションは "([^"]*)" \) で復号した$/ do | options | #"
   @output[ :decrypt ] = Tempfile.new( "decrypt" ).path
-  @rc = system( "./script/decrypt --password #{ password } #{ @output[ :encrypt ] } > #{ @output[ :decrypt ] }" )
+  @rc = system( "./script/decrypt #{ options } #{ @output[ :encrypt ] } > #{ @output[ :decrypt ] }" )
 end
 
 

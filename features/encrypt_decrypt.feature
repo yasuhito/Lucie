@@ -93,10 +93,18 @@
       """
 
 
-  シナリオ: 復号
+  シナリオ: 復号 (--password)
     前提 中身が "himitsu" の一時ファイルが存在
     かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
-    もし その出力を decrypt コマンドで復号 (パスワード = "alpine" ) した
+    もし その出力を decrypt コマンド (オプションは "--password alpine" ) で復号した
+    ならば decrypt コマンドは成功する
+    かつ 出力 "himitsu" を得る
+
+
+  シナリオ: 復号 (-p)
+    前提 中身が "himitsu" の一時ファイルが存在
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
+    もし その出力を decrypt コマンド (オプションは "-p alpine" ) で復号した
     ならば decrypt コマンドは成功する
     かつ 出力 "himitsu" を得る
 
