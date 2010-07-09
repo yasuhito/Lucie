@@ -7,8 +7,8 @@ module Command
       usage "encrypt [OPTIONS ...] <FILE>"
 
       add_option( :long_option => "--password",
-                  :short_option => "-P",
-                  :argument => "[PASSWORD]",
+                  :short_option => "-p",
+                  :argument => "[STRING]",
                   :description => "A password to encrypt input file" )
 
       separator

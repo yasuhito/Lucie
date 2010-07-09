@@ -57,7 +57,7 @@ module OptionList
       else
         long, short, arg, desc = each
         out.print( if arg
-                     sprintf "  %-#{ option_desc_tab }s", "#{ short }, #{ long }=#{ arg }"
+                     sprintf "  %-#{ option_desc_tab }s", "#{ short }, #{ long } #{ arg }"
                    else
                      sprintf "  %-#{ option_desc_tab }s", "#{ short }, #{ long } "
                    end )
