@@ -24,6 +24,7 @@
         -v, --verbose                 Be verbose.
       """
 
+
   シナリオ: ecnrypt のヘルプメッセージ
     もし encrypt コマンドに引数を付けずに実行
     ならば 次の出力を得る:
@@ -38,6 +39,7 @@
         -v, --verbose                 Be verbose.
       """
 
+
   シナリオ: 復号
     前提 中身が "himitsu" の一時ファイルが存在
     かつ その一時ファイルを encrypt コマンド (パスワード = "alpine") で暗号化した
@@ -45,3 +47,32 @@
     ならば decrypt コマンドは成功する
     かつ 出力 "himitsu" を得る
 
+
+  シナリオ: decrypt のヘルプメッセージ
+    もし decrypt --help コマンドを実行
+    ならば 次の出力を得る:
+      """
+      usage: decrypt [OPTIONS ...] <FILE>
+
+      Options:
+        -p, --password [STRING]          A password to decrypt input file
+
+        -h, --help                       Show this help message.
+        -d, --dry-run                    Print the commands that would be executed, but do not execute them.
+        -v, --verbose                    Be verbose.
+      """
+
+
+  シナリオ: decrypt のヘルプメッセージ
+    もし decrypt コマンドに引数を付けずに実行
+    ならば 次の出力を得る:
+      """
+      usage: decrypt [OPTIONS ...] <FILE>
+
+      Options:
+        -p, --password [STRING]          A password to decrypt input file
+
+        -h, --help                       Show this help message.
+        -d, --dry-run                    Print the commands that would be executed, but do not execute them.
+        -v, --verbose                    Be verbose.
+      """

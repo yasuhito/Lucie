@@ -6,14 +6,34 @@ require "optparse"
 
 class DecryptArguments
   attr_reader :password
+  attr_reader :dry_run
 
 
   def initialize args
-    @password = nil
     opts = OptionParser.new do | opts |
+      opts.summary_indent = "  "
+
+      opts.banner = "usage: decrypt [OPTIONS ...] <FILE>"
+      opts.separator ""
+      opts.separator "Options:"
       opts.on( "-p", "--password [STRING]", "A password to decrypt input file" ) do | string |
         @password = string || nil
       end
+      opts.separator ""
+      opts.on( "-h", "--help", "Show this help message." ) do
+        puts opts
+        exit
+      end
+      opts.on( "-d", "--dry-run", "Print the commands that would be executed, but do not execute them." ) do
+        @dry_run = true
+      end
+      opts.on( "-v", "--verbose", "Be verbose." ) do
+        @verbose = true
+      end
+    end
+    if args.empty?
+      puts opts
+      exit
     end
     opts.parse! args
   end
