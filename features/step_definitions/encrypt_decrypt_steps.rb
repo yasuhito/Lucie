@@ -5,58 +5,56 @@ end
 
 
 When /^その一時ファイルを encrypt コマンド \(オプションは "([^"]*)"\) で暗号化した$/ do | options | #"
-  @output ||= Hash.new
-  @error ||= Hash.new
-  @output[ :encrypt ] = Tempfile.new( "encout" ).path
-  @error[ :encrypt ] = Tempfile.new( "encerr" ).path
-  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } 1> #{ @output[ :encrypt ] } 2> #{ @error[ :encrypt ] }" )
+  @encout = File.join( Dir.tmpdir, "encout" )
+  @encerr = File.join( Dir.tmpdir, "encerr" )
+  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } 1> #{ @encout } 2> #{ @encerr }" )
 end
 
 
 When /^その出力を decrypt コマンド \(オプションは "([^"]*)" \) で復号した$/ do | options | #"
-  @output[ :decrypt ] = Tempfile.new( "decrypt" ).path
-  @error[ :decrypt ] = Tempfile.new( "decrypt" ).path
-  @rc = system( "./script/decrypt #{ options } #{ @output[ :encrypt ] } 1> #{ @output[ :decrypt ] } 2> #{ @error[ :decrypt ] }" )
+  @decout = File.join( Dir.tmpdir, "decout" )
+  @decerr = File.join( Dir.tmpdir, "deccerr" )
+  @rc = system( "./script/decrypt #{ options } #{ @encout } 1> #{ @decout } 2> #{ @decerr }" )
 end
 
 
 When /^encrypt \-\-help コマンドを実行$/ do
-  tmp = Tempfile.new( "encrypt" ).path
+  tmp = File.join( Dir.tmpdir, "encout" )
   system "./script/encrypt --help > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^encrypt \-h コマンドを実行$/ do
-  tmp = Tempfile.new( "encrypt" ).path
+  tmp = File.join( Dir.tmpdir, "encout" )
   system "./script/encrypt -h > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^decrypt \-\-help コマンドを実行$/ do
-  tmp = Tempfile.new( "decrypt" ).path
+  tmp = File.join( Dir.tmpdir, "decout" )
   system "./script/decrypt --help > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^decrypt \-h コマンドを実行$/ do
-  tmp = Tempfile.new( "decrypt" ).path
+  tmp = File.join( Dir.tmpdir, "decout" )
   system "./script/decrypt -h > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^encrypt コマンドに引数を付けずに実行$/ do
-  tmp = Tempfile.new( "encrypt" ).path
+  tmp = File.join( Dir.tmpdir, "encout" )
   system "./script/encrypt > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^decrypt コマンドに引数を付けずに実行$/ do
-  tmp = Tempfile.new( "decrypt" ).path
+  tmp = File.join( Dir.tmpdir, "decout" )
   system "./script/decrypt > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
@@ -73,27 +71,27 @@ end
 
 
 Then /^encrypt コマンドの標準出力は無し$/ do
-  IO.read( @output[ :encrypt ] ).should == ""
+  IO.read( @encout ).should == ""
 end
 
 
 Then /^decrypt コマンドの標準出力は無し$/ do
-  IO.read( @output[ :decrypt ] ).should == ""
+  IO.read( @decout ).should == ""
 end
 
 
 Then /^encrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
-  IO.read( @error[ :encrypt ] ).should match( Regexp.new regexp )
+  IO.read( @encerr ).should match( Regexp.new regexp )
 end
 
 
 Then /^decrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
-  IO.read( @error[ :decrypt ] ).should match( Regexp.new regexp )
+  IO.read( @decerr ).should match( Regexp.new regexp )
 end
 
 
 Then /^出力 "([^"]*)" を得る$/ do | expected | #"
-  IO.read( @output[ :decrypt ] ).should == expected
+  IO.read( @decout ).should == expected
 end
 
 
