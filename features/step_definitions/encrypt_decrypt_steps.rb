@@ -4,22 +4,10 @@ Given /^中身が "([^"]*)" の一時ファイルが存在$/ do | content | #"
 end
 
 
-When /^その一時ファイルを encrypt コマンド \(パスワード = "([^"]*)"\) で暗号化した$/ do | password | #"
+When /^その一時ファイルを encrypt コマンド \(オプションは "([^"]*)"\) で暗号化した$/ do | options | #"
   @output ||= Hash.new
   @output[ :encrypt ] = Tempfile.new( "encrypt" ).path
-  @rc = system( "./script/encrypt --password #{ password } #{ @tempfile.path } > #{ @output[ :encrypt ] }" )
-end
-
-
-When /^その一時ファイルを encrypt コマンド \(パスワード = "([^"]*)"、ドライラン\) で暗号化した$/ do | password | #"
-  @output = Tempfile.new( "encrypt" ).path
-  @rc = system( "./script/encrypt --dry-run --password #{ password } #{ @tempfile.path } > #{ @output }" )
-end
-
-
-When /^その一時ファイルを encrypt コマンド \(オプションは "([^"]*)"\) で暗号化した$/ do | options | #"
-  @output = Tempfile.new( "encrypt" ).path
-  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } > #{ @output }" )
+  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } > #{ @output[ :encrypt ] }" )
 end
 
 
@@ -81,8 +69,8 @@ Then /^decrypt コマンドは成功する$/ do
 end
 
 
-Then /^出力は無し$/ do
-  IO.read( @output ).should == ""
+Then /^encrypt コマンドの出力は無し$/ do
+  IO.read( @output[ :encrypt ] ).should == ""
 end
 
 

@@ -8,7 +8,7 @@
 
   シナリオ: 暗号化
     前提 中身が "himitsu" の一時ファイルが存在
-    もし その一時ファイルを encrypt コマンド (パスワード = "alpine") で暗号化した
+    もし その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
     ならば encrypt コマンドは成功する
 
 
@@ -16,14 +16,14 @@
     前提 中身が "himitsu" の一時ファイルが存在
     もし その一時ファイルを encrypt コマンド (オプションは "--dry-run --password alpine") で暗号化した
     ならば encrypt コマンドは成功する
-    かつ 出力は無し
+    かつ encrypt コマンドの出力は無し
 
 
   シナリオ: encrypt をドライラン (-d)
     前提 中身が "himitsu" の一時ファイルが存在
     もし その一時ファイルを encrypt コマンド (オプションは "-d --password alpine") で暗号化した
     ならば encrypt コマンドは成功する
-    かつ 出力は無し
+    かつ encrypt コマンドの出力は無し
 
 
   シナリオ: ecnrypt のヘルプメッセージ (--help)
@@ -73,7 +73,7 @@
 
   シナリオ: 復号
     前提 中身が "himitsu" の一時ファイルが存在
-    かつ その一時ファイルを encrypt コマンド (パスワード = "alpine") で暗号化した
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
     もし その出力を decrypt コマンドで復号 (パスワード = "alpine" ) した
     ならば decrypt コマンドは成功する
     かつ 出力 "himitsu" を得る
