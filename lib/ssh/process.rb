@@ -58,6 +58,7 @@ class SSH::Process # :nodoc:
 
 
   def spawn_subprocess shell, command
+    stderr.puts command if verbose
     @logger.debug command
     shell.exec command
   end

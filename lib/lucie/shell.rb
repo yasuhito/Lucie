@@ -24,6 +24,10 @@ class Lucie::Shell
       shell.on_failure do
         raise "'#{ command }' failed."
       end
+      if verbose
+        stderr.puts command
+        @logger.debug command
+      end
       shell.exec command
     end
   end
