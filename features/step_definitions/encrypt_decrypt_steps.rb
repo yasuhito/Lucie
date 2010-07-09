@@ -18,16 +18,16 @@ end
 
 
 When /^encrypt \-\-help コマンドを実行$/ do
-  @output = Tempfile.new( "encrypt" ).path
-  system "./script/encrypt --help > #{ @output }"
-  @messenger = StringIO.new( IO.read @output )
+  tmp = Tempfile.new( "encrypt" ).path
+  system "./script/encrypt --help > #{ tmp }"
+  @messenger = StringIO.new( IO.read tmp )
 end
 
 
 When /^encrypt コマンドに引数を付けずに実行$/ do
-  @output = Tempfile.new( "encrypt" ).path
-  system "./script/encrypt > #{ @output }"
-  @messenger = StringIO.new( IO.read @output )
+  tmp = Tempfile.new( "encrypt" ).path
+  system "./script/encrypt > #{ tmp }"
+  @messenger = StringIO.new( IO.read tmp )
 end
 
 
