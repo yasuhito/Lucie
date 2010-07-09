@@ -100,7 +100,6 @@ module Lucie
       command.split( "\n" ).each do | each |
         next if /^#/=~ each
         next if /^\s*$/=~ each
-        debug_print each, options
         Lucie::Shell.new( options ).run each
       end
     end

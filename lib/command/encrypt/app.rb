@@ -17,7 +17,7 @@ module Command
 
       def main input
         if @global_options.password
-          run %{openssl enc -pass pass:"#{ @global_options.password }" -e -aes256 -in #{ input }}, @debug_options
+          run "openssl enc -pass pass:'#{ @global_options.password }' -e -aes256 -in #{ input }", @debug_options
         else
           run %{openssl enc -e -aes256 -in #{ input }}, @debug_options
         end

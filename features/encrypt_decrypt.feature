@@ -22,14 +22,30 @@
     前提 中身が "himitsu" の一時ファイルが存在
     もし その一時ファイルを encrypt コマンド (オプションは "--dry-run --password alpine") で暗号化した
     ならば encrypt コマンドは成功する
-    かつ encrypt コマンドの出力は無し
+    かつ encrypt コマンドの標準出力は無し
 
 
   シナリオ: encrypt をドライラン (-d)
     前提 中身が "himitsu" の一時ファイルが存在
     もし その一時ファイルを encrypt コマンド (オプションは "-d --password alpine") で暗号化した
     ならば encrypt コマンドは成功する
-    かつ encrypt コマンドの出力は無し
+    かつ encrypt コマンドの標準出力は無し
+
+
+  シナリオ: encrypt を冗長オプション付きでドライラン (--verbose --dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    もし その一時ファイルを encrypt コマンド (オプションは "--verbose --dry-run --password alpine") で暗号化した
+    ならば encrypt コマンドは成功する
+    かつ encrypt コマンドの標準出力は無し
+    かつ encrypt コマンドの標準エラー出力は "openssl enc -pass pass:'alpine' -e -aes256 -in .*" にマッチ
+
+
+  シナリオ: encrypt を冗長オプション付きでドライラン (-v --dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    もし その一時ファイルを encrypt コマンド (オプションは "-v --dry-run --password alpine") で暗号化した
+    ならば encrypt コマンドは成功する
+    かつ encrypt コマンドの標準出力は無し
+    かつ encrypt コマンドの標準エラー出力は "openssl enc -pass pass:'alpine' -e -aes256 -in .*" にマッチ
 
 
   シナリオ: ecnrypt のヘルプメッセージ (--help)

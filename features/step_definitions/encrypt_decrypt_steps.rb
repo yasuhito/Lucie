@@ -6,8 +6,10 @@ end
 
 When /^その一時ファイルを encrypt コマンド \(オプションは "([^"]*)"\) で暗号化した$/ do | options | #"
   @output ||= Hash.new
-  @output[ :encrypt ] = Tempfile.new( "encrypt" ).path
-  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } > #{ @output[ :encrypt ] }" )
+  @error ||= Hash.new
+  @output[ :encrypt ] = Tempfile.new( "encout" ).path
+  @error[ :encrypt ] = Tempfile.new( "encerr" ).path
+  @rc = system( "./script/encrypt #{ options } #{ @tempfile.path } 1> #{ @output[ :encrypt ] } 2> #{ @error[ :encrypt ] }" )
 end
 
 
@@ -69,8 +71,15 @@ Then /^decrypt コマンドは成功する$/ do
 end
 
 
-Then /^encrypt コマンドの出力は無し$/ do
+Then /^encrypt コマンドの標準出力は無し$/ do
   IO.read( @output[ :encrypt ] ).should == ""
+end
+
+
+Then /^encrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
+  IO.read( @error[ :encrypt ] ).should match( Regexp.new regexp )
+  # p .match( IO.read( @error[ :encrypt ] ) )
+  # pending # express the regexp above with the code you wish you had
 end
 
 
