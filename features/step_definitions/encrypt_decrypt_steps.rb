@@ -24,9 +24,23 @@ When /^encrypt \-\-help コマンドを実行$/ do
 end
 
 
+When /^encrypt \-h コマンドを実行$/ do
+  tmp = Tempfile.new( "encrypt" ).path
+  system "./script/encrypt -h > #{ tmp }"
+  @messenger = StringIO.new( IO.read tmp )
+end
+
+
 When /^decrypt \-\-help コマンドを実行$/ do
   tmp = Tempfile.new( "decrypt" ).path
   system "./script/decrypt --help > #{ tmp }"
+  @messenger = StringIO.new( IO.read tmp )
+end
+
+
+When /^decrypt \-h コマンドを実行$/ do
+  tmp = Tempfile.new( "decrypt" ).path
+  system "./script/decrypt -h > #{ tmp }"
   @messenger = StringIO.new( IO.read tmp )
 end
 
