@@ -78,8 +78,6 @@ end
 
 Then /^encrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
   IO.read( @error[ :encrypt ] ).should match( Regexp.new regexp )
-  # p .match( IO.read( @error[ :encrypt ] ) )
-  # pending # express the regexp above with the code you wish you had
 end
 
 
