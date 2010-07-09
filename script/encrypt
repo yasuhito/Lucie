@@ -14,7 +14,7 @@ require "lucie/script"
 
 begin
   app = Command::Encrypt::App.new
-  app.usage_and_exit if ARGV.nil?
+  app.usage_and_exit if ARGV.empty?
   app.main ARGV.first
 rescue => e
   Lucie::Script.handle_exception e, app

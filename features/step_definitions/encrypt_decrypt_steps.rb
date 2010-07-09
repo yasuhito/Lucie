@@ -24,6 +24,13 @@ When /^encrypt \-\-help コマンドを実行$/ do
 end
 
 
+When /^encrypt コマンドに引数を付けずに実行$/ do
+  @output = Tempfile.new( "encrypt" ).path
+  system "./script/encrypt > #{ @output }"
+  @messenger = StringIO.new( IO.read @output )
+end
+
+
 Then /^encrypt コマンドは成功する$/ do
   @rc.should be_true
 end
