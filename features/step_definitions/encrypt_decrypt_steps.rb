@@ -15,7 +15,8 @@ end
 
 When /^その出力を decrypt コマンド \(オプションは "([^"]*)" \) で復号した$/ do | options | #"
   @output[ :decrypt ] = Tempfile.new( "decrypt" ).path
-  @rc = system( "./script/decrypt #{ options } #{ @output[ :encrypt ] } > #{ @output[ :decrypt ] }" )
+  @error[ :decrypt ] = Tempfile.new( "decrypt" ).path
+  @rc = system( "./script/decrypt #{ options } #{ @output[ :encrypt ] } 1> #{ @output[ :decrypt ] } 2> #{ @error[ :decrypt ] }" )
 end
 
 
@@ -76,8 +77,18 @@ Then /^encrypt コマンドの標準出力は無し$/ do
 end
 
 
+Then /^decrypt コマンドの標準出力は無し$/ do
+  IO.read( @output[ :decrypt ] ).should == ""
+end
+
+
 Then /^encrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
   IO.read( @error[ :encrypt ] ).should match( Regexp.new regexp )
+end
+
+
+Then /^decrypt コマンドの標準エラー出力は "([^"]*)" にマッチ$/ do | regexp | #"
+  IO.read( @error[ :decrypt ] ).should match( Regexp.new regexp )
 end
 
 

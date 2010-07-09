@@ -109,6 +109,40 @@
     かつ 出力 "himitsu" を得る
 
 
+  シナリオ: decrypt をドライラン (--dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
+    もし その出力を decrypt コマンド (オプションは "--dry-run --password alpine" ) で復号した
+    ならば decrypt コマンドは成功する
+    かつ decrypt コマンドの標準出力は無し
+
+
+  シナリオ: decrypt をドライラン (-d)
+    前提 中身が "himitsu" の一時ファイルが存在
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
+    もし その出力を decrypt コマンド (オプションは "-d --password alpine" ) で復号した
+    ならば decrypt コマンドは成功する
+    かつ decrypt コマンドの標準出力は無し
+
+
+  シナリオ: decrypt を冗長オプション付きでドライラン (--verbose --dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
+    もし その出力を decrypt コマンド (オプションは "--verbose --dry-run --password alpine" ) で復号した
+    ならば decrypt コマンドは成功する
+    かつ decrypt コマンドの標準出力は無し
+    かつ decrypt コマンドの標準エラー出力は "openssl enc -pass pass:'alpine' -d -aes256 -in .*" にマッチ
+
+
+  シナリオ: decrypt を冗長オプション付きでドライラン (-v --dry-run)
+    前提 中身が "himitsu" の一時ファイルが存在
+    かつ その一時ファイルを encrypt コマンド (オプションは "--password alpine") で暗号化した
+    もし その出力を decrypt コマンド (オプションは "-v --dry-run --password alpine" ) で復号した
+    ならば decrypt コマンドは成功する
+    かつ decrypt コマンドの標準出力は無し
+    かつ decrypt コマンドの標準エラー出力は "openssl enc -pass pass:'alpine' -d -aes256 -in .*" にマッチ
+
+
   シナリオ: decrypt のヘルプメッセージ (--help)
     もし decrypt --help コマンドを実行
     ならば 次の出力を得る:

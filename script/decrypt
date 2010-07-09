@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 
+$LOAD_PATH.unshift( File.expand_path( File.dirname( __FILE__ ) + "/../lib/" ) )
+
+
+require "lucie/utils"
 require "optparse"
 
 
@@ -40,8 +44,9 @@ class DecryptArguments
 end
 
 
+include Lucie::Utils
 arguments = DecryptArguments.new( ARGV )
-system %{openssl enc -pass pass:"#{ arguments.password }" -d -aes256 -in #{ ARGV.first }}
+run "openssl enc -pass pass:'#{ arguments.password }' -d -aes256 -in #{ ARGV.first }", :dry_run => arguments.dry_run, :verbose => arguments.dry_run
 
 
 ### Local variables:
