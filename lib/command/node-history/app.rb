@@ -89,7 +89,7 @@ module Command
 
       def show status
         begin
-          info message_for( status )
+          info message_for( status ).to_s + "\n"
         rescue Status::StatusError
           error StatusErrorMessage.new( status, @global_options.color )
         end
