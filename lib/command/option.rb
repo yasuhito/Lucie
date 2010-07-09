@@ -49,17 +49,12 @@ module Command
 
 
     def parse argv
-      old_argv = ARGV.dup
-      begin
-        ARGV.replace argv
-        gopts = GetoptLong.new( *OptionList.options )
-        gopts.quiet = true
-        gopts.each do | opt, arg |
-          instance_variable_set "@" + Option.attr_name_of( opt ), ( arg != "" ? arg : true )
-          call_proc opt, arg
-        end
-      ensure
-        ARGV.replace old_argv
+      ARGV.replace argv
+      gopts = GetoptLong.new( *OptionList.options )
+      gopts.quiet = true
+      gopts.each do | opt, arg |
+        instance_variable_set "@" + Option.attr_name_of( opt ), ( arg != "" ? arg : true )
+        call_proc opt, arg
       end
       self
     end

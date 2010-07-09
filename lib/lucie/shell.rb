@@ -16,7 +16,7 @@ class Lucie::Shell
   def run command
     SubProcess.create( @debug_options ) do | shell |
       shell.on_stdout do | line |
-        debug line
+        info line
       end
       shell.on_stderr do | line |
         error line

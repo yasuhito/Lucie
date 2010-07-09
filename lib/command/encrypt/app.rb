@@ -17,9 +17,9 @@ module Command
 
       def main input
         if @global_options.password
-          run %{openssl enc -pass pass:"#{ @global_options.password }" -e -aes256 < #{ input }}, @debug_options
+          system %{openssl enc -pass pass:"#{ @global_options.password }" -e -aes256 -in #{ input }}
         else
-          run %{openssl enc -e -aes256 < #{ input }}, @debug_options
+          system %{openssl enc -e -aes256 -in #{ input }}, @debug_options
         end
       end
     end

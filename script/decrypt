@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+
+require "optparse"
+
+
+class DecryptArguments
+  attr_reader :password
+
+
+  def initialize args
+    @password = nil
+    opts = OptionParser.new do | opts |
+      opts.on( "-p", "--password [STRING]", "A password to decrypt input file" ) do | string |
+        @password = string || nil
+      end
+    end
+    opts.parse! args
+  end
+end
+
+
+arguments = DecryptArguments.new( ARGV )
+system %{openssl enc -pass pass:"#{ arguments.password }" -d -aes256 -in #{ ARGV.first }}
+
+
+### Local variables:
+### mode: Ruby
+### coding: utf-8-unix
+### indent-tabs-mode: nil
+### End:
