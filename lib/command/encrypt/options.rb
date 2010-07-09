@@ -4,7 +4,7 @@ require "command/option"
 module Command
   module Encrypt
     class Options < Command::Option
-      usage "encrypt --password <PASSWORD> [OPTIONS ...] <FILE>"
+      usage "encrypt [OPTIONS ...] <FILE>"
 
       add_option( :long_option => "--password",
                   :short_option => "-P",

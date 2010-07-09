@@ -17,6 +17,13 @@ When /^その出力を decrypt コマンドで復号 \(パスワード = "([^"]*
 end
 
 
+When /^encrypt \-\-help コマンドを実行$/ do
+  @output = Tempfile.new( "encrypt" ).path
+  system "./script/encrypt --help > #{ @output }"
+  @messenger = StringIO.new( IO.read @output )
+end
+
+
 Then /^encrypt コマンドは成功する$/ do
   @rc.should be_true
 end

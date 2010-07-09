@@ -48,11 +48,6 @@ When /^ノード "([^\"]*)" に対して node history コマンドを \-\-color 
 end
 
 
-Then /^次の出力を得る:$/ do | string |
-  @messenger.string.chomp.should == string.chomp
-end
-
-
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8
