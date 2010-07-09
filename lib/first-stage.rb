@@ -77,7 +77,6 @@ class FirstStage
     update_status "Installing a kernel package ..."
     scp "#{ Lucie::ROOT }/config/kernel-img.conf", "/tmp/target/etc/"
     apt_option = '-y --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"'
-    p @install_options
     linux_image_arch = case @install_options[ :arch ]
                        when "i386"
                          "486"
@@ -189,7 +188,7 @@ EOF
 
 
   def update_status message
-    info message
+    info message + "\n"
     @node.status.update message
   end
 
