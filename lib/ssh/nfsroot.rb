@@ -23,7 +23,7 @@ class SSH::Nfsroot # :nodoc:
   def setup_ssh_access
     setup_sshd
     setup_ssh_home
-    info "ssh access to nfsroot configured."
+    info "ssh access to nfsroot configured.\n"
   end
 
 
