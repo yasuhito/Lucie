@@ -5,11 +5,6 @@ load "#{ File.dirname( __FILE__ ) }/lib/lucie/version.rb"
 require "fileutils"
 
 
-def install
-  load "./script/node/install"
-end
-
-
 def install_multi
   load "./script/node/install-multi"
 end
@@ -72,8 +67,6 @@ end
 def method_for command
   case command
   when "install", "inst"
-    return :install
-  when "install-multi", "inst-multi"
     return :install_multi
   when "update", "up"
     return :update

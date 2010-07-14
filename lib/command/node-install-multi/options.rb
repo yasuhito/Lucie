@@ -4,7 +4,7 @@ require "command/option"
 module Command
   module NodeInstallMulti
     class Options < Command::Option
-      usage "node install-multi <\"NODE-OPTIONS\" ...> [GLOBAL-OPTIONS ...]"
+      usage "node install <\"NODE-OPTIONS\" ...> [GLOBAL-OPTIONS ...]"
 
       add_option( :long_option => "--netmask",
                   :short_option => "-n",
