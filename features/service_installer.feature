@@ -6,7 +6,7 @@ Feature: Installer Service
 
   Scenario: Setup installer	 
     Given installers temporary directory "/tmp/installers" is empty
-    And an installer for suite "lenny"
+    And an installer for suite "lenny", arch "i386"
     When I setup the installer
     Then the installer is built
 

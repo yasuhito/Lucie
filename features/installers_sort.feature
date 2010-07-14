@@ -8,8 +8,8 @@ Feature: Sort installers
     And installers temporary directory "/tmp/lucie/tmp/installers" is empty
 
   Scenario: Sort by name
-    Given an installer for suite "potato"
-    And an installer for suite "etch"
-    And an installer for suite "lenny"
+    Given an installer for suite "potato", arch "i386"
+    And an installer for suite "etch", arch "i386"
+    And an installer for suite "lenny", arch "i386"
     When I try to sort installers
     Then I should get a sorted installer list "etch, lenny, potato"

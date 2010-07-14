@@ -84,7 +84,12 @@ end
 
 
 Then /^次の出力を得る:$/ do | string |
-  @messenger.string.chomp.should == string.chomp
+  expected = string.split( "\n" )
+  @messenger.string.split( "\n" ).each_with_index do | each, index |
+    next if /\s+/=~ each and ( expected[ index ] == "" or /\s+/=~ expected[ index ] )
+    each.should == expected[ index ]
+  end
+  # @messenger.string.chomp.should == string.chomp
 end
 
 

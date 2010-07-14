@@ -7,7 +7,7 @@ Feature: Setup tftpd for network boot
   Background:
     Given tftp root path is "/tmp/tftp_root"
     And installers temporary directory "/tmp/lucie/tmp/installers" is empty
-    And an installer for suite "lenny"
+    And an installer for suite "lenny", arch "i386"
 
   Scenario: Setup tftpd
     Given a node named "yasuhito_private_node00" with MAC address "00:00:00:00:00:00"

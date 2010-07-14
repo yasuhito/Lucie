@@ -5,13 +5,13 @@ end
 
 
 Then /^temporary directory for the installer created$/ do
-  dir = File.join( Configuration.installers_temporary_directory, "#{ @suite }_i386" )
+  dir = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ arch }" )
   history.should include( "mkdir -p #{ dir }" )
 end
 
 
 Then /^installer configuration file for "([^\"]*)" generated$/ do | suite |
-  config = File.join( Configuration.installers_temporary_directory, "#{ suite }_i386", "config.rb" )
+  config = File.join( Configuration.installers_temporary_directory, "#{ suite }_#{ arch }", "config.rb" )
   history.should include( "file write (#{ config })" )
 end
 

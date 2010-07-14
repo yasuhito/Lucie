@@ -111,6 +111,11 @@ def history
 end
 
 
+def arch
+  @arch || `dpkg --print-architecture`.chomp
+end
+
+
 ### Local variables:
 ### mode: Ruby
 ### coding: utf-8

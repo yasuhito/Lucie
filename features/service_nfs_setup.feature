@@ -6,7 +6,7 @@ Feature: Setup nfsd to export nfsroot
   Background:
     Given node list is empty
     And installers temporary directory "/tmp/lucie/tmp/installers" is empty
-    And an installer for suite "lenny"
+    And an installer for suite "lenny", arch "i386"
 
   Scenario: Setup nfsd for one node
     And a node named "yasuhito_private_node00", with IP address "192.168.0.100"

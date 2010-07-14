@@ -18,12 +18,12 @@ class DecryptArguments
       opts.summary_indent = "  "
 
       opts.banner = "usage: decrypt [OPTIONS ...] <FILE>"
-      opts.separator ""
+      opts.separator " "
       opts.separator "Options:"
       opts.on( "-p", "--password [STRING]", "A password to decrypt input file" ) do | string |
         @password = string || nil
       end
-      opts.separator ""
+      opts.separator " "
       opts.on( "-h", "--help", "Show this help message." ) do
         puts opts
         exit

@@ -4,11 +4,13 @@ Given /^installers temporary directory "([^\"]*)" is empty$/ do | dir |
 end
 
 
-Given /^an installer for suite "([^\"]*)"$/ do | suite |
+Given /^an installer for suite "([^"]*)", arch "([^"]*)"$/ do | suite, arch |
   @suite = suite
+  @arch = arch
   @messenger = StringIO.new
   installer = Installer.new
   installer.suite = suite
+  installer.arch = arch
   Installers.add installer, { :verbose => true, :messenger => @messenger }
 end
 

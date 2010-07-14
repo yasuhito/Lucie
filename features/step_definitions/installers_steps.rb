@@ -56,13 +56,13 @@ end
 
 
 Then /^configuration example for the installer should be generated$/ do
-  config = File.join( Configuration.installers_temporary_directory, "#{ @suite }_i386", "config.rb" )
+  config = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ arch }", "config.rb" )
   history.should include( "file write (#{ config })" )
 end
 
 
 Then /^a directory for the installer should be created$/ do
-  dir = File.join( Configuration.installers_temporary_directory, "#{ @suite }_i386" )
+  dir = File.join( Configuration.installers_temporary_directory, "#{ @suite }_#{ arch }" )
   history.should include( "mkdir -p #{ dir }" )
 end
 

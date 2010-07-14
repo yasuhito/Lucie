@@ -12,15 +12,15 @@ Feature: Load installers
     Then installer list should be empty
 
   Scenario: Load installers (1 installer)
-    Given an installer for suite "potato"
+    Given an installer for suite "potato", arch "i386"
     When I try to load installers
     Then installer list has exactly 1 installer(s)
     And installer list includes a installer "potato"
 
   Scenario: Load installers (3 installers)
-    Given an installer for suite "potato"
-    And an installer for suite "etch"
-    And an installer for suite "lenny"
+    Given an installer for suite "potato", arch "i386"
+    And an installer for suite "etch", arch "i386"
+    And an installer for suite "lenny", arch "i386"
     When I try to load installers
     Then installer list has exactly 3 installer(s)
     And installer list includes a installer "potato"

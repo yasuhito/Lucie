@@ -12,8 +12,8 @@ Feature: Find installers
     Then no installer found
 
   Scenario: find an installer
-    Given an installer for suite "potato"
-    Given an installer for suite "etch"
-    Given an installer for suite "lenny"
+    Given an installer for suite "potato", arch "i386"
+    Given an installer for suite "etch", arch "i386"
+    Given an installer for suite "lenny", arch "i386"
     When I try to find an installer "etch_i386"
     Then an installer "etch_i386" loaded
