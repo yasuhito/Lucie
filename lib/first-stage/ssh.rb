@@ -3,6 +3,11 @@ require "ssh"
 
 class FirstStage
   module SSH
+    def login
+      ::SSH.new( @logger, @debug_options ).login @node.name
+    end
+
+
     def ssh command = nil
       ::SSH.new( @logger, @debug_options ).sh @node.name, command
     end

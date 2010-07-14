@@ -33,13 +33,14 @@ class SSH
   end
 
 
+  def login host_name
+    LoginProcess.new( host_name, @debug_options ).run
+  end
+
+
   def sh host_name, command_line
-    if command_line
-      @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
-      @process.run
-    else
-      LoginProcess.new( host_name, @debug_options ).run
-    end
+    @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
+    @process.run
   end
 
 
