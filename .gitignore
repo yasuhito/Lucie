@@ -1,4 +1,5 @@
 *~
+.ssh/
 coverage
 coverage.dat
 log/install.log
