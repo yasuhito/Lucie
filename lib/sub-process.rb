@@ -8,7 +8,6 @@
 #    # Add some hooks here
 #    shell.on_stdout do | line |
 #      log line
-#      $stdout.puts line
 #    end
 #    shell.on_stderr do | line |
 #      log line
