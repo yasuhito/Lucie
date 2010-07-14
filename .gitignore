@@ -2,5 +2,6 @@
 .ssh/
 coverage
 coverage.dat
+html/
 log/
 tmp/
