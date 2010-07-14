@@ -97,6 +97,7 @@ end
 
 Rake::RDocTask.new do | t |
   t.rdoc_files.include "lib/**/*.rb"
+  t.options = [ "--diagram" ]
 end
 
 
