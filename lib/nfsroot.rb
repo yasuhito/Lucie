@@ -315,7 +315,11 @@ class Nfsroot < Rake::TaskLib
       run %{rm #{ target "/usr/sbin/update-initramfs" }}
       run "chroot #{ @target_directory } dpkg-divert --rename --remove /usr/sbin/update-initramfs"
     end
-    run "chroot #{ @target_directory } update-initramfs -k all -t -u -v"
+    if @verbose
+      run "chroot #{ @target_directory } update-initramfs -k all -t -u -v"
+    else
+      run "chroot #{ @target_directory } update-initramfs -k all -t -u"
+    end
   end
 
 
@@ -329,7 +333,7 @@ class Nfsroot < Rake::TaskLib
     pxebin = '/usr/lib/syslinux/pxelinux.0'
     tftp_kernel_target = File.join( Configuration.tftp_root, ENV[ 'INSTALLER_NAME' ] || @suite )
 
-    info 'Setting up PXE environment.\n'
+    info "Setting up PXE environment."
     run "rm -f #{ File.join Configuration.tftp_root, 'initrd.img-*' }"
     run "cp -p #{ target '/boot/initrd.img-*' } #{ Configuration.tftp_root }"
 

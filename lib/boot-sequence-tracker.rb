@@ -1,11 +1,9 @@
 require "boot-sequence-tracker/syslog-re"
-require "lucie/debug"
 require "ping"
 require "socket"
 
 
 class BootSequenceTracker
-  include Lucie::Debug
   include SyslogRE
 
 
@@ -122,6 +120,19 @@ class BootSequenceTracker
 
 
   # Misc #######################################################################
+
+
+  def debug message
+    @logger.debug message unless dry_run
+    ( @debug_options[ :messenger ] || $stderr ).puts message
+  end
+
+
+
+  def dry_run
+    @debug_options && @debug_options[ :dry_run ]
+  end
+
 
 
   def wait_loop
