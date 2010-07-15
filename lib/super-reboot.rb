@@ -102,7 +102,7 @@ class SuperReboot
       error "Reboot script failed."
       return false
     end
-    info "Reboot script succeeded. Now rebooting #{ @node_name } ...\n"
+    info "Reboot script succeeded. Now rebooting #{ @node_name } ..."
     true
   end
 
@@ -114,14 +114,14 @@ class SuperReboot
       error "Rebooting #{ @node_name } via ssh failed."
       return false
     end
-    info "Succeeded in rebooting #{ @node_name } via ssh. Now rebooting ...\n"
+    info "Succeeded in rebooting #{ @node_name } via ssh. Now rebooting ..."
     true
   end
 
 
   def run_script_reboot script
     command = "#{ script } #{ @node_name }"
-    info "Executing '#{ command }' to reboot #{ @node_name } ...\n"
+    info "Executing '#{ command }' to reboot #{ @node_name } ..."
     run command, @debug_options
   end
 
@@ -132,7 +132,7 @@ class SuperReboot
 
 
   def run_ssh_reboot
-    info "Rebooting #{ @node_name } via ssh ...\n"
+    info "Rebooting #{ @node_name } via ssh ..."
     @ssh.sh @node_name, "shutdown -r now"
   end
 end

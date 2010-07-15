@@ -2,12 +2,12 @@ module Lucie
   module Debug
     def info message
       @logger.info message if @logger and ( not dry_run )
-      stdout.print message
+      stdout.puts message
     end
 
 
     def debug message
-      @logger.debug message if @logger and ( not dry_run )
+      @logger.debug message.chomp if @logger and ( not dry_run )
       stderr.puts message if verbose
     end
 

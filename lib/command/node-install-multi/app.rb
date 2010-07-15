@@ -3,6 +3,7 @@ require "command/installer"
 require "command/node-install-multi/parser"
 require "configurator"
 require "installation-tracker"
+require "lucie/debug"
 require "node"
 require "nodes"
 require "process-pool"
@@ -12,6 +13,7 @@ module Command
   module NodeInstallMulti
     class App < Command::App
       include Command::Installer
+      include Lucie::Debug
 
 
       def initialize argv = ARGV, debug_options = {}
@@ -79,7 +81,7 @@ module Command
                 run_second_reboot each, logger
                 run_second_stage each, logger
                 run_third_reboot each, logger
-                logger.info "Node '#{ each.name }' installed.\n"
+                info "Node '#{ each.name }' installed.\n"
                 each.status.succeed!
               rescue Exception => e
                 each.status.fail!

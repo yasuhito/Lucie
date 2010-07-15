@@ -44,7 +44,23 @@ class DecryptArguments
 end
 
 
-include Lucie::Utils
+def run command, options
+  SubProcess.create( options ) do | shell |
+    shell.on_stdout do | line |
+      $stdout.print line
+    end
+    shell.on_stderr do | line |
+      $stderr.print line
+    end
+    shell.on_failure do
+      raise "'#{ command }' failed."
+    end
+    $stderr.puts command if options[ :verbose ]
+    shell.exec command
+  end
+end
+
+
 arguments = DecryptArguments.new( ARGV )
 options = { :dry_run => arguments.dry_run, :verbose => arguments.dry_run }
 if arguments.password

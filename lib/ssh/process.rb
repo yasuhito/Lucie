@@ -1,3 +1,4 @@
+require "lucie/debug"
 require "ssh/path"
 
 
@@ -5,6 +6,7 @@ require "ssh/path"
 # A base class of SSH process.
 #
 class SSH::Process # :nodoc:
+  include Lucie::Debug
   include SSH::Path
 
 
@@ -52,14 +54,13 @@ class SSH::Process # :nodoc:
   def default_handler
     lambda do | line |
       @output << line + "\n"
-      @logger.debug line
+      debug line
     end
   end
 
 
   def spawn_subprocess shell, command
-    stderr.puts command if verbose
-    @logger.debug command
+    debug command
     shell.exec command
   end
 end
