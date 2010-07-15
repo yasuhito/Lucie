@@ -188,7 +188,7 @@ EOF
 
 
   def update_status message
-    info message + "\n"
+    info message
     @node.status.update message
   end
 

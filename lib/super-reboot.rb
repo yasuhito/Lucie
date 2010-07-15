@@ -28,9 +28,9 @@ class SuperReboot
   end
 
 
-  def start_first_stage script = nil
+  def start_first_stage script = nil, total_reboots = nil
     try_reboot script
-    start_tracker reboot_sequence
+    start_tracker reboot_sequence, total_reboots ? "(Reboot 1/#{ total_reboots }) " : ""
   end
 
 
@@ -39,16 +39,16 @@ class SuperReboot
   end
 
 
-  def start_second_stage
+  def start_second_stage total_reboots = nil
     run_ssh_swapoff
     run_ssh_reboot
-    start_tracker local_boot_sequence
+    start_tracker local_boot_sequence, total_reboots ? "(Reboot 2/#{ total_reboots }) " : ""
   end
 
 
-  def reboot_to_finish_installation
+  def reboot_to_finish_installation total_reboots = nil
     run_ssh_reboot
-    start_tracker local_boot_sequence
+    start_tracker local_boot_sequence, total_reboots ? "(Reboot 3/#{ total_reboots }) " : ""
   end
 
 
@@ -80,10 +80,10 @@ class SuperReboot
   # Misc. ######################################################################
 
 
-  def start_tracker sequence
+  def start_tracker sequence, prefix = nil
     tracker = BootSequenceTracker.new( @syslog, @node, @logger, @debug_options )
     sequence.each do | each |
-      tracker.__send__ each
+      tracker.__send__ each, prefix
     end
   end
 

@@ -21,50 +21,50 @@ class BootSequenceTracker
   end
 
 
-  def wait_pxe
-    wait pxe_regexps( "Waiting for #{ @node_name } to request PXE boot loader ..." )
+  def wait_pxe prefix = ""
+    wait pxe_regexps( "#{ prefix }Waiting for #{ @node_name } to request PXE boot loader ...", prefix )
   end
 
 
-  def wait_manual_reboot
-    wait pxe_regexps( "Please reboot #{ @node_name } manually." )
+  def wait_manual_reboot prefix = ""
+    wait pxe_regexps( "#{ prefix }Please reboot #{ @node_name } manually.", prefix )
   end
 
 
-  def wait_pxe_localboot
-    wait pxe_localboot_regexps
+  def wait_pxe_localboot prefix = ""
+    wait pxe_localboot_regexps( prefix )
   end
 
 
-  def wait_dhcpack
-    wait dhcp_regexps
+  def wait_dhcpack prefix = ""
+    wait dhcp_regexps( prefix )
   end
 
 
-  def wait_nfsroot
-    wait nfsroot_regexps
+  def wait_nfsroot prefix = ""
+    wait nfsroot_regexps( prefix )
   end
 
 
-  def wait_pong
+  def wait_pong prefix = ""
     wait_loop do
-      debug "Waiting for #{ @node_name } to respond to ping ..."
+      debug "#{ prefix }Waiting for #{ @node_name } to respond to ping ..."
       break if dry_run || ping
     end
   end
 
 
-  def wait_no_pong
+  def wait_no_pong prefix = ""
     wait_loop do
-      debug "Waiting for #{ @node_name } to stop responding to ping ..."
+      debug "#{ prefix }Waiting for #{ @node_name } to stop responding to ping ..."
       break if dry_run || ( not ping )
     end
   end
 
 
-  def wait_sshd
+  def wait_sshd prefix = ""
     wait_loop do
-      debug "Waiting for #{ @node_name } to start sshd ..."
+      debug "#{ prefix }Waiting for #{ @node_name } to start sshd ..."
       begin
         TCPSocket.open( @node_ip, 22 ) unless dry_run
         break
@@ -93,29 +93,29 @@ class BootSequenceTracker
   end
 
 
-  def pxe_regexps boot_loader_message = "Waiting for #{ @node_name } to request PXE boot loader ..."
+  def pxe_regexps boot_loader_message = "Waiting for #{ @node_name } to request PXE boot loader ...", prefix = nil
     [ [ tftp_linux_re( @node ), boot_loader_message ],
-      [ tftp_linux_cfg_re( @node ), "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ],
-      [ tftp_kernel_re( @node ), "Waiting for #{ @node_name } to request Lucie kernel ..." ] ]
+      [ tftp_linux_cfg_re( @node ), "#{ prefix }Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ],
+      [ tftp_kernel_re( @node ), "#{ prefix }Waiting for #{ @node_name } to request Lucie kernel ..." ] ]
   end
 
 
-  def pxe_localboot_regexps
-    [ [ tftp_linux_re( @node ), "Waiting for #{ @node_name } to request PXE boot loader ..." ],
-      [ tftp_linux_cfg_re( @node ), "Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ] ]
+  def pxe_localboot_regexps prefix
+    [ [ tftp_linux_re( @node ), "#{ prefix }Waiting for #{ @node_name } to request PXE boot loader ..." ],
+      [ tftp_linux_cfg_re( @node ), "#{ prefix }Waiting for #{ @node_name } to request PXE boot loader configuration file ..." ] ]
   end
 
 
-  def dhcp_regexps
-    [ [ dhcp_discover_re( @node ), "Waiting for #{ @node_name } to send DHCPDISCOVER ..." ],
-      [ dhcp_offer_re( @node ), "Waiting for #{ @node_name } to receive DHCPOFFER ..." ],
-      [ dhcp_request_re( @node ), "Waiting for #{ @node_name } to send DHCPREQUEST ..." ],
-      [ dhcp_ack_re( @node ), "Waiting for #{ @node_name } to receive DHCPACK ..." ] ]
+  def dhcp_regexps prefix
+    [ [ dhcp_discover_re( @node ), "#{ prefix }Waiting for #{ @node_name } to send DHCPDISCOVER ..." ],
+      [ dhcp_offer_re( @node ), "#{ prefix }Waiting for #{ @node_name } to receive DHCPOFFER ..." ],
+      [ dhcp_request_re( @node ), "#{ prefix }Waiting for #{ @node_name } to send DHCPREQUEST ..." ],
+      [ dhcp_ack_re( @node ), "#{ prefix }Waiting for #{ @node_name } to receive DHCPACK ..." ] ]
   end
 
 
-  def nfsroot_regexps
-    [ [ nfs_mount_re( @node ), "Waiting for #{ @node_name } to mount nfsroot ..." ] ]
+  def nfsroot_regexps prefix
+    [ [ nfs_mount_re( @node ), "#{ prefix }Waiting for #{ @node_name } to mount nfsroot ..." ] ]
   end
 
 

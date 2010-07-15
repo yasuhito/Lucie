@@ -106,16 +106,18 @@ module Command
     end
 
 
-    def run_first_reboot node, logger
+    def run_first_reboot node, logger, total_reboots = nil
       elapsed = StopWatch.new.time_to_run do
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             begin
               logger.info "Rebooting ..."
+              stdout.puts "Rebooting ..."
               node.status.update "Rebooting ..."
-              SuperReboot.new( node, syslog, logger, @debug_options ).start_first_stage
+              SuperReboot.new( node, syslog, logger, @debug_options ).start_first_stage( nil, total_reboots )
             rescue
               logger.info "Requesting manual reboot"
+              stdout.puts "Requesting manual reboot"
               node.status.update "Requesting manual reboot"
               SuperReboot.new( node, syslog, logger, @debug_options ).wait_manual_reboot
             end
@@ -123,6 +125,7 @@ module Command
         end
       end
       logger.info "The first reboot finished in #{ elapsed } seconds."
+      stdout.puts "The first reboot finished in #{ elapsed } seconds."
     end
 
 
@@ -131,21 +134,24 @@ module Command
         start_installer_for node, logger
       end
       logger.info "The first stage finished in #{ elapsed } seconds."
+      stdout.puts "The first stage finished in #{ elapsed } seconds."
     end
 
 
-    def run_second_reboot node, logger
+    def run_second_reboot node, logger, total_reboots = nil
       elapsed = StopWatch.new.time_to_run do
         Environment::SecondStage.new( @debug_options ).start( node )
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             logger.info "Rebooting ..."
+            stdout.puts "Rebooting ..."
             node.status.update "Rebooting ..."
-            SuperReboot.new( node, syslog, logger, @debug_options ).start_second_stage
+            SuperReboot.new( node, syslog, logger, @debug_options ).start_second_stage( total_reboots )
           end
         end
       end
       logger.info "The second reboot finished in #{ elapsed } seconds."
+      stdout.puts "The second reboot finished in #{ elapsed } seconds."
     end
 
 
@@ -154,11 +160,13 @@ module Command
         start_ldb node, logger
       end
       logger.info "The second stage finished in #{ elapsed } seconds."
+      stdout.puts "The second stage finished in #{ elapsed } seconds."
     end
 
 
     def start_ldb node, logger
       logger.info "Starting LDB ..."
+      stdout.puts "Starting LDB ..."
       node.status.update "Starting LDB ..."
       if @global_options.ldb_repository
         @configurator.clone_to_client @global_options.ldb_repository, node, lucie_server_ip_address, logger
@@ -167,17 +175,19 @@ module Command
     end
 
 
-    def run_third_reboot node, logger
+    def run_third_reboot node, logger, total_reboots = nil
       elapsed = StopWatch.new.time_to_run do
         unless dry_run
           File.open( "/var/log/syslog", "r" ) do | syslog |
             logger.info "Rebooting ..."
+            stdout.puts "Rebooting ..."
             node.status.update "Rebooting ..."
-            SuperReboot.new( node, syslog, logger, @debug_options ).reboot_to_finish_installation
+            SuperReboot.new( node, syslog, logger, @debug_options ).reboot_to_finish_installation( total_reboots )
           end
         end
       end
       logger.info "The third reboot finished in #{ elapsed } seconds."
+      stdout.puts "The third reboot finished in #{ elapsed } seconds."
     end
 
 

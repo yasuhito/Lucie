@@ -76,14 +76,15 @@ module Command
               begin
                 $0 = "lucie: installer (#{ each.name })"
                 logger = @node_logger[ each ]
-                run_first_reboot each, logger
+                total_reboots = @global_options.ldb_repository ? 3 : 2
+                run_first_reboot each, logger, total_reboots
                 run_first_stage each, logger
-                run_second_reboot each, logger
+                run_second_reboot each, logger, total_reboots
                 if @global_options.ldb_repository
                   run_second_stage each, logger
-                  run_third_reboot each, logger
+                  run_third_reboot each, logger, total_reboots
                 end
-                info "Node '#{ each.name }' installed.\n"
+                info "Node '#{ each.name }' installed."
                 each.status.succeed!
               rescue Exception => e
                 each.status.fail!
