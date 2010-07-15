@@ -50,6 +50,7 @@ module Lucie
           @logger = Null.new
         else
           @logger = ::Logger.new( File.join( directory, LOG_FILE_NAME ) )
+          @logger.datetime_format = "%Y-%m-%d %H:%M:%S "
         end
       end
 
