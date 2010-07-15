@@ -79,8 +79,10 @@ module Command
                 run_first_reboot each, logger
                 run_first_stage each, logger
                 run_second_reboot each, logger
-                run_second_stage each, logger
-                run_third_reboot each, logger
+                if @global_options.ldb_repository
+                  run_second_stage each, logger
+                  run_third_reboot each, logger
+                end
                 info "Node '#{ each.name }' installed.\n"
                 each.status.succeed!
               rescue Exception => e
