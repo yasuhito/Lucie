@@ -1,9 +1,6 @@
 require "lucie/logger/null"
 
 
-#
-# Manages keypair and SSH connections to nodes.
-#
 class SSH
   require "ssh/key-pair-generator"
   require "ssh/login-process"
@@ -17,6 +14,28 @@ class SSH
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
+  #
+  # Creates a new ssh client. The following options are available:
+  # 
+  # <tt>:logger</tt>:: Save logs with the specified logger [Lucie::Logger::Null]
+  # <tt>:verbose</tt>:: Be verbose [nil] 
+  # <tt>:dry_run</tt>:: Print the commands that would be executed, but do not execute them. [nil]
+  #
+  # Usage:
+  #
+  #   # New ssh client
+  #   ssh = SSH.new
+  #
+  #   # New ssh client, with logging
+  #   logger = Lucie::Logger::Installer.new
+  #   ssh = SSH.new( :logger => logger )
+  #
+  #   # New ssh client, with logging, verbose mode.
+  #   ssh = SSH.new( :logger => logger, :verbose => true )
+  #
+  #   # New ssh client, dry-run mode.
+  #   ssh = SSH.new( :dry_run => true )
+  #
   def initialize debug_options = {}
     @debug_options = { :logger => Lucie::Logger::Null.new }.merge( debug_options )
   end
