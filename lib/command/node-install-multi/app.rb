@@ -48,7 +48,7 @@ module Command
           parse
           start_main_logger
           check_prerequisites
-          maybe_generate_and_authorize_keypair
+          maybe_generate_keypair
           update_sudo_timestamp
           register_nodes
           maybe_start_confidential_data_server
