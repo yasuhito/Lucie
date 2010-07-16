@@ -15,7 +15,7 @@ class SSH::LoginProcess # :nodoc:
 
 
   def run
-    system real_command
+    raise "`#{ real_command }' failed" unless Kernel.system( real_command )
   end
 
 
