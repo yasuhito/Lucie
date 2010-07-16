@@ -3,8 +3,6 @@ require "lucie/logger"
 
 class SSH
   require "ssh/home"
-  require "ssh/path"
-
   require "ssh/key-pair-generator"
   require "ssh/login-process"
   require "ssh/nfsroot"

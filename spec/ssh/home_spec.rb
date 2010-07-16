@@ -30,14 +30,14 @@ describe SSH::Home, %{with ssh_home = "\#{tmpdir}/ssh_home"} do
 
     it "should create ssh_home if it does not exist" do
       FileUtils.rm_rf ssh_home
-      @home.should_receive( :run ).with( "mkdir -p #{ ssh_home }", {} )
+      @home.should_receive( :mkdir_p ).with( ssh_home, {} )
       @home.setup
     end
 
 
     it "should not create ssh_home if it already exists" do
       FileUtils.mkdir_p ssh_home
-      @home.should_not_receive( :run ).with( "mkdir -p #{ ssh_home }", {} )
+      @home.should_not_receive( :mkdir_p ).with( ssh_home, {} )
       @home.setup
     end
   end
