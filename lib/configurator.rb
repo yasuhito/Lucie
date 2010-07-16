@@ -1,6 +1,6 @@
 require "configurator/client"
 require "configurator/server"
-require "lucie/logger/null"
+require "lucie/logger"
 require "lucie/server"
 
 

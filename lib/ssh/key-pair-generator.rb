@@ -1,6 +1,4 @@
 require "lucie/utils"
-require "ssh/home"
-require "ssh/path"
 
 
 class SSH::KeyPairGenerator

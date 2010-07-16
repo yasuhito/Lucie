@@ -1,5 +1,5 @@
 require "confidential-data-client"
-require "lucie/logger/null"
+require "lucie/logger"
 require "scm"
 require "ssh"
 

@@ -1,7 +1,7 @@
 require "configuration-updator/client"
 require "configuration-updator/server"
 require "lucie/debug"
-require "lucie/logger/null"
+require "lucie/logger"
 
 
 class ConfigurationUpdator

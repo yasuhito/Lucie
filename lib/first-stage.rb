@@ -13,7 +13,7 @@ require "service"
 require "status/installer"
 require "sub-process"
 require "tempfile"
-require "ssh/home"
+require "ssh"
 
 
 class FirstStage
