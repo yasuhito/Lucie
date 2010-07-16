@@ -18,7 +18,7 @@ class SSH
 
 
   def initialize debug_options = {}
-    @debug_options = debug_options.merge( :logger => Lucie::Logger::Null.new )
+    @debug_options = { :logger => Lucie::Logger::Null.new }.merge( debug_options )
   end
 
 
