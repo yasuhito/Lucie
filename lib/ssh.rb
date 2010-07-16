@@ -17,9 +17,8 @@ class SSH
   OPTIONS = "-o PasswordAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 
 
-  def initialize logger = nil, debug_options = {}
-    @logger = logger || Lucie::Logger::Null.new
-    @debug_options = debug_options
+  def initialize debug_options = {}
+    @debug_options = debug_options.merge( :logger => Lucie::Logger::Null.new )
   end
 
 
@@ -61,7 +60,7 @@ class SSH
   #   ssh.sh "macbook", "ls -1 /tmp"
   #
   def sh host_name, command_line
-    @process = ShProcess.new( host_name, command_line, @logger, @debug_options )
+    @process = ShProcess.new( host_name, command_line, logger, @debug_options )
     @process.run
   end
 
@@ -87,7 +86,7 @@ class SSH
   #   ssh.sh_a "macbook", "ls /root"
   #
   def sh_a host_name, command_line
-    ShaProcess.new( host_name, command_line, @logger, @debug_options ).run
+    ShaProcess.new( host_name, command_line, logger, @debug_options ).run
   end
 
 
@@ -100,7 +99,7 @@ class SSH
   #   ssh.cp "~/.ssh/id_rsa.pub", "macbook:~/tmp"
   #
   def cp from, to
-    ScpProcess.new( from, to, @logger, @debug_options ).run
+    ScpProcess.new( from, to, logger, @debug_options ).run
   end
 
 
@@ -113,7 +112,17 @@ class SSH
   #   ssh.cp_r "~/Movies", "macbook:~"
   #
   def cp_r from, to
-    ScprProcess.new( from, to, @logger, @debug_options ).run
+    ScprProcess.new( from, to, logger, @debug_options ).run
+  end
+
+
+  ##############################################################################
+  private
+  ##############################################################################
+
+
+  def logger
+    @debug_options[ :logger ]
   end
 end
 

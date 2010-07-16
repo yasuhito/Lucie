@@ -16,7 +16,7 @@ class Configurator
 
     def self.guess_scm node, debug_options = {}
       return "DUMMY_SCM" if debug_options[ :dry_run ]
-      ssh = SSH.new( nil, debug_options )
+      ssh = SSH.new( debug_options )
       ssh.sh( node.ip_address, "ls -1 -d #{ File.join( REPOSITORY, '.*' ) }" ).split( "\n" ).each do | each |
         case File.basename( each )
         when ".hg"
@@ -33,7 +33,7 @@ class Configurator
 
     def initialize scm = nil, debug_options = {}
       @debug_options = debug_options
-      @ssh = SSH.new( nil, @debug_options )
+      @ssh = SSH.new( @debug_options )
       @scm = Scm.from( scm, @debug_options ) if scm
     end
 
@@ -47,7 +47,7 @@ class Configurator
 
     def update client_ip, server_ip
       update_commands( client_ip, server_ip, REPOSITORY ).each do | each |
-        SSH.new( nil, @debug_options ).sh_a client_ip, each
+        SSH.new( @debug_options ).sh_a client_ip, each
       end
     end
 
@@ -59,7 +59,7 @@ class Configurator
 
 
     def start ip, logger = Lucie::Logger::Null.new    
-      SSH.new( logger, @debug_options ).sh_a ip, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make"
+      SSH.new( @debug_options.merge( :logger => logger ) ).sh_a ip, "cd #{ scripts_directory } && eval \\`#{ ldb_command } env\\` && make"
     end
 
 
@@ -107,7 +107,7 @@ class Configurator
 
 
     def install_repository client_ip, server_ip, url
-      SSH.new( nil, @debug_options ).sh_a client_ip, @scm.install_command( REPOSITORY_BASE_DIRECTORY, server_ip, url )
+      SSH.new( @debug_options ).sh_a client_ip, @scm.install_command( REPOSITORY_BASE_DIRECTORY, server_ip, url )
     end
 
 
