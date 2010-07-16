@@ -1,23 +1,41 @@
-require "lucie/debug"
 require "lucie/utils"
 require "ssh/home"
 require "ssh/path"
 
 
-#
-# Generates a new ssh keypair and authorizes its public key if need be.
-#
-class SSH::KeyPairGenerator # :nodoc:
-  include Lucie::Debug
+class SSH::KeyPairGenerator
   include Lucie::Utils
   include SSH::Path
 
 
+  #
+  # Creates a SSH key-pair generator. The following options are available:
+  #
+  # <tt>:logger</tt>:: Save logs with the specified logger [nil]
+  # <tt>:verbose</tt>:: Be verbose [nil] 
+  # <tt>:dry_run</tt>:: Print the commands that would be executed, but do not execute them. [nil]
+  # 
+  # Usage:
+  #
+  #   # New SSH key-pair generator
+  #   generator = SSH::KeyPairGenerator.new
+  #
+  #   # New SSH key-pair generator, with logging
+  #   logger = Lucie::Logger::Installer.new
+  #   generator = SSH::KeyPairGenerator.new( :logger => logger )
+  #
+  #   # New SSH key-pair generator, dry-run mode
+  #   generator = SSH::KeyPairGenerator.new( :dry_run => true )
+  #
   def initialize debug_options = {}
     @debug_options = debug_options
   end
 
 
+  #
+  # Authorizes the public key on localhost. If an SSH key-pair not
+  # found, generates a new ssh keypair.
+  #
   def start
     begin
       SSH::Home.new( ssh_home, @debug_options ).setup
