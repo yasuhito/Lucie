@@ -59,6 +59,7 @@ describe Debootstrap do
       d.suite = "stable"
       d.target = "/tmp"
       d.package_repository = "PACKAGE_REPOSITORY"
+      d.messenger = StringIO.new
     end
   end
 end
