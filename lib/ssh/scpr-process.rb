@@ -12,16 +12,16 @@ require "ssh/copy-process"
 # Usage:
 #
 #   # Copy /tmp/log/ to yasuhito_desktop:/home/yasuhito
-#   SSH::ScpProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito" ).run
+#   SSH::ScprProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito" ).run
 #
 #   # Copy /tmp/log/ to yasuhito_desktop:/home/yasuhito, with logging
-#   SSH::ScpProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :logger => logger ).run
+#   SSH::ScprProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :logger => logger ).run
 #
 #   # Copy /tmp/log/ to yasuhito_desktop:/home/yasuhito, verbose mode
-#   SSH::ScpProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :verbose => true ).run
+#   SSH::ScprProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :verbose => true ).run
 #
 #   # Copy /tmp/log/ to yasuhito_desktop:/home/yasuhito, dry-run mode
-#   SSH::ScpProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :dry_run => true ).run
+#   SSH::ScprProcess.new( "/tmp/log", "yasuhito_desktop:/home/yasuhito", :dry_run => true ).run
 #
 class SSH::ScprProcess < SSH::CopyProcess
   ##############################################################################
