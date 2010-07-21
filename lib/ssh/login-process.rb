@@ -1,10 +1,11 @@
 require "ssh/path"
+require "ssh/process"
 
 
 #
 # ssh login
 #
-class SSH::LoginProcess # :nodoc:
+class SSH::LoginProcess < SSH::Process # :nodoc:
   include SSH::Path
 
 
