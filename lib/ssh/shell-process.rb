@@ -8,11 +8,11 @@ class SSH::ShellProcess < SSH::Process # :nodoc:
   attr_reader :output
 
 
-  def initialize host_name, command_line, logger, debug_options
+  def initialize host_name, command_line, debug_options
     @host_name = host_name
     @command_line = command_line
     @output = ""
-    super logger, debug_options
+    super debug_options
   end
 end
 

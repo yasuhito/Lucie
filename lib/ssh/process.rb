@@ -5,17 +5,45 @@ require "ssh/path"
 #
 # A base class of SSH process.
 #
-class SSH::Process # :nodoc:
-  include Lucie::Debug
+class SSH::Process
   include SSH::Path
 
 
-  def initialize logger, debug_options
-    @logger = logger
+  #
+  # Creates a new SSH process object. The following options are
+  # available:
+  #
+  # <tt>:logger</tt>:: Save logs with the specified logger [nil]
+  # <tt>:verbose</tt>:: Be verbose [nil] 
+  # <tt>:dry_run</tt>:: Print the commands that would be executed, but do not execute them. [nil]
+  # 
+  # Usage:
+  #
+  #   # scp
+  #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp" )
+  #
+  #   # scp, with logging
+  #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp", :logger => logger )
+  #
+  #   # scp, verbose mode
+  #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp", :verbose => true )
+  #
+  #   # scp, dry-run mode
+  #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp", :dry_run => true )
+  #
+  def initialize debug_options
+    @logger = debug_options[ :logger ]
     @debug_options = debug_options
   end
 
 
+  #
+  # Runs an SSH process.
+  #
+  # Usage:
+  #
+  #   SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp" ).run
+  #
   def run
     SubProcess.create( @debug_options ) do | shell |
       begin

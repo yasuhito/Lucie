@@ -5,10 +5,10 @@ require "ssh/process"
 # scp with logging.
 #
 class SSH::CopyProcess < SSH::Process # :nodoc:
-  def initialize from, to, logger, debug_options
+  def initialize from, to, debug_options
     @from = from
     @to = to
-    super logger, debug_options
+    super debug_options
   end
 end
 
