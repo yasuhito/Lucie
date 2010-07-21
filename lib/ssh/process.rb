@@ -9,9 +9,6 @@ class SSH::Process
   include SSH::Path
 
 
-  attr_reader :output
-
-
   #
   # Creates a new SSH process object. The following options are
   # available:
@@ -35,7 +32,6 @@ class SSH::Process
   #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp", :dry_run => true )
   #
   def initialize debug_options
-    @output = ""
     @logger = debug_options[ :logger ]
     @debug_options = debug_options
   end
@@ -50,12 +46,8 @@ class SSH::Process
   #
   def run
     SubProcess.create( @debug_options ) do | shell |
-      begin
-        set_default_handlers_for shell
-        spawn_subprocess shell, real_command
-      ensure
-        post_command_hook shell
-      end
+      set_default_handlers_for shell
+      spawn_subprocess shell, real_command
     end
     self
   end
@@ -66,27 +58,9 @@ class SSH::Process
   ##############################################################################
 
 
-  def real_command
-    raise NotImplementedError
-  end
-
-
-  def post_command_hook shell
-    # do nothing
-  end
-
-
   def set_default_handlers_for shell
     [ :on_stdout, :on_stderr ].each do | each |
       shell.__send__ each, &default_handler
-    end
-  end
-
-
-  def default_handler
-    lambda do | line |
-      @output << line + "\n"
-      debug line
     end
   end
 

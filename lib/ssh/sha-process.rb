@@ -2,7 +2,7 @@ require "ssh/shell-process"
 
 
 #
-# Run a command via SSH with agent forwardng enabled. The following
+# Run a command via SSH with agent forwarding enabled. The following
 # options are available:
 #
 # <tt>:logger</tt>:: Save logs with the specified logger [nil]
@@ -24,6 +24,26 @@ require "ssh/shell-process"
 #   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home", :dry_run => true ).run
 #   
 class SSH::ShaProcess < SSH::ShellProcess
+  #
+  # Run a command via SSH with agent forwarding enabled.
+  #
+  # Usage:
+  #
+  #   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home" ).run
+  #
+  def run
+    SubProcess.create( @debug_options ) do | shell |
+      begin
+        set_default_handlers_for shell
+        spawn_subprocess shell, real_command
+      ensure
+        kill_ssh_agent shell
+      end
+    end
+    self
+  end
+
+
   ##############################################################################
   private
   ##############################################################################
@@ -32,7 +52,6 @@ class SSH::ShaProcess < SSH::ShellProcess
   def kill_ssh_agent shell
     shell.exec "ssh-agent -k", { "SSH_AGENT_PID" => $1 } if /^Agent pid (\d+)/=~ @output
   end
-  alias post_command_hook kill_ssh_agent
 
 
   def real_command

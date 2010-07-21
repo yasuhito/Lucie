@@ -13,6 +13,18 @@ class SSH::CopyProcess < SSH::Process
     @to = to
     super debug_options
   end
+
+
+  ##############################################################################  
+  private
+  ##############################################################################  
+
+
+  def default_handler
+    lambda do | line |
+      debug line
+    end
+  end
 end
 
 
