@@ -9,6 +9,9 @@ class SSH::Process
   include SSH::Path
 
 
+  attr_reader :output
+
+
   #
   # Creates a new SSH process object. The following options are
   # available:
@@ -32,6 +35,7 @@ class SSH::Process
   #   scp = SSH::ScpProcess.new( "/tmp/data.txt", "yasuhito:/tmp", :dry_run => true )
   #
   def initialize debug_options
+    @output = ""
     @logger = debug_options[ :logger ]
     @debug_options = debug_options
   end

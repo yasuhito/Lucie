@@ -2,16 +2,15 @@ require "ssh/process"
 
 
 #
-# ssh with logging
+# SSH with logging
 #
-class SSH::ShellProcess < SSH::Process # :nodoc:
-  attr_reader :output
-
-
+class SSH::ShellProcess < SSH::Process
+  #
+  # Creates a new ShellProcess object.
+  #
   def initialize host_name, command_line, debug_options
     @host_name = host_name
     @command_line = command_line
-    @output = ""
     super debug_options
   end
 end
