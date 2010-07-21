@@ -2,9 +2,12 @@ require "ssh/process"
 
 
 #
-# scp with logging.
+# <tt>scp</tt> with logging.
 #
-class SSH::CopyProcess < SSH::Process # :nodoc:
+class SSH::CopyProcess < SSH::Process
+  #
+  # Creates a new CopyProcess object.
+  #
   def initialize from, to, debug_options
     @from = from
     @to = to
