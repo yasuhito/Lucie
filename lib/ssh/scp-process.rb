@@ -10,16 +10,16 @@ require "ssh/copy-process"
 #
 # Usage:
 #
-#   # run `ls /home' on yasuhito_desktop
+#   # Copy /tmp/log.txt to yasuhito_desktop:/home/yasuhito
 #   SSH::ScpProcess.new( "/tmp/log.txt", "yasuhito_desktop:/home/yasuhito" ).run
 #
-#   # run `ls /home' on yasuhito_desktop, with logging
+#   # Copy /tmp/log.txt to yasuhito_desktop:/home/yasuhito, with logging
 #   SSH::ScpProcess.new( "/tmp/log.txt", "yasuhito_desktop:/home/yasuhito", :logger => logger ).run
 #
-#   # run `ls /home' on yasuhito_desktop, verbose mode
+#   # Copy /tmp/log.txt to yasuhito_desktop:/home/yasuhito, verbose mode
 #   SSH::ScpProcess.new( "/tmp/log.txt", "yasuhito_desktop:/home/yasuhito", :verbose => true ).run
 #
-#   # run `ls /home' on yasuhito_desktop, dry-run mode
+#   # Copy /tmp/log.txt to yasuhito_desktop:/home/yasuhito, dry-run mode
 #   SSH::ScpProcess.new( "/tmp/log.txt", "yasuhito_desktop:/home/yasuhito", :dry_run => true ).run
 #
 class SSH::ScpProcess < SSH::CopyProcess
