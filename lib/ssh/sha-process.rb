@@ -2,9 +2,28 @@ require "ssh/shell-process"
 
 
 #
-# ssh -a with logging
+# Run a command via SSH with agent forwardng enabled. The following
+# options are available:
 #
-class SSH::ShaProcess < SSH::ShellProcess # :nodoc:
+# <tt>:logger</tt>:: Save logs with the specified logger [nil]
+# <tt>:verbose</tt>:: Be verbose [nil] 
+# <tt>:dry_run</tt>:: Print the commands that would be executed, but do not execute them. [nil]
+#
+# Usage:
+#
+#   # run `ls /home' on yasuhito_desktop
+#   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home" ).run
+#
+#   # run `ls /home' on yasuhito_desktop, with logging
+#   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home", :logger => logger ).run
+#
+#   # run `ls /home' on yasuhito_desktop, verbose mode
+#   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home", :verbose => true ).run
+#
+#   # run `ls /home' on yasuhito_desktop, dry-run mode
+#   SSH::ShaProcess.new( "yasuhito_desktop", "ls /home", :dry_run => true ).run
+#   
+class SSH::ShaProcess < SSH::ShellProcess
   ##############################################################################
   private
   ##############################################################################
