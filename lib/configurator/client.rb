@@ -117,12 +117,8 @@ class Configurator
 
 
     def repository_base_directory_exists? ip
-      begin
-        @ssh.sh ip, "test -d #{ REPOSITORY_BASE_DIRECTORY }"
-        true
-      rescue
-        false
-      end
+      @ssh.sh ip, "test -d #{ REPOSITORY_BASE_DIRECTORY }"
+      true
     end
   end
 end

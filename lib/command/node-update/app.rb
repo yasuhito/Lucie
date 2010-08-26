@@ -19,6 +19,7 @@ module Command
       #         この initialize メソッドを無くすべし
       def initialize argv = ARGV, debug_options = {}
         @debug_options = debug_options
+	@failed_nodes = []
         super argv, @debug_options
       end
 
@@ -34,15 +35,24 @@ module Command
             @configurator.clone_to_server @global_options.ldb_repository, Lucie::Server.ip_address_for( nodes, @debug_options )
           end
           nodes.collect do | each |
-            Thread.start( each, Lucie::Server.ip_address_for( nodes, @debug_options ) ) do | node, lucie_ip |
+	    sleep 0.1 # sshd の MaxStartup の制限を回避
+            t = Thread.start( each, Lucie::Server.ip_address_for( nodes, @debug_options ) ) do | node, lucie_ip |
               @configurator.clone_to_client @global_options.ldb_repository, node, lucie_ip
             end
-          end.each do | each |
-            each.join
+            [ t, each ]
+          end.each do | t, n |
+	    begin
+              t.join
+            rescue
+              @failed_nodes << n
+            end
           end
         end
         @updator = ConfigurationUpdator.new( @debug_options )
-        update nodes
+        update nodes - @failed_nodes
+        unless @failed_nodes.empty?
+          raise "The following node#{ @failed_nodes.size > 1 ? '(s)': '' } FAILED: #{ @failed_nodes.collect do | each | each.name end.join( ' ' ) }"
+        end
       end
 
 
@@ -54,9 +64,15 @@ module Command
       def update nodes
         @updator.update_server_for nodes
         nodes.collect do | each |
-          start_update_for each 
-        end.each do | each |
-          each.join
+          sleep 0.1 # sshd の MaxStartup の制限を回避
+          t = start_update_for( each )
+          [ t, each ]
+        end.each do | t, n |
+          begin
+            t.join
+          rescue
+            @failed_nodes << n
+          end
         end
       end
 
@@ -64,7 +80,7 @@ module Command
       def start_update_for node
         Thread.start do
           @updator.update_client node
-          @updator.start node, Lucie::Logger::Updator.new
+          @updator.start( node, Lucie::Logger::Updator.new )
         end
       end
 
