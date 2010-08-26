@@ -51,7 +51,7 @@ module Command
         @updator = ConfigurationUpdator.new( @debug_options )
         update nodes - @failed_nodes
         unless @failed_nodes.empty?
-          raise "The following node#{ @failed_nodes.size > 1 ? '(s)': '' } FAILED: #{ @failed_nodes.collect do | each | each.name end.join( ' ' ) }"
+          raise "The following node#{ @failed_nodes.size > 1 ? 's': '' } FAILED: #{ @failed_nodes.collect do | each | each.name end.join( ' ' ) }"
         end
       end
 
