@@ -4,8 +4,7 @@ require "cucumber/rake/task"
 require "hanna/rdoctask"
 require "rake"
 require "rake/clean"
-require "spec/rake/spectask"
-require "spec/rake/verify_rcov"
+require "rspec/core/rake_task"
 
 
 Dir[ "tasks/**/*.rake" ].each do | t |
@@ -64,32 +63,30 @@ COVERAGE_THRESHOLD = 94.6
 
 
 desc "Run specs with RCov"
-Spec::Rake::SpecTask.new do | t |
-  t.spec_files = FileList[ 'spec/**/*_spec.rb' ]
-  t.spec_opts = [ "--color", "--format", "RspecSpinner::Bar" ]
+RSpec::Core::RakeTask.new do | t |
+  t.rspec_opts = [ "--color" ]
   t.rcov = true
   t.rcov_opts = rcov_opts
 end
 
 
 desc "Run specs with RCov (cc.rb)"
-Spec::Rake::SpecTask.new( "spec:cruise" ) do | t |
-  t.spec_files = FileList[ 'spec/**/*_spec.rb' ]
-  t.spec_opts = [ "--color", "--format", "profile" ]
+RSpec::Core::RakeTask.new( "spec:cruise" ) do | t |
+  t.rspec_opts = [ "--color", "--format", "profile" ]
   t.rcov = true
   t.rcov_opts = rcov_opts
 end
 
 
 task :verify_rcov => [ "spec", "cucumber" ]
-RCov::VerifyTask.new do | t |
-  t.threshold = COVERAGE_THRESHOLD
+RSpec::Core::RakeTask.new do | t |
+  t.rcov = true
 end
 
 
 task :verify_rcov_cruise => [ "spec:cruise", "cucumber:cruise" ]
-RCov::VerifyTask.new( :verify_rcov_cruise ) do | t |
-  t.threshold = COVERAGE_THRESHOLD
+RSpec::Core::RakeTask.new do | t |
+  t.rcov = true
 end
 
 
