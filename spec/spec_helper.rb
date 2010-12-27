@@ -3,8 +3,7 @@ $: << File.join( File.dirname( __FILE__ ), "/../vendor/ruby-ifconfig-1.2/lib" )
 
 
 require "rubygems"
-require "spec"
-require "rspec_spinner"
+require "rspec"
 
 require "blocker"
 require "command/confidential-data-server"
