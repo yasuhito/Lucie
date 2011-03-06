@@ -62,8 +62,8 @@ module Command
 
 
       def update nodes
-        @updator.update_server_for nodes
-        nodes.collect do | each |
+        @failed_nodes += @updator.update_server_for( nodes )
+        ( nodes - @failed_nodes ).collect do | each |
           sleep 0.1 # sshd の MaxStartup の制限を回避
           t = start_update_for( each )
           [ t, each ]

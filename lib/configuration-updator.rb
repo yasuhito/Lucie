@@ -16,10 +16,24 @@ class ConfigurationUpdator
 
 
   def update_server_for nodes
-    repositories_for( nodes ).each do | each |
+    repos = []
+    failed_nodes = []
+
+    nodes.each do | each |
+      begin
+        repos << repository_for( each )
+      rescue
+        puts $!.to_s
+        failed_nodes << each
+      end
+    end
+
+    repos.uniq.each do | each |
       debug "Updating server repository #{ each } ..."
       @server.update each
     end
+
+    failed_nodes
   end
 
 
@@ -45,14 +59,11 @@ class ConfigurationUpdator
   end
 
 
-  def repositories_for nodes
-    list = nodes.collect do | each |
-      debug "Searching current configuration repository on node #{ each.name } ..."
-      repos = @client.repository_name_of( each )
-      debug "Current configuration repository on node #{ each.name } is #{ repos }"
-      repos
-    end
-    list.uniq
+  def repository_for node
+    debug "Searching current configuration repository on node #{ node.name } ..."
+    repos = @client.repository_name_of( node )
+    debug "Current configuration repository on node #{ node.name } is #{ repos }"
+    repos
   end
 end
 
