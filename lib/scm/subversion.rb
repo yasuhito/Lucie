@@ -6,7 +6,7 @@ class Scm
 
 
     def update_commands_for target, server_ip, repository
-      [ %{rsync -av -e \\"ssh -l #{ whoami } #{ SSH::OPTIONS }\\" #{ server_ip }:#{ repository } #{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }} ]
+      [ %{rsync -av --no-owner --no-group -e \\"ssh -l #{ whoami } #{ SSH::OPTIONS }\\" #{ server_ip }:#{ repository } #{ Configurator::Client::REPOSITORY_BASE_DIRECTORY }} ]
     end
 
 
@@ -16,7 +16,7 @@ class Scm
 
 
     def install_command target, server_ip, url
-      %{rsync -av -e \\"ssh -l #{ whoami } #{ SSH::OPTIONS }\\" #{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }}
+      %{rsync -av --no-owner --no-group -e \\"ssh -l #{ whoami } #{ SSH::OPTIONS }\\" #{ server_ip }:#{ Configurator::Server.clone_directory( url ) } #{ target }}
     end
 
 
