@@ -97,7 +97,7 @@ hostname #{ hostname }
 ifup lo
 [ -x /sbin/portmap ] && /sbin/portmap || true
 
-mount -t devpts devpts /dev/pts
+# mount -t devpts devpts /dev/pts
 mount -o remount,noatime,ro /dev/root /
 
 # start logging daemons

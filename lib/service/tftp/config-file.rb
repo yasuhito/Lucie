@@ -28,8 +28,10 @@ module Service
 
       def self.tftpd_default
         return <<-EOF
-RUN_DAEMON="yes"
-OPTIONS="-v -l -s #{ Configuration.tftp_root }"
+TFTP_OPTIONS="-v -l -s"
+TFTP_USERNAME="tftp"
+TFTP_DIRECTORY="#{ Configuration.tftp_root }"
+TFTP_ADDRESS="0.0.0.0:69"
 EOF
       end
 

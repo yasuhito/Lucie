@@ -54,6 +54,12 @@ class Build
   ##############################################################################
 
 
+  require "rbconfig"
+  def ruby
+    File.join( RbConfig::CONFIG[ "bindir" ], RbConfig::CONFIG[ "ruby_install_name" ] )
+  end
+
+
   def rake_with_logging command
     Lucie::Log.debug command
     ( @messenger || $stderr ).puts command if @options[ :verbose ]
@@ -68,12 +74,12 @@ class Build
 
 
   def build_command
-    %{sudo ruby -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ build_argv }; Rake.application.run"}
+    %{sudo #{ ruby } -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ build_argv }; Rake.application.run"}
   end
 
 
   def install_kernel_command
-    %{sudo ruby -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ install_kernel_argv }; Rake.application.run"}
+    %{sudo #{ ruby } -I#{ require_path } -e "require 'installer'; #{ set_env }; #{ setup_logging }; #{ install_kernel_argv }; Rake.application.run"}
   end
 
 

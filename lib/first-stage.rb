@@ -148,7 +148,6 @@ class FirstStage
     <<-EOF
 deb http://#{ apt_package_server }/#{ Service::Approx::DEBIAN_REPOSITORY } #{ @suite } main contrib non-free
 deb http://#{ apt_package_server }/#{ Service::Approx::SECURITY_REPOSITORY } #{ @suite }/updates main contrib non-free
-deb http://#{ apt_package_server }/#{ Service::Approx::VOLATILE_REPOSITORY } #{ @suite }/volatile main contrib non-free
 EOF
   end
 

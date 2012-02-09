@@ -92,7 +92,9 @@ module Command
 
 
     def setup_ssh_forward_agent
-      run %{sudo ruby -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
+      require "rbconfig"
+      ruby = File.join( RbConfig::CONFIG[ "bindir" ], RbConfig::CONFIG[ "ruby_install_name" ] )
+      run %{sudo #{ ruby } -pi -e "gsub( /.*ForwardAgent.*/, '    ForwardAgent yes' )" /etc/ssh/ssh_config}, @debug_options
     end
 
 

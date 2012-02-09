@@ -48,7 +48,7 @@ module SSH::Path
     elsif user_ssh_key_pair_exist?
       user_ssh_home
     else
-      raise "No ssh keypair found!"
+      raise "No ssh keypair found in #{ lucie_ssh_home } nor #{ user_ssh_home }!"
     end
   end
 
@@ -70,7 +70,7 @@ module SSH::Path
 
 
   def home
-    @debug_options && @debug_options[ :home ] || File.expand_path( "~" )
+    @debug_options && @debug_options[ :home ] || ENV[ "LUCIE_USER" ] && File.expand_path( "~" + ENV[ "LUCIE_USER" ] ) || File.expand_path( "~" )
   end
 
 

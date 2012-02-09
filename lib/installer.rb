@@ -51,7 +51,7 @@ class Installer
     @http_proxy = nil
     @package_repository = DEFAULT_PACKAGE_REPOSITORY
     @arch = Lucie::Server.architecture
-    @suite = "lenny"
+    @suite = "squeeze"
   end
 
 

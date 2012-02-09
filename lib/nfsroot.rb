@@ -54,7 +54,7 @@ class Nfsroot < Rake::TaskLib
     @http_proxy = nil
     @package_repository = "http://cdn.debian.or.jp/debian"
     @root_password = "h29SP9GgVbLHE"
-    @suite = "lenny"
+    @suite = "squeeze"
   end
   
 
@@ -236,26 +236,31 @@ class Nfsroot < Rake::TaskLib
 
     AptGet.update apt_option, @messenger
     AptGet.apt( [ "--fix-missing", "install" ] + additional_packages, apt_option, @messenger )
+
+    # workaround to avoid zz-udate-grub error
+    run %{rm #{ target( "/etc/kernel/postinst.d/zz-update-grub" ) } }
+    AptGet.apt( [ "-f", "install" ], apt_option, @messenger )
+
     AptGet.clean apt_option, @messenger
   end
 
 
   def additional_packages
-    aufs_arch = case @arch
-                when "i386"
-                  "486"
-                when "i686"
-                  "686"
-                when "amd64"
-                  "amd64"
-                else
-                  raise "Invalid architecture: #{ @arch }"
-                end
+    linux_arch = case @arch
+                 when "i386"
+                   "486"
+                 when "i686"
+                   "686"
+                 when "amd64"
+                   "amd64"
+                 else
+                   raise "Invalid architecture: #{ @arch }"
+                 end
     [ "ruby", "reiserfsprogs", "discover", "module-init-tools",
       "udev", "console-tools", "psmisc", "file", "perl-modules",
       "libparse-recdescent-perl", "parted", "facter", "ssh",
       "initramfs-tools", "live-initramfs", "firmware-bnx2",
-      "firmware-bnx2x", "aufs-modules-2.6-#{ aufs_arch }" ]
+      "firmware-bnx2x", "linux-image-#{ linux_arch }" ]
   end
 
 
@@ -315,10 +320,11 @@ class Nfsroot < Rake::TaskLib
       run %{rm #{ target "/usr/sbin/update-initramfs" }}
       run "chroot #{ @target_directory } dpkg-divert --rename --remove /usr/sbin/update-initramfs"
     end
+    kernel_version = Dir.glob( File.join( @target_directory, "boot", "vmlinuz-*" ) ).map { | each | /vmlinuz\-(.*)/=~ each; $1 }.sort.first
     if @verbose
-      run "chroot #{ @target_directory } update-initramfs -k all -t -u -v"
+      run "chroot #{ @target_directory } update-initramfs -k #{ kernel_version } -t -u -v"
     else
-      run "chroot #{ @target_directory } update-initramfs -k all -t -u"
+      run "chroot #{ @target_directory } update-initramfs -k #{ kernel_version } -t -u"
     end
   end
 

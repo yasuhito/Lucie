@@ -123,7 +123,7 @@ EOF
     include Lucie::Utils
 
 
-    config "/etc/dhcp3/dhcpd.conf"
+    config "/etc/dhcp/dhcpd.conf"
     prerequisite "dhcp3-server"
 
 

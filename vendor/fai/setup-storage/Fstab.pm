@@ -87,6 +87,9 @@ sub create_fstab_line {
 sub get_fstab_key {
   my ($device_name, $key_type) = @_;
 
+  # Lucie hack
+  return $device_name;
+
   ("uuid" eq $key_type) or ("label" eq $key_type) or ("device" eq $key_type) or
     &FAI::internal_error("Invalid key type $key_type");
 

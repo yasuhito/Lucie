@@ -52,11 +52,17 @@ class SSH::Nfsroot
   ############################################################################
 
 
+  require "rbconfig"
+  def ruby
+    File.join( RbConfig::CONFIG[ "bindir" ], RbConfig::CONFIG[ "ruby_install_name" ] )
+  end
+
+
   def setup_sshd
     sshd_config = path( "/etc/ssh/sshd_config" )
     run <<-COMMANDS, @debug_options
-ruby -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ sshd_config }
-ruby -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ sshd_config }
+#{ ruby } -pi -e 'gsub( /PermitRootLogin no/, "PermitRootLogin yes" )' #{ sshd_config }
+#{ ruby } -pi -e 'gsub( /.*PasswordAuthentication.*/, "PasswordAuthentication no" )' #{ sshd_config }
 echo "UseDNS no" >> #{ sshd_config }
 COMMANDS
   end

@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # $Id$
 #*********************************************************************
@@ -6,7 +6,7 @@
 # mount2dir -- mount partitions to a directory using a fstab file
 #
 # This script is part of FAI (Fully Automatic Installation)
-# (c) 2001 by Thomas Lange, lange@informatik.uni-koeln.de
+# (c) 2001-2010 by Thomas Lange, lange@informatik.uni-koeln.de
 # Universitaet zu Koeln
 #
 #*********************************************************************
@@ -24,12 +24,12 @@
 # `/usr/share/common-licences/GPL' in the Debian GNU/Linux distribution
 # or on the World Wide Web at http://www.gnu.org/copyleft/gpl.html.  You
 # can also obtain it by writing to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #*********************************************************************
 
 # examples:
-# mount new created partitions to /tmp/target
-# mount2dir /tmp/target /tmp/fstab 1
+# mount new created partitions to /target
+# mount2dir /target /tmp/fstab 1
 #
 # root filesystem already mounted. Found a fstab inside. Now mount
 # the remaining partitons
@@ -46,7 +46,7 @@ moptions=$4 # if set, use only this mount option (mostly -r)
 # exit if too few parameters given
 [ "$fstab" ] || {
     echo "Too few parameters."
-    echo "usage: mount2dir targetdir fstab [ fscheck mopt ]"
+    echo "Usage: mount2dir targetdir fstab [ fscheck mopt ]"
     exit 1
 }
 
@@ -63,20 +63,33 @@ while read device mountpoint fstype mopt dummy; do
     esac
 
     [ "$mountpoint" == "none" ]  && continue
+    [ "$fstype" == "swap" ]  && continue
+    [ "$fstype" == "proc" ]  && continue
+    [ "$fstype" == "usbfs" ]  && continue
+    [ "$fstype" == "sysfs" ]  && continue
+    [ "$fstype" == "tmpfs" ]  && continue
+    [ "$fstype" == "devpts" ]  && continue
 
     case $device in
 	""|\#*) continue ;;
 
-	/dev/*)
+	/dev/*|LABEL=*|UUID=*)
 
 	    # overwrite mount options
 	    mopt="-o $mopt"
 	    [ "$moptions" ] && mopt="-o $moptions"
-	    [ -d $target/$mountpoint ] || mkdir -p $target$mountpoint
-	    [ $verbose ] && echo "mounting $device to $target$mountpoint type: $fstype opt: $mopt"
-	    # should we fsck the partition first ?
+	    mkdir -p $target$mountpoint
+	    if [ $debug ]; then
+		echo "Mounting $device to $target$mountpoint type: $fstype opt: $mopt"
+	    else
+		[ $verbose ] && echo "Mounting $device to $target$mountpoint"
+	    fi
+	    # should we fsck the partition first?
 	    [ "$fscheck" = 1 ] && fsck -nt $fstype $device
-	    mount -t $fstype $mopt $device $target$mountpoint
+	    mount -t $fstype -o noatime $mopt $device $target$mountpoint || exit 4
+	    if [ "$mountpoint" = "/" ] ; then
+	      mkdir -p $target/var/lock $target/var/run 2>/dev/null
+	    fi
     esac
 done
 

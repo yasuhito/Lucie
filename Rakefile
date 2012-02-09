@@ -1,9 +1,9 @@
 require "rubygems"
 
 require "cucumber/rake/task"
-require "hanna/rdoctask"
 require "rake"
 require "rake/clean"
+require "rdoc/task"
 require "rspec/core/rake_task"
 
 

@@ -11,7 +11,7 @@ class Dpkg
 
 
   def installed? package
-    result = FileTest.file?( "/var/lib/dpkg/info/#{ package }.md5sums" )
+    result = FileTest.file?( "/var/lib/dpkg/info/#{ package }.list" )
     debug ( result ? "Checking #{ package } ... installed" : "Checking #{ package } ... not installed" )
     result
   end

@@ -65,9 +65,7 @@ module Service
 
 
     def maybe_reconfigure_tftpd
-      unless tftpd_configured?
-        sudo_write config_path, ConfigFile.tftpd_default
-      end
+      sudo_write config_path, ConfigFile.tftpd_default
     end
 
 

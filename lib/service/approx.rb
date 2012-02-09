@@ -13,7 +13,6 @@ module Service
     PORT = 9999
     DEBIAN_REPOSITORY = "debian"
     SECURITY_REPOSITORY = "security"
-    VOLATILE_REPOSITORY = "volatile"
 
 
     config "/etc/approx/approx.conf"
@@ -42,7 +41,6 @@ module Service
       write_file config_path, <<-EOF, @debug_options.merge( :sudo => true )
 #{ DEBIAN_REPOSITORY }          #{ debian_repository }
 #{ SECURITY_REPOSITORY }        http://security.debian.org/debian-security
-#{ VOLATILE_REPOSITORY }        http://volatile.debian.org/debian-volatile
 EOF
     end
   end

@@ -53,7 +53,7 @@ class NfsrootBase < Rake::TaskLib
 
   def set_defaults
     @arch = Lucie::Server.architecture
-    @suite = "lenny"
+    @suite = "squeeze"
   end
 
 
