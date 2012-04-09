@@ -124,7 +124,7 @@ EOF
 
 
     config "/etc/dhcp/dhcpd.conf"
-    prerequisite "dhcp3-server"
+    prerequisite "isc-dhcp3-server"
 
 
     def setup nodes
