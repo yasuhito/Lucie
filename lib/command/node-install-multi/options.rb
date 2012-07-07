@@ -58,6 +58,13 @@ module Command
 
       separator
 
+      add_option( :long_option => "--kernel-options",
+                  :short_option => "-o",
+                  :argument => "[OPTIONS]",
+                  :description => "Kernel options used for installations." )
+
+      separator
+
       add_option( :long_option => "--help",
                   :short_option => "-h",
                   :description => "Show this help message." )

@@ -31,7 +31,7 @@ default lucie
 
 label lucie
 kernel #{ INSTALLER_KERNEL }
-append initrd=#{ initrd } ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ @nfsroot } boot=live hostname=#{ @node.name }
+append initrd=#{ initrd } ip=dhcp devfs=nomount root=/dev/nfs nfsroot=#{ @nfsroot } boot=live hostname=#{ @node.name } #{ $KERNEL_OPTIONS }
 EOF
   end
 

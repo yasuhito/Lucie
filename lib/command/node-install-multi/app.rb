@@ -146,6 +146,7 @@ module Command
 
       def parse
         @node_options = Command::NodeInstallMulti::Parser.new( @argv, @global_options ).parse
+        $KERNEL_OPTIONS = @global_options.kernel_options
       end
     end
   end
